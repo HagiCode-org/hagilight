@@ -91,7 +91,7 @@ plugins: [hagilight({
 
 Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
 
-RSS is optional and belongs to the consuming site. Hagilight uses an RSS alternate link (`rel="alternate"`, `type="application/rss+xml"`) from the finalized Starlight `head` configuration. A consumer can explicitly override it when its feed plugin does not publish that metadata:
+RSS is enabled by default. With Astro's `site` set, Hagilight generates `/rss.xml` using `@astrojs/rss`, adds a feed alternate link to the head, and links to it in Quick Links. The feed contains non-draft Starlight docs, sorted by explicit `lastUpdated` dates when available; undated pages are included without a publication date. The example site builds a working feed from its dated pages. Set `rss: { enabled: false }` to disable generation, for instance when another plugin owns the feed. If the site already declares an RSS alternate link (`rel="alternate"`, `type="application/rss+xml"`) in Starlight's `head`, Hagilight uses it instead of generating a feed. A consumer can explicitly override the footer link:
 
 ```js
 starlight({
@@ -107,7 +107,7 @@ starlight({
 });
 ```
 
-The explicit RSS override takes precedence over the configured alternate link. If neither is available, the default RSS entry is omitted. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
+The explicit RSS override takes precedence over the configured alternate link. An Astro `site` is required to generate RSS; without one, disable RSS or configure a feed link in Starlight's `head`. Use `links: { removeLinks: { quick: ['rss'] } }` to hide the RSS entry. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
 
 ## Starlight Header and language chooser
 
