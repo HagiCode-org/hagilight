@@ -53,7 +53,9 @@ hagicodePromotion: false
 ---
 ```
 
-The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. Related sites render as links only (no description text); their names and URLs are bundled from Docs' footer catalog. Entries marked `supportsLocalePath: true` receive the active locale path (currently the main site, OpenSpec, OmniRoute, and Design). Pass `relatedSites: []` to omit them or supply an array to replace them. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog. Route and label overrides and additional entries can also be passed through `links`:
+The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. Ecosystem Sites also includes HagiTask and the AI calculator. Related sites render as links only (no description text); their names and URLs are bundled from Docs' footer catalog. Entries marked `supportsLocalePath: true` receive the active locale path (currently the main site, OpenSpec, OmniRoute, and Design). Pass `relatedSites: []` to omit the bundled list or supply an array to replace it. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog.
+
+Use `removeLinks` to remove entries by stable ID independently from Ecosystem Sites, Quick Links, and Community. Append quick or community links with `extraLinks.quick` and `extraLinks.community`; explicit IDs are recommended for consumer entries. Append ecosystem sites with `extraLinks.relatedSites`. Existing `relatedSites` replacement, legacy quick/community additions without IDs, and route/label overrides remain supported:
 
 ```js
 plugins: [hagilight({
@@ -63,17 +65,49 @@ plugins: [hagilight({
     overrides: {
       blog: { href: '/news/', label: { 'en-US': 'News' } },
     },
-    extraLinks: {
-      quick: [{ href: '/install/', label: 'Install' }],
+    removeLinks: {
+      relatedSites: ['hagitask'],
+      quick: ['downloadClient'],
+      community: ['qqGroup'],
     },
-    relatedSites: [
-      { id: 'product', name: 'Product site', url: 'https://example.com/', supportsLocalePath: true },
-    ],
+    extraLinks: {
+      quick: [{ id: 'install', href: '/install/', label: { 'en-US': 'Install' } }],
+      community: [{
+        id: 'community-chat',
+        href: 'https://chat.example.com/',
+        label: 'Community chat',
+        external: true,
+      }],
+      relatedSites: [{
+        id: 'product',
+        name: { 'en-US': 'Product site' },
+        description: { 'en-US': 'Our product website.' },
+        url: 'https://example.com/',
+      }],
+    },
   },
 })]
 ```
 
-The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides localized shared link data to consumer-owned Starlight headers and is used by Hagilight's default Header. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. Related sites matching the current site or any displayed footer link are omitted, as are duplicate destinations. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
+Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
+
+RSS is optional and belongs to the consuming site. Hagilight uses an RSS alternate link (`rel="alternate"`, `type="application/rss+xml"`) from the finalized Starlight `head` configuration. A consumer can explicitly override it when its feed plugin does not publish that metadata:
+
+```js
+starlight({
+  head: [{
+    tag: 'link',
+    attrs: { rel: 'alternate', type: 'application/rss+xml', href: '/feeds/site.xml' },
+  }],
+  plugins: [hagilight({
+    links: {
+      overrides: { rss: { href: '/feeds/custom.xml' } },
+    },
+  })],
+});
+```
+
+The explicit RSS override takes precedence over the configured alternate link. If neither is available, the default RSS entry is omitted. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
 
 ## Starlight Header and language chooser
 
@@ -102,7 +136,33 @@ const isNotFound = entryId === '404' || entryId.endsWith('/404');
 {isNotFound ? <HagilightNotFoundHero /> : <MySiteHero />}
 ```
 
-On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog is Simplified Chinese (`root` / `zh-CN`), English (`en-US`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
+### Shared Starlight locale map
+
+Import the shared locale map and pass it to Starlight's standard `locales` setting:
+
+```js
+import starlight from '@astrojs/starlight';
+import { locales } from '@hagicode/hagilight-starlight/locales';
+
+starlight({
+  title: 'My docs',
+  locales,
+});
+```
+
+The map preserves Hagilight's example route keys, native labels, and language tags. To select or customize entries, create a site-owned map rather than mutating the shared export:
+
+```js
+const siteLocales = {
+  root: locales.root,
+  'en-us': { ...locales['en-us'], label: 'English (US)' },
+  'it-IT': { label: 'Italiano', lang: 'it-IT' },
+};
+```
+
+Pass `siteLocales` as `locales`; add the corresponding translated docs to the Starlight content collection, since locale configuration alone does not create page content.
+
+On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog follows the shared locale map: Simplified Chinese (`root` / `zh-CN`), English (`en-us` / `en-US`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
 
 To compose the shared Header into a custom override, disable automatic registration and import it directly:
 
