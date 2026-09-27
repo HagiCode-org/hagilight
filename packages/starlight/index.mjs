@@ -85,12 +85,20 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 }
 
 export default function hagilight(options = {}) {
-  const googleAnalyticsMeasurementId = resolveProvider(options.analytics?.googleAnalytics, {
+  if (!options || typeof options !== 'object' || Array.isArray(options)) {
+    throw new TypeError('Hagilight Starlight options must be an object.');
+  }
+  if (options.analytics !== undefined
+    && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
+    throw new TypeError('Hagilight analytics options must be an object.');
+  }
+  const analytics = options.analytics ?? {};
+  const googleAnalyticsMeasurementId = resolveProvider(analytics.googleAnalytics, {
     name: 'Google Analytics',
     idKey: 'measurementId',
     pattern: GOOGLE_ID_PATTERN,
   });
-  const fiftyOneLaId = resolveProvider(options.analytics?.fiftyOneLa, {
+  const fiftyOneLaId = resolveProvider(analytics.fiftyOneLa, {
     name: '51LA',
     idKey: 'siteId',
     pattern: FIFTY_ONE_LA_ID_PATTERN,
