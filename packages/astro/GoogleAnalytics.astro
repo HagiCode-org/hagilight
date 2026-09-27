@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { measurementId } = Astro.props;
+if (!measurementId?.trim()) throw new Error('GoogleAnalytics requires a measurementId prop.');
 const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
 ---
 

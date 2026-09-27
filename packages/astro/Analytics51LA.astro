@@ -4,6 +4,7 @@ interface Props {
 }
 
 const { siteId } = Astro.props;
+if (!siteId?.trim()) throw new Error('Analytics51LA requires a siteId prop.');
 ---
 
 {import.meta.env.PROD && (
