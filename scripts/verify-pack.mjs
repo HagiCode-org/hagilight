@@ -2,7 +2,15 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 for (const [workspace, required] of [
-  ['@hagicode/hagilight', ['Copyright.astro', 'PromotoBanner.astro', 'promotions.ts', 'promoto-banner.ts']],
+  ['@hagicode/hagilight', [
+    'Copyright.astro',
+    'PromotoBanner.astro',
+    'GoogleAnalytics.astro',
+    'Analytics51LA.astro',
+    'site-links.ts',
+    'promotions.ts',
+    'promoto-banner.ts',
+  ]],
   ['@hagicode/hagilight-starlight', ['index.mjs', 'Footer.astro', 'PromotoFooter.astro']],
 ]) {
   const directory = workspace === '@hagicode/hagilight' ? 'astro' : 'starlight';
