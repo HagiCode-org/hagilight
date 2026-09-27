@@ -48,6 +48,7 @@ export interface RelatedSite {
   name: LocalizedText;
   url: string;
   description?: LocalizedText;
+  supportsLocalePath?: boolean;
 }
 
 export interface SiteLinksOptions {
@@ -322,8 +323,8 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
   const relatedIds = new Set<string>();
   const relatedUrls = new Set<string>();
   const relatedSites = (options.relatedSites ?? docsRelatedSites).flatMap((site) => {
-    const href = site.id === 'hagicode-main' && !options.relatedSites
-      ? marketingPath(locale, '/')
+    const href = site.supportsLocalePath
+      ? new URL(`${locale}/`, site.url.endsWith('/') ? site.url : `${site.url}/`).toString()
       : site.url;
     const normalizedUrl = normalizeUrl(href);
     if (site.id === options.siteId || renderedUrls.has(normalizedUrl)

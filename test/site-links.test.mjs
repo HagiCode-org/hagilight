@@ -42,10 +42,29 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
   assert.equal(links.relatedSites[0].name, 'HagiCode Main Site');
   assert.equal(links.relatedSites[0].description, 'Primary product entry.');
   assert.equal(links.relatedSites[0].href, 'https://www.hagicode.com/en-US/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'openspec-docs').href,
+    'https://openspec.hagicode.com/en-US/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'omniroute-docs').href,
+    'https://omniroute.hagicode.com/en-US/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'awesome-design-gallery').href,
+    'https://design.hagicode.com/en-US/');
   assert.deepEqual(links.filings.map(({ href }) => href), [
     'https://beian.miit.gov.cn/',
     'http://www.beian.gov.cn/portal/registerSystemInfo',
   ]);
+});
+
+test('uses localized paths for marked related sites and leaves other sites unchanged', () => {
+  const links = resolveSiteLinks('zh-Hant');
+
+  assert.equal(links.relatedSites.find(({ id }) => id === 'openspec-docs').href,
+    'https://openspec.hagicode.com/zh-Hant/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'omniroute-docs').href,
+    'https://omniroute.hagicode.com/zh-Hant/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'awesome-design-gallery').href,
+    'https://design.hagicode.com/zh-Hant/');
+  assert.equal(links.relatedSites.find(({ id }) => id === 'newbe-blog').href,
+    'https://newbe.hagicode.com/');
 });
 
 test('uses consumer-owned localized destinations and labels', () => {

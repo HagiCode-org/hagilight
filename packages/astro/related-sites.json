@@ -25,7 +25,8 @@
       "pt-BR": "Entrada principal do produto.",
       "ru-RU": "Основной вход в продукт."
     },
-    "url": "https://www.hagicode.com/"
+    "url": "https://www.hagicode.com/",
+    "supportsLocalePath": true
   },
   {
     "id": "newbe-blog",
@@ -165,7 +166,8 @@
       "pt-BR": "Galeria com designs web de IA de destaque.",
       "ru-RU": "Галерея выразительных AI web-дизайнов."
     },
-    "url": "https://design.hagicode.com/"
+    "url": "https://design.hagicode.com/",
+    "supportsLocalePath": true
   },
   {
     "id": "soul-builder",
@@ -237,7 +239,8 @@
       "pt-BR": "Documentação do OpenSpec",
       "ru-RU": "Документация OpenSpec"
     },
-    "url": "https://openspec.hagicode.com/"
+    "url": "https://openspec.hagicode.com/",
+    "supportsLocalePath": true
   },
   {
     "id": "omniroute-docs",
@@ -253,6 +256,7 @@
       "pt-BR": "Documentação do OmniRoute",
       "ru-RU": "Документация OmniRoute"
     },
-    "url": "https://omniroute.hagicode.com/"
+    "url": "https://omniroute.hagicode.com/",
+    "supportsLocalePath": true
   }
 ]
