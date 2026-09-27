@@ -1,15 +1,10 @@
-export const DEFAULT_LANGUAGE_OPTIONS = [
-  { code: 'root', label: '简体中文', lang: 'zh-CN' },
-  { code: 'en-US', label: 'English', lang: 'en-US' },
-  { code: 'zh-Hant', label: '繁體中文', lang: 'zh-Hant' },
-  { code: 'fr-FR', label: 'Français', lang: 'fr-FR' },
-  { code: 'de-DE', label: 'Deutsch', lang: 'de-DE' },
-  { code: 'es-ES', label: 'Español (España)', lang: 'es-ES' },
-  { code: 'ja-JP', label: '日本語', lang: 'ja-JP' },
-  { code: 'ko-KR', label: '한국어', lang: 'ko-KR' },
-  { code: 'pt-BR', label: 'Português (Brasil)', lang: 'pt-BR' },
-  { code: 'ru-RU', label: 'Русский', lang: 'ru-RU' },
-];
+import { locales } from './locales.mjs';
+
+export const DEFAULT_LANGUAGE_OPTIONS = Object.entries(locales).map(([code, locale]) => ({
+  code,
+  label: locale.label,
+  lang: locale.lang,
+}));
 
 const normalizeLang = (lang) => lang?.replaceAll('_', '-').toLowerCase();
 
