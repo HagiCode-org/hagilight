@@ -13,34 +13,55 @@ const resolvedLinks = resolveSiteLinks(locale, links);
 ---
 
 <DefaultFooter />
-<nav class="hagilight-site-links" aria-label={resolvedLinks.labels.quickLinks}>
+<div class="hagilight-site-links">
   {resolvedLinks.relatedSites.length > 0 && (
     <section>
       <h2>{resolvedLinks.labels.relatedSites}</h2>
-      <ul>
-        {resolvedLinks.relatedSites.map((site) => (
-          <li><a href={site.href}>{site.name}</a></li>
-        ))}
-      </ul>
+      <nav aria-label={resolvedLinks.labels.navigation.relatedSites}>
+        <ul>
+          {resolvedLinks.relatedSites.map((site) => (
+            <li>
+              <a href={site.href} target={site.target} rel={site.rel}>
+                {site.name}
+                {site.description && <span class="hagilight-site-description">{site.description}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </section>
   )}
   <section>
     <h2>{resolvedLinks.labels.quickLinks}</h2>
-    <ul>
-      {resolvedLinks.quick.map((link) => (
-        <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
-      ))}
-    </ul>
+    <nav aria-label={resolvedLinks.labels.navigation.quickLinks}>
+      <ul>
+        {resolvedLinks.quick.map((link) => (
+          <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
+        ))}
+      </ul>
+    </nav>
   </section>
   <section>
     <h2>{resolvedLinks.labels.community}</h2>
-    <ul>
-      {resolvedLinks.community.map((link) => (
-        <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
-      ))}
-    </ul>
+    <nav aria-label={resolvedLinks.labels.navigation.community}>
+      <ul>
+        {resolvedLinks.community.map((link) => (
+          <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
+        ))}
+      </ul>
+    </nav>
   </section>
-</nav>
+  <nav class="hagilight-filings" aria-label={resolvedLinks.labels.navigation.filings}>
+    {resolvedLinks.filings.map((link) => (
+      <a
+        href={link.href}
+        target={link.target}
+        rel={link.rel}
+        aria-label={link.ariaLabel}
+      >{link.label}</a>
+    ))}
+  </nav>
+</div>
 <p class="hagilight-copyright"><Copyright name="HagiCode" /></p>
 
 <style>
@@ -51,6 +72,10 @@ const resolvedLinks = resolveSiteLinks(locale, links);
     margin: 2rem auto 1rem;
     max-width: 72rem;
     padding-inline: 1rem;
+  }
+
+  .hagilight-site-links section {
+    min-width: 0;
   }
 
   .hagilight-site-links h2 {
@@ -75,6 +100,22 @@ const resolvedLinks = resolveSiteLinks(locale, links);
 
   .hagilight-site-links a:hover {
     color: var(--sl-color-white);
+  }
+
+  .hagilight-site-description {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: var(--sl-text-xs);
+  }
+
+  .hagilight-filings {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1.5rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+    padding-top: 1rem;
   }
 
   .hagilight-copyright {

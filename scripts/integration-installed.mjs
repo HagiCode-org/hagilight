@@ -34,14 +34,34 @@ function countOccurrences(value, needle) {
 function verifyDefaultLinksAndNoAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   for (const link of [
-    'https://www.hagicode.com/desktop/',
+    'https://www.hagicode.com/en-US/',
+    'https://www.hagicode.com/en-US/desktop/',
+    'https://www.hagicode.com/en-US/about/',
+    'https://docs.hagicode.com/en-US/blog/',
     'https://github.com/HagiCode-org/site',
-    'https://docs.hagicode.com/',
+    'https://discord.gg/qY662sJK',
+    'https://github.com/HagiCode-org/site/issues',
+    'mailto:support@hagicode.com',
+    'https://qm.qq.com/q/Fwb0o094kw',
+    'https://cost.hagicode.com',
+    'https://store.steampowered.com/app/4625540/Hagicode/',
+    'https://docs.hagicode.com/en-US/installation/docker-compose/',
+    'https://docs.hagicode.com/en-US/product-overview/',
+    'https://docs.hagicode.com/blog/rss.en-US.xml',
+    'https://newbe.hagicode.com/',
+    'https://index.hagicode.com/data/',
+    'https://builder.hagicode.com/',
+    'https://status.hagicode.com/',
+    'https://design.hagicode.com/',
+    'https://soul.hagicode.com/',
+    'https://trait.hagicode.com/',
+    'https://beian.miit.gov.cn/',
+    'http://www.beian.gov.cn/portal/registerSystemInfo',
   ]) {
     assert.ok(html.includes(link), `Expected built footer to include ${link}`);
   }
   assert.ok(html.includes('Quick links'));
-  assert.ok(html.includes('Community &amp; support') || html.includes('Community & support'));
+  assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
   assert.match(
     html,
     /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
