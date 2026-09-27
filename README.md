@@ -35,7 +35,7 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
-The static HagiCode introduction at the end of each article is enabled by default and is controlled independently from the floating banner. Disable it site-wide with `hagicodePromotion: { enabled: false }`; an article's optional `hagicodePromotion` boolean can override that default:
+The static HagiCode introduction at the end of each article is enabled by default and is controlled independently from the floating banner. It includes the product screenshot, complete overview, three feature descriptions, and localized copy for Simplified Chinese, English, Traditional Chinese, Japanese, Korean, German, French, Spanish, Brazilian Portuguese, and Russian. Disable it site-wide with `hagicodePromotion: { enabled: false }`; an article's optional `hagicodePromotion` boolean can override that default:
 
 ```js
 plugins: [hagilight({
@@ -78,6 +78,29 @@ The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagili
 ## Starlight Header and language chooser
 
 The plugin registers a shared Header by default. It keeps Starlight's site title, configured search, social links, and theme control, and adds localized links from the `header` group. A site that already defines `components.Header` gets a setup error instead of having its Header silently replaced. Keep the site Header with `hagilight({ header: { enabled: false } })`; this opt-out does not change Footer or Head registration.
+
+### Starlight not-found page
+
+The plugin registers a 404-specific Hero by default. It keeps Starlight's 404 title, translated guidance, and normal site shell, then adds a translated home link under the site's base path. Other pages continue to use Starlight's default Hero. Static hosts must be configured to serve the generated `404.html` for missing routes; Hagilight does not configure host fallback behavior.
+
+If a site already owns `components.Hero`, disable the automatic override:
+
+```js
+plugins: [hagilight({ notFoundPage: { enabled: false } })]
+```
+
+To include Hagilight's 404 treatment in a custom Hero, disable automatic registration and render the exported component on 404 entries:
+
+```astro
+---
+import HagilightNotFoundHero from '@hagicode/hagilight-starlight/NotFoundHero';
+
+const entryId = Astro.locals.starlightRoute.entry.id;
+const isNotFound = entryId === '404' || entryId.endsWith('/404');
+---
+
+{isNotFound ? <HagilightNotFoundHero /> : <MySiteHero />}
+```
 
 On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog is Simplified Chinese (`root` / `zh-CN`), English (`en-US`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
 
