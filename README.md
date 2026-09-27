@@ -73,13 +73,84 @@ import HagilightHeader from '@hagicode/hagilight-starlight/Header';
 <HagilightHeader links={{ overrides: { blog: { href: '/news/' } } }} />
 ```
 
-Google Analytics and 51LA are independently opt-in. Supply a provider ID to enable it; setting `enabled: true` without the required ID fails plugin setup. The scripts are emitted only for production pages (Google Analytics is skipped on `/404`), and no Docs tracking IDs are included:
+### Reading width and AI disclosures
+
+Hagilight adds a desktop wide/narrow control beside Starlight's page title. Wide is the default on first visit; narrow leaves Starlight's existing content width unchanged. The selection is stored under the `hagilight-content-width` key and restored by a small head script before the page is painted. The control is hidden below Starlight's desktop breakpoint.
+
+AI notices are disabled unless enabled in the plugin options. `sourceLocale` defaults to `root`; translation notices are omitted on that locale. Notices use the active Starlight language when a translation is available and otherwise fall back to English. A translated notice links to its source only when a matching docs entry exists, and that URL includes the configured site base path.
+Sites with a custom Starlight `Head` must render Starlight's configured head entries (for example, by composing `@astrojs/starlight/components/Head.astro`) so the early width-preference script runs.
+
+Starlight's docs collection is consumer-defined, so add the exported optional schema when using disclosure frontmatter. Existing schema fields can be combined with the Hagilight fields:
+
+```ts
+import { defineCollection } from 'astro:content';
+import { docsLoader } from '@astrojs/starlight/loaders';
+import { docsSchema } from '@astrojs/starlight/schema';
+import { z } from 'astro/zod';
+import { aiDisclosureSchema } from '@hagicode/hagilight-starlight/ai-disclosure-schema';
+
+const siteSchema = z.object({ category: z.string().optional() });
+export const collections = {
+  docs: defineCollection({
+    loader: docsLoader(),
+    schema: docsSchema({ extend: siteSchema.extend(aiDisclosureSchema.shape) }),
+  }),
+};
+```
+
+Configure inherited values independently. Both flags default to `false`; a frontmatter value, including `false`, overrides its corresponding site default:
+
+```js
+plugins: [hagilight({
+  aiDisclosures: {
+    isAITranslation: true,
+    isAIAuthor: true,
+    sourceLocale: 'root',
+  },
+})]
+```
+
+```md
+---
+title: Translated guide
+isAITranslation: false
+---
+
+This guide inherits the AI-assistance notice and explicitly suppresses the translation notice.
+```
+
+An omitted flag inherits the site default. Invalid option types or non-boolean frontmatter values fail validation. The exported `PageTitle`, `MarkdownContent`, and `ContentLayoutToggle` components are available for sites with existing Starlight overrides. Set the corresponding `contentComponents` option to `false` to keep that override, then compose the Hagilight component:
+
+```js
+plugins: [hagilight({
+  contentComponents: { pageTitle: false, markdownContent: false },
+  aiDisclosures: { isAITranslation: true, sourceLocale: 'root' },
+})]
+```
+
+```astro
+---
+import DefaultPageTitle from '@astrojs/starlight/components/PageTitle.astro';
+import ContentLayoutToggle from '@hagicode/hagilight-starlight/ContentLayoutToggle';
+import HagilightMarkdownContent from '@hagicode/hagilight-starlight/MarkdownContent';
+---
+
+<DefaultPageTitle />
+<ContentLayoutToggle />
+<HagilightMarkdownContent aiDisclosures={{ isAITranslation: true, sourceLocale: 'root' }}>
+  <slot />
+</HagilightMarkdownContent>
+```
+
+Google Analytics and 51LA default to the Docs IDs (`G-EN03FMT2Q4` and `L6b88a5yK4h2Xnci`) and load only on production pages (Google Analytics is skipped on `/404`). Override either ID or disable either provider explicitly:
 
 ```js
 plugins: [hagilight({
   analytics: {
     googleAnalytics: { measurementId: 'G-XXXXXXXXXX' },
     fiftyOneLa: { siteId: 'your-51la-site-id' },
+    // googleAnalytics: { enabled: false },
+    // fiftyOneLa: { enabled: false },
   },
 })]
 ```
