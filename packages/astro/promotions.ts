@@ -154,9 +154,9 @@ function localeCandidates(locale: string | null | undefined): string[] {
   const normalized = canonical.toLowerCase();
   const candidates = [normalized, normalized.split('-')[0] ?? normalized];
   if (normalized.startsWith('zh-hant') || ['zh-tw', 'zh-hk', 'zh-mo'].includes(normalized)) {
-    candidates.push('zh-hant', 'zh');
+    candidates.push('zh-hant', 'zh-cn', 'zh');
   } else if (normalized.startsWith('zh')) {
-    candidates.push('zh-cn', 'zh');
+    candidates.push('zh-cn', 'zh-hant', 'zh');
   }
   candidates.push('en-us', 'en');
   return [...new Set(candidates)];
