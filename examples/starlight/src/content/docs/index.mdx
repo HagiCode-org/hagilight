@@ -9,3 +9,212 @@ This page uses the shared Astro component:
 <Copyright name="HagiCode" />
 
 The Starlight plugin also adds the same component to the page footer.
+
+## Shared components
+
+Hagilight is a small set of reusable components for Astro and Starlight sites.
+The packages are published separately so a site can choose the shared Astro
+components, the Starlight integration, or both.
+
+### Astro components
+
+Import a component in the frontmatter of an Astro page or MDX document, then
+use it like any other component:
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+The promotion component loads active campaigns from the public Index feed. It
+uses the current page locale to select translated text, and falls back to
+English when a translation is unavailable.
+
+### A site-provided fallback
+
+A site can provide its own localized fallback for visitors when no remote
+campaign is active. Keep the text and destination relevant to your own site:
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: 'What is new on our site',
+    description: 'Read the latest release notes and product updates.',
+    ctaLabel: 'Read the news',
+    link: '/news/',
+  }}
+/>
+```
+
+The fallback is optional. Without one, an unavailable campaign leaves no
+empty banner on the page.
+
+## Starlight integration
+
+The `@hagicode/hagilight-starlight` plugin keeps the default Starlight footer
+and adds the shared copyright. The promotion banner is enabled by default;
+disable it when a site wants to keep the footer integration but not show
+promotions:
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+The demo explicitly enables the banner. Since the example page has enough
+content to scroll, the footer starts outside the viewport and the banner can
+be seen at the bottom of the page.
+
+## Banner behavior
+
+The banner stays near the bottom of the viewport while the footer is out of
+view. When the footer enters the viewport, the banner fades away and stops
+intercepting pointer and keyboard interaction. It returns when the footer
+leaves the viewport unless it has been dismissed.
+
+Visitors can dismiss the active campaign. The dismissal is remembered in the
+browser for that campaign set, while changed campaign content can be shown
+again. The close button remains available on both wide and narrow screens.
+
+When more than one campaign is available, the banner shows one card at a time.
+Use the previous and next buttons to move between cards, or pause automatic
+rotation. The page respects the browser's reduced-motion preference by
+disabling automatic rotation while leaving manual navigation available.
+
+## Markdown examples
+
+This page also demonstrates common Markdown patterns that are useful in a
+documentation site.
+
+### Emphasis and links
+
+Text can be **bold**, *italic*, or ~~struck through~~. Inline code such as
+`promoto.enabled` stays visually distinct from regular prose. Links can point
+to [Astro](https://astro.build/) or to another [section on this page](#tables).
+
+### Lists
+
+An unordered list is useful for related items:
+
+- Components are authored as `.astro` files.
+- The packages publish their source for Astro to compile.
+- Starlight sites can opt out of the promotion banner.
+
+Ordered lists work well for a sequence:
+
+1. Install the packages alongside Astro and Starlight.
+2. Add the Starlight plugin to the site's configuration.
+3. Build the site and review the generated pages.
+
+Lists can also be nested:
+
+- Package contents
+  - Astro components
+  - Starlight overrides
+- Example site
+  - Demo configuration
+  - Documentation pages
+
+### Blockquotes
+
+> Keep reusable components independent of any one site's routes and copy.
+>
+> A consuming site can provide its own fallback when it needs one.
+
+### Code blocks
+
+The plugin can be enabled explicitly in an Astro configuration:
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'My documentation',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+JSON configuration data can be shown in its own fenced block:
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### Tables
+
+Tables make package responsibilities easy to scan:
+
+| Package | Intended use | Main entry |
+| --- | --- | --- |
+| `@hagicode/hagilight` | Shared Astro components | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Starlight footer integration | `hagilight()` |
+
+#### Banner controls
+
+| Control | Action |
+| --- | --- |
+| Close | Dismiss the current promotion set |
+| Previous | Show the previous active campaign |
+| Next | Show the next active campaign |
+| Pause | Stop automatic rotation |
+
+### Task lists
+
+A simple checklist can track a documentation change:
+
+- [x] Add a shared component example.
+- [x] Document the plugin option.
+- [ ] Add a site-specific fallback when the site has localized campaign copy.
+
+### Horizontal rule
+
+---
+
+## Build and packaging
+
+The workspace includes a demo site as well as the two packages. The demo uses
+the same workspace packages during local development, and the installed-package
+check builds a temporary consumer using the generated tarballs.
+
+The package check confirms that every exported component and its required
+browser-side source is present in the published archive. The installed build
+also checks both plugin states: enabled builds contain the banner mount and
+script, while disabled builds keep the existing footer and omit promotion
+markup and code.
+
+These checks help catch missing files early. They also make the intended
+behavior visible to maintainers who change the component or update the example
+configuration later.
+
+## Questions and next steps
+
+When using Hagilight on a site that already provides its own Starlight footer,
+remember that Starlight allows only one footer override. Compose the shared
+footer component into the site's own override rather than registering both
+overrides at once.
+
+Docs has its own promotion banner and fallback content. Until Docs adopts the
+shared component in a separate change, enabling both implementations on that
+site may display duplicate banners.
+
+For a new Astro site, start with the shared component imports and add the
+Starlight plugin only when using Starlight. Keep campaign content, localized
+fallback copy, and site navigation in the consuming site rather than baking
+those details into a reusable package.
