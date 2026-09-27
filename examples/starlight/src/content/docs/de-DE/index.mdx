@@ -1,0 +1,211 @@
+---
+title: Hagilight-Beispiel
+lastUpdated: 2026-09-27
+isAITranslation: true
+isAIAuthor: true
+---
+
+import Copyright from '@hagicode/hagilight/Copyright';
+
+Diese Seite verwendet die gemeinsame Astro-Komponente:
+
+<Copyright name="HagiCode" />
+
+Das Starlight-Plugin fügt dieselbe Komponente auch zur Fußzeile hinzu.
+
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>Die generierte 404-Seite öffnen</a>
+
+Das Plugin erzeugt sprachspezifische Feeds: den [englischen RSS-Feed](/rss.xml) als Standard sowie den [deutschen RSS-Feed](/rss.de-DE.xml) für diese Seite.
+
+## Gemeinsame Komponenten
+
+Hagilight ist eine kleine Sammlung wiederverwendbarer Komponenten für Astro- und Starlight-Seiten. Die Pakete werden separat veröffentlicht, sodass eine Seite die gemeinsamen Astro-Komponenten, die Starlight-Integration oder beides wählen kann.
+
+### Astro-Komponenten
+
+Importieren Sie eine Komponente im Frontmatter einer Astro-Seite oder eines MDX-Dokuments und verwenden Sie sie wie jede andere Komponente:
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+Die Werbekomponente lädt aktive Kampagnen aus dem öffentlichen Index-Feed. Sie verwendet die aktuelle Seitensprache, um den übersetzten Text auszuwählen, und fällt auf Englisch zurück, wenn keine Übersetzung vorhanden ist.
+
+### Ein vom Site bereitgestellter Fallback
+
+Eine Site kann Besuchern einen eigenen lokalisierten Fallback anbieten, wenn keine Remote-Kampagne aktiv ist. Halten Sie Text und Ziel zu Ihrer eigenen Site passend:
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: 'Was es neu auf unserer Site gibt',
+    description: 'Lesen Sie die neuesten Release-Notizen und Produktupdates.',
+    ctaLabel: 'Neuigkeiten lesen',
+    link: '/news/',
+  }}
+/>
+```
+
+Der Fallback ist optional. Ohne ihn bleibt bei einer nicht verfügbaren Kampagne kein leeres Banner auf der Seite.
+
+## Starlight-Integration
+
+Das Plugin `@hagicode/hagilight-starlight` behält die standardmäßige Starlight-Fußzeile bei und fügt das gemeinsame Copyright hinzu. Das Werbebanner ist standardmäßig aktiviert; deaktivieren Sie es, wenn eine Site die Fußzeilen-Integration behalten, aber keine Werbung anzeigen möchte:
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+Die Demo aktiviert das Banner ausdrücklich. Da die Beispielseite genug Inhalt zum Scrollen hat, beginnt die Fußzeile außerhalb des Viewports und das Banner ist am unteren Seitenrand sichtbar.
+
+### KI-Offenlegung im Frontmatter
+
+Die Demo aktiviert beide Offenlegungen standardmäßig und verwendet `root` als Quellsprache. Fügen Sie die optionalen booleschen Felder zum Frontmatter einer Seite hinzu, um diese Standardwerte zu überschreiben:
+
+```md
+---
+title: Übersetztes Handbuch
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+Ein weggelassenes Feld erbt die Plugin-Einstellung. Setzen Sie ein Feld auf `false`, um nur diese Offenlegung auszublenden:
+
+```md
+---
+title: Handbuch ohne KI-Autor-Hinweis
+isAIAuthor: false
+---
+```
+
+Diese Seite demonstriert den Überschreib: die übersetzte `en-us`-Demoseite erbt beide Hinweise. Übersetzungshinweise werden in der Quellsprache ausgeblendet und verlinken zur Quellseite, sofern vorhanden. Das Inhaltsschema der Demo enthält die optionalen Felder von Hagilight über `aiDisclosureSchema`; Konsumenten benötigen dieselbe Schema-Erweiterung, um sie zu nutzen.
+
+## Banner-Verhalten
+
+Das Banner bleibt in der Nähe des unteren Viewport-Rands, solange die Fußzeile nicht sichtbar ist. Wenn die Fußzeile in den Viewport eintritt, blendet sich das Banner aus und hört auf, Zeiger- und Tastaturinteraktionen abzufangen. Es kehrt zurück, wenn die Fußzeile den Viewport verlässt, sofern es nicht abgelehnt wurde.
+
+Besucher können die aktive Kampagne ablehnen. Die Ablehnung wird im Browser für diesen Kampagnen-Satz gemerkt, während geänderter Kampagneninhalt erneut angezeigt werden kann. Der Schließen-Button bleibt auf breiten und schmalen Bildschirmen verfügbar.
+
+Wenn mehrere Kampagnen verfügbar sind, zeigt das Banner jeweils nur eine Karte. Nutzen Sie die Schaltflächen „Zurück“ und „Weiter“, um zwischen den Karten zu wechseln, oder pausieren Sie die automatische Rotation. Die Seite respektiert die Einstellung „Reduzierte Bewegung“ des Browsers, indem sie die automatische Rotation deaktiviert und dabei die manuelle Navigation beibehält.
+
+## Markdown-Beispiele
+
+Diese Seite demonstriert auch gängige Markdown-Muster, die in einer Dokumentationsseite nützlich sind.
+
+### Hervorhebung und Links
+
+Text kann **fett**, *kursiv* oder ~~durchgestrichen~~ sein. Inline-Code wie `promoto.enabled` bleibt optisch vom Fließtext getrennt. Links können auf [Astro](https://astro.build/) oder auf einen [Abschnitt dieser Seite](#tabellen) verweisen.
+
+### Listen
+
+Eine unsortierte Liste eignet sich für verwandte Elemente:
+
+- Komponenten werden als `.astro`-Dateien verfasst.
+- Die Pakete veröffentlichen ihren Quellcode zur Kompilierung durch Astro.
+- Starlight-Seiten können das Werbebanner abwählen.
+
+Sortierte Listen eignen sich für eine Abfolge:
+
+1. Installieren Sie die Pakete zusammen mit Astro und Starlight.
+2. Fügen Sie das Starlight-Plugin zur Konfiguration der Site hinzu.
+3. Erstellen Sie die Site und prüfen Sie die generierten Seiten.
+
+Listen können auch verschachtelt werden:
+
+- Paketinhalt
+  - Astro-Komponenten
+  - Starlight-Überschreibungen
+- Beispiel-Site
+  - Demo-Konfiguration
+  - Dokumentationsseiten
+
+### Zitate
+
+> Halten Sie wiederverwendbare Komponenten unabhängig von den Routen und Texten einer bestimmten Site.
+>
+> Eine konsumierende Site kann bei Bedarf einen eigenen Fallback bereitstellen.
+
+### Codeblöcke
+
+Das Plugin kann in einer Astro-Konfiguration explizit aktiviert werden:
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'Meine Dokumentation',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+JSON-Konfigurationsdaten können in einem eigenen Block angezeigt werden:
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### Tabellen
+
+Tabellen machen die Zuständigkeiten der Pakete leicht erfassbar:
+
+| Paket | Vorgesehener Nutzen | Haupteintrag |
+| --- | --- | --- |
+| `@hagicode/hagilight` | Gemeinsame Astro-Komponenten | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Starlight-Fußzeilen-Integration | `hagilight()` |
+
+#### Banner-Steuerung
+
+| Steuerung | Aktion |
+| --- | --- |
+| Schließen | Aktuellen Werbesatz ablehnen |
+| Zurück | Vorherige aktive Kampagne anzeigen |
+| Weiter | Nächste aktive Kampagne anzeigen |
+| Pause | Automatische Rotation stoppen |
+
+### Aufgabenlisten
+
+Eine einfache Checkliste kann eine Dokumentationsänderung verfolgen:
+
+- [x] Ein Beispiel für eine gemeinsame Komponente hinzufügen.
+- [x] Die Plugin-Option dokumentieren.
+- [ ] Einen Site-spezifischen Fallback hinzufügen, sobald die Site lokalisierten Kampagnentext hat.
+
+### Horizontale Linie
+
+---
+
+## Build und Paketierung
+
+Der Workspace enthält eine Demo-Site sowie die beiden Pakete. Die Demo verwendet während der lokalen Entwicklung dieselben Workspace-Pakete, und die Installationprüfung baut einen temporären Konsumenten mit den erzeugten Tarballs.
+
+Die Paketprüfung stellt sicher, dass jede exportierte Komponente und ihr benötigter browserseitiger Quellcode im veröffentlichten Archiv vorhanden sind. Der installierte Build prüft zudem beide Plugin-Zustände: aktivierte Builds enthalten den Banner-Mount-Punkt und das Skript, während deaktivierte Builds die vorhandene Fußzeile behalten und Werbemarkup sowie Code weglassen.
+
+Diese Prüfungen helfen, fehlende Dateien früh zu erkennen. Sie machen das erwartete Verhalten auch für Maintainern sichtbar, die die Komponente später ändern oder die Beispielkonfiguration aktualisieren.
+
+## Fragen und nächste Schritte
+
+Bei der Verwendung von Hagilight auf einer Site, die bereits eine eigene Starlight-Fußzeile bereitstellt, beachten Sie, dass Starlight nur eine Fußzeilen-Überschreibung zulässt. Fügen Sie die gemeinsame Fußzeilenkomponente in die eigene Überschreibung der Site ein, anstatt beide Überschreibungen gleichzeitig zu registrieren.
+
+Docs hat ein eigenes Werbebanner und Fallback-Inhalte. Bis Docs die gemeinsame Komponente in einer separaten Änderung übernimmt, kann das Aktivieren beider Implementierungen auf dieser Site doppelte Banner anzeigen.
+
+Für eine neue Astro-Site beginnen Sie mit den Importen der gemeinsamen Komponenten und fügen das Starlight-Plugin erst hinzu, wenn Starlight verwendet wird. Halten Sie Kampagneninhalte, lokalisierten Fallback-Text und Site-Navigation in der konsumierenden Site, anstatt diese Details in ein wiederverwendbares Paket zu hartkodieren.

@@ -1,0 +1,211 @@
+---
+title: Hagilight 範例
+lastUpdated: 2026-09-27
+isAITranslation: true
+isAIAuthor: true
+---
+
+import Copyright from '@hagicode/hagilight/Copyright';
+
+本頁使用了共享的 Astro 元件：
+
+<Copyright name="HagiCode" />
+
+Starlight 外掛也會把同一個元件加到頁尾中。
+
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>開啟生成的 404 頁面</a>
+
+外掛會生成各語言的訂閱源：預設的 [英文 RSS 訂閱源](/rss.xml) 以及本頁的 [繁體中文 RSS 訂閱源](/rss.zh-Hant.xml)。
+
+## 共享元件
+
+Hagilight 是一組用於 Astro 與 Starlight 站點的可重用小元件。這些套件分別發布，站點可以依需求選擇共享的 Astro 元件、Starlight 整合，或兩者皆用。
+
+### Astro 元件
+
+在 Astro 頁面或 MDX 文件的 frontmatter 中匯入元件，然後像使用其他元件一樣使用它：
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+推廣元件會從公開的 Index 訂閱源載入目前活動活動。它會使用目前頁面語言來選擇譯文，當缺少譯文時回退到英文。
+
+### 站點提供的回退內容
+
+當沒有遠端活動可用時，站點可以為訪客提供自己的在地化回退。請保持文案與跳轉目標與你的站點相關：
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: '本站有什麼新內容',
+    description: '閱讀最新的發布說明與產品更新。',
+    ctaLabel: '查看動態',
+    link: '/news/',
+  }}
+/>
+```
+
+回退內容是選用的。若不提供，當活動不可用时頁面上不會出現空白橫幅。
+
+## Starlight 整合
+
+`@hagicode/hagilight-starlight` 外掛會保留預設的 Starlight 頁尾並追加共享版權資訊。推廣橫幅預設啟用；當站點希望保留頁尾整合但不展示推廣內容時，可以關閉它：
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+本範例明確啟用了橫幅。由於範例頁面內容足夠長可以捲動，頁尾會在視窗之外，因此可以在頁面底部看到橫幅。
+
+### AI 揭露 frontmatter
+
+本範例預設啟用兩項揭露，並使用 `root` 作為源語言。向頁面的 frontmatter 添加選用的布林欄位即可覆寫這些預設值：
+
+```md
+---
+title: 翻譯後的指南
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+省略的欄位會繼承外掛設定。將某個欄位設為 `false` 即可只隱藏該項揭露：
+
+```md
+---
+title: 不含 AI 作者聲明的指南
+isAIAuthor: false
+---
+```
+
+本頁示範了覆寫：翻譯後的 `en-us` 範例頁繼承了兩項聲明。翻譯聲明會在源語言頁面上隱藏，並在源頁面存在時連結到它。本範例的內容結構描述透過 `aiDisclosureSchema` 包含了 Hagilight 的選用欄位；消費方需要同樣的結構描述擴充才能使用它們。
+
+## 橫幅行為
+
+當頁尾不在視窗內時，橫幅會停留在視窗底部附近。當頁尾進入視窗時，橫幅淡出並停止攔截指標與鍵盤互動。當頁尾離開視窗時，除非已被關閉，否則橫幅會重新出現。
+
+訪客可以關閉目前活動。該關閉狀態會在瀏覽器中記住（針對該活動集合），而活動內容的變更仍會再次展示。關閉按鈕在寬螢幕和窄螢幕上都可用。
+
+當有多個活動可用時，橫幅一次只顯示一張卡片。使用上一個/下一個按鈕在卡片間切換，或暫停自動輪播。頁面會尊重瀏覽器的減弱動效偏好，在減弱動效時關閉自動輪播，但保留手動導覽。
+
+## Markdown 範例
+
+本頁還示範了文件站點中常用的 Markdown 寫法。
+
+### 強調與連結
+
+文字可以是 **加粗**、*斜體* 或 ~~刪除線~~。行內程式碼如 `promoto.enabled` 會與正文明顯區分。連結可以指向 [Astro](https://astro.build/)，也可以指向 [本頁的某節](#表格)。
+
+### 清單
+
+無序清單適合羅列相關項：
+
+- 元件以 `.astro` 檔案編寫。
+- 這些套件以原始碼形式發布，由 Astro 編譯。
+- Starlight 站點可以選擇退出推廣橫幅。
+
+有序清單適合表達一個序列：
+
+1. 與 Astro 和 Starlight 一起安裝這些套件。
+2. 將 Starlight 外掛加入站點設定。
+3. 建置站點並查看生成的頁面。
+
+清單也可以巢狀：
+
+- 套件內容
+  - Astro 元件
+  - Starlight 覆寫
+- 範例站點
+  - 範例設定
+  - 文件頁面
+
+### 引用塊
+
+> 讓可重用元件獨立於任何一個站點的路由與文案。
+>
+> 有需要的消費站點可以提供自己的回退內容。
+
+### 程式碼塊
+
+外掛可以在 Astro 設定中明確啟用：
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: '我的文件',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+JSON 設定資料可以在獨立的圍欄塊中展示：
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### 表格
+
+表格讓各套件的職責一目了然：
+
+| 套件 | 用途 | 主入口 |
+| --- | --- | --- |
+| `@hagicode/hagilight` | 共享 Astro 元件 | `Copyright`、`PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Starlight 頁尾整合 | `hagilight()` |
+
+#### 橫幅控制
+
+| 控制 | 動作 |
+| --- | --- |
+| 關閉 | 關閉目前推廣集合 |
+| 上一個 | 顯示上一個活動 |
+| 下一個 | 顯示下一個活動 |
+| 暫停 | 停止自動輪播 |
+
+### 任務清單
+
+一個簡單的清單可以追蹤文件變更：
+
+- [x] 添加共享元件範例。
+- [x] 記錄外掛選項。
+- [ ] 當站點擁有在地化活動文案時，添加站點專屬回退。
+
+### 分隔線
+
+---
+
+## 建置與打包
+
+工作區包含一個範例站點以及兩個套件。範例在本地開發時使用相同的 workspace 套件，而安裝套件檢查會使用生成的 tarball 建置一個臨時消費方。
+
+套件檢查會確認每個匯出的元件及其所需的瀏覽器端原始碼都存在於發布的歸檔中。安裝建置還會檢查兩種外掛狀態：啟用建置包含橫幅掛載點與腳本，而禁用建置保留既有頁尾並省略推廣標記與程式碼。
+
+這些檢查有助於盡早發現缺失檔案，也讓後續修改元件或更新範例設定的維護者能夠清楚了解預期行為。
+
+## 問題與後續
+
+在已經提供自訂 Starlight 頁尾的站點上使用 Hagilight 時，請記住 Starlight 只允許一個頁尾覆寫。應把共享頁尾元件組合進站點自己的覆寫中，而不是同時註冊兩個覆寫。
+
+Docs 站點有它自己的推廣橫幅與回退內容。在 Docs 透過另一次變更採用共享元件之前，在該站點上同時啟用兩套實作可能會顯示重複的橫幅。
+
+對於新的 Astro 站點，請從共享元件匯入開始，僅在使用 Starlight 時再添加 Starlight 外掛。把活動內容、在地化回退文案與站點導覽保留在消費站點中，而不是寫死在可重用套件裡。

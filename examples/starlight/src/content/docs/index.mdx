@@ -1,31 +1,28 @@
 ---
-title: Hagilight example
+title: Hagilight 示例
 lastUpdated: 2026-09-27
 isAIAuthor: false
 ---
 
 import Copyright from '@hagicode/hagilight/Copyright';
 
-This page uses the shared Astro component:
+本页使用了共享的 Astro 组件：
 
 <Copyright name="HagiCode" />
 
-The Starlight plugin also adds the same component to the page footer.
+Starlight 插件也会把同一个组件添加到页脚中。
 
-<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>Open the generated 404 page</a>
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>打开生成的 404 页面</a>
 
-The plugin generates language-specific feeds: the default [English RSS feed](/rss.xml) and the [Chinese RSS feed](/rss.zh-CN.xml) for this root-locale page.
+插件会生成各语言的订阅源：默认的 [英文 RSS 订阅源](/rss.xml) 以及本根语言页面的 [中文 RSS 订阅源](/rss.zh-CN.xml)。
 
-## Shared components
+## 共享组件
 
-Hagilight is a small set of reusable components for Astro and Starlight sites.
-The packages are published separately so a site can choose the shared Astro
-components, the Starlight integration, or both.
+Hagilight 是一组用于 Astro 与 Starlight 站点的可复用小组件。这些包分别发布，站点可以按需选择共享的 Astro 组件、Starlight 集成，或两者皆用。
 
-### Astro components
+### Astro 组件
 
-Import a component in the frontmatter of an Astro page or MDX document, then
-use it like any other component:
+在 Astro 页面或 MDX 文档的 frontmatter 中导入组件，然后像使用其他组件一样使用它：
 
 ```astro
 ---
@@ -37,36 +34,29 @@ import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
 <PromotoBanner locale="en-US" />
 ```
 
-The promotion component loads active campaigns from the public Index feed. It
-uses the current page locale to select translated text, and falls back to
-English when a translation is unavailable.
+推广组件会从公开的 Index 订阅源加载当前活动活动。它会使用当前页面语言来选择译文，当缺少译文时回退到英文。
 
-### A site-provided fallback
+### 站点提供的回退内容
 
-A site can provide its own localized fallback for visitors when no remote
-campaign is active. Keep the text and destination relevant to your own site:
+当没有远程活动可用时，站点可以为访客提供自己的本地化回退。请保持文案和跳转目标与你的站点相关：
 
 ```astro
 <PromotoBanner
   fallback={{
     id: 'site-news',
-    title: 'What is new on our site',
-    description: 'Read the latest release notes and product updates.',
-    ctaLabel: 'Read the news',
+    title: '本站有什么新内容',
+    description: '阅读最新的发布说明与产品更新。',
+    ctaLabel: '查看动态',
     link: '/news/',
   }}
 />
 ```
 
-The fallback is optional. Without one, an unavailable campaign leaves no
-empty banner on the page.
+回退内容是可选的。如果不提供，当活动不可用时页面上不会出现空白横幅。
 
-## Starlight integration
+## Starlight 集成
 
-The `@hagicode/hagilight-starlight` plugin keeps the default Starlight footer
-and adds the shared copyright. The promotion banner is enabled by default;
-disable it when a site wants to keep the footer integration but not show
-promotions:
+`@hagicode/hagilight-starlight` 插件会保留默认的 Starlight 页脚并追加共享版权信息。推广横幅默认启用；当站点希望保留页脚集成但不展示推广内容时，可以关闭它：
 
 ```js
 import hagilight from '@hagicode/hagilight-starlight';
@@ -74,99 +64,79 @@ import hagilight from '@hagicode/hagilight-starlight';
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
-The demo explicitly enables the banner. Since the example page has enough
-content to scroll, the footer starts outside the viewport and the banner can
-be seen at the bottom of the page.
+本示例显式启用了横幅。由于示例页面内容足够长可以滚动，页脚会在视口之外，因此可以在页面底部看到横幅。
 
-### AI disclosure frontmatter
+### AI 披露 frontmatter
 
-The demo enables both disclosures by default and uses `root` as the source
-locale. Add the optional boolean fields to a page's frontmatter to override
-those defaults:
+本示例默认启用两项披露，并使用 `root` 作为源语言。向页面的 frontmatter 添加可选的布尔字段即可覆盖这些默认值：
 
 ```md
 ---
-title: Translated guide
+title: 翻译后的指南
 isAITranslation: true
 isAIAuthor: true
 ---
 ```
 
-An omitted field inherits the plugin setting. Set a field to `false` to hide
-just that disclosure:
+省略的字段会继承插件设置。将某个字段设为 `false` 即可只隐藏该项披露：
 
 ```md
 ---
-title: Guide without an AI-author notice
+title: 不含 AI 作者声明的指南
 isAIAuthor: false
 ---
 ```
 
-This page demonstrates the override: its frontmatter sets `isAIAuthor: false`,
-while the translated `en-us` demo page inherits both notices. Translation
-notices are hidden on the source locale and link to the source page when it
-exists. The demo's content schema includes Hagilight's optional fields through
-`aiDisclosureSchema`; consumers need the same schema extension to use them.
+本页演示了覆盖：其 frontmatter 设置了 `isAIAuthor: false`，而翻译后的 `en-us` 示例页则继承了两项声明。翻译声明会在源语言页面上隐藏，并在源页面存在时链接到它。本示例的内容模式通过 `aiDisclosureSchema` 包含了 Hagilight 的可选字段；消费方需要同样的模式扩展才能使用它们。
 
-## Banner behavior
+## 横幅行为
 
-The banner stays near the bottom of the viewport while the footer is out of
-view. When the footer enters the viewport, the banner fades away and stops
-intercepting pointer and keyboard interaction. It returns when the footer
-leaves the viewport unless it has been dismissed.
+当页脚不在视口中时，横幅会停留在视口底部附近。当页脚进入视口时，横幅淡出并停止拦截指针与键盘交互。当页脚离开视口时，除非已被关闭，否则横幅会重新出现。
 
-Visitors can dismiss the active campaign. The dismissal is remembered in the
-browser for that campaign set, while changed campaign content can be shown
-again. The close button remains available on both wide and narrow screens.
+访客可以关闭当前活动。该关闭状态会在浏览器中记住（针对该活动集合），而活动内容的变更仍会再次展示。关闭按钮在宽屏和窄屏上都可用。
 
-When more than one campaign is available, the banner shows one card at a time.
-Use the previous and next buttons to move between cards, or pause automatic
-rotation. The page respects the browser's reduced-motion preference by
-disabling automatic rotation while leaving manual navigation available.
+当有多个活动可用时，横幅一次只显示一张卡片。使用上一个/下一个按钮在卡片间切换，或暂停自动轮播。页面会尊重浏览器的减弱动效偏好，在减弱动效时关闭自动轮播，但保留手动导航。
 
-## Markdown examples
+## Markdown 示例
 
-This page also demonstrates common Markdown patterns that are useful in a
-documentation site.
+本页还演示了文档站点中常用的 Markdown 写法。
 
-### Emphasis and links
+### 强调与链接
 
-Text can be **bold**, *italic*, or ~~struck through~~. Inline code such as
-`promoto.enabled` stays visually distinct from regular prose. Links can point
-to [Astro](https://astro.build/) or to another [section on this page](#tables).
+文本可以是 **加粗**、*斜体* 或 ~~删除线~~。行内代码如 `promoto.enabled` 会与正文明显区分。链接可以指向 [Astro](https://astro.build/)，也可以指向 [本页的某节](#表格)。
 
-### Lists
+### 列表
 
-An unordered list is useful for related items:
+无序列表适合罗列相关项：
 
-- Components are authored as `.astro` files.
-- The packages publish their source for Astro to compile.
-- Starlight sites can opt out of the promotion banner.
+- 组件以 `.astro` 文件编写。
+- 这些包以源码形式发布，由 Astro 编译。
+- Starlight 站点可以选择退出推广横幅。
 
-Ordered lists work well for a sequence:
+有序列表适合表达一个序列：
 
-1. Install the packages alongside Astro and Starlight.
-2. Add the Starlight plugin to the site's configuration.
-3. Build the site and review the generated pages.
+1. 与 Astro 和 Starlight 一起安装这些包。
+2. 将 Starlight 插件加入站点配置。
+3. 构建站点并查看生成的页面。
 
-Lists can also be nested:
+列表也可以嵌套：
 
-- Package contents
-  - Astro components
-  - Starlight overrides
-- Example site
-  - Demo configuration
-  - Documentation pages
+- 包内容
+  - Astro 组件
+  - Starlight 覆盖
+- 示例站点
+  - 示例配置
+  - 文档页面
 
-### Blockquotes
+### 引用块
 
-> Keep reusable components independent of any one site's routes and copy.
+> 让可复用组件独立于任何一个站点的路由与文案。
 >
-> A consuming site can provide its own fallback when it needs one.
+> 有需要的消费站点可以提供自己的回退内容。
 
-### Code blocks
+### 代码块
 
-The plugin can be enabled explicitly in an Astro configuration:
+插件可以在 Astro 配置中显式启用：
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -176,14 +146,14 @@ import hagilight from '@hagicode/hagilight-starlight';
 export default defineConfig({
   integrations: [
     starlight({
-      title: 'My documentation',
+      title: '我的文档',
       plugins: [hagilight({ promoto: { enabled: true } })],
     }),
   ],
 });
 ```
 
-JSON configuration data can be shown in its own fenced block:
+JSON 配置数据可以在独立的围栏块中展示：
 
 ```json
 {
@@ -193,64 +163,48 @@ JSON configuration data can be shown in its own fenced block:
 }
 ```
 
-### Tables
+### 表格
 
-Tables make package responsibilities easy to scan:
+表格让各包的职责一目了然：
 
-| Package | Intended use | Main entry |
+| 包 | 用途 | 主入口 |
 | --- | --- | --- |
-| `@hagicode/hagilight` | Shared Astro components | `Copyright`, `PromotoBanner` |
-| `@hagicode/hagilight-starlight` | Starlight footer integration | `hagilight()` |
+| `@hagicode/hagilight` | 共享 Astro 组件 | `Copyright`、`PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Starlight 页脚集成 | `hagilight()` |
 
-#### Banner controls
+#### 横幅控制
 
-| Control | Action |
+| 控制 | 动作 |
 | --- | --- |
-| Close | Dismiss the current promotion set |
-| Previous | Show the previous active campaign |
-| Next | Show the next active campaign |
-| Pause | Stop automatic rotation |
+| 关闭 | 关闭当前推广集合 |
+| 上一个 | 显示上一个活动 |
+| 下一个 | 显示下一个活动 |
+| 暂停 | 停止自动轮播 |
 
-### Task lists
+### 任务列表
 
-A simple checklist can track a documentation change:
+一个简单的清单可以跟踪文档变更：
 
-- [x] Add a shared component example.
-- [x] Document the plugin option.
-- [ ] Add a site-specific fallback when the site has localized campaign copy.
+- [x] 添加共享组件示例。
+- [x] 记录插件选项。
+- [ ] 当站点拥有本地化活动文案时，添加站点专属回退。
 
-### Horizontal rule
+### 分隔线
 
 ---
 
-## Build and packaging
+## 构建与打包
 
-The workspace includes a demo site as well as the two packages. The demo uses
-the same workspace packages during local development, and the installed-package
-check builds a temporary consumer using the generated tarballs.
+工作区包含一个示例站点以及两个包。示例在本地开发时使用相同的 workspace 包，而安装包检查会使用生成的 tarball 构建一个临时消费方。
 
-The package check confirms that every exported component and its required
-browser-side source is present in the published archive. The installed build
-also checks both plugin states: enabled builds contain the banner mount and
-script, while disabled builds keep the existing footer and omit promotion
-markup and code.
+包检查会确认每个导出的组件及其所需的浏览器端源码都存在于发布的归档中。安装构建还会检查两种插件状态：启用构建包含横幅挂载点与脚本，而禁用构建保留既有页脚并省略推广标记与代码。
 
-These checks help catch missing files early. They also make the intended
-behavior visible to maintainers who change the component or update the example
-configuration later.
+这些检查有助于尽早发现缺失文件，也让后续修改组件或更新示例配置的维护者能够清楚了解预期行为。
 
-## Questions and next steps
+## 问题与后续
 
-When using Hagilight on a site that already provides its own Starlight footer,
-remember that Starlight allows only one footer override. Compose the shared
-footer component into the site's own override rather than registering both
-overrides at once.
+在已经提供自定义 Starlight 页脚的站点上使用 Hagilight 时，请记住 Starlight 只允许一个页脚覆盖。应把共享页脚组件组合进站点自己的覆盖中，而不是同时注册两个覆盖。
 
-Docs has its own promotion banner and fallback content. Until Docs adopts the
-shared component in a separate change, enabling both implementations on that
-site may display duplicate banners.
+Docs 站点有它自己的推广横幅与回退内容。在 Docs 通过另一次变更采用共享组件之前，在该站点上同时启用两套实现可能会显示重复的横幅。
 
-For a new Astro site, start with the shared component imports and add the
-Starlight plugin only when using Starlight. Keep campaign content, localized
-fallback copy, and site navigation in the consuming site rather than baking
-those details into a reusable package.
+对于新的 Astro 站点，请从共享组件导入开始，仅在使用 Starlight 时再添加 Starlight 插件。把活动内容、本地化回退文案与站点导航保留在消费站点中，而不是写死在可复用包里。

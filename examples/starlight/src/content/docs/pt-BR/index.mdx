@@ -1,0 +1,211 @@
+---
+title: Exemplo Hagilight
+lastUpdated: 2026-09-27
+isAITranslation: true
+isAIAuthor: true
+---
+
+import Copyright from '@hagicode/hagilight/Copyright';
+
+Esta página usa o componente Astro compartilhado:
+
+<Copyright name="HagiCode" />
+
+O plugin Starlight também adiciona o mesmo componente ao rodapé da página.
+
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>Abrir a página 404 gerada</a>
+
+O plugin gera feeds por idioma: o [feed RSS em inglês](/rss.xml) por padrão e o [feed RSS em português](/rss.pt-BR.xml) para esta página.
+
+## Componentes compartilhados
+
+Hagilight é um pequeno conjunto de componentes reutilizáveis para sites Astro e Starlight. Os pacotes são publicados separadamente para que um site possa escolher os componentes Astro compartilhados, a integração Starlight, ou ambos.
+
+### Componentes Astro
+
+Importe um componente no frontmatter de uma página Astro ou de um documento MDX e use-o como qualquer outro componente:
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+O componente de promoção carrega as campanhas ativas do feed Index público. Ele usa o idioma da página atual para selecionar o texto traduzido e recorre ao inglês quando uma tradução não está disponível.
+
+### Um fallback fornecido pelo site
+
+Um site pode oferecer aos visitantes seu próprio fallback localizado quando nenhuma campanha remota está ativa. Mantenha o texto e o destino relevantes para o seu próprio site:
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: 'O que há de novo no nosso site',
+    description: 'Leia as últimas notas de versão e atualizações de produto.',
+    ctaLabel: 'Ler novidades',
+    link: '/news/',
+  }}
+/>
+```
+
+O fallback é opcional. Sem ele, uma campanha indisponível não deixa nenhum banner vazio na página.
+
+## Integração Starlight
+
+O plugin `@hagicode/hagilight-starlight` mantém o rodapé padrão do Starlight e adiciona o copyright compartilhado. O banner de promoção é ativado por padrão; desative-o quando um site quiser manter a integração do rodapé, mas não exibir promoções:
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+A demonstração ativa o banner explicitamente. Como a página de exemplo tem conteúdo suficiente para rolar, o rodapé começa fora da viewport e o banner pode ser visto no final da página.
+
+### Frontmatter de divulgação de IA
+
+A demonstração ativa ambas as divulgações por padrão e usa `root` como idioma de origem. Adicione os campos booleanos opcionais ao frontmatter de uma página para substituir esses padrões:
+
+```md
+---
+title: Guia traduzido
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+Um campo omitido herda a configuração do plugin. Defina um campo como `false` para ocultar apenas essa divulgação:
+
+```md
+---
+title: Guia sem aviso de autoria por IA
+isAIAuthor: false
+---
+```
+
+Esta página demonstra a substituição: a página de demonstração `en-us` traduzida herda ambos os avisos. Os avisos de tradução são ocultados no idioma de origem e vinculam à página de origem quando ela existe. O esquema de conteúdo da demonstração inclui os campos opcionais do Hagilight por meio de `aiDisclosureSchema`; os consumidores precisam da mesma extensão de esquema para usá-los.
+
+## Comportamento do banner
+
+O banner permanece próximo à parte inferior da viewport enquanto o rodapé não está visível. Quando o rodapé entra na viewport, o banner desaparece e para de interceptar a interação de ponteiro e teclado. Ele retorna quando o rodapé sai da viewport, a menos que tenha sido dispensado.
+
+Os visitantes podem dispensar a campanha ativa. O descarte é lembrado no navegador para aquele conjunto de campanhas, enquanto um conteúdo de campanha alterado pode ser exibido novamente. O botão de fechar permanece disponível em telas largas e estreitas.
+
+Quando mais de uma campanha está disponível, o banner mostra um cartão por vez. Use os botões anterior e próximo para mover entre os cartões ou pause a rotação automática. A página respeita a preferência de movimento reduzido do navegador desativando a rotação automática, mas mantendo a navegação manual disponível.
+
+## Exemplos de Markdown
+
+Esta página também demonstra padrões comuns de Markdown úteis em um site de documentação.
+
+### Ênfase e links
+
+O texto pode estar em **negrito**, *itálico* ou ~~tachado~~. Código em linha como `promoto.enabled` permanece visualmente distinto da prosa. Links podem apontar para [Astro](https://astro.build/) ou para uma [seção desta página](#tabelas).
+
+### Listas
+
+Uma lista não ordenada é útil para itens relacionados:
+
+- Os componentes são escritos como arquivos `.astro`.
+- Os pacotes publicam seu código-fonte para o Astro compilar.
+- Sites Starlight podem optar por sair do banner de promoção.
+
+Listas ordenadas funcionam bem para uma sequência:
+
+1. Instale os pacotes junto com Astro e Starlight.
+2. Adicione o plugin Starlight à configuração do site.
+3. Construa o site e revise as páginas geradas.
+
+Listas também podem ser aninhadas:
+
+- Conteúdo do pacote
+  - Componentes Astro
+  - Substituições Starlight
+- Site de exemplo
+  - Configuração de demonstração
+  - Páginas de documentação
+
+### Citações
+
+> Mantenha os componentes reutilizáveis independentes das rotas e textos de um site específico.
+>
+> Um site consumidor pode fornecer seu próprio fallback quando precisar.
+
+### Blocos de código
+
+O plugin pode ser ativado explicitamente em uma configuração Astro:
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'Minha documentação',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+Dados de configuração JSON podem ser exibidos em seu próprio bloco cercado:
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### Tabelas
+
+Tabelas tornam as responsabilidades de cada pacote fáceis de escanear:
+
+| Pacote | Uso pretendido | Entrada principal |
+| --- | --- | --- |
+| `@hagicode/hagilight` | Componentes Astro compartilhados | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Integração do rodapé Starlight | `hagilight()` |
+
+#### Controles do banner
+
+| Controle | Ação |
+| --- | --- |
+| Fechar | Dispensar o conjunto de promoções atual |
+| Anterior | Mostrar a campanha ativa anterior |
+| Próximo | Mostrar a próxima campanha ativa |
+| Pausar | Parar a rotação automática |
+
+### Listas de tarefas
+
+Uma lista de verificação simples pode acompanhar uma mudança de documentação:
+
+- [x] Adicionar um exemplo de componente compartilhado.
+- [x] Documentar a opção do plugin.
+- [ ] Adicionar um fallback específico do site quando o site tiver texto de campanha localizado.
+
+### Linha horizontal
+
+---
+
+## Construção e empacotamento
+
+O workspace inclui um site de demonstração bem como os dois pacotes. A demonstração usa os mesmos pacotes do workspace durante o desenvolvimento local, e a verificação do pacote instalado constrói um consumidor temporário usando os tarballs gerados.
+
+A verificação do pacote confirma que cada componente exportado e seu código-fonte necessário no navegador estão presentes no arquivo publicado. A construção instalada também verifica ambos os estados do plugin: construções ativadas contêm o ponto de montagem e o script do banner, enquanto as desativadas mantêm o rodapé existente e omitem a marcação e o código de promoção.
+
+Essas verificações ajudam a detectar arquivos ausentes cedo. Elas também tornam o comportamento pretendido visível aos mantenedores que alteram o componente ou atualizam a configuração de exemplo mais tarde.
+
+## Perguntas e próximos passos
+
+Ao usar o Hagilight em um site que já fornece seu próprio rodapé Starlight, lembre-se de que o Starlight permite apenas uma substituição de rodapé. Componha o componente de rodapé compartilhado na substituição própria do site em vez de registrar ambas as substituições de uma vez.
+
+O Docs tem seu próprio banner de promoção e conteúdo de fallback. Até que o Docs adote o componente compartilhado em uma mudança separada, ativar ambas as implementações naquele site pode exibir banners duplicados.
+
+Para um novo site Astro, comece com as importações de componentes compartilhados e adicione o plugin Starlight apenas ao usar o Starlight. Mantenha o conteúdo de campanha, o texto de fallback localizado e a navegação do site no site consumidor, em vez de incorporar esses detalhes em um pacote reutilizável.

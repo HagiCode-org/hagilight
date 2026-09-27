@@ -1,0 +1,211 @@
+---
+title: Exemple Hagilight
+lastUpdated: 2026-09-27
+isAITranslation: true
+isAIAuthor: true
+---
+
+import Copyright from '@hagicode/hagilight/Copyright';
+
+Cette page utilise le composant Astro partagé :
+
+<Copyright name="HagiCode" />
+
+Le plugin Starlight ajoute également ce même composant au pied de page.
+
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>Ouvrir la page 404 générée</a>
+
+Le plugin génère des flux par langue : le [flux RSS anglais](/rss.xml) par défaut et le [flux RSS français](/rss.fr-FR.xml) pour cette page.
+
+## Composants partagés
+
+Hagilight est un petit ensemble de composants réutilisables pour les sites Astro et Starlight. Les paquets sont publiés séparément afin qu'un site puisse choisir les composants Astro partagés, l'intégration Starlight, ou les deux.
+
+### Composants Astro
+
+Importez un composant dans le frontmatter d'une page Astro ou d'un document MDX, puis utilisez-le comme n'importe quel autre composant :
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+Le composant de promotion charge les campagnes actives depuis le flux Index public. Il utilise la langue de la page courante pour sélectionner le texte traduit et revient à l'anglais lorsqu'une traduction est absente.
+
+### Un repli fourni par le site
+
+Un site peut fournir son propre repli localisé aux visiteurs lorsqu'aucune campagne distante n'est active. Gardez le texte et la destination pertinents pour votre propre site :
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: 'Quoi de neuf sur notre site',
+    description: 'Lisez les dernières notes de version et mises à jour produit.',
+    ctaLabel: 'Lire les actualités',
+    link: '/news/',
+  }}
+/>
+```
+
+Le repli est facultatif. Sans lui, une campagne indisponible ne laisse aucune bannière vide sur la page.
+
+## Intégration Starlight
+
+Le plugin `@hagicode/hagilight-starlight` conserve le pied de page Starlight par défaut et ajoute le copyright partagé. La bannière de promotion est activée par défaut ; désactivez-la lorsqu'un site veut conserver l'intégration du pied de page mais ne pas afficher de promotions :
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+La démo active explicitement la bannière. Comme la page d'exemple contient assez de contenu pour défiler, le pied de page commence hors du viewport et la bannière est visible en bas de la page.
+
+### Frontmatter de divulgation IA
+
+La démo active les deux divulgations par défaut et utilise `root` comme langue source. Ajoutez les champs booléens optionnels au frontmatter d'une page pour remplacer ces valeurs par défaut :
+
+```md
+---
+title: Guide traduit
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+Un champ omis hérite du réglage du plugin. Mettez un champ à `false` pour masquer uniquement cette divulgation :
+
+```md
+---
+title: Guide sans mention d'auteur IA
+isAIAuthor: false
+---
+```
+
+Cette page démontre le remplacement : la page de démo `en-us` traduite hérite des deux mentions. Les mentions de traduction sont masquées sur la langue source et renvoient à la page source lorsqu'elle existe. Le schéma de contenu de la démo inclut les champs optionnels de Hagilight via `aiDisclosureSchema` ; les consommateurs ont besoin de la même extension de schéma pour les utiliser.
+
+## Comportement de la bannière
+
+La bannière reste près du bas du viewport tant que le pied de page est hors de vue. Lorsque le pied de page entre dans le viewport, la bannière disparaît et cesse d'intercepter les interactions pointeur et clavier. Elle revient lorsque le pied de page quitte le viewport, sauf si elle a été ignorée.
+
+Les visiteurs peuvent ignorer la campagne active. L'ignorance est mémorisée dans le navigateur pour cet ensemble de campagnes, tandis qu'un contenu de campagne modifié peut être affiché à nouveau. Le bouton de fermeture reste disponible sur les écrans larges comme étroits.
+
+Lorsque plusieurs campagnes sont disponibles, la bannière n'affiche qu'une carte à la fois. Utilisez les boutons précédent et suivant pour naviguer entre les cartes, ou mettez en pause la rotation automatique. La page respecte la préférence de mouvement réduit du navigateur en désactivant la rotation automatique tout en laissant la navigation manuelle disponible.
+
+## Exemples Markdown
+
+Cette page démontre également des motifs Markdown courants utiles dans un site de documentation.
+
+### Emphase et liens
+
+Le texte peut être **gras**, *italique* ou ~~barré~~. Le code en ligne tel que `promoto.enabled` reste visuellement distinct de la prose. Les liens peuvent pointer vers [Astro](https://astro.build/) ou vers une [section de cette page](#tableaux).
+
+### Listes
+
+Une liste non ordonnée est utile pour des éléments liés :
+
+- Les composants sont écrits sous forme de fichiers `.astro`.
+- Les paquets publient leur source pour qu'Astro la compile.
+- Les sites Starlight peuvent refuser la bannière de promotion.
+
+Les listes ordonnées conviennent bien à une séquence :
+
+1. Installez les paquets avec Astro et Starlight.
+2. Ajoutez le plugin Starlight à la configuration du site.
+3. Construisez le site et vérifiez les pages générées.
+
+Les listes peuvent aussi être imbriquées :
+
+- Contenu des paquets
+  - Composants Astro
+  - Remplacements Starlight
+- Site d'exemple
+  - Configuration de démo
+  - Pages de documentation
+
+### Citations
+
+> Gardez les composants réutilisables indépendants des routes et des textes d'un site particulier.
+>
+> Un site consommateur peut fournir son propre repli lorsqu'il en a besoin.
+
+### Blocs de code
+
+Le plugin peut être activé explicitement dans une configuration Astro :
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: 'Ma documentation',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+Des données de configuration JSON peuvent être affichées dans leur propre bloc :
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### Tableaux
+
+Les tableaux rendent les responsabilités des paquets faciles à parcourir :
+
+| Paquet | Usage prévu | Entrée principale |
+| --- | --- | --- |
+| `@hagicode/hagilight` | Composants Astro partagés | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Intégration du pied de page Starlight | `hagilight()` |
+
+#### Contrôles de la bannière
+
+| Contrôle | Action |
+| --- | --- |
+| Fermer | Ignorer l'ensemble de promotions actif |
+| Précédent | Afficher la campagne active précédente |
+| Suivant | Afficher la campagne active suivante |
+| Pause | Arrêter la rotation automatique |
+
+### Listes de tâches
+
+Une simple liste de contrôle peut suivre un changement de documentation :
+
+- [x] Ajouter un exemple de composant partagé.
+- [x] Documenter l'option du plugin.
+- [ ] Ajouter un repli spécifique au site lorsque celui-ci dispose de texte de campagne localisé.
+
+### Règle horizontale
+
+---
+
+## Construction et empaquetage
+
+L'espace de travail comprend un site de démonstration ainsi que les deux paquets. La démo utilise les mêmes paquets de l'espace de travail pendant le développement local, et la vérification du paquet installé construit un consommateur temporaire à l'aide des archives générées.
+
+La vérification du paquet confirme que chaque composant exporté et sa source côté navigateur requise sont présents dans l'archive publiée. La construction installée vérifie également les deux états du plugin : les constructions activées contiennent le point de montage et le script de la bannière, tandis que les constructions désactivées conservent le pied de page existant et omettent le balisage et le code de promotion.
+
+Ces vérifications aident à détecter tôt les fichiers manquants. Elles rendent également le comportement attendu visible aux mainteneurs qui modifient le composant ou mettent à jour la configuration d'exemple ultérieurement.
+
+## Questions et prochaines étapes
+
+Lors de l'utilisation de Hagilight sur un site qui fournit déjà son propre pied de page Starlight, rappelez-vous que Starlight n'autorise qu'un seul remplacement de pied de page. Composez le composant de pied de page partagé dans le remplacement propre au site plutôt que d'enregistrer les deux à la fois.
+
+Docs dispose de sa propre bannière de promotion et de son propre contenu de repli. Jusqu'à ce que Docs adopte le composant partagé dans un changement distinct, l'activation des deux implémentations sur ce site peut afficher des bannières en double.
+
+Pour un nouveau site Astro, commencez par les importations de composants partagés et n'ajoutez le plugin Starlight que lors de l'utilisation de Starlight. Conservez le contenu des campagnes, le texte de repli localisé et la navigation du site dans le site consommateur plutôt que de figer ces détails dans un paquet réutilisable.
