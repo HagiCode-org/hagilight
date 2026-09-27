@@ -21,6 +21,7 @@ export default defineConfig({
         'ru-RU': { label: 'Русский', lang: 'ru-RU' },
       },
       plugins: [hagilight({
+        hagicodePromotion: { enabled: true },
         promoto: { enabled: true },
         aiDisclosures: {
           isAITranslation: true,
