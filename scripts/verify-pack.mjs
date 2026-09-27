@@ -5,9 +5,11 @@ for (const [workspace, required] of [
   ['@hagicode/hagilight', [
     'Copyright.astro',
     'PromotoBanner.astro',
+    'logo.png',
     'GoogleAnalytics.astro',
     'Analytics51LA.astro',
     'site-links.ts',
+    'related-sites.json',
     'promotions.ts',
     'promoto-banner.ts',
   ]],

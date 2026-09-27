@@ -15,13 +15,16 @@
   "exports": {
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
+    "./logo.png": "./logo.png",
     "./site-links": "./site-links.ts",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
     "./Analytics51LA": "./Analytics51LA.astro"
   },
   "files": [
     "*.astro",
-    "*.ts"
+    "*.png",
+    "*.ts",
+    "*.json"
   ],
   "peerDependencies": {
     "astro": "^7.3.5"
