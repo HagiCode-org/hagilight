@@ -16,7 +16,7 @@ export type SiteLinkKey =
   | 'issueFeedback'
   | 'contactEmail'
   | 'qqGroup'
-  | 'steam'
+  | 'microsoftStore'
   | 'icpFiling'
   | 'publicSecurityFiling';
 
@@ -153,10 +153,11 @@ const translations = {
     'fr-FR': 'Groupe QQ 610394020', 'es-ES': 'Grupo QQ 610394020',
     'pt-BR': 'Grupo QQ 610394020', 'ru-RU': 'Группа QQ 610394020',
   },
-  steam: {
-    'zh-CN': 'Steam', 'zh-Hant': 'Steam', 'en-US': 'Steam', 'ja-JP': 'Steam',
-    'ko-KR': 'Steam', 'de-DE': 'Steam', 'fr-FR': 'Steam', 'es-ES': 'Steam',
-    'pt-BR': 'Steam', 'ru-RU': 'Steam',
+  microsoftStore: {
+    'zh-CN': 'Microsoft Store', 'zh-Hant': 'Microsoft Store', 'en-US': 'Microsoft Store',
+    'ja-JP': 'Microsoft Store', 'ko-KR': 'Microsoft Store', 'de-DE': 'Microsoft Store',
+    'fr-FR': 'Microsoft Store', 'es-ES': 'Microsoft Store', 'pt-BR': 'Microsoft Store',
+    'ru-RU': 'Microsoft Store',
   },
   icpFiling: '闽ICP备2026004153号-1',
   publicSecurityFiling: '闽公网安备35011102351148号',
@@ -178,7 +179,11 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
   issueFeedback: { label: translations.issueFeedback, href: 'https://github.com/HagiCode-org/site/issues', external: true },
   contactEmail: { label: translations.contactEmail, href: 'mailto:support@hagicode.com' },
   qqGroup: { label: translations.qqGroup, href: 'https://qm.qq.com/q/Fwb0o094kw', external: true },
-  steam: { label: translations.steam, href: 'https://store.steampowered.com/app/4625540/Hagicode/', external: true },
+  microsoftStore: {
+    label: translations.microsoftStore,
+    href: 'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
+    external: true,
+  },
   icpFiling: {
     label: translations.icpFiling,
     href: 'https://beian.miit.gov.cn/',
@@ -209,8 +214,8 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
 
 const groups: Record<LinkGroup, readonly SiteLinkKey[]> = {
   header: ['home', 'blog', 'support'],
-  quick: ['downloadClient', 'about', 'dockerCompose', 'productDocs', 'blogPosts', 'rss'],
-  community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup', 'costCalculator', 'steam'],
+  quick: ['downloadClient', 'microsoftStore', 'about', 'dockerCompose', 'productDocs', 'blogPosts', 'rss'],
+  community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup', 'costCalculator'],
   filings: ['icpFiling', 'publicSecurityFiling'],
 };
 

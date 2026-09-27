@@ -23,16 +23,18 @@ test('resolves localized links with nonempty fallback labels', () => {
 test('matches Docs footer destinations, order, and localized link copy', () => {
   const links = resolveSiteLinks('en-US');
   assert.deepEqual(links.quick.map(({ id }) => id), [
-    'downloadClient', 'about', 'dockerCompose', 'productDocs', 'blogPosts', 'rss',
+    'downloadClient', 'microsoftStore', 'about', 'dockerCompose', 'productDocs', 'blogPosts', 'rss',
   ]);
   assert.deepEqual(links.community.map(({ id }) => id), [
     'github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup',
-    'costCalculator', 'steam',
+    'costCalculator',
   ]);
   assert.deepEqual(links.relatedSites.map(({ id }) => id), [
     'hagicode-main', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
-    'awesome-design-gallery', 'soul-builder', 'trait-builder',
+    'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
   ]);
+  assert.equal(links.quick.find(({ id }) => id === 'microsoftStore').href,
+    'https://apps.microsoft.com/detail/9N3PM0N3SVDW');
   assert.equal(links.community.find(({ id }) => id === 'issueFeedback').href,
     'https://github.com/HagiCode-org/site/issues');
   assert.equal(links.community.find(({ id }) => id === 'contactEmail').href,

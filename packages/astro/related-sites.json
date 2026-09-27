@@ -222,5 +222,37 @@
       "ru-RU": "Соберите способности агента."
     },
     "url": "https://trait.hagicode.com/"
+  },
+  {
+    "id": "openspec-docs",
+    "name": {
+      "zh-CN": "OpenSpec 文档",
+      "zh-Hant": "OpenSpec 文件",
+      "en-US": "OpenSpec Docs",
+      "ja-JP": "OpenSpec ドキュメント",
+      "ko-KR": "OpenSpec 문서",
+      "de-DE": "OpenSpec-Dokumentation",
+      "fr-FR": "Documentation OpenSpec",
+      "es-ES": "Documentación de OpenSpec",
+      "pt-BR": "Documentação do OpenSpec",
+      "ru-RU": "Документация OpenSpec"
+    },
+    "url": "https://openspec.hagicode.com/"
+  },
+  {
+    "id": "omniroute-docs",
+    "name": {
+      "zh-CN": "OmniRoute 文档",
+      "zh-Hant": "OmniRoute 文件",
+      "en-US": "OmniRoute Docs",
+      "ja-JP": "OmniRoute ドキュメント",
+      "ko-KR": "OmniRoute 문서",
+      "de-DE": "OmniRoute-Dokumentation",
+      "fr-FR": "Documentation OmniRoute",
+      "es-ES": "Documentación de OmniRoute",
+      "pt-BR": "Documentação do OmniRoute",
+      "ru-RU": "Документация OmniRoute"
+    },
+    "url": "https://omniroute.hagicode.com/"
   }
 ]
