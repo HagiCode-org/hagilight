@@ -93,6 +93,8 @@ Removals apply to the defaults or replacement list before additions are appended
 
 RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination and now contains only English content; `/rss.en.xml` is its explicit alias. Other feeds use their configured language tags, for example `/rss.zh-CN.xml` for a `zh-CN` root locale. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
+On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.
+
 By default, feeds include documentation pages and articles under the locale-relative `blog/<article>` path. A `blog/` listing or `blog/index` page is treated as documentation. Configure the independent site-wide switches:
 
 ```js
