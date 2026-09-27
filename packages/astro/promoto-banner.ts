@@ -216,6 +216,7 @@ export function definePromotoBannerElement(): void {
       this.cards.forEach((card, index) => {
         const slide = document.createElement('article');
         slide.className = 'hagilight-promoto__slide';
+        slide.dataset.hasImage = String(Boolean(card.image));
         slide.setAttribute('aria-hidden', index === this.currentIndex ? 'false' : 'true');
         if (index !== this.currentIndex) slide.setAttribute('inert', '');
 

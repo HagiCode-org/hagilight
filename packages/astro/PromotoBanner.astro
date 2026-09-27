@@ -112,11 +112,15 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
 
   .hagilight-promoto__title,
   .hagilight-promoto__description {
+    display: -webkit-box;
+    overflow: hidden;
     margin: 0;
     color: var(--sl-color-text-high, #111827);
     font-size: var(--sl-text-sm);
     font-weight: 600;
     line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .hagilight-promoto__description {
@@ -230,13 +234,14 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     }
 
     .hagilight-promoto__slide {
-      grid-template-columns: minmax(0, 1fr) 4rem;
-      gap: 0.7rem;
-      padding: 0.85rem 3.5rem 0.85rem 0.85rem;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.5rem;
+      padding: 0.65rem 3.25rem 0.65rem 0.75rem;
     }
 
     .hagilight-promoto__copy {
-      grid-column: 1 / -1;
+      grid-column: 1;
+      grid-row: 1 / 3;
     }
 
     .hagilight-promoto__title {
@@ -244,31 +249,50 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     }
 
     .hagilight-promoto__description {
-      display: -webkit-box;
-      overflow: hidden;
       font-size: var(--sl-text-xs);
       font-weight: 500;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
     }
 
     .hagilight-promoto__image {
       grid-column: 2;
       grid-row: 1;
-      width: 4rem;
+      width: 3rem;
     }
 
     .hagilight-promoto__cta {
-      grid-column: 1 / -1;
-      width: 100%;
-      min-height: 2.3rem;
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 4rem;
+      min-height: 1.9rem;
+      padding-inline: 0.5rem;
+      font-size: var(--sl-text-xs);
+      overflow-wrap: anywhere;
+    }
+
+    .hagilight-promoto__slide[data-has-image='false'] {
+      grid-template-rows: auto;
+    }
+
+    .hagilight-promoto__slide[data-has-image='false'] .hagilight-promoto__copy,
+    .hagilight-promoto__slide[data-has-image='false'] .hagilight-promoto__cta {
+      grid-row: 1;
+    }
+
+    .hagilight-promoto__slide[data-has-image='false'] .hagilight-promoto__cta {
+      min-width: 4.5rem;
     }
 
     .hagilight-promoto__controls {
       justify-content: flex-start;
       flex-wrap: wrap;
       gap: 0.35rem;
-      padding: 0 0.85rem 0.85rem;
+      padding: 0 0.75rem 0.6rem;
+    }
+
+    .hagilight-promoto__control {
+      min-width: 2rem;
+      min-height: 2rem;
+      padding-inline: 0.5rem;
     }
   }
 
