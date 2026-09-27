@@ -2,8 +2,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 for (const [workspace, required] of [
-  ['@hagicode/hagilight', ['Copyright.astro']],
-  ['@hagicode/hagilight-starlight', ['index.mjs', 'Footer.astro']],
+  ['@hagicode/hagilight', ['Copyright.astro', 'PromotoBanner.astro', 'promotions.ts', 'promoto-banner.ts']],
+  ['@hagicode/hagilight-starlight', ['index.mjs', 'Footer.astro', 'PromotoFooter.astro']],
 ]) {
   const directory = workspace === '@hagicode/hagilight' ? 'astro' : 'starlight';
   const manifest = JSON.parse(readFileSync(`packages/${directory}/package.json`, 'utf8'));
