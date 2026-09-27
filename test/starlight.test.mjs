@@ -266,6 +266,7 @@ test('generates an RSS route and alternate link by default', () => {
   const routes = [];
   const [vite] = integrationVitePlugins(integrations[0], routes);
   const source = vite.load(vite.resolveId(optionsModuleId(updated.components.Footer)));
+  const footerSource = vite.load(vite.resolveId(updated.components.Footer));
   const options = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
 
   assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml', '/rss.[language].xml']);
@@ -273,6 +274,8 @@ test('generates an RSS route and alternate link by default', () => {
   assert.match(routes[1].entrypoint, /rss\.\[language\]\.xml\.ts$/);
   assert.equal(updated.head[0].attrs.href, 'https://example.com/rss.xml');
   assert.equal(options.rssFeedUrl, 'https://example.com/rss.xml');
+  assert.deepEqual(options.rssLocaleFeedUrls, {});
+  assert.match(footerSource, /rssLocaleFeedUrls=\{options\.rssLocaleFeedUrls\}/);
   const rssConfig = vite.load(vite.resolveId('virtual:hagilight-starlight/rss-config'));
   assert.deepEqual(JSON.parse(rssConfig.match(/^export default (.*);$/mu)[1]), {
     options: { includeDocs: true, includeBlog: true },
@@ -312,6 +315,8 @@ test('maps Chinese-root Starlight locales to safe unique feed filenames', () => 
   const [vite] = integrationVitePlugins(configured.integrations[0], routes);
   const source = vite.load(vite.resolveId('virtual:hagilight-starlight/rss-config'));
   const rssConfig = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+  const optionsSource = vite.load(vite.resolveId(optionsModuleId(configured.updated.components.Footer)));
+  const options = JSON.parse(optionsSource.match(/^export default (.*);$/mu)[1]);
 
   assert.deepEqual(rssConfig.locales, [
     { route: 'root', lang: 'zh-CN', filename: 'zh-CN' },
@@ -319,6 +324,10 @@ test('maps Chinese-root Starlight locales to safe unique feed filenames', () => 
     { route: 'zh-Hant', lang: 'zh-Hant', filename: 'zh-Hant' },
   ]);
   assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml', '/rss.[language].xml']);
+  assert.deepEqual(options.rssLocaleFeedUrls, {
+    'zh-CN': 'https://example.com/rss.zh-CN.xml',
+    'zh-Hant': 'https://example.com/rss.zh-Hant.xml',
+  });
   assert.throws(
     () => configure({}, {}, undefined, { locales: { root: { lang: 'en' }, 'en-us': { lang: 'en-US' } } }),
     /collide on the "en" feed filename/,

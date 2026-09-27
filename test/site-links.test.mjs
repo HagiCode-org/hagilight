@@ -61,6 +61,32 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
   ]);
 });
 
+test('shows the generated current-language RSS feed after the default RSS link', () => {
+  const links = resolveSiteLinks('zh-CN', {
+    rssFeedUrl: 'https://docs.example.com/rss.xml',
+    rssLocaleFeedUrl: 'https://docs.example.com/rss.zh-CN.xml',
+  });
+
+  assert.deepEqual(links.quick.slice(4, 7).map(({ id, label, href }) => ({ id, label, href })), [
+    { id: 'blogPosts', label: '博客文章', href: 'https://docs.hagicode.com/blog/' },
+    { id: 'rss', label: 'RSS 订阅', href: 'https://docs.example.com/rss.xml' },
+    {
+      id: 'rssLocale',
+      label: '当前语言 RSS',
+      href: 'https://docs.example.com/rss.zh-CN.xml',
+    },
+  ]);
+  assert.ok(!resolveSiteLinks('zh-CN', {
+    rssFeedUrl: '/rss.xml',
+    rssLocaleFeedUrl: '/rss.zh-CN.xml',
+    removeLinks: { quick: ['rss'] },
+  }).quick.some(({ id }) => id === 'rssLocale'));
+  assert.throws(
+    () => resolveSiteLinks('zh-CN', { rssLocaleFeedUrl: 'javascript:alert(1)' }),
+    /Unsupported link protocol/,
+  );
+});
+
 test('uses localized paths for marked related sites and leaves other sites unchanged', () => {
   const links = resolveSiteLinks('zh-Hant');
 
