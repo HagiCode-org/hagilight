@@ -22,13 +22,15 @@
     "./MarkdownContent": "./MarkdownContent.astro",
     "./ArticlePromotion": "./ArticlePromotion.astro",
     "./PageTitle": "./PageTitle.astro",
+    "./NotFoundHero": "./NotFoundHero.astro",
     "./PromotoFooter": "./PromotoFooter.astro"
   },
   "files": [
     "index.mjs",
     "*.css",
     "*.mjs",
-    "*.astro"
+    "*.astro",
+    "assets/*.png"
   ],
   "dependencies": {
     "@hagicode/hagilight": "0.1.0"

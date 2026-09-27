@@ -179,6 +179,13 @@ export default function hagilight(options = {}) {
   if (options.header?.enabled !== undefined && typeof options.header.enabled !== 'boolean') {
     throw new TypeError('Hagilight header enabled option must be a boolean.');
   }
+  if (options.notFoundPage !== undefined
+    && (!options.notFoundPage || typeof options.notFoundPage !== 'object' || Array.isArray(options.notFoundPage))) {
+    throw new TypeError('Hagilight notFoundPage options must be an object.');
+  }
+  if (options.notFoundPage?.enabled !== undefined && typeof options.notFoundPage.enabled !== 'boolean') {
+    throw new TypeError('Hagilight notFoundPage enabled option must be a boolean.');
+  }
   if (options.analytics !== undefined
     && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
     throw new TypeError('Hagilight analytics options must be an object.');
@@ -209,11 +216,15 @@ export default function hagilight(options = {}) {
   });
   const instanceId = randomUUID();
   const headerEnabled = options.header?.enabled !== false;
+  const notFoundPageEnabled = options.notFoundPage?.enabled !== false;
   const pageTitleEnabled = options.contentComponents?.pageTitle !== false;
   const markdownContentEnabled = options.contentComponents?.markdownContent !== false;
   const componentIds = {
     header: headerEnabled
       ? `virtual:hagilight-starlight/${instanceId}/Header.astro`
+      : undefined,
+    hero: notFoundPageEnabled
+      ? fileURLToPath(new URL('./NotFoundHero.astro', import.meta.url))
       : undefined,
     footer: `virtual:hagilight-starlight/${instanceId}/Footer.astro`,
     pageTitle: pageTitleEnabled ? `virtual:hagilight-starlight/${instanceId}/PageTitle.astro` : undefined,
@@ -240,6 +251,9 @@ export default function hagilight(options = {}) {
         if (headerEnabled && config.components?.Header) {
           throw new Error('Hagilight cannot replace an existing Starlight Header override. Set header: { enabled: false } to keep it, or compose @hagicode/hagilight-starlight/Header directly.');
         }
+        if (notFoundPageEnabled && config.components?.Hero) {
+          throw new Error('Hagilight cannot replace an existing Starlight Hero override. Set notFoundPage: { enabled: false } to keep it, or compose @hagicode/hagilight-starlight/NotFoundHero directly.');
+        }
         if (config.components?.Footer) {
           throw new Error('Hagilight cannot replace an existing Starlight Footer override.');
         }
@@ -264,6 +278,7 @@ export default function hagilight(options = {}) {
           components: {
             ...config.components,
             ...(componentIds.header ? { Header: componentIds.header } : {}),
+            ...(componentIds.hero ? { Hero: componentIds.hero } : {}),
             Footer: componentIds.footer,
             ...(componentIds.pageTitle ? { PageTitle: componentIds.pageTitle } : {}),
             ...(componentIds.markdownContent ? { MarkdownContent: componentIds.markdownContent } : {}),

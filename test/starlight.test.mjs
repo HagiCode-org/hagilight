@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import hagilight from '../packages/starlight/index.mjs';
+import {
+  getNotFoundHomeHref,
+  getNotFoundHomeLabel,
+  isNotFoundEntry,
+} from '../packages/starlight/not-found.mjs';
 
 function configure(options = {}, components = {}, logo, additionalConfig = {}) {
   const config = { components, logo, ...additionalConfig };
@@ -27,8 +32,59 @@ test('registers a configured footer without discarding an opted-out header overr
     alt: 'HagiCode',
   });
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);
+  assert.match(updated.components.Hero, /\/NotFoundHero\.astro$/);
   assert.equal(updated.components.Head, undefined);
   assert.equal(integrations.length, 1);
+});
+
+test('keeps a consumer Hero when automatic 404 customization is disabled', () => {
+  const { updated } = configure({
+    notFoundPage: { enabled: false },
+  }, {
+    Hero: './CustomHero.astro',
+    Search: './CustomSearch.astro',
+  });
+
+  assert.equal(updated.components.Hero, './CustomHero.astro');
+  assert.equal(updated.components.Search, './CustomSearch.astro');
+});
+
+test('rejects a consumer Hero override unless automatic 404 customization is disabled', () => {
+  assert.throws(
+    () => configure({}, { Hero: './CustomHero.astro' }),
+    /existing Starlight Hero override.*notFoundPage: \{ enabled: false \}.*NotFoundHero/,
+  );
+});
+
+test('validates not-found page options', () => {
+  assert.throws(() => configure({ notFoundPage: null }), /notFoundPage options must be an object/);
+  assert.throws(() => configure({ notFoundPage: [] }), /notFoundPage options must be an object/);
+  assert.throws(
+    () => configure({ notFoundPage: { enabled: 'yes' } }),
+    /notFoundPage enabled option must be a boolean/,
+  );
+});
+
+test('resolves localized home URLs under the site base and trailing-slash rules', () => {
+  assert.equal(getNotFoundHomeHref({ basePath: '/', locale: undefined }), '/');
+  assert.equal(getNotFoundHomeHref({ basePath: '/', locale: 'root' }), '/');
+  assert.equal(
+    getNotFoundHomeHref({ basePath: '/docs/', locale: 'en-us', trailingSlash: 'always' }),
+    '/docs/en-us/',
+  );
+  assert.equal(
+    getNotFoundHomeHref({ basePath: '/docs/', locale: 'fr-FR', trailingSlash: 'never' }),
+    '/docs/fr-FR',
+  );
+  assert.equal(getNotFoundHomeLabel('zh-CN'), '返回首页');
+  assert.equal(getNotFoundHomeLabel('fr-FR'), 'Retour à l’accueil');
+  assert.equal(getNotFoundHomeLabel('xx-XX'), 'Back to home');
+});
+
+test('uses the customized Hero only for Starlight 404 entries', () => {
+  assert.equal(isNotFoundEntry('404'), true);
+  assert.equal(isNotFoundEntry('fr-FR/404'), true);
+  assert.equal(isNotFoundEntry('fr-FR/guide'), false);
 });
 
 test('preserves a site-defined Starlight logo', () => {

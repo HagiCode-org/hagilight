@@ -1,0 +1,44 @@
+---
+import DefaultHero from '@astrojs/starlight/components/Hero.astro';
+import context from 'virtual:starlight/project-context';
+import {
+  getNotFoundHomeHref,
+  getNotFoundHomeLabel,
+  isNotFoundEntry,
+} from './not-found.mjs';
+
+const route = Astro.locals.starlightRoute;
+const isNotFound = isNotFoundEntry(route.entry.id);
+const homeHref = getNotFoundHomeHref({
+  basePath: import.meta.env.BASE_URL,
+  locale: route.locale,
+  trailingSlash: context.trailingSlash,
+});
+const homeLabel = getNotFoundHomeLabel(route.lang);
+---
+
+{
+  isNotFound ? (
+    <div class="not-found-hero">
+      <DefaultHero />
+      <div class="recovery-action">
+        <a class="sl-link-button primary" href={homeHref}>{homeLabel}</a>
+      </div>
+    </div>
+  ) : (
+    <DefaultHero />
+  )
+}
+
+<style>
+  .not-found-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .recovery-action {
+    margin-block: 0.5rem 2rem;
+    text-align: center;
+  }
+</style>
