@@ -26,16 +26,26 @@ function resolveProvider(config, { name, idKey, pattern }) {
 function createConfiguredIntegration(instanceId, serializedOptions, componentIds) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const footerPath = fileURLToPath(new URL('./Footer.astro', import.meta.url));
+  const promotionImport = serializedOptions.promotoEnabled
+    ? "import PromotoBanner from '@hagicode/hagilight/PromotoBanner';"
+    : '';
+  const promotionRender = serializedOptions.promotoEnabled ? '<PromotoBanner />' : '';
+  const analyticsImport = serializedOptions.fiftyOneLaId
+    ? "import Analytics51LA from '@hagicode/hagilight/Analytics51LA';"
+    : '';
+  const analyticsRender = serializedOptions.fiftyOneLaId
+    ? '<Analytics51LA siteId={options.fiftyOneLaId} />'
+    : '';
   const footerSource = `---
 import Footer from ${JSON.stringify(footerPath)};
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
-import Analytics51LA from '@hagicode/hagilight/Analytics51LA';
+${promotionImport}
+${analyticsImport}
 import options from '${optionsId}';
 ---
 
 <Footer locale={Astro.locals?.starlightRoute?.locale} links={options.links} />
-{options.promotoEnabled && <PromotoBanner />}
-{options.fiftyOneLaId && <Analytics51LA siteId={options.fiftyOneLaId} />}
+${promotionRender}
+${analyticsRender}
 `;
   const headSource = `---
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
