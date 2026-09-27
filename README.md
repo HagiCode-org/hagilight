@@ -3,7 +3,7 @@
 Two independently publishable packages for Astro sites:
 
 - `@hagicode/hagilight`: shared `.astro` components (`Copyright` and the reusable promotion banner).
-- `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds a shared copyright below the default Footer and displays active promotions.
+- `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds localized shared links and copyright below the default Footer, with optional analytics and active promotions.
 
 The packages publish `.astro` source directly; consumers compile it with Astro. New shared components belong in `packages/astro/`, with an entry in its `exports` and `files`. Starlight-only overrides belong in `packages/starlight/`; add their entries to `exports` and register them in `index.mjs` when they should apply automatically.
 
@@ -32,6 +32,41 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 ```js
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
+
+The Starlight footer includes localized quick links and community links. Route and label overrides, additional entries, and an optional site-owned related-sites list can be passed through `links`:
+
+```js
+plugins: [hagilight({
+  links: {
+    siteId: 'my-docs',
+    siteUrl: 'https://docs.example.com/',
+    overrides: {
+      blog: { href: '/news/', label: { 'en-US': 'News', 'zh-CN': '新闻' } },
+    },
+    extraLinks: {
+      quick: [{ href: '/install/', label: { 'en-US': 'Install', 'zh-CN': '安装' } }],
+    },
+    relatedSites: [
+      { id: 'product', name: 'Product site', url: 'https://example.com/' },
+    ],
+  },
+})]
+```
+
+The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same header data (`home`, `blog`, and `support`) to consumer-owned Starlight headers; Hagilight does not replace a site's header. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. Related sites matching the current site or any displayed link are omitted, as are duplicate destinations. Default Docs-inspired destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
+
+Google Analytics and 51LA are independently opt-in. Supply a provider ID to enable it; setting `enabled: true` without the required ID fails plugin setup. The scripts are emitted only for production pages (Google Analytics is skipped on `/404`), and no Docs tracking IDs are included:
+
+```js
+plugins: [hagilight({
+  analytics: {
+    googleAnalytics: { measurementId: 'G-XXXXXXXXXX' },
+    fiftyOneLa: { siteId: 'your-51la-site-id' },
+  },
+})]
+```
+
+For a custom Starlight `Head`, omit the automatic Google Analytics option and compose the provider directly in that component. A custom Footer can similarly import `@hagicode/hagilight-starlight/Footer` and pass `locale` and `links`; direct imports of `Footer` and `PromotoFooter` remain supported. The standalone providers are available as `@hagicode/hagilight/GoogleAnalytics` and `@hagicode/hagilight/Analytics51LA`, each requiring its ID prop. Docs retains its independent links and analytics integrations and is unchanged by Hagilight.
 
 The Starlight demo explicitly enables the banner with `hagilight({ promoto: { enabled: true } })`. Sites can also use the component directly and provide their own localized fallback for when no remote campaign is available:
 
