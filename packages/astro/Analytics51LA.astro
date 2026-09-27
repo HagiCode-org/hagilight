@@ -1,0 +1,16 @@
+---
+interface Props {
+  siteId: string;
+}
+
+const { siteId } = Astro.props;
+---
+
+{import.meta.env.PROD && (
+  <>
+    <script is:inline charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>
+    <script is:inline define:vars={{ siteId }}>
+      LA.init({ id: siteId, ck: siteId, autoTrack: true, hashMode: true, screenRecord: true });
+    </script>
+  </>
+)}
