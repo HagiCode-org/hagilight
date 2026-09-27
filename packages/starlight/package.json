@@ -17,6 +17,7 @@
     "./locales": "./locales.mjs",
     "./article-promotion-schema": "./article-promotion-schema.mjs",
     "./ai-disclosure-schema": "./ai-disclosure-schema.mjs",
+    "./rss-schema": "./rss-schema.mjs",
     "./ContentLayoutToggle": "./ContentLayoutToggle.astro",
     "./Header": "./Header.astro",
     "./Footer": "./Footer.astro",
@@ -30,7 +31,7 @@
     "index.mjs",
     "*.css",
     "*.mjs",
-    "rss.xml.ts",
+    "rss*.xml.ts",
     "*.astro",
     "assets/*.png"
   ],

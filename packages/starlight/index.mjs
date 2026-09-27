@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { resolveRssLocales, resolveRssOptions } from './rss-utils.mjs';
 
 const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
@@ -87,8 +88,16 @@ function getRssFeedUrl(config) {
   return rssLink?.attrs.href;
 }
 
-function createConfiguredIntegration(instanceId, serializedOptions, componentIds, getConfiguredRssFeed, generateRss) {
+function createConfiguredIntegration(
+  instanceId,
+  serializedOptions,
+  rssConfig,
+  componentIds,
+  getConfiguredRssFeed,
+  generateRss,
+) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
+  const rssConfigId = 'virtual:hagilight-starlight/rss-config';
   const headerPath = componentIds.header
     ? fileURLToPath(new URL('./Header.astro', import.meta.url))
     : undefined;
@@ -167,7 +176,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
   const vitePlugin = {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
     resolveId(id) {
-      return modules.has(id) || id === optionsId ? `\0${id}` : null;
+      return modules.has(id) || id === optionsId || id === rssConfigId ? `\0${id}` : null;
     },
     load(id) {
       if (!id.startsWith('\0')) return null;
@@ -178,6 +187,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
           rssFeedUrl: getConfiguredRssFeed(),
         })};`;
       }
+      if (moduleId === rssConfigId) return `export default ${JSON.stringify(rssConfig)};`;
       return modules.get(moduleId) ?? null;
     },
   };
@@ -190,6 +200,11 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
           injectRoute({
             pattern: '/rss.xml',
             entrypoint: fileURLToPath(new URL('./rss.xml.ts', import.meta.url)),
+            prerender: true,
+          });
+          injectRoute({
+            pattern: '/rss.[language].xml',
+            entrypoint: fileURLToPath(new URL('./rss.[language].xml.ts', import.meta.url)),
             prerender: true,
           });
         }
@@ -224,6 +239,7 @@ export default function hagilight(options = {}) {
   if (options.rss?.enabled !== undefined && typeof options.rss.enabled !== 'boolean') {
     throw new TypeError('Hagilight rss enabled option must be a boolean.');
   }
+  const rssOptions = resolveRssOptions(options.rss);
   if (options.analytics !== undefined
     && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
     throw new TypeError('Hagilight analytics options must be an object.');
@@ -309,12 +325,14 @@ export default function hagilight(options = {}) {
         if (generateRss && !astroConfig.site) {
           throw new Error('Hagilight RSS requires the Astro site option. Set site or disable RSS with rss: { enabled: false }.');
         }
+        const rssLocales = generateRss ? resolveRssLocales(config.locales) : [];
         const rssFeedUrl = generateRss
           ? new URL('rss.xml', new URL((astroConfig.base ?? '/').replace(/\/?$/u, '/'), astroConfig.site)).toString()
           : undefined;
         addIntegration(createConfiguredIntegration(
           instanceId,
           serializedOptions,
+          { options: rssOptions, locales: rssLocales },
           componentIds,
           () => getRssFeedUrl(config) ?? rssFeedUrl,
           generateRss,
