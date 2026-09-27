@@ -32,7 +32,7 @@ test('registers a configured footer without discarding an opted-out header overr
     alt: 'HagiCode',
   });
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);
-  assert.match(updated.components.Hero, /\/NotFoundHero\.astro$/);
+  assert.match(updated.components.Hero, /[\\/]NotFoundHero\.astro$/);
   assert.equal(updated.components.Head, undefined);
   assert.equal(integrations.length, 1);
 });
