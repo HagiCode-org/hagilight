@@ -74,7 +74,20 @@ function resolveHagicodePromotion(config) {
   return config.enabled ?? true;
 }
 
-function createConfiguredIntegration(instanceId, serializedOptions, componentIds) {
+function getRssFeedUrl(config) {
+  if (!Array.isArray(config.head)) return undefined;
+  const rssLink = config.head.find((entry) => {
+    const attrs = entry?.attrs;
+    return entry?.tag === 'link'
+      && attrs?.rel === 'alternate'
+      && typeof attrs.type === 'string'
+      && attrs.type.toLowerCase() === 'application/rss+xml'
+      && typeof attrs.href === 'string';
+  });
+  return rssLink?.attrs.href;
+}
+
+function createConfiguredIntegration(instanceId, serializedOptions, componentIds, getConfiguredRssFeed) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const headerPath = componentIds.header
     ? fileURLToPath(new URL('./Header.astro', import.meta.url))
@@ -108,7 +121,11 @@ ${analyticsImport}
 import options from '${optionsId}';
 ---
 
-<Footer locale={Astro.locals?.starlightRoute?.locale} links={options.links} />
+<Footer
+  locale={Astro.locals?.starlightRoute?.locale}
+  links={options.links}
+  rssFeedUrl={options.rssFeedUrl}
+/>
 ${promotionRender}
 ${analyticsRender}
 `;
@@ -146,15 +163,22 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
     ...(componentIds.pageTitle ? [[componentIds.pageTitle, pageTitleSource]] : []),
     ...(componentIds.markdownContent ? [[componentIds.markdownContent, markdownContentSource]] : []),
     ...(componentIds.head ? [[componentIds.head, headSource]] : []),
-    [optionsId, `export default ${JSON.stringify(serializedOptions)};`],
   ]);
   const vitePlugin = {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
     resolveId(id) {
-      return modules.has(id) ? `\0${id}` : null;
+      return modules.has(id) || id === optionsId ? `\0${id}` : null;
     },
     load(id) {
-      return id.startsWith('\0') ? modules.get(id.slice(1)) ?? null : null;
+      if (!id.startsWith('\0')) return null;
+      const moduleId = id.slice(1);
+      if (moduleId === optionsId) {
+        return `export default ${JSON.stringify({
+          ...serializedOptions,
+          rssFeedUrl: getConfiguredRssFeed(),
+        })};`;
+      }
+      return modules.get(moduleId) ?? null;
     },
   };
 
@@ -267,7 +291,12 @@ export default function hagilight(options = {}) {
           throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Compose @hagicode/hagilight/GoogleAnalytics in your Head instead.');
         }
 
-        addIntegration(createConfiguredIntegration(instanceId, serializedOptions, componentIds));
+        addIntegration(createConfiguredIntegration(
+          instanceId,
+          serializedOptions,
+          componentIds,
+          () => getRssFeedUrl(config),
+        ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),
           customCss: [...(config.customCss ?? []), contentWidthCssPath],

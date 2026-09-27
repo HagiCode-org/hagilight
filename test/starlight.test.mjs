@@ -240,6 +240,26 @@ test('uses Docs analytics IDs by default and allows overriding or disabling prov
   assert.doesNotMatch(disabledSource, /googleAnalyticsMeasurementId|fiftyOneLaId/);
 });
 
+test('passes the finalized configured RSS alternate link to the footer options', () => {
+  const siteConfig = { head: [] };
+  const { updated, integrations } = configure({}, {}, undefined, siteConfig);
+  siteConfig.head.push({
+    tag: 'link',
+    attrs: {
+      rel: 'alternate',
+      type: 'application/rss+xml',
+      href: 'https://example.com/feed.xml',
+    },
+  });
+  const [vite] = integrationVitePlugins(integrations[0]);
+  const source = vite.load(vite.resolveId(optionsModuleId(updated.components.Footer)));
+  const footerSource = vite.load(vite.resolveId(updated.components.Footer));
+  const options = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+
+  assert.equal(options.rssFeedUrl, 'https://example.com/feed.xml');
+  assert.match(footerSource, /rssFeedUrl=\{options\.rssFeedUrl\}/);
+});
+
 test('serializes independent AI disclosure defaults into each plugin options module', () => {
   const defaults = configure();
   const enabled = configure({
