@@ -115,7 +115,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     display: -webkit-box;
     overflow: hidden;
     margin: 0;
-    color: var(--sl-color-text-high, #111827);
+    color: var(--sl-color-text-high, var(--sl-color-gray-1, #111827));
     font-size: var(--sl-text-sm);
     font-weight: 600;
     line-height: 1.35;
