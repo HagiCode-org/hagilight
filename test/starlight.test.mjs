@@ -268,10 +268,16 @@ test('generates an RSS route and alternate link by default', () => {
   const source = vite.load(vite.resolveId(optionsModuleId(updated.components.Footer)));
   const options = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
 
-  assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml']);
+  assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml', '/rss.[language].xml']);
   assert.match(routes[0].entrypoint, /rss\.xml\.ts$/);
+  assert.match(routes[1].entrypoint, /rss\.\[language\]\.xml\.ts$/);
   assert.equal(updated.head[0].attrs.href, 'https://example.com/rss.xml');
   assert.equal(options.rssFeedUrl, 'https://example.com/rss.xml');
+  const rssConfig = vite.load(vite.resolveId('virtual:hagilight-starlight/rss-config'));
+  assert.deepEqual(JSON.parse(rssConfig.match(/^export default (.*);$/mu)[1]), {
+    options: { includeDocs: true, includeBlog: true },
+    locales: [{ route: 'root', lang: 'en', filename: 'en' }],
+  });
 });
 
 test('respects a site feed and supports disabling RSS generation', () => {
@@ -290,6 +296,37 @@ test('respects a site feed and supports disabling RSS generation', () => {
   assert.equal(disabled.updated.head.length, 1);
   assert.throws(() => configure({ rss: null }), /rss options must be an object/);
   assert.throws(() => configure({ rss: { enabled: 'yes' } }), /rss enabled option must be a boolean/);
+  assert.throws(() => configure({ rss: { includeDocs: 'yes' } }), /rss includeDocs option must be a boolean/);
+  assert.throws(() => configure({ rss: { includeBlog: 1 } }), /rss includeBlog option must be a boolean/);
+});
+
+test('maps Chinese-root Starlight locales to safe unique feed filenames', () => {
+  const configured = configure({}, {}, undefined, {
+    locales: {
+      root: { lang: 'zh-CN' },
+      'en-us': { lang: 'en-US' },
+      'zh-Hant': { lang: 'zh-Hant' },
+    },
+  });
+  const routes = [];
+  const [vite] = integrationVitePlugins(configured.integrations[0], routes);
+  const source = vite.load(vite.resolveId('virtual:hagilight-starlight/rss-config'));
+  const rssConfig = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+
+  assert.deepEqual(rssConfig.locales, [
+    { route: 'root', lang: 'zh-CN', filename: 'zh-CN' },
+    { route: 'en-us', lang: 'en-US', filename: 'en' },
+    { route: 'zh-Hant', lang: 'zh-Hant', filename: 'zh-Hant' },
+  ]);
+  assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml', '/rss.[language].xml']);
+  assert.throws(
+    () => configure({}, {}, undefined, { locales: { root: { lang: 'en' }, 'en-us': { lang: 'en-US' } } }),
+    /collide on the "en" feed filename/,
+  );
+  assert.throws(
+    () => configure({}, {}, undefined, { locales: { root: { lang: 'zh-CN' }, 'zh-cn': { lang: 'zh-cn' } } }),
+    /collide on the "zh-CN" feed filename/,
+  );
 });
 
 test('respects the Astro base path and requires a site only for generated RSS', () => {
