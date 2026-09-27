@@ -30,10 +30,12 @@
     "index.mjs",
     "*.css",
     "*.mjs",
+    "rss.xml.ts",
     "*.astro",
     "assets/*.png"
   ],
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@hagicode/hagilight": "0.1.0"
   },
   "peerDependencies": {
