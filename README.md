@@ -35,7 +35,7 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
-The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. The related-site names, descriptions, and URLs are bundled from Docs' footer catalog; pass `relatedSites: []` to omit them or supply an array to replace them. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog. Route and label overrides and additional entries can also be passed through `links`:
+The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. Related sites render as links only (no description text); their names and URLs are bundled from Docs' footer catalog. Pass `relatedSites: []` to omit them or supply an array to replace them. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog. Route and label overrides and additional entries can also be passed through `links`:
 
 ```js
 plugins: [hagilight({
