@@ -63,6 +63,17 @@ function resolveAIDisclosures(config) {
   };
 }
 
+function resolveHagicodePromotion(config) {
+  if (config === undefined) return true;
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new TypeError('Hagilight hagicodePromotion options must be an object.');
+  }
+  if (config.enabled !== undefined && typeof config.enabled !== 'boolean') {
+    throw new TypeError('Hagilight hagicodePromotion enabled option must be a boolean.');
+  }
+  return config.enabled ?? true;
+}
+
 function createConfiguredIntegration(instanceId, serializedOptions, componentIds) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const headerPath = componentIds.header
@@ -112,7 +123,10 @@ import MarkdownContent from ${JSON.stringify(markdownContentPath)};
 import options from '${optionsId}';
 ---
 
-<MarkdownContent aiDisclosures={options.aiDisclosures}><slot /></MarkdownContent>
+<MarkdownContent
+  aiDisclosures={options.aiDisclosures}
+  hagicodePromotionEnabled={options.hagicodePromotionEnabled}
+><slot /></MarkdownContent>
 `;
   const headSource = `---
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
@@ -180,6 +194,7 @@ export default function hagilight(options = {}) {
   }
   const analytics = options.analytics ?? {};
   const aiDisclosures = resolveAIDisclosures(options.aiDisclosures);
+  const hagicodePromotionEnabled = resolveHagicodePromotion(options.hagicodePromotion);
   const googleAnalyticsMeasurementId = resolveProvider(analytics.googleAnalytics, {
     name: 'Google Analytics',
     idKey: 'measurementId',
@@ -211,6 +226,7 @@ export default function hagilight(options = {}) {
   };
   const serializedOptions = {
     promotoEnabled: options.promoto?.enabled !== false,
+    hagicodePromotionEnabled,
     links: options.links ?? {},
     googleAnalyticsMeasurementId,
     fiftyOneLaId,

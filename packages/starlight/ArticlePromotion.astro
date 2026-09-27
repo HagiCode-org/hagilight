@@ -1,0 +1,52 @@
+---
+import { getArticlePromotionCopy } from './article-promotion.mjs';
+
+const { lang } = Astro.props;
+const copy = getArticlePromotionCopy(lang);
+---
+
+<aside class="hagilight-article-promotion" aria-labelledby="hagilight-article-promotion-title">
+  <h2 id="hagilight-article-promotion-title">{copy.title}</h2>
+  <p>{copy.description}</p>
+  <a href="https://www.hagicode.com/">{copy.link}</a>
+</aside>
+
+<style>
+  .hagilight-article-promotion {
+    margin-block: 2.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-text);
+  }
+
+  .hagilight-article-promotion h2 {
+    margin: 0;
+    font-size: var(--sl-text-h3);
+  }
+
+  .hagilight-article-promotion p {
+    margin-block: 0.75rem;
+  }
+
+  .hagilight-article-promotion a {
+    display: inline-block;
+    color: var(--sl-color-accent-high);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .hagilight-article-promotion a:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (min-width: 40rem) {
+    .hagilight-article-promotion {
+      padding: 1.5rem 2rem;
+    }
+  }
+</style>

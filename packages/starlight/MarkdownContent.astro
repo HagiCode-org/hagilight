@@ -1,19 +1,26 @@
 ---
 import { getCollection } from 'astro:content';
 import DefaultMarkdownContent from '@astrojs/starlight/components/MarkdownContent.astro';
+import ArticlePromotion from './ArticlePromotion.astro';
 import AIDisclosureNotice from './AIDisclosureNotice.astro';
 import {
   getSourcePath,
   isTranslationLocale,
   resolveAIDisclosureFlags,
 } from './ai-disclosures.mjs';
+import { resolveArticlePromotion } from './article-promotion.mjs';
 
-const { aiDisclosures = { isAITranslation: false, isAIAuthor: false, sourceLocale: 'root' } } = Astro.props;
+const {
+  aiDisclosures = { isAITranslation: false, isAIAuthor: false, sourceLocale: 'root' },
+  hagicodePromotionEnabled = true,
+} = Astro.props;
 const route = Astro.locals.starlightRoute;
 const isDocsEntry = route.entry.id !== '404' && !route.entry.id.endsWith('/404');
 const flags = isDocsEntry
   ? resolveAIDisclosureFlags(route.entry.data, aiDisclosures)
   : { isAITranslation: false, isAIAuthor: false };
+const showHagicodePromotion = isDocsEntry
+  && resolveArticlePromotion(route.entry.data.hagicodePromotion, hagicodePromotionEnabled);
 const showTranslation = flags.isAITranslation
   && isTranslationLocale(route.entryMeta.locale, aiDisclosures.sourceLocale);
 let sourceHref;
@@ -34,3 +41,4 @@ if (showTranslation) {
 {flags.isAIAuthor && <AIDisclosureNotice kind="author" lang={route.lang} />}
 <DefaultMarkdownContent><slot /></DefaultMarkdownContent>
 {showTranslation && <AIDisclosureNotice kind="translation" lang={route.lang} sourceHref={sourceHref} />}
+{showHagicodePromotion && <ArticlePromotion lang={route.lang} />}

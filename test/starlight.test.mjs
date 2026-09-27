@@ -215,6 +215,40 @@ test('serializes independent AI disclosure defaults into each plugin options mod
   });
 });
 
+test('validates and forwards the independent article promotion default', () => {
+  const defaults = configure();
+  const promotionDisabled = configure({
+    promoto: { enabled: false },
+    hagicodePromotion: { enabled: true },
+  });
+  const bannerOnly = configure({
+    promoto: { enabled: true },
+    hagicodePromotion: { enabled: false },
+  });
+  const optionsFor = (result) => {
+    const [vite] = integrationVitePlugins(result.integrations[0]);
+    const source = vite.load(vite.resolveId(optionsModuleId(result.updated.components.MarkdownContent)));
+    return JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+  };
+
+  assert.equal(optionsFor(defaults).hagicodePromotionEnabled, true);
+  assert.equal(optionsFor(promotionDisabled).hagicodePromotionEnabled, true);
+  assert.equal(optionsFor(promotionDisabled).promotoEnabled, false);
+  assert.equal(optionsFor(bannerOnly).hagicodePromotionEnabled, false);
+  assert.equal(optionsFor(bannerOnly).promotoEnabled, true);
+
+  const [vite] = integrationVitePlugins(defaults.integrations[0]);
+  const markdownSource = vite.load(vite.resolveId(defaults.updated.components.MarkdownContent));
+  assert.match(markdownSource, /hagicodePromotionEnabled=\{options\.hagicodePromotionEnabled\}/);
+
+  assert.throws(() => configure({ hagicodePromotion: null }), /hagicodePromotion options must be an object/);
+  assert.throws(() => configure({ hagicodePromotion: [] }), /hagicodePromotion options must be an object/);
+  assert.throws(
+    () => configure({ hagicodePromotion: { enabled: 'yes' } }),
+    /hagicodePromotion enabled option must be a boolean/,
+  );
+});
+
 test('preserves configured CSS, head entries, and unrelated component overrides', () => {
   const existingHead = { tag: 'meta', attrs: { name: 'description', content: 'Site content' } };
   const { updated } = configure({}, { Search: './Search.astro' }, undefined, {
