@@ -13,7 +13,20 @@ for (const [workspace, required] of [
     'promotions.ts',
     'promoto-banner.ts',
   ]],
-  ['@hagicode/hagilight-starlight', ['index.mjs', 'Footer.astro', 'PromotoFooter.astro']],
+  ['@hagicode/hagilight-starlight', [
+    'index.mjs',
+    'ai-disclosure-schema.mjs',
+    'ai-disclosures.mjs',
+    'AIDisclosureNotice.astro',
+    'content-width.mjs',
+    'content-width-i18n.mjs',
+    'content-width.css',
+    'ContentLayoutToggle.astro',
+    'Footer.astro',
+    'MarkdownContent.astro',
+    'PageTitle.astro',
+    'PromotoFooter.astro',
+  ]],
 ]) {
   const directory = workspace === '@hagicode/hagilight' ? 'astro' : 'starlight';
   const manifest = JSON.parse(readFileSync(`packages/${directory}/package.json`, 'utf8'));

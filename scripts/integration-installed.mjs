@@ -31,11 +31,12 @@ function countOccurrences(value, needle) {
   return value.split(needle).length - 1;
 }
 
-function verifyDefaultLinksAndNoAnalytics() {
+function verifyDefaultLinksAndAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   for (const link of [
     'https://www.hagicode.com/en-US/',
     'https://www.hagicode.com/en-US/desktop/',
+    'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
     'https://www.hagicode.com/en-US/about/',
     'https://docs.hagicode.com/en-US/blog/',
     'https://github.com/HagiCode-org/site',
@@ -44,7 +45,6 @@ function verifyDefaultLinksAndNoAnalytics() {
     'mailto:support@hagicode.com',
     'https://qm.qq.com/q/Fwb0o094kw',
     'https://cost.hagicode.com',
-    'https://store.steampowered.com/app/4625540/Hagicode/',
     'https://docs.hagicode.com/en-US/installation/docker-compose/',
     'https://docs.hagicode.com/en-US/product-overview/',
     'https://docs.hagicode.com/blog/rss.en-US.xml',
@@ -55,11 +55,14 @@ function verifyDefaultLinksAndNoAnalytics() {
     'https://design.hagicode.com/',
     'https://soul.hagicode.com/',
     'https://trait.hagicode.com/',
+    'https://openspec.hagicode.com/',
+    'https://omniroute.hagicode.com/',
     'https://beian.miit.gov.cn/',
     'http://www.beian.gov.cn/portal/registerSystemInfo',
   ]) {
     assert.ok(html.includes(link), `Expected built footer to include ${link}`);
   }
+  assert.ok(!html.includes('store.steampowered.com'));
   assert.ok(html.includes('Quick links'));
   assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
   assert.ok(!html.includes('hagilight-site-description'));
@@ -67,9 +70,36 @@ function verifyDefaultLinksAndNoAnalytics() {
     html,
     /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
   );
-  assert.ok(!html.includes('googletagmanager.com'));
-  assert.ok(!html.includes('sdk.51.la'));
-  assert.ok(!html.includes('LA.init('));
+  assert.ok(html.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'));
+  assert.ok(html.includes("gtag('config', measurementId)"));
+  assert.ok(html.includes('sdk.51.la/js-sdk-pro.min.js'));
+  assert.ok(html.includes('L6b88a5yK4h2Xnci'));
+}
+
+function verifyContentFeatures() {
+  const rootHtml = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  const translatedHtml = readFileSync(join(temp, 'dist', 'en-us', 'index.html'), 'utf8');
+  const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
+
+  assert.match(rootHtml, /data-hagilight-content-width-choice="wide"/u);
+  assert.match(rootHtml, /data-hagilight-content-width-choice="narrow"/u);
+  assert.match(rootHtml, /aria-label="内容宽度"/u);
+  assert.match(rootHtml, /hagilight-content-width/u);
+  const headHtml = rootHtml.slice(0, rootHtml.indexOf('</head>'));
+  assert.ok(headHtml.includes("localStorage.getItem('hagilight-content-width')"));
+  assert.ok(headHtml.includes('document.documentElement.dataset.hagilightContentWidth'));
+  assert.ok(!rootHtml.includes('本文内容由 AI 辅助创作。'));
+  assert.ok(!rootHtml.includes('This post was translated with AI.'));
+  assert.ok(!notFoundHtml.includes('This content was created with AI assistance.'));
+  assert.ok(!notFoundHtml.includes('This post was translated with AI.'));
+
+  const authorNotice = 'This content was created with AI assistance.';
+  const translationNotice = 'This post was translated with AI.';
+  assert.ok(translatedHtml.includes(authorNotice));
+  assert.ok(translatedHtml.includes(translationNotice));
+  assert.ok(translatedHtml.includes('href="/"'));
+  assert.ok(translatedHtml.indexOf(authorNotice) < translatedHtml.indexOf('<div class="sl-markdown-content">'));
+  assert.ok(translatedHtml.indexOf(translationNotice) > translatedHtml.indexOf('</div>'));
 }
 
 function verifyAnalyticsBuild() {
@@ -150,7 +180,8 @@ try {
   const astro = join(temp, 'node_modules', 'astro', 'bin', 'astro.mjs');
   execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
   verifyBannerBuild(true);
-  verifyDefaultLinksAndNoAnalytics();
+  verifyDefaultLinksAndAnalytics();
+  verifyContentFeatures();
 
   const disabledConfig = enabledConfig.replace('promoto: { enabled: true }', 'promoto: { enabled: false }');
   if (disabledConfig === enabledConfig) throw new Error('Example config does not explicitly enable the promotion banner');
