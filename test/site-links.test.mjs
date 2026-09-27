@@ -9,7 +9,9 @@ test('resolves localized links with nonempty fallback labels', () => {
   assert.equal(traditional.header[0].label, '首頁');
   assert.equal(unknown.header[0].label, 'Home');
   assert.equal(unknown.header[1].label, 'Blog');
+  assert.equal(resolveSiteLinks('zh-CN').header[1].href, 'https://docs.hagicode.com/blog/');
   assert.equal(traditional.header[1].href, 'https://docs.hagicode.com/zh-Hant/blog/');
+  assert.equal(resolveSiteLinks('ja-jp').header[1].href, 'https://docs.hagicode.com/ja-JP/blog/');
   assert.equal(unknown.header[1].href, 'https://docs.hagicode.com/de-DE/blog/');
   assert.equal(resolveSiteLinks('unsupported').header[1].href, 'https://docs.hagicode.com/en-US/blog/');
 });

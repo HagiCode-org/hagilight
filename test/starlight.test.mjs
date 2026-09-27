@@ -63,6 +63,7 @@ test('enables each analytics provider independently and delivers options per plu
 });
 
 test('requires valid IDs when analytics providers are enabled', () => {
+  assert.throws(() => configure({ analytics: [] }), /analytics options must be an object/);
   assert.throws(
     () => configure({ analytics: { googleAnalytics: { enabled: true } } }),
     /measurementId is missing/,
