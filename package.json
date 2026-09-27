@@ -1,0 +1,15 @@
+{
+  "name": "hagilight-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build:example": "npm run build -w hagilight-example",
+    "pack:check": "node scripts/verify-pack.mjs",
+    "integration:installed": "node scripts/integration-installed.mjs"
+  }
+}
