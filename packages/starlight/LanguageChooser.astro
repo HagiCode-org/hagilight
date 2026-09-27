@@ -1,0 +1,357 @@
+---
+import config from 'virtual:starlight/user-config';
+import context from 'virtual:starlight/project-context';
+import {
+  buildLocaleNavigationTarget,
+  getConfiguredLanguageOptions,
+} from './language-routing.mjs';
+
+const currentLocale = Astro.locals.starlightRoute.locale ?? config.defaultLocale?.locale ?? 'root';
+const options = getConfiguredLanguageOptions(config.locales, currentLocale);
+const currentOption = options.find((option) => option.selected) ?? options[0];
+const accessibleLabel = Astro.locals.t('languageSelect.accessibleLabel');
+const copy = {
+  'zh-cn': ['当前语言', '已选', '关闭语言选择'],
+  'en-us': ['Current language', 'Selected', 'Close language selector'],
+  'zh-hant': ['目前語言', '已選取', '關閉語言選擇'],
+  'fr-fr': ['Langue actuelle', 'Sélectionné', 'Fermer le sélecteur de langue'],
+  'de-de': ['Aktuelle Sprache', 'Ausgewählt', 'Sprachauswahl schließen'],
+  'es-es': ['Idioma actual', 'Seleccionado', 'Cerrar selector de idioma'],
+  'ja-jp': ['現在の言語', '選択中', '言語選択を閉じる'],
+  'ko-kr': ['현재 언어', '선택됨', '언어 선택 닫기'],
+  'pt-br': ['Idioma atual', 'Selecionado', 'Fechar seletor de idioma'],
+  'ru-ru': ['Текущий язык', 'Выбрано', 'Закрыть выбор языка'],
+};
+const langKey = (currentOption?.lang ?? currentLocale).toLowerCase();
+const languagePrefix = langKey.split('-')[0];
+const fallbackCopy = copy[langKey]
+  ?? Object.entries(copy).find(([key]) => key.startsWith(`${languagePrefix}-`))?.[1]
+  ?? copy['en-us'];
+const currentLabel = fallbackCopy[0];
+const selectedLabel = fallbackCopy[1];
+const closeLabel = fallbackCopy[2];
+const basePath = import.meta.env.BASE_URL;
+const routeLocales = Object.keys(config.locales ?? {});
+const navigationOptions = options.map((option) => ({
+  ...option,
+  href: buildLocaleNavigationTarget(
+    Astro.url,
+    option.code,
+    routeLocales,
+    basePath,
+    context.trailingSlash,
+  ).pathname,
+}));
+---
+
+{
+  config.isMultilingual && navigationOptions.length > 1 && (
+    <hagilight-language-chooser class="language-switcher">
+      <button
+        type="button"
+        class="language-trigger"
+        aria-haspopup="dialog"
+        aria-controls="hagilight-language-dialog"
+        aria-expanded="false"
+        aria-label={`${accessibleLabel}: ${currentOption?.label ?? currentLocale}`}
+        title={currentOption?.label ?? currentLocale}
+      >
+        <span class="trigger-label">{currentOption?.label ?? currentLocale}</span>
+        <span class="trigger-chevron" aria-hidden="true">▾</span>
+      </button>
+      <dialog
+        id="hagilight-language-dialog"
+        class="language-dialog"
+        aria-modal="true"
+        aria-labelledby="language-dialog-title"
+      >
+        <div class="dialog-header">
+          <div>
+            <h2 id="language-dialog-title" class="dialog-title">{accessibleLabel}</h2>
+            <p class="dialog-current">
+              {currentLabel}: <strong>{currentOption?.label ?? currentLocale}</strong>
+            </p>
+          </div>
+          <button type="button" class="dialog-close" aria-label={closeLabel}>×</button>
+        </div>
+        <div class="language-grid-scroller">
+          <div class="language-grid" role="listbox" aria-label={accessibleLabel}>
+            {navigationOptions.map((option) => (
+              <button
+                type="button"
+                role="option"
+                data-locale={option.code}
+                data-href={option.href}
+                lang={option.lang}
+                aria-selected={option.selected ? 'true' : 'false'}
+                class:list={['language-option', { 'language-option-selected': option.selected }]}
+              >
+                <span class="language-option-label">{option.label}</span>
+                {option.selected && <span class="selected-badge">{selectedLabel}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      </dialog>
+    </hagilight-language-chooser>
+  )
+}
+
+<script>
+  import {
+    getKeyboardTargetIndex,
+    persistStarlightLocaleSelection,
+  } from './language-routing.mjs';
+
+  class HagilightLanguageChooser extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.initialized) return;
+      this.dataset.initialized = 'true';
+
+      const trigger = this.querySelector('.language-trigger');
+      const dialog = this.querySelector('.language-dialog');
+      const closeButton = this.querySelector('.dialog-close');
+      const options = [...this.querySelectorAll('[role="option"]')];
+      if (!(trigger instanceof HTMLButtonElement)
+        || !(dialog instanceof HTMLDialogElement)
+        || !(closeButton instanceof HTMLButtonElement)) return;
+
+      const closeDialog = () => {
+        if (dialog.open) dialog.close();
+        else trigger.focus();
+      };
+
+      trigger.addEventListener('click', () => {
+        if (dialog.open) {
+          closeDialog();
+          return;
+        }
+        dialog.showModal();
+        trigger.setAttribute('aria-expanded', 'true');
+        const activeOption = options.find((option) => option.getAttribute('aria-selected') === 'true');
+        (activeOption ?? options[0])?.focus();
+      });
+      closeButton.addEventListener('click', closeDialog);
+      dialog.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        closeDialog();
+      });
+      dialog.addEventListener('close', () => {
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      });
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) closeDialog();
+      });
+      dialog.querySelector('[role="listbox"]')?.addEventListener('keydown', (event) => {
+        if (!(event.target instanceof HTMLButtonElement)) return;
+        const index = options.indexOf(event.target);
+        const nextIndex = getKeyboardTargetIndex(index, event.key, options.length);
+        if (nextIndex !== index) {
+          event.preventDefault();
+          options[nextIndex]?.focus();
+        }
+      });
+      for (const option of options) {
+        option.addEventListener('click', () => {
+          const locale = option.dataset.locale;
+          const href = option.dataset.href;
+          if (!locale || !href) return;
+          closeDialog();
+          if (option.getAttribute('aria-selected') === 'true') return;
+          persistStarlightLocaleSelection(locale);
+          const target = new URL(href, window.location.origin);
+          target.search = window.location.search;
+          target.hash = window.location.hash;
+          window.location.assign(target.toString());
+        });
+      }
+    }
+  }
+
+  if (!customElements.get('hagilight-language-chooser')) {
+    customElements.define('hagilight-language-chooser', HagilightLanguageChooser);
+  }
+</script>
+
+<style>
+  .language-switcher {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .language-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-width: 7.25rem;
+    min-height: 2.125rem;
+    padding: 0 0.8rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sl-color-black) 8%, transparent);
+    color: var(--sl-color-text-high);
+    cursor: pointer;
+    font: inherit;
+    transition: background-color var(--sl-transition-fast), border-color var(--sl-transition-fast);
+  }
+
+  .language-trigger:hover,
+  .dialog-close:hover,
+  .language-option:hover {
+    background: var(--sl-color-gray-6);
+    border-color: var(--sl-color-accent-high);
+  }
+
+  .language-trigger:focus-visible,
+  .dialog-close:focus-visible,
+  .language-option:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  .trigger-label {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--sl-text-sm);
+    font-weight: var(--sl-font-weight-medium);
+  }
+
+  .trigger-chevron {
+    font-size: 0.75rem;
+    transition: transform var(--sl-transition-fast);
+  }
+
+  .language-switcher:has(.language-dialog[open]) .trigger-chevron {
+    transform: rotate(180deg);
+  }
+
+  .language-dialog {
+    width: min(54rem, calc(100vw - 3rem));
+    max-width: none;
+    max-height: min(30rem, calc(100dvh - 3rem));
+    padding: 1.1rem 1.1rem 1rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--sl-color-bg) 94%, transparent);
+    color: var(--sl-color-text);
+    box-shadow: 0 24px 64px rgba(2, 6, 23, 0.32);
+  }
+
+  .language-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.52);
+  }
+
+  .dialog-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .dialog-title {
+    margin: 0;
+    color: var(--sl-color-white);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .dialog-current {
+    margin: 0.35rem 0 0;
+    font-size: var(--sl-text-sm);
+  }
+
+  .dialog-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--sl-color-text-high);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.125rem;
+  }
+
+  .language-grid-scroller {
+    max-height: min(20rem, calc(100dvh - 11rem));
+    overflow: auto;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--sl-color-black) 6%, transparent);
+    padding: 0.95rem 1rem;
+  }
+
+  .language-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(7.75rem, 8.75rem));
+    justify-content: center;
+    gap: 0.7rem;
+  }
+
+  .language-option {
+    display: flex;
+    min-height: 4.2rem;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--sl-color-bg-nav) 88%, transparent);
+    color: var(--sl-color-text-high);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.75rem 0.65rem;
+    text-align: center;
+  }
+
+  .language-option-selected {
+    border-color: var(--sl-color-accent-high);
+    background: color-mix(in srgb, var(--sl-color-accent-high) 18%, transparent);
+  }
+
+  .selected-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.45rem;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--sl-color-accent-high) 18%, transparent);
+    color: var(--sl-color-accent-high);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 72rem) {
+    .language-dialog {
+      width: min(46rem, calc(100vw - 2.5rem));
+    }
+
+    .language-grid {
+      grid-template-columns: repeat(4, minmax(7.35rem, 8.35rem));
+    }
+  }
+
+  @media (max-width: 50rem) {
+    .language-dialog {
+      width: calc(100vw - 2rem);
+      max-height: calc(100dvh - 2rem);
+      padding: 1rem;
+    }
+
+    .language-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

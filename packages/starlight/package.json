@@ -14,11 +14,13 @@
   },
   "exports": {
     ".": "./index.mjs",
+    "./Header": "./Header.astro",
     "./Footer": "./Footer.astro",
     "./PromotoFooter": "./PromotoFooter.astro"
   },
   "files": [
     "index.mjs",
+    "*.mjs",
     "*.astro"
   ],
   "dependencies": {

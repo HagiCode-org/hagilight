@@ -1,0 +1,129 @@
+---
+import config from 'virtual:starlight/user-config';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight/site-links';
+import LanguageChooser from './LanguageChooser.astro';
+
+interface Props {
+  links?: SiteLinksOptions;
+}
+
+const { links } = Astro.props;
+const locale = Astro.locals.starlightRoute.locale;
+const resolvedLinks = resolveSiteLinks(locale, links);
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+  </div>
+  <div class="sl-flex print:hidden">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <nav class="header-links" aria-label="Site navigation">
+      {resolvedLinks.header.map((link) => (
+        <a href={link.href} target={link.target} rel={link.rel}>{link.label}</a>
+      ))}
+    </nav>
+    <div class="sl-flex social-icons">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageChooser />
+  </div>
+</div>
+
+<style>
+  @layer starlight.core {
+    .header {
+      display: flex;
+      gap: var(--sl-nav-gap);
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+    }
+
+    .title-wrapper {
+      overflow: clip;
+      padding: 0.25rem;
+      margin: -0.25rem;
+      min-width: 0;
+    }
+
+    .right-group,
+    .social-icons {
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .right-group {
+      flex-wrap: nowrap;
+    }
+
+    .social-icons:has(a)::after {
+      content: '';
+      height: 2rem;
+      border-inline-end: 1px solid var(--sl-color-gray-5);
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .header-links a {
+      padding: 0.375rem 0.5rem;
+      border-radius: var(--sl-radius-sm);
+      color: var(--sl-color-text-high);
+      font-size: var(--sl-text-sm);
+      text-decoration: none;
+    }
+
+    .header-links a:hover {
+      background: var(--sl-color-gray-6);
+      color: var(--sl-color-white);
+    }
+
+    @media (max-width: 72rem) {
+      .header-links {
+        display: none;
+      }
+    }
+
+    @media (min-width: 50rem) {
+      :global(:root[data-has-sidebar]) {
+        --__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+      }
+      :global(:root:not([data-has-toc])) {
+        --__toc-width: 0rem;
+      }
+      .header {
+        --__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+        --__main-column-fr: calc(
+          (
+              100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+                (2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+                var(--sl-content-width)
+            ) / 2
+        );
+        display: grid;
+        grid-template-columns:
+          minmax(
+            calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
+            auto
+          )
+          1fr
+          auto;
+        align-content: center;
+      }
+    }
+  }
+</style>

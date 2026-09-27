@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import hagilight from '../packages/starlight/index.mjs';
 
-function configure(options = {}, components = {}) {
-  const config = { components };
+function configure(options = {}, components = {}, logo) {
+  const config = { components, logo };
   const integrations = [];
   let updated;
   hagilight(options).hooks['config:setup']({
@@ -14,13 +15,23 @@ function configure(options = {}, components = {}) {
   return { updated, integrations };
 }
 
-test('registers a configured footer without discarding other overrides', () => {
-  const { updated, integrations } = configure({}, { Header: './Header.astro' });
+test('registers a configured footer without discarding an opted-out header override', () => {
+  const { updated, integrations } = configure({ header: { enabled: false } }, { Header: './Header.astro' });
 
   assert.equal(updated.components.Header, './Header.astro');
+  assert.deepEqual(updated.logo, {
+    src: fileURLToPath(import.meta.resolve('@hagicode/hagilight/logo.png')),
+    alt: 'HagiCode',
+  });
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);
   assert.equal(updated.components.Head, undefined);
   assert.equal(integrations.length, 1);
+});
+
+test('preserves a site-defined Starlight logo', () => {
+  const { updated } = configure({}, {}, { src: './custom-logo.svg', alt: 'Custom logo' });
+
+  assert.equal(updated.logo, undefined);
 });
 
 test('passes disabled promotion configuration to the footer wrapper', () => {

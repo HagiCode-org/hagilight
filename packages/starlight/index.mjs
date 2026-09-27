@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
+const defaultLogo = fileURLToPath(import.meta.resolve('@hagicode/hagilight/logo.png'));
 
 function resolveProvider(config, { name, idKey, pattern }) {
   if (config === undefined) return undefined;
@@ -25,7 +26,19 @@ function resolveProvider(config, { name, idKey, pattern }) {
 
 function createConfiguredIntegration(instanceId, serializedOptions, componentIds) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
+  const headerPath = componentIds.header
+    ? fileURLToPath(new URL('./Header.astro', import.meta.url))
+    : undefined;
   const footerPath = fileURLToPath(new URL('./Footer.astro', import.meta.url));
+  const headerSource = headerPath
+    ? `---
+import Header from ${JSON.stringify(headerPath)};
+import options from '${optionsId}';
+---
+
+<Header links={options.links} />
+`
+    : undefined;
   const promotionImport = serializedOptions.promotoEnabled
     ? "import PromotoBanner from '@hagicode/hagilight/PromotoBanner';"
     : '';
@@ -60,6 +73,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 )}
 `;
   const modules = new Map([
+    ...(componentIds.header ? [[componentIds.header, headerSource]] : []),
     [componentIds.footer, footerSource],
     ...(componentIds.head ? [[componentIds.head, headSource]] : []),
     [optionsId, `export default ${JSON.stringify(serializedOptions)};`],
@@ -88,6 +102,13 @@ export default function hagilight(options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('Hagilight Starlight options must be an object.');
   }
+  if (options.header !== undefined
+    && (!options.header || typeof options.header !== 'object' || Array.isArray(options.header))) {
+    throw new TypeError('Hagilight header options must be an object.');
+  }
+  if (options.header?.enabled !== undefined && typeof options.header.enabled !== 'boolean') {
+    throw new TypeError('Hagilight header enabled option must be a boolean.');
+  }
   if (options.analytics !== undefined
     && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
     throw new TypeError('Hagilight analytics options must be an object.');
@@ -104,7 +125,11 @@ export default function hagilight(options = {}) {
     pattern: FIFTY_ONE_LA_ID_PATTERN,
   });
   const instanceId = randomUUID();
+  const headerEnabled = options.header?.enabled !== false;
   const componentIds = {
+    header: headerEnabled
+      ? `virtual:hagilight-starlight/${instanceId}/Header.astro`
+      : undefined,
     footer: `virtual:hagilight-starlight/${instanceId}/Footer.astro`,
     head: googleAnalyticsMeasurementId
       ? `virtual:hagilight-starlight/${instanceId}/Head.astro`
@@ -121,6 +146,9 @@ export default function hagilight(options = {}) {
     name: '@hagicode/hagilight-starlight',
     hooks: {
       'config:setup'({ config, updateConfig, addIntegration }) {
+        if (headerEnabled && config.components?.Header) {
+          throw new Error('Hagilight cannot replace an existing Starlight Header override. Set header: { enabled: false } to keep it, or compose @hagicode/hagilight-starlight/Header directly.');
+        }
         if (config.components?.Footer) {
           throw new Error('Hagilight cannot replace an existing Starlight Footer override.');
         }
@@ -130,8 +158,10 @@ export default function hagilight(options = {}) {
 
         addIntegration(createConfiguredIntegration(instanceId, serializedOptions, componentIds));
         updateConfig({
+          ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),
           components: {
             ...config.components,
+            ...(componentIds.header ? { Header: componentIds.header } : {}),
             Footer: componentIds.footer,
             ...(componentIds.head ? { Head: componentIds.head } : {}),
           },
