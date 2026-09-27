@@ -21,6 +21,7 @@ export type SiteLinkKey =
   | 'publicSecurityFiling';
 
 export type LinkGroup = 'header' | 'quick' | 'community' | 'filings';
+export type FooterLinkSection = 'relatedSites' | 'quick' | 'community';
 type LocalizedText = string | Readonly<Record<string, string>>;
 
 export interface SiteLink {
@@ -39,6 +40,7 @@ export interface SiteLinkOverride {
 }
 
 export interface ExtraSiteLink extends SiteLinkOverride {
+  id?: string;
   href: LocalizedText;
   label: LocalizedText;
 }
@@ -53,8 +55,12 @@ export interface RelatedSite {
 
 export interface SiteLinksOptions {
   overrides?: Partial<Record<SiteLinkKey, SiteLinkOverride>>;
-  extraLinks?: Partial<Record<LinkGroup, readonly ExtraSiteLink[]>>;
+  extraLinks?: Partial<Record<LinkGroup, readonly ExtraSiteLink[]>> & {
+    relatedSites?: readonly RelatedSite[];
+  };
+  removeLinks?: Partial<Record<FooterLinkSection, readonly string[]>>;
   relatedSites?: readonly RelatedSite[];
+  rssFeedUrl?: string;
   siteId?: string;
   siteUrl?: string;
 }
@@ -83,10 +89,10 @@ const translations = {
     'fr-FR': 'Assistance', 'es-ES': 'Soporte', 'pt-BR': 'Suporte', 'ru-RU': 'Поддержка',
   },
   downloadClient: {
-    'zh-CN': '下载客户端', 'zh-Hant': '下載客戶端', 'en-US': 'Download Client',
-    'ja-JP': 'クライアントをダウンロード', 'ko-KR': '클라이언트 다운로드',
-    'de-DE': 'Client herunterladen', 'fr-FR': 'Télécharger le client',
-    'es-ES': 'Descargar cliente', 'pt-BR': 'Baixar cliente', 'ru-RU': 'Скачать клиент',
+    'zh-CN': '下载 Hagicode', 'zh-Hant': '下載 Hagicode', 'en-US': 'Download Hagicode',
+    'ja-JP': 'Hagicode をダウンロード', 'ko-KR': 'Hagicode 다운로드',
+    'de-DE': 'Hagicode herunterladen', 'fr-FR': 'Télécharger Hagicode',
+    'es-ES': 'Descargar Hagicode', 'pt-BR': 'Baixar Hagicode', 'ru-RU': 'Скачать Hagicode',
   },
   about: {
     'zh-CN': '关于 HagiCode', 'zh-Hant': '關於 HagiCode', 'en-US': 'About HagiCode',
@@ -155,10 +161,11 @@ const translations = {
     'pt-BR': 'Grupo QQ 610394020', 'ru-RU': 'Группа QQ 610394020',
   },
   microsoftStore: {
-    'zh-CN': 'Microsoft Store', 'zh-Hant': 'Microsoft Store', 'en-US': 'Microsoft Store',
-    'ja-JP': 'Microsoft Store', 'ko-KR': 'Microsoft Store', 'de-DE': 'Microsoft Store',
-    'fr-FR': 'Microsoft Store', 'es-ES': 'Microsoft Store', 'pt-BR': 'Microsoft Store',
-    'ru-RU': 'Microsoft Store',
+    'zh-CN': '下载 Hagicode Windows 版本', 'zh-Hant': '下載 Hagicode Windows 版本',
+    'en-US': 'Download Hagicode for Windows', 'ja-JP': 'Hagicode for Windows をダウンロード',
+    'ko-KR': 'Windows용 Hagicode 다운로드', 'de-DE': 'Hagicode für Windows herunterladen',
+    'fr-FR': 'Télécharger Hagicode pour Windows', 'es-ES': 'Descargar Hagicode para Windows',
+    'pt-BR': 'Baixar Hagicode para Windows', 'ru-RU': 'Скачать Hagicode для Windows',
   },
   icpFiling: '闽ICP备2026004153号-1',
   publicSecurityFiling: '闽公网安备35011102351148号',
@@ -173,7 +180,7 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
   dockerCompose: { label: translations.dockerCompose, href: (locale) => docsPath(locale, '/installation/docker-compose/') },
   productDocs: { label: translations.productDocs, href: (locale) => docsPath(locale, '/product-overview/') },
   blogPosts: { label: translations.blogPosts, href: (locale) => docsPath(locale, '/blog/') },
-  rss: { label: translations.rss, href: (locale) => `https://docs.hagicode.com/blog/rss.${locale}.xml` },
+  rss: { label: translations.rss, href: '' },
   costCalculator: { label: translations.costCalculator, href: 'https://cost.hagicode.com', external: true },
   github: { label: translations.github, href: 'https://github.com/HagiCode-org/site', external: true },
   discord: { label: translations.discord, href: 'https://discord.gg/qY662sJK', external: true },
@@ -215,8 +222,8 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
 
 const groups: Record<LinkGroup, readonly SiteLinkKey[]> = {
   header: ['home', 'blog', 'support'],
-  quick: ['downloadClient', 'microsoftStore', 'about', 'dockerCompose', 'productDocs', 'blogPosts', 'rss'],
-  community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup', 'costCalculator'],
+  quick: ['downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'blogPosts', 'rss', 'about'],
+  community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup'],
   filings: ['icpFiling', 'publicSecurityFiling'],
 };
 
@@ -295,12 +302,26 @@ function resolveLink(
 
 export function resolveSiteLinks(localeInput?: string | null, options: SiteLinksOptions = {}) {
   const locale = normalizeLocale(localeInput);
+  if (options.rssFeedUrl !== undefined && typeof options.rssFeedUrl !== 'string') {
+    throw new TypeError('RSS feed URL must be a string.');
+  }
   const resolvedGroups = Object.fromEntries(
     (Object.keys(groups) as LinkGroup[]).map((group) => {
       const catalogLinks = groups[group].map((key) => {
+        if (key === 'rss' && options.rssFeedUrl === undefined
+          && options.overrides?.rss?.href === undefined) {
+          return undefined;
+        }
+        if ((group === 'quick' || group === 'community')
+          && options.removeLinks?.[group]?.includes(key)) {
+          return undefined;
+        }
         const override = options.overrides?.[key]
           ?? (key === 'blogPosts' ? options.overrides?.blog : undefined);
-        return resolveLink(key, locale, defaultLinks[key], override);
+        const definition = key === 'rss'
+          ? { ...defaultLinks[key], href: options.rssFeedUrl ?? '' }
+          : defaultLinks[key];
+        return resolveLink(key, locale, definition, override);
       });
       const extraLinks = (options.extraLinks?.[group] ?? []).map((entry, index) => {
         const definition: LinkDefinition = {
@@ -308,42 +329,62 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
           href: resolveLocalized(entry.href, locale, ''),
           external: entry.external,
         };
-        return resolveLink(`${group}-custom-${index + 1}`, locale, definition);
+        const id = entry.id ?? `${group}-custom-${index + 1}`;
+        if (typeof id !== 'string' || !id.trim()) {
+          throw new TypeError('Extra link IDs must be non-empty strings.');
+        }
+        return resolveLink(id, locale, definition);
       });
-      return [group, [...catalogLinks, ...extraLinks]];
+      const links = [...catalogLinks, ...extraLinks].filter((link): link is SiteLink => link !== undefined);
+      if (group !== 'quick' && group !== 'community') return [group, links];
+
+      const ids = new Set<string>();
+      const urls = new Set<string>();
+      const uniqueLinks = links.filter((link) => {
+        const url = normalizeUrl(link.href);
+        if (ids.has(link.id) || urls.has(url)) return false;
+        ids.add(link.id);
+        urls.add(url);
+        return true;
+      });
+      return [group, uniqueLinks];
     }),
   ) as Record<LinkGroup, SiteLink[]>;
 
-  const renderedUrls = new Set(
-    [...resolvedGroups.quick, ...resolvedGroups.community, ...resolvedGroups.filings]
-      .map((link) => normalizeUrl(link.href)),
-  );
+  const renderedUrls = new Set([...resolvedGroups.quick, ...resolvedGroups.community, ...resolvedGroups.filings]
+    .map((link) => normalizeUrl(link.href)));
   if (options.siteUrl) renderedUrls.add(normalizeUrl(options.siteUrl));
 
   const relatedIds = new Set<string>();
   const relatedUrls = new Set<string>();
-  const relatedSites = (options.relatedSites ?? docsRelatedSites).flatMap((site) => {
-    const href = site.supportsLocalePath
-      ? new URL(`${locale}/`, site.url.endsWith('/') ? site.url : `${site.url}/`).toString()
-      : site.url;
-    const normalizedUrl = normalizeUrl(href);
-    if (site.id === options.siteId || renderedUrls.has(normalizedUrl)
-      || relatedIds.has(site.id) || relatedUrls.has(normalizedUrl)) {
-      return [];
-    }
-    relatedIds.add(site.id);
-    relatedUrls.add(normalizedUrl);
-    return [{
-      id: site.id,
-      name: resolveLocalized(site.name, locale, site.id),
-      description: site.description
-        ? resolveLocalized(site.description, locale, '')
-        : undefined,
-      href,
-      target: '_blank' as const,
-      rel: 'noopener noreferrer' as const,
-    }];
-  });
+  const bundledOrReplacementSites = (options.relatedSites ?? docsRelatedSites)
+    .filter((site) => !options.removeLinks?.relatedSites?.includes(site.id));
+  const relatedSites = [...bundledOrReplacementSites, ...(options.extraLinks?.relatedSites ?? [])]
+    .flatMap((site) => {
+      if (typeof site.id !== 'string' || !site.id.trim()) {
+        throw new TypeError('Related site IDs must be non-empty strings.');
+      }
+      const href = site.supportsLocalePath
+        ? new URL(`${locale}/`, site.url.endsWith('/') ? site.url : `${site.url}/`).toString()
+        : site.url;
+      const normalizedUrl = normalizeUrl(href);
+      if (site.id === options.siteId || renderedUrls.has(normalizedUrl)
+        || relatedIds.has(site.id) || relatedUrls.has(normalizedUrl)) {
+        return [];
+      }
+      relatedIds.add(site.id);
+      relatedUrls.add(normalizedUrl);
+      return [{
+        id: site.id,
+        name: resolveLocalized(site.name, locale, site.id),
+        description: site.description
+          ? resolveLocalized(site.description, locale, '')
+          : undefined,
+        href,
+        target: '_blank' as const,
+        rel: 'noopener noreferrer' as const,
+      }];
+    });
 
   return {
     locale,

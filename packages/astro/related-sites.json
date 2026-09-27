@@ -1,5 +1,49 @@
 [
   {
+    "id": "hagitask",
+    "name": {
+      "zh-CN": "HagiTask",
+      "zh-Hant": "HagiTask",
+      "en-US": "HagiTask",
+      "ja-JP": "HagiTask",
+      "ko-KR": "HagiTask",
+      "de-DE": "HagiTask",
+      "fr-FR": "HagiTask",
+      "es-ES": "HagiTask",
+      "pt-BR": "HagiTask",
+      "ru-RU": "HagiTask"
+    },
+    "description": {
+      "zh-CN": "任务与工作流管理",
+      "zh-Hant": "任務與工作流程管理",
+      "en-US": "Task and workflow management.",
+      "ja-JP": "タスクとワークフローを管理します。",
+      "ko-KR": "작업과 워크플로를 관리합니다.",
+      "de-DE": "Aufgaben und Workflows verwalten.",
+      "fr-FR": "Gestion des tâches et des workflows.",
+      "es-ES": "Gestión de tareas y flujos de trabajo.",
+      "pt-BR": "Gerenciamento de tarefas e fluxos de trabalho.",
+      "ru-RU": "Управление задачами и рабочими процессами."
+    },
+    "url": "https://tasks.hagicode.com/"
+  },
+  {
+    "id": "costCalculator",
+    "name": {
+      "zh-CN": "算一算，AI会不会淘汰我",
+      "zh-Hant": "算一算，AI 會不會淘汰我",
+      "en-US": "Will AI Replace Me?",
+      "ja-JP": "AI に置き換えられるか診断",
+      "ko-KR": "AI가 나를 대체할까?",
+      "de-DE": "Wird KI mich ersetzen?",
+      "fr-FR": "L'IA va-t-elle me remplacer ?",
+      "es-ES": "Me reemplazará la IA?",
+      "pt-BR": "A IA vai me substituir?",
+      "ru-RU": "Заменит ли меня ИИ?"
+    },
+    "url": "https://cost.hagicode.com"
+  },
+  {
     "id": "hagicode-main",
     "name": {
       "zh-CN": "HagiCode 主站",
