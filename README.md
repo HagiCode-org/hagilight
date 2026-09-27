@@ -35,6 +35,24 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
+The static HagiCode introduction at the end of each article is enabled by default and is controlled independently from the floating banner. Disable it site-wide with `hagicodePromotion: { enabled: false }`; an article's optional `hagicodePromotion` boolean can override that default:
+
+```js
+plugins: [hagilight({
+  hagicodePromotion: { enabled: false },
+  promoto: { enabled: true },
+})]
+```
+
+Set `hagicodePromotion: true` or `false` in article frontmatter to show or hide the introduction for that article. The field is optional; an omitted value inherits the site setting.
+
+```md
+---
+title: Article without the HagiCode introduction
+hagicodePromotion: false
+---
+```
+
 The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. Related sites render as links only (no description text); their names and URLs are bundled from Docs' footer catalog. Entries marked `supportsLocalePath: true` receive the active locale path (currently the main site, OpenSpec, OmniRoute, and Design). Pass `relatedSites: []` to omit them or supply an array to replace them. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog. Route and label overrides and additional entries can also be passed through `links`:
 
 ```js
@@ -86,17 +104,24 @@ Starlight's docs collection is consumer-defined, so add the exported optional sc
 import { defineCollection } from 'astro:content';
 import { docsLoader } from '@astrojs/starlight/loaders';
 import { docsSchema } from '@astrojs/starlight/schema';
+import { articlePromotionSchema } from '@hagicode/hagilight-starlight/article-promotion-schema';
 import { z } from 'astro/zod';
 import { aiDisclosureSchema } from '@hagicode/hagilight-starlight/ai-disclosure-schema';
 
 const siteSchema = z.object({ category: z.string().optional() });
+const hagilightSchema = z.object({
+  ...aiDisclosureSchema.shape,
+  ...articlePromotionSchema.shape,
+});
 export const collections = {
   docs: defineCollection({
     loader: docsLoader(),
-    schema: docsSchema({ extend: siteSchema.extend(aiDisclosureSchema.shape) }),
+    schema: docsSchema({ extend: siteSchema.extend(hagilightSchema.shape) }),
   }),
 };
 ```
+
+The schema exports validate the article override as an optional boolean. Sites that do not install `articlePromotionSchema` still get render-time type validation for the field.
 
 Configure inherited values independently. Both flags default to `false`; a frontmatter value, including `false`, overrides its corresponding site default:
 
@@ -124,6 +149,7 @@ An omitted flag inherits the site default. Invalid option types or non-boolean f
 ```js
 plugins: [hagilight({
   contentComponents: { pageTitle: false, markdownContent: false },
+  hagicodePromotion: { enabled: false },
   aiDisclosures: { isAITranslation: true, sourceLocale: 'root' },
 })]
 ```
@@ -137,10 +163,15 @@ import HagilightMarkdownContent from '@hagicode/hagilight-starlight/MarkdownCont
 
 <DefaultPageTitle />
 <ContentLayoutToggle />
-<HagilightMarkdownContent aiDisclosures={{ isAITranslation: true, sourceLocale: 'root' }}>
+<HagilightMarkdownContent
+  aiDisclosures={{ isAITranslation: true, sourceLocale: 'root' }}
+  hagicodePromotionEnabled={false}
+>
   <slot />
 </HagilightMarkdownContent>
 ```
+
+Pass `hagicodePromotionEnabled` to the exported component to supply the site default when composing a custom MarkdownContent; it defaults to `true`. Per-article frontmatter continues to override it, and the article-end introduction remains separate from `promoto.enabled`.
 
 Google Analytics and 51LA default to the Docs IDs (`G-EN03FMT2Q4` and `L6b88a5yK4h2Xnci`) and load only on production pages (Google Analytics is skipped on `/404`). Override either ID or disable either provider explicitly:
 
