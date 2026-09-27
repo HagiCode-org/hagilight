@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "build:example": "npm run build -w hagilight-example",
+    "build:example": "node scripts/build-example.mjs",
     "pack:check": "node scripts/verify-pack.mjs",
     "integration:installed": "node scripts/integration-installed.mjs"
   }
