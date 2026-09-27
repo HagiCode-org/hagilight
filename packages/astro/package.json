@@ -14,7 +14,10 @@
   },
   "exports": {
     "./Copyright": "./Copyright.astro",
-    "./PromotoBanner": "./PromotoBanner.astro"
+    "./PromotoBanner": "./PromotoBanner.astro",
+    "./site-links": "./site-links.ts",
+    "./GoogleAnalytics": "./GoogleAnalytics.astro",
+    "./Analytics51LA": "./Analytics51LA.astro"
   },
   "files": [
     "*.astro",
