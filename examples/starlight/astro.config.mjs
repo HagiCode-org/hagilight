@@ -10,7 +10,7 @@ export default defineConfig({
       title: 'Hagilight example',
       locales: {
         root: { label: '简体中文', lang: 'zh-CN' },
-        'en-US': { label: 'English', lang: 'en-US' },
+        'en-us': { label: 'English', lang: 'en-US' },
         'zh-Hant': { label: '繁體中文', lang: 'zh-Hant' },
         'fr-FR': { label: 'Français', lang: 'fr-FR' },
         'de-DE': { label: 'Deutsch', lang: 'de-DE' },
@@ -22,6 +22,11 @@ export default defineConfig({
       },
       plugins: [hagilight({
         promoto: { enabled: true },
+        aiDisclosures: {
+          isAITranslation: true,
+          isAIAuthor: true,
+          sourceLocale: 'root',
+        },
         links: {
           siteId: 'hagilight-example',
           siteUrl: 'https://hagilight.hagicode.com/',

@@ -1,5 +1,6 @@
 ---
 title: Hagilight example
+isAIAuthor: false
 ---
 
 import Copyright from '@hagicode/hagilight/Copyright';
@@ -71,6 +72,36 @@ plugins: [hagilight({ promoto: { enabled: false } })]
 The demo explicitly enables the banner. Since the example page has enough
 content to scroll, the footer starts outside the viewport and the banner can
 be seen at the bottom of the page.
+
+### AI disclosure frontmatter
+
+The demo enables both disclosures by default and uses `root` as the source
+locale. Add the optional boolean fields to a page's frontmatter to override
+those defaults:
+
+```md
+---
+title: Translated guide
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+An omitted field inherits the plugin setting. Set a field to `false` to hide
+just that disclosure:
+
+```md
+---
+title: Guide without an AI-author notice
+isAIAuthor: false
+---
+```
+
+This page demonstrates the override: its frontmatter sets `isAIAuthor: false`,
+while the translated `en-us` demo page inherits both notices. Translation
+notices are hidden on the source locale and link to the source page when it
+exists. The demo's content schema includes Hagilight's optional fields through
+`aiDisclosureSchema`; consumers need the same schema extension to use them.
 
 ## Banner behavior
 
