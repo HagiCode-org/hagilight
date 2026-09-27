@@ -1,0 +1,34 @@
+{
+  "name": "@hagicode/hagilight-starlight",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Starlight customizations for HagiCode documentation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git",
+    "directory": "packages/starlight"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "exports": {
+    ".": "./index.mjs",
+    "./Footer": "./Footer.astro"
+  },
+  "files": [
+    "index.mjs",
+    "*.astro"
+  ],
+  "dependencies": {
+    "@hagicode/hagilight": "0.1.0"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": "^0.42.4",
+    "astro": "^7.3.5"
+  },
+  "keywords": [
+    "astro-component",
+    "withastro"
+  ]
+}

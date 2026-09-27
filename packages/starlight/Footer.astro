@@ -1,0 +1,16 @@
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
+---
+
+<DefaultFooter />
+<p class="hagilight-copyright"><Copyright name="HagiCode" /></p>
+
+<style>
+  .hagilight-copyright {
+    margin-block: 1rem;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+    text-align: center;
+  }
+</style>

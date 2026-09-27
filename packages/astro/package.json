@@ -1,0 +1,28 @@
+{
+  "name": "@hagicode/hagilight",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared Astro components for HagiCode sites",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git",
+    "directory": "packages/astro"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "exports": {
+    "./Copyright": "./Copyright.astro"
+  },
+  "files": [
+    "*.astro"
+  ],
+  "peerDependencies": {
+    "astro": "^7.3.5"
+  },
+  "keywords": [
+    "astro-component",
+    "withastro"
+  ]
+}
