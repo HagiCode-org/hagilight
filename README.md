@@ -5,6 +5,8 @@ Two independently publishable packages for Astro sites:
 - `@hagicode/hagilight`: shared `.astro` components (`Copyright` and the reusable promotion banner).
 - `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds localized shared links and copyright below the default Footer, with optional analytics and active promotions.
 
+The shared package also exports the HagiCode logo as `@hagicode/hagilight/logo.png`. The Starlight plugin uses it in the site title by default; a site-provided Starlight `logo` setting takes precedence.
+
 The packages publish `.astro` source directly; consumers compile it with Astro. New shared components belong in `packages/astro/`, with an entry in its `exports` and `files`. Starlight-only overrides belong in `packages/starlight/`; add their entries to `exports` and register them in `index.mjs` when they should apply automatically.
 
 ## Local development
@@ -33,7 +35,7 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
-The Starlight footer includes localized quick links and community links. Route and label overrides, additional entries, and an optional site-owned related-sites list can be passed through `links`:
+The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. The related-site names, descriptions, and URLs are bundled from Docs' footer catalog; pass `relatedSites: []` to omit them or supply an array to replace them. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog. Route and label overrides and additional entries can also be passed through `links`:
 
 ```js
 plugins: [hagilight({
@@ -41,10 +43,10 @@ plugins: [hagilight({
     siteId: 'my-docs',
     siteUrl: 'https://docs.example.com/',
     overrides: {
-      blog: { href: '/news/', label: { 'en-US': 'News', 'zh-CN': '新闻' } },
+      blog: { href: '/news/', label: { 'en-US': 'News' } },
     },
     extraLinks: {
-      quick: [{ href: '/install/', label: { 'en-US': 'Install', 'zh-CN': '安装' } }],
+      quick: [{ href: '/install/', label: 'Install' }],
     },
     relatedSites: [
       { id: 'product', name: 'Product site', url: 'https://example.com/' },
@@ -53,7 +55,23 @@ plugins: [hagilight({
 })]
 ```
 
-The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same header data (`home`, `blog`, and `support`) to consumer-owned Starlight headers; Hagilight does not replace a site's header. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. Related sites matching the current site or any displayed link are omitted, as are duplicate destinations. Default Docs-inspired destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
+The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides localized shared link data to consumer-owned Starlight headers and is used by Hagilight's default Header. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. Related sites matching the current site or any displayed footer link are omitted, as are duplicate destinations. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
+
+## Starlight Header and language chooser
+
+The plugin registers a shared Header by default. It keeps Starlight's site title, configured search, social links, and theme control, and adds localized links from the `header` group. A site that already defines `components.Header` gets a setup error instead of having its Header silently replaced. Keep the site Header with `hagilight({ header: { enabled: false } })`; this opt-out does not change Footer or Head registration.
+
+On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog is Simplified Chinese (`root` / `zh-CN`), English (`en-US`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
+
+To compose the shared Header into a custom override, disable automatic registration and import it directly:
+
+```astro
+---
+import HagilightHeader from '@hagicode/hagilight-starlight/Header';
+---
+
+<HagilightHeader links={{ overrides: { blog: { href: '/news/' } } }} />
+```
 
 Google Analytics and 51LA are independently opt-in. Supply a provider ID to enable it; setting `enabled: true` without the required ID fails plugin setup. The scripts are emitted only for production pages (Google Analytics is skipped on `/404`), and no Docs tracking IDs are included:
 
