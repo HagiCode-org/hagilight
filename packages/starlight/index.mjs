@@ -92,6 +92,7 @@ function createConfiguredIntegration(
   instanceId,
   serializedOptions,
   rssConfig,
+  rssLocaleFeedUrls,
   componentIds,
   getConfiguredRssFeed,
   generateRss,
@@ -134,6 +135,7 @@ import options from '${optionsId}';
   locale={Astro.locals?.starlightRoute?.locale}
   links={options.links}
   rssFeedUrl={options.rssFeedUrl}
+  rssLocaleFeedUrls={options.rssLocaleFeedUrls}
 />
 ${promotionRender}
 ${analyticsRender}
@@ -185,6 +187,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
         return `export default ${JSON.stringify({
           ...serializedOptions,
           rssFeedUrl: getConfiguredRssFeed(),
+          rssLocaleFeedUrls,
         })};`;
       }
       if (moduleId === rssConfigId) return `export default ${JSON.stringify(rssConfig)};`;
@@ -326,13 +329,23 @@ export default function hagilight(options = {}) {
           throw new Error('Hagilight RSS requires the Astro site option. Set site or disable RSS with rss: { enabled: false }.');
         }
         const rssLocales = generateRss ? resolveRssLocales(config.locales) : [];
-        const rssFeedUrl = generateRss
-          ? new URL('rss.xml', new URL((astroConfig.base ?? '/').replace(/\/?$/u, '/'), astroConfig.site)).toString()
+        const baseUrl = generateRss
+          ? new URL((astroConfig.base ?? '/').replace(/\/?$/u, '/'), astroConfig.site)
           : undefined;
+        const rssFeedUrl = baseUrl ? new URL('rss.xml', baseUrl).toString() : undefined;
+        const rssLocaleFeedUrls = baseUrl
+          ? Object.fromEntries(rssLocales
+            .filter(({ filename }) => filename !== 'en')
+            .map(({ lang, filename }) => [
+              lang,
+              new URL(`rss.${filename}.xml`, baseUrl).toString(),
+            ]))
+          : {};
         addIntegration(createConfiguredIntegration(
           instanceId,
           serializedOptions,
           { options: rssOptions, locales: rssLocales },
+          rssLocaleFeedUrls,
           componentIds,
           () => getRssFeedUrl(config) ?? rssFeedUrl,
           generateRss,

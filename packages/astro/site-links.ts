@@ -10,6 +10,7 @@ export type SiteLinkKey =
   | 'productDocs'
   | 'blogPosts'
   | 'rss'
+  | 'rssLocale'
   | 'costCalculator'
   | 'github'
   | 'discord'
@@ -61,6 +62,7 @@ export interface SiteLinksOptions {
   removeLinks?: Partial<Record<FooterLinkSection, readonly string[]>>;
   relatedSites?: readonly RelatedSite[];
   rssFeedUrl?: string;
+  rssLocaleFeedUrl?: string;
   siteId?: string;
   siteUrl?: string;
 }
@@ -124,6 +126,12 @@ const translations = {
     'ja-JP': 'RSS 配信', 'ko-KR': 'RSS 구독', 'de-DE': 'RSS-Feed',
     'fr-FR': 'Flux RSS', 'es-ES': 'RSS', 'pt-BR': 'Feed RSS', 'ru-RU': 'RSS-лента',
   },
+  rssLocale: {
+    'zh-CN': '当前语言 RSS', 'zh-Hant': '目前語言 RSS', 'en-US': 'Current language RSS',
+    'ja-JP': '現在の言語 RSS', 'ko-KR': '현재 언어 RSS', 'de-DE': 'RSS der aktuellen Sprache',
+    'fr-FR': 'Flux RSS de la langue actuelle', 'es-ES': 'RSS del idioma actual',
+    'pt-BR': 'Feed RSS do idioma atual', 'ru-RU': 'RSS для текущего языка',
+  },
   costCalculator: {
     'zh-CN': '算一算，AI会不会淘汰我', 'zh-Hant': '算一算，AI 會不會淘汰我',
     'en-US': 'Will AI Replace Me?', 'ja-JP': 'AI に置き換えられるか診断',
@@ -181,6 +189,7 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
   productDocs: { label: translations.productDocs, href: (locale) => docsPath(locale, '/product-overview/') },
   blogPosts: { label: translations.blogPosts, href: (locale) => docsPath(locale, '/blog/') },
   rss: { label: translations.rss, href: '' },
+  rssLocale: { label: translations.rssLocale, href: '' },
   costCalculator: { label: translations.costCalculator, href: 'https://cost.hagicode.com', external: true },
   github: { label: translations.github, href: 'https://github.com/HagiCode-org/site', external: true },
   discord: { label: translations.discord, href: 'https://discord.gg/qY662sJK', external: true },
@@ -222,7 +231,10 @@ const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {
 
 const groups: Record<LinkGroup, readonly SiteLinkKey[]> = {
   header: ['home', 'blog', 'support'],
-  quick: ['downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'blogPosts', 'rss', 'about'],
+  quick: [
+    'downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'blogPosts',
+    'rss', 'rssLocale', 'about',
+  ],
   community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup'],
   filings: ['icpFiling', 'publicSecurityFiling'],
 };
@@ -312,15 +324,21 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
           && options.overrides?.rss?.href === undefined) {
           return undefined;
         }
-        if ((group === 'quick' || group === 'community')
-          && options.removeLinks?.[group]?.includes(key)) {
-          return undefined;
-        }
+         if (key === 'rssLocale' && options.rssLocaleFeedUrl === undefined) {
+           return undefined;
+         }
+         if ((group === 'quick' || group === 'community')
+           && (options.removeLinks?.[group]?.includes(key)
+             || key === 'rssLocale' && options.removeLinks?.quick?.includes('rss'))) {
+           return undefined;
+         }
         const override = options.overrides?.[key]
           ?? (key === 'blogPosts' ? options.overrides?.blog : undefined);
         const definition = key === 'rss'
           ? { ...defaultLinks[key], href: options.rssFeedUrl ?? '' }
-          : defaultLinks[key];
+          : key === 'rssLocale'
+            ? { ...defaultLinks[key], href: options.rssLocaleFeedUrl ?? '' }
+            : defaultLinks[key];
         return resolveLink(key, locale, definition, override);
       });
       const extraLinks = (options.extraLinks?.[group] ?? []).map((entry, index) => {

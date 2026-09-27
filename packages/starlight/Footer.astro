@@ -7,12 +7,22 @@ interface Props {
   locale?: string;
   links?: SiteLinksOptions;
   rssFeedUrl?: string;
+  rssLocaleFeedUrls?: Readonly<Record<string, string>>;
 }
 
-const { locale = Astro.locals?.starlightRoute?.locale, links, rssFeedUrl } = Astro.props;
+const {
+  locale = Astro.locals?.starlightRoute?.locale,
+  links,
+  rssFeedUrl,
+  rssLocaleFeedUrls,
+} = Astro.props;
+const currentLanguage = Astro.locals?.starlightRoute?.lang;
 const resolvedLinks = resolveSiteLinks(locale, {
   ...links,
   ...(rssFeedUrl === undefined ? {} : { rssFeedUrl }),
+  ...(currentLanguage && rssLocaleFeedUrls?.[currentLanguage]
+    ? { rssLocaleFeedUrl: rssLocaleFeedUrls[currentLanguage] }
+    : {}),
 });
 ---
 
