@@ -1,0 +1,32 @@
+name-template: "Hagilight v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+categories:
+  - title: "Breaking Changes"
+    label: "breaking-change"
+  - title: "Features"
+    labels: ["feature", "enhancement"]
+  - title: "Fixes"
+    label: "bug"
+  - title: "Documentation"
+    label: "docs"
+  - title: "Maintenance"
+    labels: ["chore", "dependencies"]
+
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: "\\<*_&"
+exclude-labels: ["skip-changelog"]
+
+version-resolver:
+  major:
+    labels: ["major"]
+  minor:
+    labels: ["minor"]
+  patch:
+    labels: ["patch"]
+  default: patch
+
+template: |
+  ## Changes
+
+  $CHANGES

@@ -1,0 +1,107 @@
+name: Publish npm
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.event_name }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  publish-dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - name: Test, build and check both packages
+        run: |
+          npm test
+          npm run build:example
+          npm run pack:check
+      - name: Resolve development version
+        id: version
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: echo "version=$(node scripts/release.mjs dev)" >> "$GITHUB_OUTPUT"
+      - name: Stamp both packages and dependencies
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release.mjs stamp "$VERSION"
+      - name: Verify versioned tarballs
+        run: |
+          npm run pack:check
+          npm run integration:installed
+      - name: Publish dependency then Starlight (dev)
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/publish.mjs dev
+      - name: Summarize development publish
+        if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version || 'n/a' }}
+          RESULT: ${{ job.status }}
+        run: |
+          echo "## npm dev publish" >> "$GITHUB_STEP_SUMMARY"
+          echo "Both Hagilight packages, version $VERSION: $RESULT (dist-tag: dev)." >> "$GITHUB_STEP_SUMMARY"
+
+  publish-release:
+    if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease && !github.event.release.draft
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - name: Verify stable release tag
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: echo "version=$(node scripts/release.mjs verify "$RELEASE_TAG")" >> "$GITHUB_OUTPUT"
+      - name: Test, build and check both packages
+        run: |
+          npm test
+          npm run build:example
+          npm run pack:check
+      - name: Stamp both packages and dependencies
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release.mjs stamp "$VERSION"
+      - name: Verify versioned tarballs
+        run: |
+          npm run pack:check
+          npm run integration:installed
+      - name: Publish dependency then Starlight (latest)
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/publish.mjs latest
+      - name: Summarize stable publish
+        if: always()
+        env:
+          VERSION: ${{ steps.version.outputs.version || 'n/a' }}
+          RESULT: ${{ job.status }}
+        run: |
+          echo "## npm stable publish" >> "$GITHUB_STEP_SUMMARY"
+          echo "Both Hagilight packages, version $VERSION: $RESULT (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"
