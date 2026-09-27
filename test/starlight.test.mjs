@@ -8,11 +8,12 @@ import {
   isNotFoundEntry,
 } from '../packages/starlight/not-found.mjs';
 
-function configure(options = {}, components = {}, logo, additionalConfig = {}) {
+function configure(options = {}, components = {}, logo, additionalConfig = {}, astroConfig = {}) {
   const config = { components, logo, ...additionalConfig };
   const integrations = [];
   let updated;
   hagilight(options).hooks['config:setup']({
+    astroConfig: { site: 'https://example.com/', base: '/', ...astroConfig },
     config,
     updateConfig: (value) => { updated = value; },
     addIntegration: (integration) => integrations.push(integration),
@@ -260,6 +261,49 @@ test('passes the finalized configured RSS alternate link to the footer options',
   assert.match(footerSource, /rssFeedUrl=\{options\.rssFeedUrl\}/);
 });
 
+test('generates an RSS route and alternate link by default', () => {
+  const { updated, integrations } = configure();
+  const routes = [];
+  const [vite] = integrationVitePlugins(integrations[0], routes);
+  const source = vite.load(vite.resolveId(optionsModuleId(updated.components.Footer)));
+  const options = JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+
+  assert.deepEqual(routes.map(({ pattern }) => pattern), ['/rss.xml']);
+  assert.match(routes[0].entrypoint, /rss\.xml\.ts$/);
+  assert.equal(updated.head[0].attrs.href, 'https://example.com/rss.xml');
+  assert.equal(options.rssFeedUrl, 'https://example.com/rss.xml');
+});
+
+test('respects a site feed and supports disabling RSS generation', () => {
+  const ownFeed = configure({}, {}, undefined, { head: [{
+    tag: 'link', attrs: { rel: 'alternate', type: 'application/rss+xml', href: '/blog/feed.xml' },
+  }] });
+  const disabled = configure({ rss: { enabled: false } });
+  const ownRoutes = [];
+  const disabledRoutes = [];
+  integrationVitePlugins(ownFeed.integrations[0], ownRoutes);
+  integrationVitePlugins(disabled.integrations[0], disabledRoutes);
+
+  assert.deepEqual(ownRoutes, []);
+  assert.deepEqual(disabledRoutes, []);
+  assert.equal(ownFeed.updated.head.length, 2);
+  assert.equal(disabled.updated.head.length, 1);
+  assert.throws(() => configure({ rss: null }), /rss options must be an object/);
+  assert.throws(() => configure({ rss: { enabled: 'yes' } }), /rss enabled option must be a boolean/);
+});
+
+test('respects the Astro base path and requires a site only for generated RSS', () => {
+  const base = configure({}, {}, undefined, {}, { base: '/docs/' });
+  assert.equal(base.updated.head[0].attrs.href, 'https://example.com/docs/rss.xml');
+  assert.throws(
+    () => configure({}, {}, undefined, {}, { site: undefined }),
+    /RSS requires the Astro site option/,
+  );
+  assert.doesNotThrow(
+    () => configure({ rss: { enabled: false } }, {}, undefined, {}, { site: undefined }),
+  );
+});
+
 test('serializes independent AI disclosure defaults into each plugin options module', () => {
   const defaults = configure();
   const enabled = configure({
@@ -335,15 +379,16 @@ test('preserves configured CSS, head entries, and unrelated component overrides'
   assert.deepEqual(updated.customCss.slice(0, 1), ['./src/site.css']);
   assert.match(updated.customCss[1], /content-width\.css$/);
   assert.equal(updated.head[0], existingHead);
-  assert.match(updated.head[1].content, /hagilight-content-width/);
+  assert.match(updated.head[2].content, /hagilight-content-width/);
   assert.equal(updated.components.Search, './Search.astro');
   assert.match(updated.components.PageTitle, /PageTitle\.astro$/);
   assert.match(updated.components.MarkdownContent, /MarkdownContent\.astro$/);
 });
 
-function integrationVitePlugins(integration) {
+function integrationVitePlugins(integration, routes = []) {
   let config;
   integration.hooks['astro:config:setup']({
+    injectRoute: (route) => routes.push(route),
     updateConfig: (value) => { config = value; },
   });
   return config.vite.plugins;

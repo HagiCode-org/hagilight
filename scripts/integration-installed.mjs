@@ -63,7 +63,11 @@ function verifyDefaultLinksAndAnalytics() {
   ]) {
     assert.ok(html.includes(link), `Expected built footer to include ${link}`);
   }
-  assert.ok(!html.includes('https://docs.hagicode.com/blog/rss.'));
+    const feed = readFileSync(join(temp, 'dist', 'rss.xml'), 'utf8');
+    assert.match(feed, /<rss\b/u);
+    assert.ok(feed.includes('https://hagilight.hagicode.com/en-us/'));
+    assert.ok(feed.includes('https://hagilight.hagicode.com/'));
+    assert.match(html, /rel="alternate"[^>]*type="application\/rss\+xml"/u);
   assert.ok(!html.includes('store.steampowered.com'));
   assert.ok(html.includes('Download Hagicode'));
   assert.ok(html.includes('Download Hagicode for Windows'));

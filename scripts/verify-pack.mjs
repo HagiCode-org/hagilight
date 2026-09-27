@@ -15,6 +15,7 @@ for (const [workspace, required] of [
   ]],
   ['@hagicode/hagilight-starlight', [
     'index.mjs',
+    'rss.xml.ts',
     'ai-disclosure-schema.mjs',
     'ai-disclosures.mjs',
     'AIDisclosureNotice.astro',
