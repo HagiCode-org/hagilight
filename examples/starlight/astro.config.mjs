@@ -3,15 +3,25 @@ import starlight from '@astrojs/starlight';
 import hagilight from '@hagicode/hagilight-starlight';
 import { locales } from '@hagicode/hagilight-starlight/locales';
 
+const base = process.env.HAGILIGHT_EXAMPLE_BASE ?? '/';
+const rssOption = (name) => {
+  const key = name.replace(/[A-Z]/gu, (letter) => `_${letter}`).toUpperCase();
+  return process.env[`HAGILIGHT_RSS_${key}`] !== 'false';
+};
+
 export default defineConfig({
   site: 'https://hagilight.hagicode.com',
-  base: '/',
+  base,
   integrations: [
     starlight({
       title: 'Hagilight example',
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
       locales,
       plugins: [hagilight({
+        rss: {
+          includeDocs: rssOption('includeDocs'),
+          includeBlog: rssOption('includeBlog'),
+        },
         hagicodePromotion: { enabled: true },
         promoto: { enabled: true },
         aiDisclosures: {
