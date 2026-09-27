@@ -91,7 +91,69 @@ plugins: [hagilight({
 
 Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
 
-RSS is enabled by default. With Astro's `site` set, Hagilight generates `/rss.xml` using `@astrojs/rss`, adds a feed alternate link to the head, and links to it in Quick Links. The feed contains non-draft Starlight docs, sorted by explicit `lastUpdated` dates when available; undated pages are included without a publication date. The example site builds a working feed from its dated pages. Set `rss: { enabled: false }` to disable generation, for instance when another plugin owns the feed. If the site already declares an RSS alternate link (`rel="alternate"`, `type="application/rss+xml"`) in Starlight's `head`, Hagilight uses it instead of generating a feed. A consumer can explicitly override the footer link:
+RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination and now contains only English content; `/rss.en.xml` is its explicit alias. Other feeds use their configured language tags, for example `/rss.zh-CN.xml` for a `zh-CN` root locale. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
+
+By default, feeds include documentation pages and articles under the locale-relative `blog/<article>` path. A `blog/` listing or `blog/index` page is treated as documentation. Configure the independent site-wide switches:
+
+```js
+plugins: [hagilight({
+  rss: {
+    includeDocs: true,
+    includeBlog: true,
+  },
+})]
+```
+
+Both switches default to `true`. An article can opt out with `rss: false` in its frontmatter, or explicitly remain included with `rss: true`; drafts and content types disabled site-wide are always excluded. A complete multilingual configuration looks like this:
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  site: 'https://docs.example.com',
+  base: '/docs/',
+  integrations: [
+    starlight({
+      title: 'My documentation',
+      locales: {
+        root: { label: '简体中文', lang: 'zh-CN' },
+        'en-us': { label: 'English', lang: 'en-US' },
+      },
+      plugins: [hagilight({
+        rss: { includeDocs: true, includeBlog: true },
+      })],
+    }),
+  ],
+});
+```
+
+In this example, `/docs/rss.xml` and `/docs/rss.en.xml` contain English items, while `/docs/rss.zh-CN.xml` contains root-locale Chinese items. Add the optional schema extension to the Starlight docs schema to validate the per-article field:
+
+```ts
+import { defineCollection } from 'astro:content';
+import { docsLoader } from '@astrojs/starlight/loaders';
+import { docsSchema } from '@astrojs/starlight/schema';
+import { rssSchema } from '@hagicode/hagilight-starlight/rss-schema';
+import { z } from 'astro/zod';
+
+export const collections = {
+  docs: defineCollection({
+    loader: docsLoader(),
+    schema: docsSchema({ extend: z.object({ ...rssSchema.shape }) }),
+  }),
+};
+```
+
+```md
+---
+title: Article excluded from RSS
+rss: false
+---
+```
+
+The extension is optional. Without it, do not use `rss` in article frontmatter. Hagilight uses `@astrojs/rss` as its RSS XML serializer; the example does not register a second RSS generator. If a consumer switches from another RSS integration to Hagilight, remove the competing generator and its dependency if nothing else uses it. Set `rss: { enabled: false }` when another feed owns the RSS URL. If the site already declares an RSS alternate link (`rel="alternate"`, `type="application/rss+xml"`) in Starlight's `head`, Hagilight uses it instead of generating feeds. A consumer can explicitly override the footer link:
 
 ```js
 starlight({
