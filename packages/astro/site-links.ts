@@ -105,6 +105,10 @@ function normalizeLocale(locale?: string | null): string {
   if (normalized === 'en' || normalized === 'en-us' || !normalized) {
     return 'en-US';
   }
+  const canonical = [
+    'ja-JP', 'ko-KR', 'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+  ].find((candidate) => candidate.toLowerCase() === normalized);
+  if (canonical) return canonical;
   return locale!.trim();
 }
 
@@ -114,7 +118,7 @@ function docsPath(locale: string, pathname: string): string {
     return `https://docs.hagicode.com/blog/rss.${language}.xml`;
   }
   const supportedRouteLocales = new Set([
-    'en-US', 'zh-Hant', 'ja-JP', 'ko-KR', 'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+    'en-US', 'zh-CN', 'zh-Hant', 'ja-JP', 'ko-KR', 'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
   ]);
   const routeLocale = supportedRouteLocales.has(locale) ? locale : 'en-US';
   const prefix = routeLocale === 'zh-CN' ? '' : `/${routeLocale}`;
