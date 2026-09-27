@@ -10,6 +10,8 @@ test('resolves localized links with nonempty fallback labels', () => {
   assert.equal(unknown.header[0].label, 'Home');
   assert.equal(unknown.header[1].label, 'Blog');
   assert.equal(traditional.header[1].href, 'https://docs.hagicode.com/zh-Hant/blog/');
+  assert.equal(unknown.header[1].href, 'https://docs.hagicode.com/de-DE/blog/');
+  assert.equal(resolveSiteLinks('unsupported').header[1].href, 'https://docs.hagicode.com/en-US/blog/');
 });
 
 test('uses consumer-owned localized destinations and labels', () => {
@@ -44,11 +46,16 @@ test('filters related-site self, rendered destinations, and duplicate URLs', () 
 });
 
 test('external links open safely in a new tab and unsafe protocols are rejected', () => {
-  const links = resolveSiteLinks('en-US');
+  const links = resolveSiteLinks('en-US', {
+    extraLinks: { community: [{ href: 'https://example.com/community', label: 'Community', external: true }] },
+  });
   const github = links.community.find((link) => link.id === 'github');
+  const custom = links.community.find((link) => link.id === 'community-custom-1');
 
   assert.equal(github.target, '_blank');
   assert.equal(github.rel, 'noopener noreferrer');
+  assert.equal(custom.target, '_blank');
+  assert.equal(custom.rel, 'noopener noreferrer');
   assert.throws(
     () => resolveSiteLinks('en-US', { overrides: { blog: { href: 'javascript:alert(1)' } } }),
     /Unsupported link protocol/,
