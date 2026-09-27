@@ -239,6 +239,8 @@ export function definePromotoBannerElement(): void {
         slide.append(copy);
 
         if (card.image) {
+          const media = document.createElement('span');
+          media.className = 'hagilight-promoto__media';
           const image = document.createElement('img');
           image.className = 'hagilight-promoto__image';
           image.src = card.image.src;
@@ -247,7 +249,8 @@ export function definePromotoBannerElement(): void {
           image.decoding = 'async';
           if (card.image.width) image.width = card.image.width;
           if (card.image.height) image.height = card.image.height;
-          slide.append(image);
+          media.append(image);
+          slide.append(media);
         }
         slide.append(link);
         fragment.append(slide);
