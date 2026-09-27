@@ -110,6 +110,7 @@ export function definePromotoBannerElement(): void {
     private motionQuery: MediaQueryList | undefined;
     private resizeObserver: ResizeObserver | undefined;
     private footer: HTMLElement | null = null;
+    private loadedLocale: string | null = null;
 
     private readonly onPrevious = () => this.move(-1);
     private readonly onNext = () => this.move(1);
@@ -146,6 +147,12 @@ export function definePromotoBannerElement(): void {
       this.updateControls();
       this.syncRotation();
     };
+    private readonly onPageLoad = () => {
+      // Re-fetch in the current page locale after a Starlight view-transition
+      // navigation. The element may persist across a soft language switch, so
+      // its previously loaded locale can differ from the new page's data-locale.
+      if (this.dataset.locale !== this.loadedLocale) void this.reload();
+    };
 
     connectedCallback(): void {
       this.footer = document.querySelector('footer');
@@ -159,6 +166,7 @@ export function definePromotoBannerElement(): void {
       window.addEventListener('resize', this.onLayoutChange);
       document.addEventListener('visibilitychange', this.onVisibilityChange);
       this.motionQuery?.addEventListener('change', this.onMotionChange);
+      document.addEventListener('astro:page-load', this.onPageLoad);
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeObserver = new ResizeObserver(this.onLayoutChange);
         if (this.footer) this.resizeObserver.observe(this.footer);
@@ -178,6 +186,7 @@ export function definePromotoBannerElement(): void {
       window.removeEventListener('resize', this.onLayoutChange);
       document.removeEventListener('visibilitychange', this.onVisibilityChange);
       this.motionQuery?.removeEventListener('change', this.onMotionChange);
+      document.removeEventListener('astro:page-load', this.onPageLoad);
       this.resizeObserver?.disconnect();
       this.stopRotation();
       this.stopRefresh();
@@ -185,6 +194,7 @@ export function definePromotoBannerElement(): void {
 
     private async reload(): Promise<void> {
       const previousId = this.cards[this.currentIndex]?.id;
+      this.loadedLocale = this.dataset.locale ?? null;
       const remote = await loadActivePromotions({ locale: this.dataset.locale });
       if (!this.isConnected) return;
       const fallback = this.readFallback();
