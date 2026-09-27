@@ -10,14 +10,6 @@ export default defineConfig({
     starlight({
       title: 'Hagilight example',
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
-      head: [{
-        tag: 'link',
-        attrs: {
-          rel: 'alternate',
-          type: 'application/rss+xml',
-          href: 'https://hagilight.hagicode.com/rss.xml',
-        },
-      }],
       locales,
       plugins: [hagilight({
         hagicodePromotion: { enabled: true },
