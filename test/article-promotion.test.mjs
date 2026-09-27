@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { articlePromotionSchema } from '../packages/starlight/article-promotion-schema.mjs';
 import {
+  COPY,
   getArticlePromotionCopy,
   resolveArticlePromotion,
 } from '../packages/starlight/article-promotion.mjs';
@@ -26,25 +27,56 @@ test('article promotion schema accepts an optional boolean and rejects other val
   assert.throws(() => articlePromotionSchema.parse({ hagicodePromotion: 'false' }));
 });
 
-test('article promotion copy is localized when available and falls back to English', () => {
-  assert.equal(getArticlePromotionCopy('zh-CN').title, '关于 HagiCode');
-  assert.equal(getArticlePromotionCopy('fr-FR').link, 'Découvrir HagiCode');
-  assert.equal(getArticlePromotionCopy('it-IT').title, 'About HagiCode');
+test('article promotion carries complete copy for all ten locales and falls back to English', () => {
+  assert.deepEqual(Object.keys(COPY), [
+    'zh-CN',
+    'en-US',
+    'zh-Hant',
+    'ja-JP',
+    'ko-KR',
+    'de-DE',
+    'fr-FR',
+    'es-ES',
+    'pt-BR',
+    'ru-RU',
+  ]);
+  for (const copy of Object.values(COPY)) {
+    assert.ok(copy.title);
+    assert.ok(copy.lead);
+    assert.ok(copy.subheadline);
+    assert.ok(copy.imageAlt);
+    assert.equal(copy.features.length, 3);
+    assert.ok(copy.visitLabel);
+    for (const feature of copy.features) {
+      assert.ok(feature.label);
+      assert.ok(feature.description);
+    }
+  }
+  assert.equal(getArticlePromotionCopy('zh-CN').lead, COPY['zh-CN'].lead);
+  assert.equal(getArticlePromotionCopy('fr-FR').features[1].label, 'Efficient');
+  assert.equal(getArticlePromotionCopy('it-IT').title, 'HagiCode');
 });
 
-test('article promotion is static, themed, keyboard accessible, and positioned after article notices', async () => {
-  const [component, markdownContent] = await Promise.all([
+test('article promotion includes original artwork, theme styling, focus, and article-end positioning', async () => {
+  const [component, markdownContent, image] = await Promise.all([
     readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8'),
     readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/starlight/assets/light-main.png', import.meta.url)),
   ]);
   const bodyPosition = markdownContent.indexOf('<DefaultMarkdownContent>');
   const translationPosition = markdownContent.indexOf('{showTranslation &&');
   const promotionPosition = markdownContent.indexOf('{showHagicodePromotion &&');
 
   assert.match(component, /href="https:\/\/www\.hagicode\.com\/"/);
+  assert.match(component, /heroImage\.src/);
+  assert.match(component, /copy\.lead/);
+  assert.match(component, /copy\.subheadline/);
+  assert.match(component, /copy\.features\.map/);
+  assert.match(component, /copy\.imageAlt/);
   assert.match(component, /:focus-visible/);
   assert.match(component, /var\(--sl-color-/);
   assert.doesNotMatch(component, /<script/u);
+  assert.ok(image.length > 100_000);
   assert.ok(bodyPosition >= 0 && translationPosition > bodyPosition);
   assert.ok(promotionPosition > translationPosition);
   assert.match(markdownContent, /const showHagicodePromotion = isDocsEntry\s+&& resolveArticlePromotion/u);
