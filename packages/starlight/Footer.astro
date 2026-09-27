@@ -23,7 +23,6 @@ const resolvedLinks = resolveSiteLinks(locale, links);
             <li>
               <a href={site.href} target={site.target} rel={site.rel}>
                 {site.name}
-                {site.description && <span class="hagilight-site-description">{site.description}</span>}
               </a>
             </li>
           ))}
@@ -100,12 +99,6 @@ const resolvedLinks = resolveSiteLinks(locale, links);
 
   .hagilight-site-links a:hover {
     color: var(--sl-color-white);
-  }
-
-  .hagilight-site-description {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: var(--sl-text-xs);
   }
 
   .hagilight-filings {

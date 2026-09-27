@@ -62,6 +62,7 @@ function verifyDefaultLinksAndNoAnalytics() {
   }
   assert.ok(html.includes('Quick links'));
   assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
+  assert.ok(!html.includes('hagilight-site-description'));
   assert.match(
     html,
     /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
