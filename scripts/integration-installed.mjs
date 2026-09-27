@@ -33,6 +33,7 @@ function countOccurrences(value, needle) {
 
 function verifyDefaultLinksAndAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  const englishHtml = readFileSync(join(temp, 'dist', 'en-us', 'index.html'), 'utf8');
   for (const link of [
     'https://www.hagicode.com/en-US/',
     'https://www.hagicode.com/en-US/desktop/',
@@ -68,6 +69,8 @@ function verifyDefaultLinksAndAnalytics() {
     assert.ok(feed.includes('https://hagilight.hagicode.com/en-us/'));
     assert.ok(feed.includes('https://hagilight.hagicode.com/en-us/blog/rss-example/'));
     assert.match(html, /rel="alternate"[^>]*type="application\/rss\+xml"/u);
+    assert.ok(html.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
+    assert.ok(!englishHtml.includes('https://hagilight.hagicode.com/rss.en.xml'));
     const englishAlias = readFileSync(join(temp, 'dist', 'rss.en.xml'), 'utf8');
     const chineseFeed = readFileSync(join(temp, 'dist', 'rss.zh-CN.xml'), 'utf8');
     assert.equal(feed, englishAlias);

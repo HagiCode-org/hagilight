@@ -60,7 +60,12 @@ function verifyDefaultFeeds(read) {
   assert.match(feedItems(english)[0], /<pubDate>/u);
 }
 
-verifyDefaultFeeds(build());
+const defaultFeeds = build();
+verifyDefaultFeeds(defaultFeeds);
+assert.ok(readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8')
+  .includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
+assert.ok(!readFileSync(join(root, 'examples/starlight/dist/en-us/index.html'), 'utf8')
+  .includes('https://hagilight.hagicode.com/rss.en.xml'));
 
 const blogOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-blog-only/',
