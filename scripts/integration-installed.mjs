@@ -39,6 +39,7 @@ function verifyDefaultLinksAndAnalytics() {
     'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
     'https://www.hagicode.com/en-US/about/',
     'https://docs.hagicode.com/en-US/blog/',
+    'https://tasks.hagicode.com/',
     'https://github.com/HagiCode-org/site',
     'https://discord.gg/qY662sJK',
     'https://github.com/HagiCode-org/site/issues',
@@ -47,7 +48,7 @@ function verifyDefaultLinksAndAnalytics() {
     'https://cost.hagicode.com',
     'https://docs.hagicode.com/en-US/installation/docker-compose/',
     'https://docs.hagicode.com/en-US/product-overview/',
-    'https://docs.hagicode.com/blog/rss.en-US.xml',
+    'https://hagilight.hagicode.com/rss.xml',
     'https://newbe.hagicode.com/',
     'https://index.hagicode.com/data/',
     'https://builder.hagicode.com/',
@@ -62,13 +63,22 @@ function verifyDefaultLinksAndAnalytics() {
   ]) {
     assert.ok(html.includes(link), `Expected built footer to include ${link}`);
   }
+  assert.ok(!html.includes('https://docs.hagicode.com/blog/rss.'));
   assert.ok(!html.includes('store.steampowered.com'));
+  assert.ok(html.includes('Download Hagicode'));
+  assert.ok(html.includes('Download Hagicode for Windows'));
+  assert.ok(html.includes('About HagiCode'));
   assert.ok(html.includes('Quick links'));
   assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
+  assert.ok(html.includes('https://github.com/HagiCode-org/hagilight/edit/main/'));
   assert.ok(!html.includes('hagilight-site-description'));
   assert.match(
     html,
     /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
+  );
+  assert.match(
+    html,
+    /href="https:\/\/tasks\.hagicode\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
   );
   assert.ok(html.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'));
   assert.ok(html.includes("gtag('config', measurementId)"));
