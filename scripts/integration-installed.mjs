@@ -42,6 +42,10 @@ function verifyDefaultLinksAndNoAnalytics() {
   }
   assert.ok(html.includes('Quick links'));
   assert.ok(html.includes('Community &amp; support') || html.includes('Community & support'));
+  assert.match(
+    html,
+    /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
+  );
   assert.ok(!html.includes('googletagmanager.com'));
   assert.ok(!html.includes('sdk.51.la'));
   assert.ok(!html.includes('LA.init('));
@@ -49,12 +53,16 @@ function verifyDefaultLinksAndNoAnalytics() {
 
 function verifyAnalyticsBuild() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
   assert.equal(countOccurrences(html, 'googletagmanager.com/gtag/js?id=G-TEST123'), 1);
   assert.equal(countOccurrences(html, "gtag('config', measurementId)"), 1);
-  assert.ok(html.includes('measurementId="G-TEST123"'));
+  assert.match(html, /measurementId\s*=\s*["']G-TEST123["']/u);
   assert.equal(countOccurrences(html, 'sdk.51.la/js-sdk-pro.min.js'), 1);
   assert.equal(countOccurrences(html, 'LA.init('), 1);
-  assert.ok(html.includes('siteId="test-site-51la"'));
+  assert.match(html, /siteId\s*=\s*["']test-site-51la["']/u);
+  assert.ok(!notFoundHtml.includes('googletagmanager.com'));
+  assert.ok(!notFoundHtml.includes("gtag('config',"));
+  assert.equal(countOccurrences(notFoundHtml, 'LA.init('), 1);
 }
 
 async function availablePort() {
