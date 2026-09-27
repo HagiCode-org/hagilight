@@ -14,7 +14,8 @@
   },
   "exports": {
     ".": "./index.mjs",
-    "./Footer": "./Footer.astro"
+    "./Footer": "./Footer.astro",
+    "./PromotoFooter": "./PromotoFooter.astro"
   },
   "files": [
     "index.mjs",

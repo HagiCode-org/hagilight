@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Hagilight example',
-      plugins: [hagilight()],
+      plugins: [hagilight({ promoto: { enabled: true } })],
     }),
   ],
 });

@@ -13,10 +13,12 @@
     "provenance": true
   },
   "exports": {
-    "./Copyright": "./Copyright.astro"
+    "./Copyright": "./Copyright.astro",
+    "./PromotoBanner": "./PromotoBanner.astro"
   },
   "files": [
-    "*.astro"
+    "*.astro",
+    "*.ts"
   ],
   "peerDependencies": {
     "astro": "^7.3.5"

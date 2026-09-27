@@ -1,0 +1,106 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import {
+  loadActivePromotions,
+  normalizeActivePromotions,
+  parsePromotionContent,
+  parsePromotionFlags,
+  resolvePromotionDocumentUrls,
+} from '../packages/astro/promotions.ts';
+
+function json(payload) {
+  return new Response(JSON.stringify(payload), {
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+test('falls back to canonical Index documents when catalog discovery fails', async () => {
+  const requested = [];
+  const fetchImpl = async (input) => {
+    const url = input.toString();
+    requested.push(url);
+    if (url.endsWith('/index-catalog.json')) throw new Error('catalog unavailable');
+    if (url.endsWith('/promote.json')) return json({ promotes: [] });
+    if (url.endsWith('/promote_content.json')) return json({ contents: [] });
+    throw new Error(`Unexpected URL: ${url}`);
+  };
+
+  assert.deepEqual(await resolvePromotionDocumentUrls(fetchImpl), {
+    flagsUrl: 'https://index.hagicode.com/promote.json',
+    contentUrl: 'https://index.hagicode.com/promote_content.json',
+    source: 'fallback',
+  });
+  assert.deepEqual(await loadActivePromotions({ fetchImpl }), []);
+  assert.ok(requested.includes('https://index.hagicode.com/promote.json'));
+});
+
+test('selects only active matched promotions with locale and image fallbacks', () => {
+  const cards = normalizeActivePromotions(
+    parsePromotionFlags({ promotes: [
+      { id: 'active', on: true },
+      { id: 'disabled', on: false },
+      { id: 'future', on: true, startTime: '2030-01-01T00:00:00Z' },
+      { id: 'missing', on: true },
+    ] }),
+    parsePromotionContent({ contents: [
+      {
+        id: 'active',
+        title: { 'de-DE': 'Nur heute', en: 'Today only' },
+        description: { en: 'Limited offer' },
+        link: 'https://example.com/offer',
+        image: { src: '/images/offer.webp', width: 640 },
+      },
+      {
+        id: 'disabled',
+        title: { en: 'Disabled' },
+        description: { en: 'Not shown' },
+        link: 'https://example.com/disabled',
+      },
+      {
+        id: 'future',
+        title: { en: 'Future' },
+        description: { en: 'Not yet' },
+        link: 'https://example.com/future',
+      },
+      {
+        id: 'unsafe',
+        title: { en: 'Unsafe link' },
+        description: { en: 'Not shown' },
+        link: 'javascript:alert(1)',
+      },
+    ] }),
+    'de-DE',
+    Date.parse('2029-01-01T00:00:00Z'),
+  );
+
+  assert.deepEqual(cards, [{
+    id: 'active',
+    title: 'Nur heute',
+    description: 'Limited offer',
+    ctaLabel: 'Learn more',
+    link: 'https://example.com/offer',
+    image: {
+      src: 'https://index.hagicode.com/images/offer.webp',
+      alt: 'Nur heute',
+      variant: undefined,
+      width: 640,
+      height: undefined,
+    },
+  }]);
+});
+
+test('falls back to English locale content and returns no cards on remote failure', async () => {
+  const localized = normalizeActivePromotions(
+    parsePromotionFlags({ promotes: [{ id: 'campaign', on: true }] }),
+    parsePromotionContent({ contents: [{
+      id: 'campaign',
+      title: { en: 'English title' },
+      description: { 'en-US': 'English description' },
+      link: '/campaign',
+    }] }),
+    'unsupported-Latn',
+  );
+  assert.equal(localized[0]?.title, 'English title');
+  assert.equal(localized[0]?.link, '/campaign');
+  assert.deepEqual(await loadActivePromotions({ fetchImpl: async () => { throw new Error('offline'); } }), []);
+});

@@ -8,6 +8,17 @@ test('registers the shared footer without discarding other overrides', () => {
   hagilight().hooks['config:setup']({ config, updateConfig: (value) => { updated = value; } });
 
   assert.equal(updated.components.Header, config.components.Header);
+  assert.match(updated.components.Footer, /packages\/starlight\/PromotoFooter\.astro$/);
+});
+
+test('uses the original footer when the promotion banner is disabled', () => {
+  let updated;
+  hagilight({ promoto: { enabled: false } }).hooks['config:setup']({
+    config: { components: { Header: './Header.astro' } },
+    updateConfig: (value) => { updated = value; },
+  });
+
+  assert.equal(updated.components.Header, './Header.astro');
   assert.match(updated.components.Footer, /packages\/starlight\/Footer\.astro$/);
 });
 

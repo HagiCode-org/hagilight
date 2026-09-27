@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
-export default function hagilight() {
+export default function hagilight(options = {}) {
+  const footer = options.promoto?.enabled === false ? 'Footer.astro' : 'PromotoFooter.astro';
   return {
     name: '@hagicode/hagilight-starlight',
     hooks: {
@@ -12,7 +13,7 @@ export default function hagilight() {
         updateConfig({
           components: {
             ...config.components,
-            Footer: fileURLToPath(new URL('./Footer.astro', import.meta.url)),
+            Footer: fileURLToPath(new URL(`./${footer}`, import.meta.url)),
           },
         });
       },
