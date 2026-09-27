@@ -8,6 +8,7 @@ function configure(options = {}, components = {}) {
   const integrations = [];
   let updated;
   hagilight(options).hooks['config:setup']({
+    astroConfig: { site: 'https://example.com/', base: '/' },
     config,
     updateConfig: (value) => { updated = value; },
     addIntegration: (integration) => integrations.push(integration),
@@ -18,6 +19,7 @@ function configure(options = {}, components = {}) {
 function getVitePlugin(integration) {
   let config;
   integration.hooks['astro:config:setup']({
+    injectRoute: () => {},
     updateConfig: (value) => { config = value; },
   });
   return config.vite.plugins[0];
