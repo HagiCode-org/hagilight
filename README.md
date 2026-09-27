@@ -79,6 +79,6 @@ Before enabling publication, choose and record a license for both packages, ensu
 
 ## GitHub Pages demo
 
-The Starlight example is published to [https://hagicode-org.github.io/hagilight/](https://hagicode-org.github.io/hagilight/) after successful pushes to `main`. In the repository's **Settings > Pages**, set the source to **Deploy from a branch**, select `gh-pages` and `/ (root)`, then save. In **Settings > Actions > General > Workflow permissions**, allow read and write permissions so the workflow's `GITHUB_TOKEN` can update the branch.
+The Starlight example is published to [https://hagilight.hagicode.com/](https://hagilight.hagicode.com/) after successful pushes to `main`. Point the domain's DNS to GitHub Pages (for example, with a `CNAME` record for `hagilight` pointing to `hagicode-org.github.io`). In the repository's **Settings > Pages**, set the source to **Deploy from a branch**, select `gh-pages` and `/ (root)`, then save; the deployment workflow writes the custom-domain `CNAME` file. Enable **Enforce HTTPS** once GitHub Pages provisions a certificate. In **Settings > Actions > General > Workflow permissions**, allow read and write permissions so the workflow's `GITHUB_TOKEN` can update the branch.
 
 If a deployment fails, open **Actions > Deploy Hagilight demo**, select the failed run, and inspect the failed install, build, or publish step's logs. A publish permission error indicates the workflow token's repository permissions need to be enabled; the site is served from the `gh-pages` branch root.
