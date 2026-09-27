@@ -2,8 +2,8 @@
 
 Two independently publishable packages for Astro sites:
 
-- `@hagicode/hagilight`: shared `.astro` components (currently `Copyright`).
-- `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds a shared copyright below the default Footer.
+- `@hagicode/hagilight`: shared `.astro` components (`Copyright` and the reusable promotion banner).
+- `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds a shared copyright below the default Footer and displays active promotions.
 
 The packages publish `.astro` source directly; consumers compile it with Astro. New shared components belong in `packages/astro/`, with an entry in its `exports` and `files`. Starlight-only overrides belong in `packages/starlight/`; add their entries to `exports` and register them in `index.mjs` when they should apply automatically.
 
@@ -26,6 +26,32 @@ export default {
   integrations: [starlight({ title: 'My docs', plugins: [hagilight()] })],
 };
 ```
+
+The promotion banner is enabled by default. Disable it while keeping the shared Footer and copyright with `hagilight({ promoto: { enabled: false } })`:
+
+```js
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+The Starlight demo explicitly enables the banner with `hagilight({ promoto: { enabled: true } })`. Sites can also use the component directly and provide their own localized fallback for when no remote campaign is available:
+
+```astro
+---
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: 'Site announcement',
+    description: 'A message translated by your site.',
+    ctaLabel: 'Read more',
+    link: '/news/',
+  }}
+/>
+```
+
+Docs still has its own banner until it adopts hagilight separately. Enabling hagilight there before removing the Docs banner can display duplicate banners.
 
 For ordinary Astro pages or MDX content, import components directly:
 
