@@ -87,7 +87,7 @@ function getRssFeedUrl(config) {
   return rssLink?.attrs.href;
 }
 
-function createConfiguredIntegration(instanceId, serializedOptions, componentIds, getConfiguredRssFeed) {
+function createConfiguredIntegration(instanceId, serializedOptions, componentIds, getConfiguredRssFeed, generateRss) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const headerPath = componentIds.header
     ? fileURLToPath(new URL('./Header.astro', import.meta.url))
@@ -185,7 +185,14 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
   return {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
     hooks: {
-      'astro:config:setup'({ updateConfig }) {
+      'astro:config:setup'({ injectRoute, updateConfig }) {
+        if (generateRss) {
+          injectRoute({
+            pattern: '/rss.xml',
+            entrypoint: fileURLToPath(new URL('./rss.xml.ts', import.meta.url)),
+            prerender: true,
+          });
+        }
         updateConfig({ vite: { plugins: [vitePlugin] } });
       },
     },
@@ -209,6 +216,13 @@ export default function hagilight(options = {}) {
   }
   if (options.notFoundPage?.enabled !== undefined && typeof options.notFoundPage.enabled !== 'boolean') {
     throw new TypeError('Hagilight notFoundPage enabled option must be a boolean.');
+  }
+  if (options.rss !== undefined
+    && (!options.rss || typeof options.rss !== 'object' || Array.isArray(options.rss))) {
+    throw new TypeError('Hagilight rss options must be an object.');
+  }
+  if (options.rss?.enabled !== undefined && typeof options.rss.enabled !== 'boolean') {
+    throw new TypeError('Hagilight rss enabled option must be a boolean.');
   }
   if (options.analytics !== undefined
     && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
@@ -271,7 +285,7 @@ export default function hagilight(options = {}) {
   return {
     name: '@hagicode/hagilight-starlight',
     hooks: {
-      'config:setup'({ config, updateConfig, addIntegration }) {
+      'config:setup'({ astroConfig, config, updateConfig, addIntegration }) {
         if (headerEnabled && config.components?.Header) {
           throw new Error('Hagilight cannot replace an existing Starlight Header override. Set header: { enabled: false } to keep it, or compose @hagicode/hagilight-starlight/Header directly.');
         }
@@ -291,17 +305,29 @@ export default function hagilight(options = {}) {
           throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Compose @hagicode/hagilight/GoogleAnalytics in your Head instead.');
         }
 
+        const generateRss = options.rss?.enabled !== false && !getRssFeedUrl(config);
+        if (generateRss && !astroConfig.site) {
+          throw new Error('Hagilight RSS requires the Astro site option. Set site or disable RSS with rss: { enabled: false }.');
+        }
+        const rssFeedUrl = generateRss
+          ? new URL('rss.xml', new URL((astroConfig.base ?? '/').replace(/\/?$/u, '/'), astroConfig.site)).toString()
+          : undefined;
         addIntegration(createConfiguredIntegration(
           instanceId,
           serializedOptions,
           componentIds,
-          () => getRssFeedUrl(config),
+          () => getRssFeedUrl(config) ?? rssFeedUrl,
+          generateRss,
         ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),
           customCss: [...(config.customCss ?? []), contentWidthCssPath],
           head: [
             ...(config.head ?? []),
+            ...(rssFeedUrl ? [{
+              tag: 'link',
+              attrs: { rel: 'alternate', type: 'application/rss+xml', href: rssFeedUrl },
+            }] : []),
             { tag: 'script', content: contentWidthHeadScript },
           ],
           components: {
