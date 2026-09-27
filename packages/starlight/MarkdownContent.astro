@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import DefaultMarkdownContent from '@astrojs/starlight/components/MarkdownContent.astro';
+import AIDisclosureNotice from './AIDisclosureNotice.astro';
+import {
+  getSourcePath,
+  isTranslationLocale,
+  resolveAIDisclosureFlags,
+} from './ai-disclosures.mjs';
+
+const { aiDisclosures = { isAITranslation: false, isAIAuthor: false, sourceLocale: 'root' } } = Astro.props;
+const route = Astro.locals.starlightRoute;
+const isDocsEntry = route.entry.id !== '404' && !route.entry.id.endsWith('/404');
+const flags = isDocsEntry
+  ? resolveAIDisclosureFlags(route.entry.data, aiDisclosures)
+  : { isAITranslation: false, isAIAuthor: false };
+const showTranslation = flags.isAITranslation
+  && isTranslationLocale(route.entryMeta.locale, aiDisclosures.sourceLocale);
+let sourceHref;
+
+if (showTranslation) {
+  const docs = await getCollection('docs');
+  sourceHref = getSourcePath({
+    docs,
+    routeId: route.id,
+    currentLocale: route.locale,
+    sourceLocale: aiDisclosures.sourceLocale,
+    pathname: Astro.url.pathname,
+    baseUrl: import.meta.env.BASE_URL,
+  });
+}
+---
+
+{flags.isAIAuthor && <AIDisclosureNotice kind="author" lang={route.lang} />}
+<DefaultMarkdownContent><slot /></DefaultMarkdownContent>
+{showTranslation && <AIDisclosureNotice kind="translation" lang={route.lang} sourceHref={sourceHref} />}

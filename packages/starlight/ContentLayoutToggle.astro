@@ -1,0 +1,31 @@
+---
+import { getContentWidthLabels } from './content-width-i18n.mjs';
+const { lang } = Astro.locals.starlightRoute;
+const labels = getContentWidthLabels(lang);
+---
+
+<div class="hagilight-content-width-toggle" role="group" aria-label={labels.group}>
+  <button type="button" data-hagilight-content-width-choice="wide" aria-pressed="true">
+    {labels.wide}
+  </button>
+  <button type="button" data-hagilight-content-width-choice="narrow" aria-pressed="false">
+    {labels.narrow}
+  </button>
+</div>
+
+<script>
+  import {
+    restoreContentWidth,
+    setContentWidth,
+    synchronizeContentWidthFromStorage,
+  } from './content-width.mjs';
+
+  const root = document.documentElement;
+  restoreContentWidth(root);
+  document.querySelectorAll('[data-hagilight-content-width-choice]').forEach((button) => {
+    button.addEventListener('click', () => {
+      setContentWidth(button.dataset.hagilightContentWidthChoice, root);
+    });
+  });
+  window.addEventListener('storage', (event) => synchronizeContentWidthFromStorage(event, root));
+</script>

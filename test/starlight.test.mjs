@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import hagilight from '../packages/starlight/index.mjs';
 
-function configure(options = {}, components = {}, logo) {
-  const config = { components, logo };
+function configure(options = {}, components = {}, logo, additionalConfig = {}) {
+  const config = { components, logo, ...additionalConfig };
   const integrations = [];
   let updated;
   hagilight(options).hooks['config:setup']({
@@ -16,7 +16,10 @@ function configure(options = {}, components = {}, logo) {
 }
 
 test('registers a configured footer without discarding an opted-out header override', () => {
-  const { updated, integrations } = configure({ header: { enabled: false } }, { Header: './Header.astro' });
+  const { updated, integrations } = configure({
+    header: { enabled: false },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  }, { Header: './Header.astro' });
 
   assert.equal(updated.components.Header, './Header.astro');
   assert.deepEqual(updated.logo, {
@@ -35,7 +38,10 @@ test('preserves a site-defined Starlight logo', () => {
 });
 
 test('passes disabled promotion configuration to the footer wrapper', () => {
-  const { updated, integrations } = configure({ promoto: { enabled: false } });
+  const { updated, integrations } = configure({
+    promoto: { enabled: false },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  });
 
   assert.match(updated.components.Footer, /\/Footer\.astro$/);
   assert.equal(updated.components.Head, undefined);
@@ -49,12 +55,56 @@ test('rejects an existing footer override instead of replacing it', () => {
   );
 });
 
+test('rejects conflicting content hooks with an explicit component composition path', () => {
+  assert.throws(
+    () => configure({}, { PageTitle: './CustomPageTitle.astro' }),
+    /existing Starlight PageTitle override.*ContentLayoutToggle/,
+  );
+  assert.throws(
+    () => configure({}, { MarkdownContent: './CustomMarkdownContent.astro' }),
+    /existing Starlight MarkdownContent override.*MarkdownContent/,
+  );
+
+  const { updated } = configure({
+    contentComponents: { pageTitle: false, markdownContent: false },
+  }, {
+    PageTitle: './CustomPageTitle.astro',
+    MarkdownContent: './CustomMarkdownContent.astro',
+    Search: './CustomSearch.astro',
+  });
+  assert.equal(updated.components.PageTitle, './CustomPageTitle.astro');
+  assert.equal(updated.components.MarkdownContent, './CustomMarkdownContent.astro');
+  assert.equal(updated.components.Search, './CustomSearch.astro');
+});
+
+test('validates disclosure and component options before configuration', () => {
+  assert.throws(() => configure({ aiDisclosures: [] }), /aiDisclosures options must be an object/);
+  assert.throws(
+    () => configure({ aiDisclosures: { isAITranslation: 'yes' } }),
+    /isAITranslation option must be a boolean/,
+  );
+  assert.throws(
+    () => configure({ aiDisclosures: { sourceLocale: 'en/US' } }),
+    /sourceLocale option must be a non-empty string/,
+  );
+  assert.throws(
+    () => configure({ contentComponents: { pageTitle: 'enabled' } }),
+    /contentComponents pageTitle option must be a boolean/,
+  );
+});
+
 test('enables each analytics provider independently and delivers options per plugin instance', () => {
   const google = configure({
-    analytics: { googleAnalytics: { measurementId: 'G-TEST123' } },
+    analytics: {
+      googleAnalytics: { measurementId: 'G-TEST123' },
+      fiftyOneLa: { enabled: false },
+    },
   });
   const la = configure({
-    analytics: { fiftyOneLa: { siteId: 'site_123' } },
+    analytics: {
+      googleAnalytics: { enabled: false },
+      fiftyOneLa: { siteId: 'site_123' },
+    },
   });
   const googleHead = google.updated.components.Head;
   const googleFooter = google.updated.components.Footer;
@@ -90,7 +140,9 @@ test('requires valid IDs when analytics providers are enabled', () => {
 });
 
 test('rejects an existing head override only when Google Analytics is enabled', () => {
-  assert.doesNotThrow(() => configure({}, { Head: './CustomHead.astro' }));
+  assert.doesNotThrow(() => configure({
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  }, { Head: './CustomHead.astro' }));
   assert.throws(
     () => configure(
       { analytics: { googleAnalytics: { measurementId: 'G-TEST123' } } },
@@ -100,7 +152,7 @@ test('rejects an existing head override only when Google Analytics is enabled', 
   );
 });
 
-test('virtual options module contains safe defaults and independent provider settings', () => {
+test('uses Docs analytics IDs by default and allows overriding or disabling providers', () => {
   const defaults = configure();
   const enabled = configure({
     analytics: {
@@ -115,9 +167,68 @@ test('virtual options module contains safe defaults and independent provider set
   const enabledSource = enabledVite.load(enabledVite.resolveId(optionsModuleId(enabled.updated.components.Footer)));
 
   assert.match(defaultSource, /"promotoEnabled":true/);
-  assert.doesNotMatch(defaultSource, /measurementId|site_123/);
+  assert.match(defaultSource, /"googleAnalyticsMeasurementId":"G-EN03FMT2Q4"/);
+  assert.match(defaultSource, /"fiftyOneLaId":"L6b88a5yK4h2Xnci"/);
   assert.match(enabledSource, /"googleAnalyticsMeasurementId":"G-TEST123"/);
   assert.match(enabledSource, /"fiftyOneLaId":"site_123"/);
+  const disabled = configure({
+    analytics: {
+      googleAnalytics: { enabled: false },
+      fiftyOneLa: { enabled: false },
+    },
+  });
+  const [disabledVite] = integrationVitePlugins(disabled.integrations[0]);
+  const disabledSource = disabledVite.load(
+    disabledVite.resolveId(optionsModuleId(disabled.updated.components.Footer)),
+  );
+  assert.doesNotMatch(disabledSource, /googleAnalyticsMeasurementId|fiftyOneLaId/);
+});
+
+test('serializes independent AI disclosure defaults into each plugin options module', () => {
+  const defaults = configure();
+  const enabled = configure({
+    aiDisclosures: {
+      isAITranslation: true,
+      isAIAuthor: false,
+      sourceLocale: 'en-US',
+    },
+  });
+  const [defaultVite] = integrationVitePlugins(defaults.integrations[0]);
+  const [enabledVite] = integrationVitePlugins(enabled.integrations[0]);
+  const defaultOptionsModule = defaultVite.load(defaultVite.resolveId(
+    optionsModuleId(defaults.updated.components.Footer),
+  ));
+  const enabledOptionsModule = enabledVite.load(enabledVite.resolveId(
+    optionsModuleId(enabled.updated.components.Footer),
+  ));
+  const parseOptions = (source) => JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+
+  assert.deepEqual(parseOptions(defaultOptionsModule).aiDisclosures, {
+    isAITranslation: false,
+    isAIAuthor: false,
+    sourceLocale: 'root',
+  });
+  assert.deepEqual(parseOptions(enabledOptionsModule).aiDisclosures, {
+    isAITranslation: true,
+    isAIAuthor: false,
+    sourceLocale: 'en-US',
+  });
+});
+
+test('preserves configured CSS, head entries, and unrelated component overrides', () => {
+  const existingHead = { tag: 'meta', attrs: { name: 'description', content: 'Site content' } };
+  const { updated } = configure({}, { Search: './Search.astro' }, undefined, {
+    customCss: ['./src/site.css'],
+    head: [existingHead],
+  });
+
+  assert.deepEqual(updated.customCss.slice(0, 1), ['./src/site.css']);
+  assert.match(updated.customCss[1], /content-width\.css$/);
+  assert.equal(updated.head[0], existingHead);
+  assert.match(updated.head[1].content, /hagilight-content-width/);
+  assert.equal(updated.components.Search, './Search.astro');
+  assert.match(updated.components.PageTitle, /PageTitle\.astro$/);
+  assert.match(updated.components.MarkdownContent, /MarkdownContent\.astro$/);
 });
 
 function integrationVitePlugins(integration) {

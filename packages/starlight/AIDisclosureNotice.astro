@@ -1,0 +1,12 @@
+---
+import { getAIDisclosureCopy } from './ai-disclosures.mjs';
+const { kind, lang, sourceHref } = Astro.props;
+const copy = getAIDisclosureCopy(lang);
+---
+
+<aside class="hagilight-ai-disclosure" role="note">
+  {kind === 'author' ? copy.author : copy.translation}
+  {kind === 'translation' && sourceHref && (
+    <> <a href={sourceHref}>{copy.source}</a></>
+  )}
+</aside>

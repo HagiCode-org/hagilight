@@ -14,12 +14,17 @@
   },
   "exports": {
     ".": "./index.mjs",
+    "./ai-disclosure-schema": "./ai-disclosure-schema.mjs",
+    "./ContentLayoutToggle": "./ContentLayoutToggle.astro",
     "./Header": "./Header.astro",
     "./Footer": "./Footer.astro",
+    "./MarkdownContent": "./MarkdownContent.astro",
+    "./PageTitle": "./PageTitle.astro",
     "./PromotoFooter": "./PromotoFooter.astro"
   },
   "files": [
     "index.mjs",
+    "*.css",
     "*.mjs",
     "*.astro"
   ],
