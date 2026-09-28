@@ -68,8 +68,152 @@ function verifyDefaultFeeds(read) {
   assert.match(feedItems(english)[0], /<pubDate>/u);
 }
 
+function pageHead(read, filename) {
+  const html = read(filename);
+  const head = html.slice(0, html.indexOf('</head>'));
+  assert.notEqual(html.indexOf('</head>'), -1, `${filename} has a closing head`);
+  return { html, head };
+}
+
+function headAttributeValues(head, tagName, attributeName, match = '') {
+  return [...head.matchAll(new RegExp(`<${tagName}\\b([^>]*${match}[^>]*)>`, 'gu'))]
+    .map(([, attrs]) => attrs.match(new RegExp(`\\b${attributeName}=\"([^\"]*)\"`, 'u'))?.[1])
+    .filter(Boolean);
+}
+
+function jsonLdValues(html) {
+  return [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gu)]
+    .map(([, value]) => JSON.parse(value));
+}
+
+function verifySeoPage(read, filename, {
+  canonical,
+  sitemap,
+  image,
+} = {}) {
+  const { html, head } = pageHead(read, filename);
+  const canonicals = headAttributeValues(head, 'link', 'href', '\\brel="canonical"');
+  assert.equal(canonicals.length, 1, `${filename} has one canonical`);
+  assert.equal(new URL(canonicals[0]).href, canonicals[0], `${filename} canonical is absolute`);
+  if (canonical) assert.equal(canonicals[0], canonical);
+  assert.equal(new URL(canonicals[0]).search, '');
+  assert.equal(new URL(canonicals[0]).hash, '');
+
+  const sitemapLinks = headAttributeValues(head, 'link', 'href', '\\brel="sitemap"');
+  assert.equal(sitemapLinks.length, 1, `${filename} retains Starlight's sitemap link`);
+  if (sitemap) assert.equal(sitemapLinks[0], sitemap);
+  assert.ok(head.includes('application/rss+xml'), `${filename} retains the RSS alternate`);
+  for (const property of [
+    'og:title',
+    'og:description',
+    'og:image',
+    'twitter:title',
+    'twitter:description',
+    'twitter:image',
+  ]) {
+    const count = headAttributeValues(head, 'meta', 'content', `\\b(?:property|name)="${property}"`).length;
+    assert.ok(count <= 1, `${filename} has at most one ${property}`);
+  }
+  const images = [
+    ...head.matchAll(/<meta\b[^>]*(?:property|name)="(?:og:image|twitter:image)"[^>]*content="([^"]*)"/gu),
+  ].map(([, value]) => value);
+  if (image) {
+    assert.equal(images.length, 2, `${filename} has one OG and one Twitter image`);
+    assert.ok(images.every((value) => value === image));
+  }
+  for (const url of headAttributeValues(head, 'link', 'href', '\\bhreflang="')) {
+    const parsed = new URL(url);
+    assert.equal(parsed.search, '', `${filename} alternate has no query`);
+    assert.equal(parsed.hash, '', `${filename} alternate has no fragment`);
+  }
+  return { html, head, jsonLd: jsonLdValues(html) };
+}
+
+function verifySeoOutput(read, basePath = '/') {
+  const base = basePath === '/' ? '' : basePath.replace(/\/+$/u, '');
+  const siteUrl = `https://hagilight.hagicode.com${base}`;
+  const imageUrl = `${siteUrl}/share-card.svg`;
+  const home = verifySeoPage(read, 'index.html', {
+    canonical: `${siteUrl}/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  assert.ok(home.head.includes('Hagilight example'));
+  assert.ok(home.head.includes('Explore reusable Astro components'));
+  assert.match(home.html, /<h1\b[^>]*>Hagilight example<\/h1>/u);
+  assert.equal(home.jsonLd.some(({ '@type': type }) => type === 'Article'), false);
+  assert.equal(home.jsonLd.filter(({ '@type': type }) => type === 'Organization').length, 1);
+
+  const chineseHome = verifySeoPage(read, 'zh-CN/index.html', {
+    canonical: `${siteUrl}/zh-CN/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  assert.match(chineseHome.html, /<html lang="zh-CN"/u);
+  assert.match(chineseHome.html, /<h1\b[^>]*>Hagilight 示例<\/h1>/u);
+  assert.ok(chineseHome.head.includes('了解可复用的 Astro 组件'));
+  assert.notEqual(
+    headAttributeValues(home.head, 'meta', 'content', '\\bproperty="og:title"')[0],
+    headAttributeValues(chineseHome.head, 'meta', 'content', '\\bproperty="og:title"')[0],
+  );
+
+  const english = verifySeoPage(read, 'blog/rss-example/index.html', {
+    canonical: `${siteUrl}/blog/rss-example/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  const chinese = verifySeoPage(read, 'zh-CN/blog/rss-example/index.html', {
+    canonical: `${siteUrl}/zh-CN/blog/rss-example/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  const englishAlternates = headAttributeValues(english.head, 'link', 'href', '\\bhreflang="');
+  const chineseAlternates = headAttributeValues(chinese.head, 'link', 'href', '\\bhreflang="');
+  assert.deepEqual(englishAlternates, chineseAlternates, 'localized pages have reciprocal alternate URLs');
+  assert.ok(englishAlternates.length >= 3);
+  assert.ok(english.head.includes('Sharing metadata for an English documentation article'));
+  assert.ok(english.head.includes('page-specific sharing fields take precedence'));
+  assert.deepEqual(english.jsonLd.map(({ '@type': type }) => type), ['Article', 'BreadcrumbList']);
+  assert.equal(english.jsonLd[0].datePublished, '2026-09-26T00:00:00.000Z');
+  assert.equal(english.jsonLd[0].author.name, 'Hagilight documentation team');
+  assert.equal(chinese.jsonLd[0].headline, 'Chinese RSS blog example');
+
+  const onlyEnglish = verifySeoPage(read, 'rss-excluded/index.html', {
+    canonical: `${siteUrl}/rss-excluded/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  const excerptFallback = verifySeoPage(read, 'rss-undated/index.html', {
+    canonical: `${siteUrl}/rss-undated/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  assert.ok(excerptFallback.head.includes('This documentation page is included without a publication date.'));
+  const availableLocales = headAttributeValues(
+    onlyEnglish.head,
+    'link',
+    'hreflang',
+    '\\bhreflang="',
+  );
+  assert.deepEqual(availableLocales, ['en-US', 'x-default']);
+  const translatedFallback = verifySeoPage(read, 'de-DE/rss-excluded/index.html', {
+    canonical: `${siteUrl}/de-DE/rss-excluded/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+    image: imageUrl,
+  });
+  assert.deepEqual(translatedFallback.jsonLd, []);
+
+  const notFound = verifySeoPage(read, '404.html', {
+    canonical: `${siteUrl}/404/`,
+    sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
+  });
+  assert.deepEqual(notFound.jsonLd, []);
+  assert.ok(read('sitemap-index.xml').includes(`${siteUrl}/`), 'the generated sitemap index is present');
+}
+
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
+verifySeoOutput(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/starlight/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -92,6 +236,7 @@ const blogOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-blog-only/',
   HAGILIGHT_RSS_INCLUDE_DOCS: 'false',
 });
+verifySeoOutput(blogOnly, '/rss-blog-only/');
 const blogOnlyLinks = itemLinks(blogOnly('rss.xml'));
 assert.ok(blogOnlyLinks.length > 0);
 assert.ok(blogOnlyLinks.every((link) => /\/rss-blog-only\/blog\//u.test(link)));

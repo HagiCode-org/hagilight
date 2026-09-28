@@ -196,6 +196,94 @@ starlight({
 
 The explicit RSS override takes precedence over the configured alternate link. An Astro `site` is required to generate RSS; without one, disable RSS or configure a feed link in Starlight's `head`. Use `links: { removeLinks: { quick: ['rss'] } }` to hide the RSS entry. Default Docs destinations are explicit public URLs; site-specific routes should be overridden rather than assumed to exist on another site.
 
+## SEO and multilingual discovery
+
+Hagilight builds on Starlight's canonical, Open Graph, Twitter Card, sitemap, and RSS head entries. SEO head composition is enabled by default and requires an absolute Astro `site` URL. It keeps Starlight's canonical URL and sitemap integration, but removes generated `hreflang` and `x-default` entries for translations that are not present as published docs in the consuming site's `docs` collection. Locale route keys and `lang` tags come from the Starlight `locales` configuration; the language chooser is navigation only and does not determine which translations are published.
+
+Set site-wide sharing defaults and an optional organization identity with `seo`. Page-level SEO values override Starlight frontmatter. If a page has no description, Hagilight uses the first text from its document body as a description excerpt (up to 160 characters), then falls back to explicit head/site defaults. Image paths are resolved under the Astro base path. No share image is emitted when neither the page nor site config supplies one.
+
+```js
+plugins: [hagilight({
+  seo: {
+    enabled: true,
+    image: '/social-card.png',
+    organization: {
+      name: 'Example documentation',
+      url: 'https://docs.example.com/',
+    },
+  },
+})]
+```
+
+Opt in to page-level sharing fields and structured article facts by extending the Starlight docs schema with the exported optional `seoSchema`:
+
+```ts
+import { defineCollection } from 'astro:content';
+import { docsLoader } from '@astrojs/starlight/loaders';
+import { docsSchema } from '@astrojs/starlight/schema';
+import { seoSchema } from '@hagicode/hagilight-starlight/seo-schema';
+import { z } from 'astro/zod';
+
+export const collections = {
+  docs: defineCollection({
+    loader: docsLoader(),
+    schema: docsSchema({ extend: z.object({ ...seoSchema.shape }) }),
+  }),
+};
+```
+
+Author distinct localized Starlight titles and descriptions, then add social overrides only where they differ:
+
+```md
+---
+title: Install the desktop application
+description: Choose a supported installer and verify the desktop app on your operating system.
+seo:
+  title: Desktop installation guide
+  description: Installation options and verification steps for the desktop application.
+  image: /social-card.png
+  author: Example documentation team
+  publishedDate: 2026-09-27
+---
+```
+
+`PageTitle` controls the visible page heading and content-width toggle; it does not set the document head. Hagilight does not generate page descriptions from a shared keyword template. Its article-end `light-main.png` keeps intrinsic dimensions and lazy loading, and the initially hidden promotion banner is fixed-position so neither adds layout shift or is promoted to a preloaded social image.
+
+The SEO head wrapper composes Google Analytics with Starlight's existing head output. A consumer-provided `components.Head` cannot be combined with Hagilight's automatic SEO ownership. To own the head, disable SEO and both automatic analytics providers, then keep or compose Starlight's head in your component:
+
+```js
+plugins: [hagilight({
+  seo: { enabled: false },
+  analytics: {
+    googleAnalytics: { enabled: false },
+    fiftyOneLa: { enabled: false },
+  },
+})]
+```
+
+### Sitemap, robots.txt, and optional llms.txt
+
+With `site` configured, supported Starlight versions already register `@astrojs/sitemap`; Hagilight does not register a duplicate. The generated sitemap index is `sitemap-index.xml` under the Astro base path. For a site with `base: '/docs/'`, verify the deployed index at `https://docs.example.com/docs/sitemap-index.xml` and use that absolute URL in the consumer-owned `public/robots.txt`. Adjust crawl rules to the site's own indexing policy:
+
+```text
+User-agent: *
+Allow: /
+Sitemap: https://docs.example.com/docs/sitemap-index.xml
+```
+
+Hagilight does not create or overwrite `robots.txt`. An optional consumer-owned `public/llms.txt` can point readers and AI tools to useful localized documentation pages:
+
+```md
+# Example documentation
+
+Start with the guide for your language:
+
+- [English](https://docs.example.com/docs/)
+- [Simplified Chinese](https://docs.example.com/docs/zh-CN/)
+```
+
+Do not publish `llms.txt` if the site does not want AI discovery. It is optional and does not replace `robots.txt` or its crawler rules.
+
 ## Starlight Header and language chooser
 
 The plugin registers a shared Header by default. It keeps Starlight's site title, configured search, social links, and theme control, and adds localized links from the `header` group. A site that already defines `components.Header` gets a setup error instead of having its Header silently replaced. Keep the site Header with `hagilight({ header: { enabled: false } })`; this opt-out does not change Footer or Head registration.

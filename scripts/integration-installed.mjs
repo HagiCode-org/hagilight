@@ -137,6 +137,29 @@ function verifyContentFeatures() {
   assert.ok(traditionalChineseHtml.includes('本頁示範了覆寫'));
 }
 
+function verifySeoIntegration() {
+  const english = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  const blog = readFileSync(join(temp, 'dist', 'blog', 'rss-example', 'index.html'), 'utf8');
+  const missingTranslation = readFileSync(join(temp, 'dist', 'rss-excluded', 'index.html'), 'utf8');
+  const notFound = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
+  const head = english.slice(0, english.indexOf('</head>'));
+  const canonicals = [...head.matchAll(/<link\b[^>]*rel="canonical"[^>]*>/gu)];
+  assert.equal(canonicals.length, 1);
+  assert.ok(head.includes('property="og:title"'));
+  assert.ok(head.includes('name="twitter:title"'));
+  assert.ok(head.includes('rel="sitemap"'));
+  assert.ok(head.includes('application/rss+xml'));
+  assert.ok(english.includes('<h1 id="_top"'));
+
+  const articleJsonLd = [...blog.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gu)]
+    .map(([, json]) => JSON.parse(json));
+  assert.ok(articleJsonLd.some(({ '@type': type }) => type === 'Article'));
+  const availableLanguages = [...missingTranslation.matchAll(/<link\b[^>]*hreflang="([^"]+)"[^>]*>/gu)]
+    .map(([, lang]) => lang);
+  assert.deepEqual(availableLanguages, ['en-US', 'x-default']);
+  assert.doesNotMatch(notFound, /<script type="application\/ld\+json">/u);
+}
+
 function verifyAnalyticsBuild() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
@@ -217,6 +240,7 @@ try {
   verifyBannerBuild(true);
   verifyDefaultLinksAndAnalytics();
   verifyContentFeatures();
+  verifySeoIntegration();
 
   const disabledConfig = enabledConfig.replace('promoto: { enabled: true }', 'promoto: { enabled: false }');
   if (disabledConfig === enabledConfig) throw new Error('Example config does not explicitly enable the promotion banner');
@@ -238,6 +262,38 @@ try {
   assert.ok(!developmentHtml.includes('googletagmanager.com'));
   assert.ok(!developmentHtml.includes('sdk.51.la'));
   assert.ok(!developmentHtml.includes('LA.init('));
+
+  const seoSetting = `        seo: {
+          enabled: true,
+          image: '/share-card.svg',
+          organization: {
+            name: 'Hagilight',
+            url: 'https://hagilight.hagicode.com/',
+          },
+        },
+`;
+  if (!enabledConfig.includes(seoSetting)) throw new Error('Example config does not contain its SEO defaults');
+  const customHeadConfig = enabledConfig
+    .replace(seoSetting, '        seo: { enabled: false },\n')
+    .replace(
+      'hagilight({',
+      'hagilight({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },',
+    )
+    .replace('starlight({', "starlight({ components: { Head: './CustomHead.astro' },");
+  if (customHeadConfig === enabledConfig) throw new Error('Could not prepare the consumer-owned Head fixture');
+  writeFileSync(join(temp, 'CustomHead.astro'), `---
+import DefaultHead from '@astrojs/starlight/components/Head.astro';
+---
+
+<DefaultHead />
+<meta name="consumer-head" content="retained" />
+`);
+  writeFileSync(configPath, customHeadConfig);
+  execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
+  const customHeadHtml = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  assert.ok(customHeadHtml.includes('name="consumer-head" content="retained"'));
+  assert.doesNotMatch(customHeadHtml, /<script type="application\/ld\+json">/u);
+  assert.ok(!customHeadHtml.includes('googletagmanager.com'));
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

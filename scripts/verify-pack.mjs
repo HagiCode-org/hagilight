@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 
 for (const [workspace, required] of [
   ['@hagicode/hagilight', [
+    'Footer.astro',
     'Copyright.astro',
     'PromotoBanner.astro',
     'logo.png',
@@ -15,6 +16,9 @@ for (const [workspace, required] of [
   ]],
   ['@hagicode/hagilight-starlight', [
     'index.mjs',
+    'SEOHead.astro',
+    'seo-utils.mjs',
+    'seo-schema.mjs',
     'rss.xml.ts',
     'ai-disclosure-schema.mjs',
     'ai-disclosures.mjs',
@@ -54,7 +58,7 @@ for (const [workspace, required] of [
     if (manifest.peerDependencies.astro !== '^6.0.7 || ^7.3.5') {
       throw new Error('Core package must declare the tested Astro 6 and 7 peer ranges');
     }
-    for (const entry of ['./site-links', './PromotoBanner']) {
+    for (const entry of ['./Footer', './site-links', './PromotoBanner']) {
       if (!manifest.exports[entry] || !files.has(manifest.exports[entry].replace(/^\.\//, ''))) {
         throw new Error(`Core package must publish ${entry}`);
       }

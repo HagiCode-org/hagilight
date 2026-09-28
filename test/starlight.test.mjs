@@ -34,7 +34,7 @@ test('registers a configured footer without discarding an opted-out header overr
   });
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);
   assert.match(updated.components.Hero, /[\\/]NotFoundHero\.astro$/);
-  assert.equal(updated.components.Head, undefined);
+  assert.match(updated.components.Head, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
   assert.equal(integrations.length, 1);
 });
 
@@ -101,7 +101,7 @@ test('passes disabled promotion configuration to the footer wrapper', () => {
   });
 
   assert.match(updated.components.Footer, /\/Footer\.astro$/);
-  assert.equal(updated.components.Head, undefined);
+  assert.match(updated.components.Head, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
   assert.equal(integrations.length, 1);
 });
 
@@ -168,7 +168,7 @@ test('enables each analytics provider independently and delivers options per plu
   const laFooter = la.updated.components.Footer;
 
   assert.match(googleHead, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
-  assert.equal(la.updated.components.Head, undefined);
+  assert.match(la.updated.components.Head, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
 
   const [googleVite] = integrationVitePlugins(google.integrations[0]);
   const [laVite] = integrationVitePlugins(la.integrations[0]);
@@ -196,8 +196,9 @@ test('requires valid IDs when analytics providers are enabled', () => {
   );
 });
 
-test('rejects an existing head override only when Google Analytics is enabled', () => {
+test('rejects an existing head override when SEO or Google Analytics owns the head', () => {
   assert.doesNotThrow(() => configure({
+    seo: { enabled: false },
     analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
   }, { Head: './CustomHead.astro' }));
   assert.throws(
@@ -205,8 +206,52 @@ test('rejects an existing head override only when Google Analytics is enabled', 
       { analytics: { googleAnalytics: { measurementId: 'G-TEST123' } } },
       { Head: './CustomHead.astro' },
     ),
-    /existing Starlight Head override/,
+    /Hagilight SEO cannot replace an existing Starlight Head override/,
   );
+});
+
+test('validates SEO defaults, organization identity, site URL, and unambiguous language tags', () => {
+  assert.throws(() => configure({ seo: null }), /seo options must be an object/);
+  assert.throws(() => configure({ seo: { enabled: 'yes' } }), /seo enabled option must be a boolean/);
+  assert.throws(() => configure({ seo: { title: '  ' } }), /SEO title must be a non-empty string/);
+  assert.throws(() => configure({ seo: { image: 'javascript:alert(1)' } }), /SEO image must be/);
+  assert.throws(
+    () => configure({ seo: { organization: { url: 'https://example.com/' } } }),
+    /organization name is required/,
+  );
+  assert.throws(
+    () => configure({ seo: { organization: { name: 'Example', url: 'mailto:team@example.com' } } }),
+    /organization URL must be an absolute HTTP\(S\) URL/,
+  );
+  assert.throws(
+    () => configure(
+      { rss: { enabled: false } },
+      {},
+      undefined,
+      {},
+      { site: undefined },
+    ),
+    /SEO requires an absolute Astro site URL/,
+  );
+  assert.throws(
+    () => configure(
+      { rss: { enabled: false } },
+      {},
+      undefined,
+      { locales: { root: { lang: 'en-US' }, 'en-us': { lang: 'en-us' } } },
+    ),
+    /same language tag/,
+  );
+
+  const optedOut = configure({
+    rss: { enabled: false },
+    seo: { enabled: false },
+    analytics: {
+      googleAnalytics: { enabled: false },
+      fiftyOneLa: { enabled: false },
+    },
+  }, {}, undefined, {}, { site: undefined });
+  assert.equal(optedOut.updated.components.Head, undefined);
 });
 
 test('uses Docs analytics IDs by default and allows overriding or disabling providers', () => {
@@ -329,11 +374,15 @@ test('maps Chinese-root Starlight locales to safe unique feed filenames', () => 
     'zh-Hant': 'https://example.com/rss.zh-Hant.xml',
   });
   assert.throws(
-    () => configure({}, {}, undefined, { locales: { root: { lang: 'en' }, 'en-us': { lang: 'en-US' } } }),
+    () => configure({ seo: { enabled: false } }, {}, undefined, {
+      locales: { root: { lang: 'en' }, 'en-us': { lang: 'en-US' } },
+    }),
     /collide on the "en" feed filename/,
   );
   assert.throws(
-    () => configure({}, {}, undefined, { locales: { root: { lang: 'zh-CN' }, 'zh-cn': { lang: 'zh-cn' } } }),
+    () => configure({ seo: { enabled: false } }, {}, undefined, {
+      locales: { root: { lang: 'zh-CN' }, 'zh-cn': { lang: 'zh-cn' } },
+    }),
     /collide on the "zh-CN" feed filename/,
   );
 });
@@ -343,10 +392,13 @@ test('respects the Astro base path and requires a site only for generated RSS', 
   assert.equal(base.updated.head[0].attrs.href, 'https://example.com/docs/rss.xml');
   assert.throws(
     () => configure({}, {}, undefined, {}, { site: undefined }),
-    /RSS requires the Astro site option/,
+    /SEO requires an absolute Astro site URL/,
   );
   assert.doesNotThrow(
-    () => configure({ rss: { enabled: false } }, {}, undefined, {}, { site: undefined }),
+    () => configure({
+      rss: { enabled: false },
+      seo: { enabled: false },
+    }, {}, undefined, {}, { site: undefined }),
   );
 });
 

@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolveRssLocales, resolveRssOptions } from './rss-utils.mjs';
+import {
+  isValidSeoImageReference,
+  resolveSeoImageUrl,
+  resolveSeoLocales,
+} from './seo-utils.mjs';
 
 const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
@@ -88,6 +93,97 @@ function getRssFeedUrl(config) {
   return rssLink?.attrs.href;
 }
 
+function optionalSeoText(value, field) {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new TypeError(`Hagilight SEO ${field} must be a non-empty string.`);
+  }
+  return value.trim();
+}
+
+function resolveSeoOptions(config) {
+  if (config !== undefined && (!config || typeof config !== 'object' || Array.isArray(config))) {
+    throw new TypeError('Hagilight seo options must be an object.');
+  }
+  if (config?.enabled !== undefined && typeof config.enabled !== 'boolean') {
+    throw new TypeError('Hagilight seo enabled option must be a boolean.');
+  }
+
+  const image = config?.image;
+  if (image !== undefined && !isValidSeoImageReference(image)) {
+    throw new TypeError('Hagilight SEO image must be an absolute HTTP(S) URL or a site-root path.');
+  }
+
+  let organization;
+  if (config?.organization !== undefined) {
+    const identity = config.organization;
+    if (!identity || typeof identity !== 'object' || Array.isArray(identity)) {
+      throw new TypeError('Hagilight SEO organization option must be an object.');
+    }
+    const name = optionalSeoText(identity.name, 'organization name');
+    const url = optionalSeoText(identity.url, 'organization URL');
+    if (!name) throw new TypeError('Hagilight SEO organization name is required.');
+    if (!url) throw new TypeError('Hagilight SEO organization URL is required.');
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      throw new TypeError('Hagilight SEO organization URL must be an absolute HTTP(S) URL.');
+    }
+    if (!['http:', 'https:'].includes(parsedUrl.protocol) || parsedUrl.username || parsedUrl.password) {
+      throw new TypeError('Hagilight SEO organization URL must be an absolute HTTP(S) URL.');
+    }
+    if (identity.logo !== undefined && !isValidSeoImageReference(identity.logo)) {
+      throw new TypeError('Hagilight SEO organization logo must be an absolute HTTP(S) URL or a site-root path.');
+    }
+    organization = {
+      name,
+      url: parsedUrl.href,
+      ...(identity.logo === undefined ? {} : { logo: identity.logo }),
+    };
+  }
+
+  return {
+    enabled: config?.enabled ?? true,
+    title: optionalSeoText(config?.title, 'title'),
+    description: optionalSeoText(config?.description, 'description'),
+    ...(image === undefined ? {} : { image }),
+    ...(organization === undefined ? {} : { organization }),
+  };
+}
+
+function resolveAstroSite(site) {
+  if (site === undefined || site === null || site === '') {
+    throw new Error('Hagilight SEO requires an absolute Astro site URL. Set site or disable generated SEO with seo: { enabled: false }.');
+  }
+  let parsed;
+  try {
+    parsed = new URL(site);
+  } catch {
+    throw new Error('Hagilight SEO requires Astro site to be an absolute HTTP(S) URL.');
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) {
+    throw new Error('Hagilight SEO requires Astro site to be an absolute HTTP(S) URL.');
+  }
+  return parsed.href;
+}
+
+function resolveDefaultSeoLocale(defaultLocale, locales) {
+  const configured = typeof defaultLocale === 'object' && defaultLocale !== null
+    ? defaultLocale.locale ?? defaultLocale.lang
+    : defaultLocale;
+  if (configured === undefined) {
+    return locales.find(({ route }) => route === 'root')?.route ?? locales[0].route;
+  }
+  const found = locales.find(({ route, lang }) =>
+    route === configured || lang.toLowerCase() === String(configured).toLowerCase(),
+  );
+  if (!found) {
+    throw new Error(`Hagilight SEO default locale "${configured}" is not present in Starlight locales.`);
+  }
+  return found.route;
+}
+
 function createConfiguredIntegration(
   instanceId,
   serializedOptions,
@@ -105,6 +201,7 @@ function createConfiguredIntegration(
   const footerPath = fileURLToPath(new URL('./Footer.astro', import.meta.url));
   const pageTitlePath = fileURLToPath(new URL('./PageTitle.astro', import.meta.url));
   const markdownContentPath = fileURLToPath(new URL('./MarkdownContent.astro', import.meta.url));
+  const seoHeadPath = fileURLToPath(new URL('./SEOHead.astro', import.meta.url));
   const headerSource = headerPath
     ? `---
 import Header from ${JSON.stringify(headerPath)};
@@ -158,12 +255,13 @@ import options from '${optionsId}';
 `;
   const headSource = `---
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
+import SEOHead from ${JSON.stringify(seoHeadPath)};
 import GoogleAnalytics from '@hagicode/hagilight/GoogleAnalytics';
 import options from '${optionsId}';
 const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 ---
 
-<DefaultHead />
+{options.seoEnabled ? <SEOHead options={options} /> : <DefaultHead />}
 {!isNotFound && options.googleAnalyticsMeasurementId && (
   <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId} />
 )}
@@ -247,6 +345,7 @@ export default function hagilight(options = {}) {
     && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
     throw new TypeError('Hagilight analytics options must be an object.');
   }
+  const seo = resolveSeoOptions(options.seo);
   if (options.contentComponents !== undefined
     && (!options.contentComponents || typeof options.contentComponents !== 'object' || Array.isArray(options.contentComponents))) {
     throw new TypeError('Hagilight contentComponents options must be an object.');
@@ -288,7 +387,7 @@ export default function hagilight(options = {}) {
     markdownContent: markdownContentEnabled
       ? `virtual:hagilight-starlight/${instanceId}/MarkdownContent.astro`
       : undefined,
-    head: googleAnalyticsMeasurementId
+    head: seo.enabled || googleAnalyticsMeasurementId
       ? `virtual:hagilight-starlight/${instanceId}/Head.astro`
       : undefined,
   };
@@ -299,6 +398,8 @@ export default function hagilight(options = {}) {
     googleAnalyticsMeasurementId,
     fiftyOneLaId,
     aiDisclosures,
+    seoEnabled: seo.enabled,
+    seo,
   };
 
   return {
@@ -320,9 +421,47 @@ export default function hagilight(options = {}) {
         if (markdownContentEnabled && config.components?.MarkdownContent) {
           throw new Error('Hagilight cannot replace an existing Starlight MarkdownContent override. Set contentComponents: { markdownContent: false } and compose @hagicode/hagilight-starlight/MarkdownContent into your MarkdownContent component.');
         }
-        if (googleAnalyticsMeasurementId && config.components?.Head) {
-          throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Compose @hagicode/hagilight/GoogleAnalytics in your Head instead.');
+        if (componentIds.head && config.components?.Head) {
+          if (seo.enabled) {
+            throw new Error('Hagilight SEO cannot replace an existing Starlight Head override. Set seo: { enabled: false } and disable Google Analytics to keep your Head, or compose your site metadata explicitly.');
+          }
+          throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Disable Google Analytics or compose @hagicode/hagilight/GoogleAnalytics in your Head instead.');
         }
+
+        let seoSite;
+        let seoLocales = [];
+        let defaultSeoLocale = 'root';
+        if (seo.enabled) {
+          seoSite = resolveAstroSite(astroConfig.site);
+          seoLocales = resolveSeoLocales(config.locales);
+          defaultSeoLocale = resolveDefaultSeoLocale(config.defaultLocale, seoLocales);
+        }
+        const basePath = astroConfig.base ?? '/';
+        serializedOptions.seoSite = seoSite;
+        serializedOptions.seoBasePath = basePath;
+        serializedOptions.seoLocales = seoLocales;
+        serializedOptions.seoDefaultLocale = defaultSeoLocale;
+        serializedOptions.seoFormat = astroConfig.build?.format ?? 'directory';
+        serializedOptions.seoTrailingSlash = astroConfig.trailingSlash ?? 'ignore';
+        serializedOptions.seo = seo.enabled
+          ? {
+            ...seo,
+            ...(seo.image === undefined
+              ? {}
+              : { image: resolveSeoImageUrl(seo.image, { site: seoSite, basePath }) }),
+            ...(seo.organization === undefined
+              ? {}
+              : {
+                organization: {
+                  ...seo.organization,
+                  ...(seo.organization.logo === undefined
+                    ? {}
+                    : { logo: resolveSeoImageUrl(seo.organization.logo, { site: seoSite, basePath }) }),
+                },
+              }),
+          }
+          : seo;
+        serializedOptions.consumerHead = config.head ?? [];
 
         const generateRss = options.rss?.enabled !== false && !getRssFeedUrl(config);
         if (generateRss && !astroConfig.site) {

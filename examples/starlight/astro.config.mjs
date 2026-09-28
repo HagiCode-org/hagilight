@@ -18,6 +18,14 @@ export default defineConfig({
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
       locales,
       plugins: [hagilight({
+        seo: {
+          enabled: true,
+          image: '/share-card.svg',
+          organization: {
+            name: 'Hagilight',
+            url: 'https://hagilight.hagicode.com/',
+          },
+        },
         rss: {
           includeDocs: rssOption('includeDocs'),
           includeBlog: rssOption('includeBlog'),
