@@ -91,6 +91,29 @@ plugins: [hagilight({
 
 Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
 
+Non-Starlight Astro/React sites can install only `@hagicode/hagilight` and
+call `resolveSiteLinks` directly:
+
+```ts
+import { resolveSiteLinks } from '@hagicode/hagilight/site-links';
+
+const links = resolveSiteLinks(locale, {
+  siteId: 'my-site',
+  relatedSites: snapshot.entries.map(({ id, title, description, url }) => ({
+    id, name: title, description, url,
+  })),
+  overrides: { downloadClient: { href: localDownloadUrl } },
+  rssFeedUrl: localFeedUrl,
+});
+```
+
+Supply a validated build-time snapshot; override locale-dependent site
+routes (including Docs) in the host app. `removeLinks` and `extraLinks`
+customize sections by stable ID. The resolver retains snapshot order,
+removes the current site and duplicate destinations, and rejects unsupported
+protocols. Without `relatedSites` it uses the bundled Docs defaults; no
+Starlight plugin is needed.
+
 RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination for the English feed; `/rss.en.xml` is its explicit alias. With the shared locale map, `/rss.xml` contains English items and `/rss.zh-CN.xml` contains Simplified Chinese items from the `zh-cn` route. A custom locale map without English configured has no English feed items. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
 On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.
@@ -345,6 +368,7 @@ import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
 ---
 
 <PromotoBanner
+  locale={Astro.currentLocale}
   fallback={{
     id: 'site-news',
     title: 'Site announcement',
