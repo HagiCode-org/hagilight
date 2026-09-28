@@ -65,6 +65,7 @@ function verifyDefaultLinksAndAnalytics() {
     assert.ok(html.includes(link), `Expected built footer to include ${link}`);
   }
     const feed = readFileSync(join(temp, 'dist', 'rss.xml'), 'utf8');
+    const traditionalChineseFeed = readFileSync(join(temp, 'dist', 'rss.zh-Hant.xml'), 'utf8');
     assert.match(feed, /<rss\b/u);
     assert.ok(feed.includes('https://hagilight.hagicode.com/'));
     assert.ok(feed.includes('https://hagilight.hagicode.com/blog/rss-example/'));
@@ -78,6 +79,8 @@ function verifyDefaultLinksAndAnalytics() {
     assert.equal(feed, englishAlias);
     assert.match(feed, /<language>en-US<\/language>/u);
     assert.match(chineseFeed, /<language>zh-CN<\/language>/u);
+    assert.match(traditionalChineseFeed, /<language>zh-Hant<\/language>/u);
+    assert.ok(traditionalChineseFeed.includes('https://hagilight.hagicode.com/zh-Hant/blog/rss-example/'));
     assert.ok(!feed.includes('Chinese RSS blog example'));
     assert.ok(!feed.includes('Excluded from RSS'));
     assert.ok(!feed.includes('RSS draft'));
@@ -130,6 +133,8 @@ function verifyContentFeatures() {
   assert.ok(translatedHtml.includes(translationNotice));
   assert.ok(translatedHtml.includes('href="/"'));
   assert.ok(translatedHtml.indexOf(translationNotice) > translatedHtml.indexOf('</div>'));
+  const traditionalChineseHtml = readFileSync(join(temp, 'dist', 'zh-Hant', 'index.html'), 'utf8');
+  assert.ok(traditionalChineseHtml.includes('本頁示範了覆寫'));
 }
 
 function verifyAnalyticsBuild() {

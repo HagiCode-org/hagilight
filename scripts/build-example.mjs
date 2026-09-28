@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -34,9 +34,11 @@ function verifyDefaultFeeds(read) {
   const english = read('rss.xml');
   const englishAlias = read('rss.en.xml');
   const chinese = read('rss.zh-CN.xml');
+  const traditionalChinese = read('rss.zh-Hant.xml');
   assert.equal(english, englishAlias);
   assert.match(english, /<language>en-US<\/language>/u);
   assert.match(chinese, /<language>zh-CN<\/language>/u);
+  assert.match(traditionalChinese, /<language>zh-Hant<\/language>/u);
 
   const englishLinks = itemLinks(english);
   assert.ok(englishLinks.includes('https://hagilight.hagicode.com/'));
@@ -48,12 +50,15 @@ function verifyDefaultFeeds(read) {
   assert.ok(!chinese.includes('RSS draft'));
   assert.ok(!chinese.includes('English RSS blog example'));
   assert.ok(!english.includes('Chinese RSS blog example'));
+  assert.ok(!traditionalChinese.includes('English RSS blog example'));
 
   const chineseLinks = itemLinks(chinese);
   assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-cn/'));
   assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-cn/blog/rss-example/'));
   assert.ok(!chineseLinks.some((link) => link.includes('/en-us/')));
   assert.ok(!chineseLinks.some((link) => link.includes('/rss-undated/')));
+  assert.ok(itemLinks(traditionalChinese)
+    .includes('https://hagilight.hagicode.com/zh-Hant/blog/rss-example/'));
 
   const undated = feedItems(english).find((item) => item.includes('/rss-undated/'));
   assert.ok(undated);
@@ -78,7 +83,8 @@ assert.ok(chineseHome.includes('https://docs.hagicode.com/blog/'));
 assert.ok(chineseHome.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
 assert.ok(!chineseHome.includes('https://hagilight.hagicode.com/rss.en.xml'));
 assert.ok(traditionalChineseHome.includes('hreflang="zh-Hant"'));
-assert.ok(!existsSync(join(root, 'examples/starlight/dist/zh-hant/index.html')));
+assert.ok(traditionalChineseHome.includes('canonical" href="https://hagilight.hagicode.com/zh-Hant/"'));
+assert.ok(traditionalChineseHome.includes('本頁示範了覆寫'));
 assert.ok(!readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8')
   .includes('https://hagilight.hagicode.com/rss.en.xml'));
 
