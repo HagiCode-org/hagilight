@@ -1,4 +1,4 @@
-import rss from '@astrojs/rss';
+import { generateRssFeed as generateCoreRssFeed } from '@hagicode/hagilight/rss';
 import { selectRssEntries } from './rss-utils.mjs';
 
 export function generateRssFeed({ site, baseUrl, filename, locales, options, entries }) {
@@ -8,24 +8,24 @@ export function generateRssFeed({ site, baseUrl, filename, locales, options, ent
     throw new Error(`Hagilight RSS has no configured locale for "${filename}".`);
   }
 
-  const base = new URL(baseUrl, site);
   const items = selectRssEntries(entries, { filename, locales, options }).map(({ id, data }) => {
     const slug = id.replace(/(?:^|\/)index$/u, '');
     return {
       title: data.title,
       description: data.description,
       ...(data.lastUpdated instanceof Date && !Number.isNaN(data.lastUpdated.getTime())
-        ? { pubDate: data.lastUpdated }
+        ? { date: data.lastUpdated }
         : {}),
-      link: new URL(`${slug ? `${slug}/` : ''}`, base).toString(),
+      link: slug ? `${slug}/` : '/',
     };
   });
 
-  return rss({
+  return generateCoreRssFeed({
+    site,
+    baseUrl,
+    language: locale?.lang ?? 'en',
     title: 'Documentation',
     description: 'Recently updated documentation pages',
-    site: base,
-    customData: `<language>${locale?.lang ?? 'en'}</language>`,
     items,
   });
 }

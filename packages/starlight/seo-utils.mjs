@@ -1,4 +1,18 @@
 import { isBlogEntry } from './rss-utils.mjs';
+import {
+  buildArticleStructuredData,
+  buildBreadcrumbStructuredData,
+  buildOrganizationStructuredData,
+} from '@hagicode/hagilight/seo-utils';
+
+export {
+  composeSeoHead,
+  extractSeoDescription,
+  isValidSeoImageReference,
+  resolveSeoImageUrl,
+  resolveSeoMetadata,
+  serializeJsonLd,
+} from '@hagicode/hagilight/seo-utils';
 
 const normalizeSlug = (slug) => slug
   .replace(/^\/+|\/+$/gu, '')
@@ -190,12 +204,6 @@ export function buildDocsPageUrl(route, slug, {
   return new URL(`${base}${pagePath}`, site).href;
 }
 
-function validDate(value) {
-  if (value === undefined || value === null || value === false) return undefined;
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
-}
-
 export function buildStructuredData({
   entry,
   entryId,
@@ -218,24 +226,14 @@ export function buildStructuredData({
   const data = entry.data ?? {};
   const structuredData = [];
   if (isBlogEntry(page.slug)) {
-    const article = {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: data.title,
+    structuredData.push(buildArticleStructuredData({
       url: canonicalUrl,
-      mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
-    };
-    const description = pageSeo.description ?? data.description;
-    if (description) article.description = description;
-    const published = validDate(pageSeo.publishedDate ?? data.publishedDate);
-    const modified = validDate(data.lastUpdated);
-    if (published) article.datePublished = published;
-    if (modified) article.dateModified = modified;
-    const author = pageSeo.author ?? data.author;
-    if (typeof author === 'string' && author.trim()) {
-      article.author = { '@type': 'Person', name: author.trim() };
-    }
-    structuredData.push(article);
+      title: data.title,
+      description: pageSeo.description ?? data.description,
+      author: pageSeo.author ?? data.author,
+      publishedDate: pageSeo.publishedDate ?? data.publishedDate,
+      modifiedDate: data.lastUpdated,
+    }));
   }
 
   const slugParts = page.slug.split('/').filter(Boolean);
@@ -252,159 +250,17 @@ export function buildStructuredData({
         format,
         trailingSlash,
       });
-    crumbs.push({
-      '@type': 'ListItem',
-      position: crumbs.length + 1,
-      name: ancestor.data.title,
-      item: url,
-    });
+    crumbs.push({ name: ancestor.data.title, url });
   }
   if (crumbs.length > 0) {
-    structuredData.push({
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: crumbs,
-    });
+    structuredData.push(buildBreadcrumbStructuredData(crumbs));
   }
 
   if (organization && page.route === defaultLocale && page.slug === '') {
-    const org = {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: organization.name,
-      url: organization.url,
-    };
-    if (organization.logo) org.logo = organization.logo;
-    if (siteTitle) org.alternateName = siteTitle;
-    structuredData.push(org);
+    structuredData.push(buildOrganizationStructuredData({
+      ...organization,
+      alternateName: siteTitle,
+    }));
   }
   return structuredData;
-}
-
-export function serializeJsonLd(value) {
-  return JSON.stringify(value).replace(/</gu, '\\u003c');
-}
-
-function metaKey(entry) {
-  if (entry?.tag !== 'meta') return undefined;
-  const attrs = entry.attrs ?? {};
-  if (typeof attrs.property === 'string') return `property:${attrs.property.toLowerCase()}`;
-  if (typeof attrs.name === 'string') return `name:${attrs.name.toLowerCase()}`;
-  return undefined;
-}
-
-function existingMetaValue(head, key) {
-  return head.find((entry) => metaKey(entry) === key)?.attrs?.content;
-}
-
-function explicitMetaValue(heads, key) {
-  return heads.flatMap((head) => (Array.isArray(head) ? head : []))
-    .find((entry) => metaKey(entry) === key)?.attrs?.content;
-}
-
-export function extractSeoDescription(body) {
-  if (typeof body !== 'string' || !body.trim()) return undefined;
-  const text = body
-    .replace(/^```[\s\S]*?^```/gmu, ' ')
-    .replace(/^import\s.+;?\s*$/gmu, ' ')
-    .replace(/!\[([^\]]*)\]\([^)]*\)/gu, '$1')
-    .replace(/\[([^\]]+)\]\([^)]*\)/gu, '$1')
-    .replace(/<[^>]*>/gu, ' ')
-    .replace(/`([^`]+)`/gu, '$1')
-    .replace(/^\s{0,3}(?:#{1,6}\s+|>\s*|[-*+]\s+|\d+\.\s+)/gmu, '')
-    .replace(/[*_~]/gu, '')
-    .replace(/\s+/gu, ' ')
-    .trim();
-  if (!text) return undefined;
-
-  const characters = Array.from(text);
-  if (characters.length <= 160) return text;
-  let end = 159;
-  const boundary = characters.slice(0, end).lastIndexOf(' ');
-  if (boundary > 120) end = boundary;
-  return `${characters.slice(0, end).join('').trimEnd()}…`;
-}
-
-export function resolveSeoMetadata({
-  entry,
-  head,
-  pageSeo = {},
-  siteSeo = {},
-  site,
-  basePath = '/',
-  explicitHead = [],
-  body,
-}) {
-  const title = pageSeo.title
-    ?? siteSeo.title
-    ?? entry.data.title
-    ?? existingMetaValue(head, 'property:og:title');
-  const description = pageSeo.description
-    ?? entry.data.description
-    ?? explicitMetaValue(explicitHead, 'name:description')
-    ?? explicitMetaValue(explicitHead, 'property:og:description')
-    ?? extractSeoDescription(body)
-    ?? existingMetaValue(head, 'name:description')
-    ?? existingMetaValue(head, 'property:og:description')
-    ?? siteSeo.description;
-  const image = pageSeo.image ?? siteSeo.image;
-
-  return {
-    title,
-    description,
-    image: image === undefined ? undefined : resolveSeoImageUrl(image, { site, basePath }),
-  };
-}
-
-export function isValidSeoImageReference(value) {
-  if (typeof value !== 'string' || value.trim() !== value || value.length === 0) return false;
-  if (value.startsWith('/')) return !value.startsWith('//');
-  try {
-    const url = new URL(value);
-    return (url.protocol === 'https:' || url.protocol === 'http:') && !url.username && !url.password;
-  } catch {
-    return false;
-  }
-}
-
-export function resolveSeoImageUrl(value, { site, basePath = '/' }) {
-  if (!isValidSeoImageReference(value)) {
-    throw new TypeError('Hagilight SEO image must be an absolute HTTP(S) URL or a site-root path.');
-  }
-  if (/^https?:\/\//iu.test(value)) return new URL(value).href;
-  const base = `${normalizeBasePath(basePath)}/`;
-  return new URL(`${base}${value.replace(/^\/+/u, '')}`, site).href;
-}
-
-function explicitMetaKeys(heads) {
-  return new Set(heads.flatMap((head) => (Array.isArray(head) ? head : [])
-    .map(metaKey)
-    .filter(Boolean)));
-}
-
-export function composeSeoHead(head, metadata, explicitHead = []) {
-  const explicit = explicitMetaKeys(explicitHead);
-  const values = [
-    ['property:og:title', metadata.title],
-    ['property:og:description', metadata.description],
-    ['property:og:image', metadata.image],
-    ['name:twitter:title', metadata.title],
-    ['name:twitter:description', metadata.description],
-    ['name:twitter:image', metadata.image],
-  ];
-  const generatedKeys = new Set(values.map(([key]) => key));
-  const result = head.filter((entry) => {
-    const key = metaKey(entry);
-    return !key || explicit.has(key) || !generatedKeys.has(key);
-  });
-  const present = new Set(result.map(metaKey).filter(Boolean));
-
-  for (const [key, content] of values) {
-    if (content === undefined || explicit.has(key) || present.has(key)) continue;
-    const separator = key.indexOf(':');
-    const attribute = key.slice(0, separator);
-    const value = key.slice(separator + 1);
-    result.push({ tag: 'meta', attrs: { [attribute]: value, content } });
-  }
-  return result;
 }
