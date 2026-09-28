@@ -1,6 +1,20 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
+function collectExportPaths(exports) {
+  const paths = [];
+  for (const value of Object.values(exports)) {
+    if (typeof value === 'string') {
+      paths.push(value);
+    } else if (value && typeof value === 'object') {
+      for (const sub of Object.values(value)) {
+        if (typeof sub === 'string') paths.push(sub);
+      }
+    }
+  }
+  return paths;
+}
+
 for (const [workspace, required] of [
   ['@hagicode/hagilight', [
     'Footer.astro',
@@ -48,7 +62,7 @@ for (const [workspace, required] of [
   for (const file of ['package.json', ...required]) {
     if (!files.has(file)) throw new Error(`${workspace} is missing ${file} from its tarball`);
   }
-  for (const target of Object.values(manifest.exports)) {
+  for (const target of collectExportPaths(manifest.exports)) {
     if (!files.has(target.replace(/^\.\//, ''))) throw new Error(`${workspace} export ${target} is missing from its tarball`);
   }
   if (pack.name !== workspace || pack.version !== manifest.version) {
