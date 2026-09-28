@@ -18,7 +18,7 @@ const tenLocales = Object.fromEntries(DEFAULT_LANGUAGE_OPTIONS.map(({ code, labe
 test('publishes the example locale map in route order with its labels and language tags', () => {
   assert.deepEqual(Object.entries(locales), [
     ['root', { label: 'English', lang: 'en-US' }],
-    ['zh-cn', { label: '简体中文', lang: 'zh-CN' }],
+    ['zh-CN', { label: '简体中文', lang: 'zh-CN' }],
     ['zh-Hant', { label: '繁體中文', lang: 'zh-Hant' }],
     ['fr-FR', { label: 'Français', lang: 'fr-FR' }],
     ['de-DE', { label: 'Deutsch', lang: 'de-DE' }],
@@ -98,24 +98,24 @@ test('filters to configured routes and appends additional site locales', () => {
 
 test('selects English at root and navigates to the configured Chinese route', () => {
   const rootOptions = getConfiguredLanguageOptions(locales, 'root');
-  const chineseOptions = getConfiguredLanguageOptions(locales, 'zh-cn');
+  const chineseOptions = getConfiguredLanguageOptions(locales, 'zh-CN');
   const toChinese = buildLocaleNavigationTarget(
     'https://example.test/docs/guide/',
-    'zh-cn',
+    'zh-CN',
     Object.keys(locales),
     '/docs/',
   );
   const toEnglish = buildLocaleNavigationTarget(
-    'https://example.test/docs/zh-cn/guide/',
+    'https://example.test/docs/zh-CN/guide/',
     'root',
     Object.keys(locales),
     '/docs/',
   );
 
   assert.equal(rootOptions.find(({ code }) => code === 'root')?.selected, true);
-  assert.equal(chineseOptions.find(({ code }) => code === 'zh-cn')?.selected, true);
-  assert.equal(chineseOptions.find(({ code }) => code === 'zh-cn')?.label, '简体中文');
-  assert.equal(toChinese.pathname, '/docs/zh-cn/guide/');
+  assert.equal(chineseOptions.find(({ code }) => code === 'zh-CN')?.selected, true);
+  assert.equal(chineseOptions.find(({ code }) => code === 'zh-CN')?.label, '简体中文');
+  assert.equal(toChinese.pathname, '/docs/zh-CN/guide/');
   assert.equal(toEnglish.pathname, '/docs/guide/');
 });
 
@@ -161,7 +161,7 @@ test('builds equivalent locale URLs with base paths, root routes, queries and fr
 
 test('handles generated html routes and trailing-slash settings', () => {
   const languageRoot = buildLocaleNavigationTarget(
-    'https://example.test/docs/zh-cn.html?view=full#top',
+    'https://example.test/docs/zh-CN.html?view=full#top',
     'zh-Hant',
     Object.keys(tenLocales),
     '/docs/',
@@ -173,7 +173,7 @@ test('handles generated html routes and trailing-slash settings', () => {
     '/docs/',
   );
   const noTrailingSlash = buildLocaleNavigationTarget(
-    'https://example.test/docs/zh-cn/guide/',
+    'https://example.test/docs/zh-CN/guide/',
     'fr-FR',
     Object.keys(tenLocales),
     '/docs/',
@@ -213,10 +213,10 @@ test('persists the selected locale while preserving preference fields', () => {
   });
 
   try {
-    persistStarlightLocaleSelection('zh-cn');
+    persistStarlightLocaleSelection('zh-CN');
     assert.deepEqual(JSON.parse(values.get('starlight-route')), {
       path: '/guide/',
-      lang: 'zh-cn',
+      lang: 'zh-CN',
       version: 'latest',
     });
   } finally {

@@ -59,16 +59,16 @@ test('maps English aliases and rejects invalid or colliding locale tags', () => 
 test('keeps English root and explicit Chinese routes in separate RSS feeds', () => {
   const exampleLocales = resolveRssLocales({
     root: { lang: 'en-US' },
-    'zh-cn': { lang: 'zh-CN' },
+    'zh-CN': { lang: 'zh-CN' },
   });
   const entries = [
     entry('blog/english-home'),
-    entry('zh-cn/blog/chinese-home'),
+    entry('zh-CN/blog/chinese-home'),
   ];
 
   assert.deepEqual(exampleLocales, [
     { route: 'root', lang: 'en-US', filename: 'en' },
-    { route: 'zh-cn', lang: 'zh-CN', filename: 'zh-CN' },
+    { route: 'zh-CN', lang: 'zh-CN', filename: 'zh-CN' },
   ]);
   assert.deepEqual(
     selectRssEntries(entries, { filename: 'en', locales: exampleLocales, options }).map(({ id }) => id),
@@ -76,7 +76,7 @@ test('keeps English root and explicit Chinese routes in separate RSS feeds', () 
   );
   assert.deepEqual(
     selectRssEntries(entries, { filename: 'zh-CN', locales: exampleLocales, options }).map(({ id }) => id),
-    ['zh-cn/blog/chinese-home'],
+    ['zh-CN/blog/chinese-home'],
   );
 });
 

@@ -78,10 +78,10 @@ test('translation disclosures omit the source locale and link only to an existin
   }), '/docs/guide/');
   assert.equal(getSourcePath({
     docs: [{ id: 'index' }],
-    routeId: 'zh-cn/index',
-    currentLocale: 'zh-cn',
+    routeId: 'zh-CN/index',
+    currentLocale: 'zh-CN',
     sourceLocale: 'root',
-    pathname: '/zh-cn/',
+    pathname: '/zh-CN/',
     baseUrl: '/',
   }), '/');
   assert.equal(isTranslationLocale('zh-CN', 'root'), true);
