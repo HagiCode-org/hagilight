@@ -1,0 +1,59 @@
+---
+import {
+  composeCoreSeoHead,
+  resolveSeoMetadata,
+  serializeJsonLd,
+} from './seo-utils.mjs';
+
+interface HeadEntry {
+  tag: string;
+  attrs?: Record<string, string | boolean | number | undefined>;
+  content?: string;
+}
+
+interface Props {
+  page?: {
+    url?: string | URL;
+    title?: string;
+    description?: string;
+    image?: string;
+  };
+  site?: string | URL;
+  siteSeo?: {
+    title?: string;
+    description?: string;
+    image?: string;
+  };
+  basePath?: string;
+  head?: HeadEntry[];
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  page = {},
+  site: configuredSite = Astro.site,
+  siteSeo = {},
+  basePath = import.meta.env.BASE_URL,
+  head = [],
+  structuredData = [],
+} = Astro.props;
+const site = configuredSite?.toString();
+const currentPageUrl = site
+  ? new URL(`${Astro.url.pathname}${Astro.url.search}${Astro.url.hash}`, site).href
+  : undefined;
+const metadata = {
+  ...resolveSeoMetadata({ pageSeo: page, siteSeo, site, basePath }),
+  site,
+};
+const canonicalUrl = page.url?.toString() ?? currentPageUrl;
+const composedHead = composeCoreSeoHead(head, metadata, {
+  canonicalUrl,
+  explicitHead: [head],
+});
+const dataValues = Array.isArray(structuredData) ? structuredData : [structuredData];
+---
+
+{composedHead.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+{dataValues.map((value) => (
+  <script type="application/ld+json" set:html={serializeJsonLd(value)} />
+))}

@@ -21,7 +21,14 @@
     "./favicon": "./favicon.mjs",
     "./site-links": "./site-links.ts",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
-    "./Analytics51LA": "./Analytics51LA.astro"
+    "./Analytics51LA": "./Analytics51LA.astro",
+    "./SEOHead": "./SEOHead.astro",
+    "./seo-utils": "./seo-utils.mjs",
+    "./rss": "./rss-renderer.mjs",
+    "./seo-schema": {
+      "types": "./seo-schema.d.ts",
+      "default": "./seo-schema.mjs"
+    }
   },
   "files": [
     "*.astro",
@@ -33,6 +40,9 @@
   ],
   "peerDependencies": {
     "astro": "^6.0.7 || ^7.3.5"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19"
   },
   "keywords": [
     "astro-component",
