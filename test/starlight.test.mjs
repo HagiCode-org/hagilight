@@ -340,8 +340,8 @@ test('respects a site feed and supports disabling RSS generation', () => {
 
   assert.deepEqual(ownRoutes, []);
   assert.deepEqual(disabledRoutes, []);
-  assert.equal(ownFeed.updated.head.length, 2);
-  assert.equal(disabled.updated.head.length, 1);
+  assert.equal(ownFeed.updated.head.length, 3);
+  assert.equal(disabled.updated.head.length, 2);
   assert.throws(() => configure({ rss: null }), /rss options must be an object/);
   assert.throws(() => configure({ rss: { enabled: 'yes' } }), /rss enabled option must be a boolean/);
   assert.throws(() => configure({ rss: { includeDocs: 'yes' } }), /rss includeDocs option must be a boolean/);
@@ -481,6 +481,23 @@ test('preserves configured CSS, head entries, and unrelated component overrides'
   assert.equal(updated.components.Search, './Search.astro');
   assert.match(updated.components.PageTitle, /PageTitle\.astro$/);
   assert.match(updated.components.MarkdownContent, /MarkdownContent\.astro$/);
+});
+
+test('auto-injects the bundled HagiCode favicon as a data URI and respects a consumer favicon', () => {
+  const { updated } = configure();
+  const favicon = updated.head.find(
+    (entry) => entry.tag === 'link' && entry.attrs.rel === 'icon' && entry.attrs.href.startsWith('data:'),
+  );
+
+  assert.ok(favicon, 'expected a data-URI favicon link in the head');
+  assert.match(favicon.attrs.href, /^data:image\/x-icon;base64,/u);
+  assert.equal(favicon.attrs.type, 'image/x-icon');
+
+  const consumer = configure({}, {}, undefined, { favicon: '/my-favicon.png' });
+  const injected = consumer.updated.head.find(
+    (entry) => entry.tag === 'link' && entry.attrs.rel === 'icon' && entry.attrs.href.startsWith('data:'),
+  );
+  assert.equal(injected, undefined, 'a consumer-provided favicon must suppress the auto-injected one');
 });
 
 function integrationVitePlugins(integration, routes = []) {

@@ -17,6 +17,8 @@
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./logo.png": "./logo.png",
+    "./favicon.ico": "./favicon.ico",
+    "./favicon": "./favicon.mjs",
     "./site-links": "./site-links.ts",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
     "./Analytics51LA": "./Analytics51LA.astro"
@@ -24,6 +26,8 @@
   "files": [
     "*.astro",
     "*.png",
+    "*.ico",
+    "*.mjs",
     "*.ts",
     "*.json"
   ],

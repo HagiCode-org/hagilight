@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { resolveFaviconHeadEntry } from '@hagicode/hagilight/favicon';
 import { resolveRssLocales, resolveRssOptions } from './rss-utils.mjs';
 import {
   isValidSeoImageReference,
@@ -499,6 +500,13 @@ export default function hagilight(options = {}) {
               attrs: { rel: 'alternate', type: 'application/rss+xml', href: rssFeedUrl },
             }] : []),
             { tag: 'script', content: contentWidthHeadScript },
+            ...(() => {
+              const entry = resolveFaviconHeadEntry(
+                config.head,
+                config.favicon === undefined ? {} : { href: config.favicon },
+              );
+              return entry ? [entry] : [];
+            })(),
           ],
           components: {
             ...config.components,
