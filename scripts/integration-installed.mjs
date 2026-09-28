@@ -246,10 +246,24 @@ function verifyCoreFooter(tarball, astroVersion) {
 
   const englishHtml = readFileSync(join(coreTemp, 'dist', 'index.html'), 'utf8');
   const chineseHtml = readFileSync(join(coreTemp, 'dist', 'zh-CN', 'index.html'), 'utf8');
+  const coreFeed = readFileSync(join(coreTemp, 'dist', 'rss.xml'), 'utf8');
   assert.ok(englishHtml.includes('Quick Links'));
   assert.ok(englishHtml.includes('Community'));
   assert.ok(!englishHtml.includes('Ecosystem Sites'));
-  assert.ok(!englishHtml.includes('rss.xml'));
+  for (const [html, expectedCanonical] of [
+    [englishHtml, 'https://consumer.example.test/'],
+    [chineseHtml, 'https://consumer.example.test/zh-CN/'],
+  ]) {
+    const head = html.slice(0, html.indexOf('</head>'));
+    assert.equal([...head.matchAll(/<link\b[^>]*rel="canonical"[^>]*>/gu)].length, 1);
+    assert.ok(head.includes(`href="${expectedCanonical}"`));
+    assert.ok(head.includes('property="og:title"'));
+    assert.ok(head.includes('name="twitter:title"'));
+    assert.equal([...head.matchAll(/application\/rss\+xml/gu)].length, 1);
+  }
+  assert.match(coreFeed, /<rss\b/u);
+  assert.match(coreFeed, /<language>en-US<\/language>/u);
+  assert.ok(coreFeed.includes('https://consumer.example.test/'));
   assert.ok(chineseHtml.includes('生态站点'));
   assert.ok(chineseHtml.includes('快速链接'));
   assert.ok(chineseHtml.includes('社区'));

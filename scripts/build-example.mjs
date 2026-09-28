@@ -20,6 +20,16 @@ function build(env = {}) {
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
 }
 
+function buildCoreFooter() {
+  execFileSync(npm, ['run', 'build', '-w', 'hagilight-core-footer-example'], {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+  const outputDir = join(root, 'examples/core-footer/dist');
+  return (filename) => readFileSync(join(outputDir, filename), 'utf8');
+}
+
 function feedItems(xml) {
   assert.match(xml, /^<\?xml/u);
   assert.match(xml, /<rss\b/u);
@@ -211,6 +221,31 @@ function verifySeoOutput(read, basePath = '/') {
   assert.ok(read('sitemap-index.xml').includes(`${siteUrl}/`), 'the generated sitemap index is present');
 }
 
+function verifyCoreFooterOutput(read) {
+  for (const [filename, expectedCanonical] of [
+    ['index.html', 'https://core-footer.hagilight.example/'],
+    ['zh-CN/index.html', 'https://core-footer.hagilight.example/zh-CN/'],
+  ]) {
+    const html = read(filename);
+    const head = html.slice(0, html.indexOf('</head>'));
+    const canonicals = headAttributeValues(head, 'link', 'href', '\\brel="canonical"');
+    assert.equal(canonicals.length, 1, `${filename} has one core canonical`);
+    assert.equal(canonicals[0], expectedCanonical);
+    assert.ok(head.includes('property="og:title"'), `${filename} has core sharing metadata`);
+    assert.ok(head.includes('name="twitter:title"'), `${filename} has Twitter metadata`);
+    assert.equal(headAttributeValues(head, 'link', 'href', 'application/rss\\+xml').length, 1);
+  }
+
+  const xml = read('rss.xml');
+  assert.match(xml, /^<\?xml/u);
+  assert.match(xml, /<language>en-US<\/language>/u);
+  const links = itemLinks(xml);
+  assert.deepEqual(links, [
+    'https://core-footer.hagilight.example/',
+    'https://core-footer.hagilight.example/zh-CN/',
+  ]);
+}
+
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
@@ -251,3 +286,4 @@ assert.ok(docsOnlyLinks.every((link) => link.includes('/rss-docs-only/')));
 assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
 verifyDefaultFeeds(build());
+verifyCoreFooterOutput(buildCoreFooter());

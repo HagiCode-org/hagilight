@@ -27,6 +27,11 @@ for (const [workspace, required] of [
     'related-sites.json',
     'promotions.ts',
     'promoto-banner.ts',
+    'SEOHead.astro',
+    'seo-utils.mjs',
+    'seo-schema.mjs',
+    'seo-schema.d.ts',
+    'rss-renderer.mjs',
   ]],
   ['@hagicode/hagilight-starlight', [
     'index.mjs',
@@ -75,6 +80,12 @@ for (const [workspace, required] of [
     for (const entry of ['./Footer', './site-links', './PromotoBanner']) {
       if (!manifest.exports[entry] || !files.has(manifest.exports[entry].replace(/^\.\//, ''))) {
         throw new Error(`Core package must publish ${entry}`);
+      }
+      if (manifest.dependencies?.['@astrojs/rss'] !== '^4.0.19') {
+        throw new Error('Core package must own the @astrojs/rss serializer dependency');
+      }
+      if (manifest.dependencies?.['@astrojs/starlight']) {
+        throw new Error('Core package must not depend on Starlight');
       }
     }
   }
