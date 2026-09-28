@@ -1,6 +1,10 @@
 ---
+import SEOHead from '@hagicode/hagilight/SEOHead';
 import Footer from '@hagicode/hagilight/Footer';
 
+const site = Astro.site?.href;
+if (!site) throw new Error('The installed core fixture requires an absolute Astro site URL.');
+const pageUrl = new URL(Astro.url.pathname, site).href;
 const links = {
   relatedSites: [{
     id: 'consumer-site',
@@ -23,4 +27,12 @@ const links = {
 };
 ---
 
-<Footer links={links} />
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="alternate" type="application/rss+xml" href={`${import.meta.env.BASE_URL}rss.xml`} />
+    <SEOHead site={site} page={{ url: pageUrl, title: '已安装 core SEO', description: '独立 core 元数据。' }} />
+  </head>
+  <body><Footer links={links} /></body>
+</html>
