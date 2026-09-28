@@ -91,7 +91,7 @@ plugins: [hagilight({
 
 Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
 
-RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination and now contains only English content; `/rss.en.xml` is its explicit alias. Other feeds use their configured language tags, for example `/rss.zh-CN.xml` for a `zh-CN` root locale. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
+RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination for the English feed; `/rss.en.xml` is its explicit alias. With the shared locale map, `/rss.xml` contains English items and `/rss.zh-CN.xml` contains Simplified Chinese items from the `zh-cn` route. A custom locale map without English configured has no English feed items. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
 On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.
 
@@ -120,8 +120,8 @@ export default defineConfig({
     starlight({
       title: 'My documentation',
       locales: {
-        root: { label: '简体中文', lang: 'zh-CN' },
-        'en-us': { label: 'English', lang: 'en-US' },
+        root: { label: 'English', lang: 'en-US' },
+        'zh-cn': { label: '简体中文', lang: 'zh-CN' },
       },
       plugins: [hagilight({
         rss: { includeDocs: true, includeBlog: true },
@@ -131,7 +131,7 @@ export default defineConfig({
 });
 ```
 
-In this example, `/docs/rss.xml` and `/docs/rss.en.xml` contain English items, while `/docs/rss.zh-CN.xml` contains root-locale Chinese items. Add the optional schema extension to the Starlight docs schema to validate the per-article field:
+In this example, `/docs/rss.xml` and `/docs/rss.en.xml` contain English items, while `/docs/rss.zh-CN.xml` contains items from the `zh-cn` route. Add the optional schema extension to the Starlight docs schema to validate the per-article field:
 
 ```ts
 import { defineCollection } from 'astro:content';
@@ -214,19 +214,21 @@ starlight({
 });
 ```
 
-The map preserves Hagilight's example route keys, native labels, and language tags. To select or customize entries, create a site-owned map rather than mutating the shared export:
+The shared map makes English (`en-US`) the unprefixed `root` language and offers Simplified Chinese (`zh-CN`) at `zh-cn`; the example site follows the same routes (`/` and `/zh-cn/`). English is not also listed as `en-us`, avoiding duplicate English routes and RSS feed names.
+
+This changes the routes for sites adopting the revised map: the former shared-map layout used Chinese at `/` and English at `/en-us/`; it now uses English at `/` and Chinese at `/zh-cn/`. Review bookmarks, internal links, translated content directories, feed links, and any redirects your deployment needs. Hagilight does not add redirects or replace a consumer's custom Starlight locale map. To keep the previous layout, define it explicitly:
 
 ```js
 const siteLocales = {
-  root: locales.root,
-  'en-us': { ...locales['en-us'], label: 'English (US)' },
+  root: { label: '简体中文', lang: 'zh-CN' },
+  'en-us': { label: 'English', lang: 'en-US' },
   'it-IT': { label: 'Italiano', lang: 'it-IT' },
 };
 ```
 
 Pass `siteLocales` as `locales`; add the corresponding translated docs to the Starlight content collection, since locale configuration alone does not create page content.
 
-On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog follows the shared locale map: Simplified Chinese (`root` / `zh-CN`), English (`en-us` / `en-US`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
+On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog follows the shared locale map: English (`root` / `en-US`), Simplified Chinese (`zh-cn` / `zh-CN`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
 
 To compose the shared Header into a custom override, disable automatic registration and import it directly:
 
