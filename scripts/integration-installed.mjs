@@ -265,16 +265,14 @@ function verifyCoreFooter(tarball, astroVersion) {
   assert.ok(chineseHtml.includes('aria-label="查看备案信息"'));
   assert.ok(chineseHtml.includes(`© ${new Date().getFullYear()} HagiCode`));
 
-  const assets = join(coreTemp, 'dist', '_astro');
+  const dist = join(coreTemp, 'dist');
   const css = [
     ...[englishHtml, chineseHtml].flatMap((html) => [
       ...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gu),
     ].map(([, style]) => style)),
-    ...(existsSync(assets)
-      ? listFiles(assets)
-        .filter((path) => path.endsWith('.css'))
-        .map((path) => readFileSync(path, 'utf8'))
-      : []),
+    ...listFiles(dist)
+      .filter((path) => path.endsWith('.css'))
+      .map((path) => readFileSync(path, 'utf8')),
   ]
     .join('\n');
   assert.match(css, /grid-template-columns:\s*repeat\(auto-fit/u);
