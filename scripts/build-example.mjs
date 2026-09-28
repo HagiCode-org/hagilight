@@ -12,6 +12,9 @@ function build(env = {}) {
     cwd: root,
     env: { ...process.env, ...env },
     stdio: 'inherit',
+    // On Windows `npm` resolves to the `npm.cmd` batch file, which child_process
+    // cannot execute directly; route it through the shell like the sibling scripts.
+    shell: process.platform === 'win32',
   });
   const outputDir = join(root, 'examples/starlight/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
