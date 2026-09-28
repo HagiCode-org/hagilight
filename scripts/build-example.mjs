@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -67,12 +67,18 @@ const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/starlight/dist/zh-cn/index.html'), 'utf8');
+const traditionalChineseHome = readFileSync(
+  join(root, 'examples/starlight/dist/zh-Hant/index.html'),
+  'utf8',
+);
 assert.ok(englishHome.includes('https://docs.hagicode.com/en-US/blog/'));
 assert.ok(!englishHome.includes('https://docs.hagicode.com/blog/'));
 assert.ok(!englishHome.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
 assert.ok(chineseHome.includes('https://docs.hagicode.com/blog/'));
 assert.ok(chineseHome.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
 assert.ok(!chineseHome.includes('https://hagilight.hagicode.com/rss.en.xml'));
+assert.ok(traditionalChineseHome.includes('hreflang="zh-Hant"'));
+assert.ok(!existsSync(join(root, 'examples/starlight/dist/zh-hant/index.html')));
 assert.ok(!readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8')
   .includes('https://hagilight.hagicode.com/rss.en.xml'));
 
