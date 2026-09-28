@@ -33,7 +33,7 @@ function countOccurrences(value, needle) {
 
 function verifyDefaultLinksAndAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
-  const englishHtml = readFileSync(join(temp, 'dist', 'en-us', 'index.html'), 'utf8');
+  const chineseHtml = readFileSync(join(temp, 'dist', 'zh-cn', 'index.html'), 'utf8');
   for (const link of [
     'https://www.hagicode.com/en-US/',
     'https://www.hagicode.com/en-US/desktop/',
@@ -66,11 +66,13 @@ function verifyDefaultLinksAndAnalytics() {
   }
     const feed = readFileSync(join(temp, 'dist', 'rss.xml'), 'utf8');
     assert.match(feed, /<rss\b/u);
-    assert.ok(feed.includes('https://hagilight.hagicode.com/en-us/'));
-    assert.ok(feed.includes('https://hagilight.hagicode.com/en-us/blog/rss-example/'));
+    assert.ok(feed.includes('https://hagilight.hagicode.com/'));
+    assert.ok(feed.includes('https://hagilight.hagicode.com/blog/rss-example/'));
+    assert.ok(!feed.includes('https://hagilight.hagicode.com/en-us/'));
     assert.match(html, /rel="alternate"[^>]*type="application\/rss\+xml"/u);
-    assert.ok(html.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
-    assert.ok(!englishHtml.includes('https://hagilight.hagicode.com/rss.en.xml'));
+    assert.ok(!html.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
+    assert.ok(chineseHtml.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
+    assert.ok(!chineseHtml.includes('https://hagilight.hagicode.com/rss.en.xml'));
     const englishAlias = readFileSync(join(temp, 'dist', 'rss.en.xml'), 'utf8');
     const chineseFeed = readFileSync(join(temp, 'dist', 'rss.zh-CN.xml'), 'utf8');
     assert.equal(feed, englishAlias);
@@ -82,7 +84,7 @@ function verifyDefaultLinksAndAnalytics() {
     assert.ok(!chineseFeed.includes('English RSS blog example'));
     assert.ok(!chineseFeed.includes('Excluded from RSS'));
     assert.ok(!chineseFeed.includes('RSS draft'));
-    assert.ok(chineseFeed.includes('https://hagilight.hagicode.com/blog/rss-example/'));
+    assert.ok(chineseFeed.includes('https://hagilight.hagicode.com/zh-cn/blog/rss-example/'));
   assert.ok(!html.includes('store.steampowered.com'));
   assert.ok(html.includes('Download Hagicode'));
   assert.ok(html.includes('Download Hagicode for Windows'));
@@ -107,27 +109,26 @@ function verifyDefaultLinksAndAnalytics() {
 
 function verifyContentFeatures() {
   const rootHtml = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
-  const translatedHtml = readFileSync(join(temp, 'dist', 'en-us', 'index.html'), 'utf8');
+  const translatedHtml = readFileSync(join(temp, 'dist', 'zh-cn', 'index.html'), 'utf8');
   const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
 
   assert.match(rootHtml, /data-hagilight-content-width-choice="wide"/u);
   assert.match(rootHtml, /data-hagilight-content-width-choice="narrow"/u);
-  assert.match(rootHtml, /aria-label="内容宽度"/u);
+  assert.match(rootHtml, /aria-label="Content width"/u);
   assert.match(rootHtml, /hagilight-content-width/u);
+  assert.match(translatedHtml, /aria-label="内容宽度"/u);
   const headHtml = rootHtml.slice(0, rootHtml.indexOf('</head>'));
   assert.ok(headHtml.includes("localStorage.getItem('hagilight-content-width')"));
   assert.ok(headHtml.includes('document.documentElement.dataset.hagilightContentWidth'));
-  assert.ok(!rootHtml.includes('本文内容由 AI 辅助创作。'));
+  assert.ok(rootHtml.includes('This content was created with AI assistance.'));
   assert.ok(!rootHtml.includes('This post was translated with AI.'));
   assert.ok(!notFoundHtml.includes('This content was created with AI assistance.'));
   assert.ok(!notFoundHtml.includes('This post was translated with AI.'));
 
-  const authorNotice = 'This content was created with AI assistance.';
-  const translationNotice = 'This post was translated with AI.';
-  assert.ok(translatedHtml.includes(authorNotice));
+  const translationNotice = '本文由 AI 翻译。';
+  assert.ok(!translatedHtml.includes('本文内容由 AI 辅助创作。'));
   assert.ok(translatedHtml.includes(translationNotice));
   assert.ok(translatedHtml.includes('href="/"'));
-  assert.ok(translatedHtml.indexOf(authorNotice) < translatedHtml.indexOf('<div class="sl-markdown-content">'));
   assert.ok(translatedHtml.indexOf(translationNotice) > translatedHtml.indexOf('</div>'));
 }
 
