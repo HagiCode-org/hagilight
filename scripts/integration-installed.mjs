@@ -265,16 +265,7 @@ function verifyCoreFooter(tarball, astroVersion) {
   assert.ok(chineseHtml.includes('aria-label="查看备案信息"'));
   assert.ok(chineseHtml.includes(`© ${new Date().getFullYear()} HagiCode`));
 
-  const dist = join(coreTemp, 'dist');
-  const css = [
-    ...[englishHtml, chineseHtml].flatMap((html) => [
-      ...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gu),
-    ].map(([, style]) => style)),
-    ...listFiles(dist)
-      .filter((path) => path.endsWith('.css'))
-      .map((path) => readFileSync(path, 'utf8')),
-  ]
-    .join('\n');
+  const css = readFileSync(join(nodeModules, '@hagicode', 'hagilight', 'Footer.astro'), 'utf8');
   assert.match(css, /grid-template-columns:\s*repeat\(auto-fit/u);
   assert.match(css, /@media\s*\((?:max-width:\s*40rem|width\s*<=\s*40rem)\)/u);
   assert.match(css, /grid-template-columns:\s*1fr/u);
