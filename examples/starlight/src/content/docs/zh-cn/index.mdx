@@ -1,0 +1,210 @@
+---
+title: Hagilight 示例
+lastUpdated: 2026-09-27
+isAIAuthor: false
+---
+
+import Copyright from '@hagicode/hagilight/Copyright';
+
+本页使用了共享的 Astro 组件：
+
+<Copyright name="HagiCode" />
+
+Starlight 插件也会把同一个组件添加到页脚中。
+
+<a href={`${import.meta.env.BASE_URL.replace(/\/+$/u, '')}/404/`}>打开生成的 404 页面</a>
+
+插件会生成各语言的订阅源：默认的 [英文 RSS 订阅源](/rss.xml) 以及本语言页面的 [中文 RSS 订阅源](/rss.zh-CN.xml)。
+
+## 共享组件
+
+Hagilight 是一组用于 Astro 与 Starlight 站点的可复用小组件。这些包分别发布，站点可以按需选择共享的 Astro 组件、Starlight 集成，或两者皆用。
+
+### Astro 组件
+
+在 Astro 页面或 MDX 文档的 frontmatter 中导入组件，然后像使用其他组件一样使用它：
+
+```astro
+---
+import Copyright from '@hagicode/hagilight/Copyright';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+---
+
+<Copyright name="HagiCode" />
+<PromotoBanner locale="en-US" />
+```
+
+推广组件会从公开的 Index 订阅源加载当前活动活动。它会使用当前页面语言来选择译文，当缺少译文时回退到英文。
+
+### 站点提供的回退内容
+
+当没有远程活动可用时，站点可以为访客提供自己的本地化回退。请保持文案和跳转目标与你的站点相关：
+
+```astro
+<PromotoBanner
+  fallback={{
+    id: 'site-news',
+    title: '本站有什么新内容',
+    description: '阅读最新的发布说明与产品更新。',
+    ctaLabel: '查看动态',
+    link: '/news/',
+  }}
+/>
+```
+
+回退内容是可选的。如果不提供，当活动不可用时页面上不会出现空白横幅。
+
+## Starlight 集成
+
+`@hagicode/hagilight-starlight` 插件会保留默认的 Starlight 页脚并追加共享版权信息。推广横幅默认启用；当站点希望保留页脚集成但不展示推广内容时，可以关闭它：
+
+```js
+import hagilight from '@hagicode/hagilight-starlight';
+
+plugins: [hagilight({ promoto: { enabled: false } })]
+```
+
+本示例显式启用了横幅。由于示例页面内容足够长可以滚动，页脚会在视口之外，因此可以在页面底部看到横幅。
+
+### AI 披露 frontmatter
+
+本示例默认启用两项披露，并使用 `root` 作为源语言。向页面的 frontmatter 添加可选的布尔字段即可覆盖这些默认值：
+
+```md
+---
+title: 翻译后的指南
+isAITranslation: true
+isAIAuthor: true
+---
+```
+
+省略的字段会继承插件设置。将某个字段设为 `false` 即可只隐藏该项披露：
+
+```md
+---
+title: 不含 AI 作者声明的指南
+isAIAuthor: false
+---
+```
+
+本页演示了覆盖：其 frontmatter 设置了 `isAIAuthor: false`，而英文根页面继承了作者声明。翻译声明会在源语言页面上隐藏，并在源页面存在时链接到它。本示例的内容模式通过 `aiDisclosureSchema` 包含了 Hagilight 的可选字段；消费方需要同样的模式扩展才能使用它们。
+
+## 横幅行为
+
+当页脚不在视口中时，横幅会停留在视口底部附近。当页脚进入视口时，横幅淡出并停止拦截指针与键盘交互。当页脚离开视口时，除非已被关闭，否则横幅会重新出现。
+
+访客可以关闭当前活动。该关闭状态会在浏览器中记住（针对该活动集合），而活动内容的变更仍会再次展示。关闭按钮在宽屏和窄屏上都可用。
+
+当有多个活动可用时，横幅一次只显示一张卡片。使用上一个/下一个按钮在卡片间切换，或暂停自动轮播。页面会尊重浏览器的减弱动效偏好，在减弱动效时关闭自动轮播，但保留手动导航。
+
+## Markdown 示例
+
+本页还演示了文档站点中常用的 Markdown 写法。
+
+### 强调与链接
+
+文本可以是 **加粗**、*斜体* 或 ~~删除线~~。行内代码如 `promoto.enabled` 会与正文明显区分。链接可以指向 [Astro](https://astro.build/)，也可以指向 [本页的某节](#表格)。
+
+### 列表
+
+无序列表适合罗列相关项：
+
+- 组件以 `.astro` 文件编写。
+- 这些包以源码形式发布，由 Astro 编译。
+- Starlight 站点可以选择退出推广横幅。
+
+有序列表适合表达一个序列：
+
+1. 与 Astro 和 Starlight 一起安装这些包。
+2. 将 Starlight 插件加入站点配置。
+3. 构建站点并查看生成的页面。
+
+列表也可以嵌套：
+
+- 包内容
+  - Astro 组件
+  - Starlight 覆盖
+- 示例站点
+  - 示例配置
+  - 文档页面
+
+### 引用块
+
+> 让可复用组件独立于任何一个站点的路由与文案。
+>
+> 有需要的消费站点可以提供自己的回退内容。
+
+### 代码块
+
+插件可以在 Astro 配置中显式启用：
+
+```js
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+
+export default defineConfig({
+  integrations: [
+    starlight({
+      title: '我的文档',
+      plugins: [hagilight({ promoto: { enabled: true } })],
+    }),
+  ],
+});
+```
+
+JSON 配置数据可以在独立的围栏块中展示：
+
+```json
+{
+  "promoto": {
+    "enabled": true
+  }
+}
+```
+
+### 表格
+
+表格让各包的职责一目了然：
+
+| 包 | 用途 | 主入口 |
+| --- | --- | --- |
+| `@hagicode/hagilight` | 共享 Astro 组件 | `Copyright`、`PromotoBanner` |
+| `@hagicode/hagilight-starlight` | Starlight 页脚集成 | `hagilight()` |
+
+#### 横幅控制
+
+| 控制 | 动作 |
+| --- | --- |
+| 关闭 | 关闭当前推广集合 |
+| 上一个 | 显示上一个活动 |
+| 下一个 | 显示下一个活动 |
+| 暂停 | 停止自动轮播 |
+
+### 任务列表
+
+一个简单的清单可以跟踪文档变更：
+
+- [x] 添加共享组件示例。
+- [x] 记录插件选项。
+- [ ] 当站点拥有本地化活动文案时，添加站点专属回退。
+
+### 分隔线
+
+---
+
+## 构建与打包
+
+工作区包含一个示例站点以及两个包。示例在本地开发时使用相同的 workspace 包，而安装包检查会使用生成的 tarball 构建一个临时消费方。
+
+包检查会确认每个导出的组件及其所需的浏览器端源码都存在于发布的归档中。安装构建还会检查两种插件状态：启用构建包含横幅挂载点与脚本，而禁用构建保留既有页脚并省略推广标记与代码。
+
+这些检查有助于尽早发现缺失文件，也让后续修改组件或更新示例配置的维护者能够清楚了解预期行为。
+
+## 问题与后续
+
+在已经提供自定义 Starlight 页脚的站点上使用 Hagilight 时，请记住 Starlight 只允许一个页脚覆盖。应把共享页脚组件组合进站点自己的覆盖中，而不是同时注册两个覆盖。
+
+Docs 站点有它自己的推广横幅与回退内容。在 Docs 通过另一次变更采用共享组件之前，在该站点上同时启用两套实现可能会显示重复的横幅。
+
+对于新的 Astro 站点，请从共享组件导入开始，仅在使用 Starlight 时再添加 Starlight 插件。把活动内容、本地化回退文案与站点导航保留在消费站点中，而不是写死在可复用包里。
