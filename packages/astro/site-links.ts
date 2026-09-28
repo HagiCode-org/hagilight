@@ -175,8 +175,30 @@ const translations = {
     'fr-FR': 'Télécharger Hagicode pour Windows', 'es-ES': 'Descargar Hagicode para Windows',
     'pt-BR': 'Baixar Hagicode para Windows', 'ru-RU': 'Скачать Hagicode для Windows',
   },
-  icpFiling: '闽ICP备2026004153号-1',
-  publicSecurityFiling: '闽公网安备35011102351148号',
+  icpFiling: {
+    'zh-CN': '闽ICP备2026004153号-1',
+    'zh-Hant': '闽ICP备2026004153号-1',
+    'en-US': 'ICP Filing 闽ICP备2026004153号-1',
+    'ja-JP': 'ICP届出 闽ICP备2026004153号-1',
+    'ko-KR': 'ICP 신고 闽ICP备2026004153号-1',
+    'de-DE': 'ICP-Registrierung 闽ICP备2026004153号-1',
+    'fr-FR': 'Dépôt ICP 闽ICP备2026004153号-1',
+    'es-ES': 'Registro ICP 闽ICP备2026004153号-1',
+    'pt-BR': 'Registro ICP 闽ICP备2026004153号-1',
+    'ru-RU': 'ICP регистрация 闽ICP备2026004153号-1',
+  },
+  publicSecurityFiling: {
+    'zh-CN': '闽公网安备35011102351148号',
+    'zh-Hant': '闽公网安备35011102351148号',
+    'en-US': 'Public Security Filing 闽公网安备35011102351148号',
+    'ja-JP': '公安届出 闽公网安备35011102351148号',
+    'ko-KR': '공안 신고 闽公网安备35011102351148号',
+    'de-DE': 'Sicherheitsregistrierung 闽公网安备35011102351148号',
+    'fr-FR': 'Dépôt de sécurité publique 闽公网安备35011102351148号',
+    'es-ES': 'Registro de seguridad pública 闽公网安备35011102351148号',
+    'pt-BR': 'Registro de segurança pública 闽公网安备35011102351148号',
+    'ru-RU': 'Регистрация в органах общественной безопасности 闽公网安备35011102351148号',
+  },
 } satisfies Record<SiteLinkKey, LocalizedText>;
 
 const defaultLinks: Record<SiteLinkKey, LinkDefinition> = {

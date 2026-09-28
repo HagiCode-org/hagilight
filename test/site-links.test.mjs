@@ -64,6 +64,21 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
   ]);
 });
 
+test('renders localized filing labels while keeping the canonical filing numbers', () => {
+  const zh = resolveSiteLinks('zh-CN');
+  const en = resolveSiteLinks('en-US');
+  const ja = resolveSiteLinks('ja-JP');
+  const de = resolveSiteLinks('de-DE');
+
+  assert.equal(zh.filings[0].label, '闽ICP备2026004153号-1');
+  assert.equal(zh.filings[1].label, '闽公网安备35011102351148号');
+  assert.equal(en.filings[0].label, 'ICP Filing 闽ICP备2026004153号-1');
+  assert.equal(en.filings[1].label, 'Public Security Filing 闽公网安备35011102351148号');
+  assert.equal(ja.filings[0].label, 'ICP届出 闽ICP备2026004153号-1');
+  assert.equal(de.filings[1].label, 'Sicherheitsregistrierung 闽公网安备35011102351148号');
+  assert.equal(resolveSiteLinks('zh-Hant').filings[0].label, '闽ICP备2026004153号-1');
+});
+
 test('shows the generated current-language RSS feed after the default RSS link', () => {
   const links = resolveSiteLinks('zh-CN', {
     rssFeedUrl: 'https://docs.example.com/rss.xml',
