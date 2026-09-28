@@ -119,6 +119,24 @@ test('selects English at root and navigates to the configured Chinese route', ()
   assert.equal(toEnglish.pathname, '/docs/guide/');
 });
 
+test('preserves mixed-case locale route keys', () => {
+  const toTraditionalChinese = buildLocaleNavigationTarget(
+    'https://example.test/docs/guide/',
+    'zh-Hant',
+    Object.keys(locales),
+    '/docs/',
+  );
+  const backToEnglish = buildLocaleNavigationTarget(
+    'https://example.test/docs/zh-Hant/guide/',
+    'root',
+    Object.keys(locales),
+    '/docs/',
+  );
+
+  assert.equal(toTraditionalChinese.pathname, '/docs/zh-Hant/guide/');
+  assert.equal(backToEnglish.pathname, '/docs/guide/');
+});
+
 test('builds equivalent locale URLs with base paths, root routes, queries and fragments', () => {
   const rootToFrench = buildLocaleNavigationTarget(
     'https://example.test/docs/guide/nested/?tab=pricing#install',
