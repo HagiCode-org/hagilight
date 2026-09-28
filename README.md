@@ -5,7 +5,21 @@ Two independently publishable packages for Astro sites:
 - `@hagicode/hagilight`: shared `.astro` components (`Copyright` and the reusable promotion banner).
 - `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds localized shared links and copyright below the default Footer, with optional analytics and active promotions.
 
-The shared package also exports the HagiCode logo as `@hagicode/hagilight/logo.png`. The Starlight plugin uses it in the site title by default; a site-provided Starlight `logo` setting takes precedence.
+The shared package also exports the HagiCode logo as `@hagicode/hagilight/logo.png` and the HagiCode favicon as `@hagicode/hagilight/favicon.ico`. The Starlight plugin injects the favicon into every page as a self-contained data URI by default, so consumers get the shared favicon with no configuration; a site-provided Starlight `logo` or `favicon` setting takes precedence.
+
+Any site that references the core `@hagicode/hagilight` package (including plain Astro sites, not only Starlight) can auto-apply the same favicon by adding the `hagilightFavicon` integration:
+
+```js
+import { hagilightFavicon } from '@hagicode/hagilight/favicon';
+
+export default defineConfig({
+  integrations: [hagilightFavicon()],
+});
+```
+
+Both the Starlight plugin's built-in favicon and the core `hagilightFavicon` integration are driven by the same `resolveFaviconHeadEntry` helper exported from `@hagicode/hagilight/favicon`, so the behavior (data-URI default, consumer `favicon`/`href` override, and skip-on-existing-icon) stays consistent everywhere.
+
+Override the shared favicon by passing a `href` (`hagilightFavicon({ href: '/your-favicon.ico' })`), or by declaring your own `<link rel="icon">` in Astro's `config.head` — the integration detects an existing icon link and skips injection, so consumers never get a duplicate favicon.
 
 The packages publish `.astro` source directly; consumers compile it with Astro. New shared components belong in `packages/astro/`, with an entry in its `exports` and `files`. Starlight-only overrides belong in `packages/starlight/`; add their entries to `exports` and register them in `index.mjs` when they should apply automatically.
 
