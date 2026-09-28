@@ -87,6 +87,7 @@ async function main() {
     }
     execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, '-w', packages[1]], { stdio: 'inherit' });
     execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, `dependencies.@hagicode/hagilight-starlight=${argument}`, '-w', 'hagilight-example'], { stdio: 'inherit' });
+    execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, '-w', 'hagilight-core-footer-example'], { stdio: 'inherit' });
     execFileSync('npm', ['install', '--package-lock-only', '--ignore-scripts', '--offline'], { stdio: 'inherit' });
   } else {
     throw new Error('Usage: node scripts/release.mjs dev|verify <tag>|stamp <version>');
