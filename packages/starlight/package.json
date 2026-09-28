@@ -1,6 +1,6 @@
 {
   "name": "@hagicode/hagilight-starlight",
-  "version": "0.2.4",
+  "version": "0.1.0",
   "type": "module",
   "description": "Starlight customizations for HagiCode documentation",
   "repository": {
@@ -58,7 +58,7 @@
   ],
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
-    "@hagicode/hagilight": "0.2.3"
+    "@hagicode/hagilight": "0.1.0"
   },
   "peerDependencies": {
     "@astrojs/starlight": "^0.42.4",
