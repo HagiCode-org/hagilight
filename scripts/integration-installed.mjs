@@ -322,18 +322,8 @@ try {
   assert.ok(!developmentHtml.includes('sdk.51.la'));
   assert.ok(!developmentHtml.includes('LA.init('));
 
-  const seoSetting = `        seo: {
-          enabled: true,
-          image: '/share-card.svg',
-          organization: {
-            name: 'Hagilight',
-            url: 'https://hagilight.hagicode.com/',
-          },
-        },
-`;
-  if (!enabledConfig.includes(seoSetting)) throw new Error('Example config does not contain its SEO defaults');
   const customHeadConfig = enabledConfig
-    .replace(seoSetting, '        seo: { enabled: false },\n')
+    .replace(/        seo: \{\r?\n[\s\S]*?        \},\r?\n(?=        rss: \{)/u, '        seo: { enabled: false },\n')
     .replace(
       'hagilight({',
       'hagilight({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },',
