@@ -114,6 +114,37 @@ removes the current site and duplicate destinations, and rejects unsupported
 protocols. Without `relatedSites` it uses the bundled Docs defaults; no
 Starlight plugin is needed.
 
+### Opt-in Astro footer without Starlight
+
+Non-Starlight Astro sites can mount the core footer directly in a layout. It
+uses the shared link resolver and copyright component, but does not require
+`@hagicode/hagilight-starlight`, Starlight configuration, or Starlight styles:
+
+```astro
+---
+import Footer from '@hagicode/hagilight/Footer';
+import type { SiteLinksOptions } from '@hagicode/hagilight/site-links';
+
+const footerLinks: SiteLinksOptions = {
+  relatedSites: [],
+  overrides: {
+    blog: { href: '/news/', label: { 'en-US': 'News' } },
+  },
+  rssFeedUrl: '/rss.xml',
+};
+---
+
+<Footer locale={Astro.currentLocale} links={footerLinks} />
+```
+
+The `locale` prop is optional: the component uses `Astro.currentLocale` when
+available and otherwise falls back to English. Pass shared `SiteLinksOptions`
+through `links` to replace or remove related sites, add or remove links, and
+override destinations or labels. RSS is omitted unless `links.rssFeedUrl` or
+`links.overrides.rss.href` is configured; the footer does not generate a feed.
+Mounting this component is explicit and does not replace another footer or
+change the Starlight plugin's existing footer.
+
 RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination for the English feed; `/rss.en.xml` is its explicit alias. With the shared locale map, `/rss.xml` contains English items and `/rss.zh-CN.xml` contains Simplified Chinese items from the `/zh-CN/` route. A custom locale map without English configured has no English feed items. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
 On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.

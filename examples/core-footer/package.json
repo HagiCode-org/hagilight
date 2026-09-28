@@ -1,0 +1,13 @@
+{
+  "name": "hagilight-core-footer-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev"
+  },
+  "dependencies": {
+    "@hagicode/hagilight": "0.1.0",
+    "astro": "^7.3.5"
+  }
+}

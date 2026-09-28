@@ -13,6 +13,7 @@
     "provenance": true
   },
   "exports": {
+    "./Footer": "./Footer.astro",
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./logo.png": "./logo.png",
@@ -31,6 +32,9 @@
   },
   "keywords": [
     "astro-component",
-    "withastro"
+    "withastro",
+    "astro-components",
+    "starlight",
+    "documentation-components"
   ]
 }

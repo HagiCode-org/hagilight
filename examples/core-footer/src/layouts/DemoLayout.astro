@@ -1,0 +1,353 @@
+---
+import Footer from '@hagicode/hagilight/Footer';
+import logo from '@hagicode/hagilight/logo.png';
+
+interface Props {
+  locale: string;
+  languageLabel: string;
+  title: string;
+  description: string;
+  exploreLabel: string;
+  previewTitle: string;
+  previewDescription: string;
+  usageLabel: string;
+}
+
+const {
+  locale,
+  languageLabel,
+  title,
+  description,
+  exploreLabel,
+  previewTitle,
+  previewDescription,
+  usageLabel,
+} = Astro.props;
+const isChinese = locale === 'zh-CN';
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content={description} />
+    <title>{title} — Hagilight</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={isChinese ? '/zh-CN/' : '/'} aria-label="Hagilight">
+        <img src={logo.src} alt="" width="34" height="34" />
+        <span>Hagilight</span>
+        <span class="package-name">@hagicode/hagilight</span>
+      </a>
+      <nav aria-label={languageLabel} class="language-nav">
+        <a href="/" lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
+        <a href="/zh-CN/" lang="zh-CN" aria-current={isChinese ? 'page' : undefined}>简中</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>{title}</h1>
+          <p>{description}</p>
+          <a class="jump-link" href="#footer-preview">
+            {exploreLabel}
+            <svg aria-hidden="true" viewBox="0 0 20 20">
+              <path d="M4 10h11m-5-5 5 5-5 5" />
+            </svg>
+          </a>
+        </div>
+        <div class="usage">
+          <div class="usage-heading">
+            <span>{usageLabel}</span>
+            <span>Astro</span>
+          </div>
+          <pre><code><span class="code-muted">---</span>
+<span class="code-keyword">import</span> Footer <span class="code-keyword">from</span> <span class="code-string">'@hagicode/hagilight/Footer'</span>;
+<span class="code-muted">---</span>
+
+&lt;Footer /&gt;</code></pre>
+          <p>
+            {isChinese
+              ? '省略 locale 时，会使用当前 Astro 页面语言。'
+              : 'Omit locale to use the active Astro page language.'}
+          </p>
+        </div>
+      </section>
+
+      <section class="preview-heading">
+        <h2>{previewTitle}</h2>
+        <p>{previewDescription}</p>
+      </section>
+    </main>
+
+    <div id="footer-preview">
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #183b35;
+    background: #f5f3ec;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  ::selection {
+    color: #183b35;
+    background: #d4ed73;
+  }
+
+  :focus-visible {
+    outline: 2px solid #526f2a;
+    outline-offset: 4px;
+  }
+
+  a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+  }
+
+  .site-header,
+  main {
+    width: min(100% - 3rem, 76rem);
+    margin-inline: auto;
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid #d9d8cf;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .brand img {
+    display: block;
+  }
+
+  .package-name {
+    margin-left: 0.25rem;
+    color: #53675d;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 450;
+  }
+
+  .language-nav {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .language-nav a {
+    min-width: 2.75rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.25rem;
+    color: #415a52;
+    font-size: 0.8rem;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .language-nav a[aria-current="page"] {
+    color: #173b34;
+    background: #e5e9d8;
+    font-weight: 700;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 6rem);
+    padding-block: clamp(4rem, 10vw, 8rem);
+  }
+
+  .hero h1 {
+    max-width: 11ch;
+    margin: 0;
+    color: #183b35;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3.25rem, 7.2vw, 6.25rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .hero-copy > p {
+    max-width: 48ch;
+    margin: 1.5rem 0 0;
+    color: #415a52;
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+  }
+
+  .jump-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+    color: #285447;
+    font-size: 0.95rem;
+    font-weight: 650;
+    text-decoration-thickness: 1px;
+  }
+
+  .jump-link svg {
+    width: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .usage {
+    overflow: hidden;
+    border: 1px solid #2b5047;
+    border-radius: 0.4rem;
+    color: #edf0e6;
+    background: #183b35;
+  }
+
+  .usage-heading {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #45645a;
+    color: #e0e8d9;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+  }
+
+  .usage pre {
+    overflow-x: auto;
+    margin: 0;
+    padding: 1.25rem 1rem;
+    color: #f4f2e9;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86rem;
+    line-height: 1.8;
+    tab-size: 2;
+  }
+
+  .code-muted {
+    color: #9caf9d;
+  }
+
+  .code-keyword {
+    color: #d4ed73;
+  }
+
+  .code-string {
+    color: #f0c994;
+  }
+
+  .usage > p {
+    margin: 0;
+    padding: 0 1rem 1rem;
+    color: #c2d0c4;
+    font-size: 0.82rem;
+  }
+
+  .preview-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid #d9d8cf;
+  }
+
+  .preview-heading h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .preview-heading p {
+    max-width: 55ch;
+    margin: 0;
+    color: #53675d;
+    font-size: 0.85rem;
+    text-align: right;
+  }
+
+  #footer-preview {
+    --hagilight-footer-border: #d9d8cf;
+    width: min(100% - 3rem, 76rem);
+    margin: 0 auto;
+  }
+
+  @media (max-width: 48rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding-block: 3.5rem;
+    }
+
+    .hero h1 {
+      max-width: 12ch;
+      font-size: clamp(3rem, 12vw, 5rem);
+    }
+
+    .preview-heading {
+      display: block;
+    }
+
+    .preview-heading p {
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .site-header,
+    main,
+    #footer-preview {
+      width: min(100% - 2rem, 76rem);
+    }
+
+    .package-name {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+  }
+</style>

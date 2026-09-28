@@ -1,0 +1,26 @@
+---
+import Footer from '@hagicode/hagilight/Footer';
+
+const links = {
+  relatedSites: [{
+    id: 'consumer-site',
+    name: { 'zh-CN': '自有站点' },
+    url: 'https://sites.example/',
+  }],
+  overrides: {
+    blog: { href: '/news/', label: { 'zh-CN': '新闻' } },
+  },
+  rssFeedUrl: 'https://feeds.example/rss.xml',
+  extraLinks: {
+    quick: [{ id: 'install', href: '/install/', label: { 'zh-CN': '安装' } }],
+    community: [{
+      id: 'community-chat',
+      href: 'https://community.example/',
+      label: { 'zh-CN': '社区聊天' },
+      external: true,
+    }],
+  },
+};
+---
+
+<Footer links={links} />

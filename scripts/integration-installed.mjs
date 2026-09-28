@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { once } from 'node:events';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -215,6 +224,65 @@ async function fetchDevelopmentPage(astro) {
   }
 }
 
+function verifyCoreFooter(tarball, astroVersion) {
+  const coreTemp = join(temp, 'core-only');
+  mkdirSync(coreTemp);
+  writeFileSync(join(coreTemp, 'package.json'), JSON.stringify({
+    name: 'hagilight-core-footer-example',
+    private: true,
+    type: 'module',
+  }));
+  cpSync('test/fixtures/core-footer/astro.config.mjs', join(coreTemp, 'astro.config.mjs'));
+  cpSync('test/fixtures/core-footer/src', join(coreTemp, 'src'), { recursive: true });
+  execFileSync(npm, ['install', '--prefix', coreTemp, '--no-save', tarball, `astro@${astroVersion}`], {
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+
+  const nodeModules = join(coreTemp, 'node_modules');
+  assert.ok(!existsSync(join(nodeModules, '@astrojs', 'starlight')), 'Core-only site must not install Starlight');
+  const astro = join(nodeModules, 'astro', 'bin', 'astro.mjs');
+  execFileSync(process.execPath, [astro, 'build'], { cwd: coreTemp, stdio: 'inherit' });
+
+  const englishHtml = readFileSync(join(coreTemp, 'dist', 'index.html'), 'utf8');
+  const chineseHtml = readFileSync(join(coreTemp, 'dist', 'zh-CN', 'index.html'), 'utf8');
+  assert.ok(englishHtml.includes('Quick Links'));
+  assert.ok(englishHtml.includes('Community'));
+  assert.ok(!englishHtml.includes('Ecosystem Sites'));
+  assert.ok(!englishHtml.includes('rss.xml'));
+  assert.ok(chineseHtml.includes('生态站点'));
+  assert.ok(chineseHtml.includes('快速链接'));
+  assert.ok(chineseHtml.includes('社区'));
+  assert.ok(chineseHtml.includes('自有站点'));
+  assert.ok(chineseHtml.includes('href="/news/"'));
+  assert.ok(chineseHtml.includes('href="https://feeds.example/rss.xml"'));
+  assert.ok(chineseHtml.includes('href="/install/"'));
+  assert.match(
+    chineseHtml,
+    /href="https:\/\/community\.example\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
+  );
+  assert.match(chineseHtml, /href="https:\/\/sites\.example\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u);
+  assert.ok(chineseHtml.includes('aria-label="查看备案信息"'));
+  assert.ok(chineseHtml.includes(`© ${new Date().getFullYear()} HagiCode`));
+
+  const assets = join(coreTemp, 'dist', '_astro');
+  const css = [
+    ...[englishHtml, chineseHtml].flatMap((html) => [
+      ...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gu),
+    ].map(([, style]) => style)),
+    ...(existsSync(assets)
+      ? listFiles(assets)
+        .filter((path) => path.endsWith('.css'))
+        .map((path) => readFileSync(path, 'utf8'))
+      : []),
+  ]
+    .join('\n');
+  assert.match(css, /grid-template-columns:\s*repeat\(auto-fit/u);
+  assert.match(css, /@media\s*\((?:max-width:\s*40rem|width\s*<=\s*40rem)\)/u);
+  assert.match(css, /grid-template-columns:\s*1fr/u);
+  assert.ok(css.includes(':focus-visible'), 'Footer links must retain a visible keyboard-focus style');
+}
+
 try {
   const tarballs = [];
   for (const workspace of ['@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
@@ -225,11 +293,13 @@ try {
     tarballs.push(join(temp, JSON.parse(output)[0].filename));
   }
   const example = JSON.parse(readFileSync('examples/starlight/package.json', 'utf8'));
+  verifyCoreFooter(tarballs[0], example.dependencies.astro);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/starlight/astro.config.mjs', 'utf8');
   cpSync('examples/starlight/package.json', join(temp, 'package.json'));
   writeFileSync(configPath, enabledConfig);
   cpSync('examples/starlight/src', join(temp, 'src'), { recursive: true });
+  cpSync('examples/starlight/public', join(temp, 'public'), { recursive: true });
   execFileSync(npm, ['install', '--prefix', temp, '--no-save', ...tarballs,
     `astro@${example.dependencies.astro}`, `@astrojs/starlight@${example.dependencies['@astrojs/starlight']}`], {
     stdio: 'inherit',
