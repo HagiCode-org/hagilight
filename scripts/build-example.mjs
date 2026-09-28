@@ -53,8 +53,8 @@ function verifyDefaultFeeds(read) {
   assert.ok(!traditionalChinese.includes('English RSS blog example'));
 
   const chineseLinks = itemLinks(chinese);
-  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-cn/'));
-  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-cn/blog/rss-example/'));
+  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-CN/'));
+  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-CN/blog/rss-example/'));
   assert.ok(!chineseLinks.some((link) => link.includes('/en-us/')));
   assert.ok(!chineseLinks.some((link) => link.includes('/rss-undated/')));
   assert.ok(itemLinks(traditionalChinese)
@@ -71,7 +71,7 @@ function verifyDefaultFeeds(read) {
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8');
-const chineseHome = readFileSync(join(root, 'examples/starlight/dist/zh-cn/index.html'), 'utf8');
+const chineseHome = readFileSync(join(root, 'examples/starlight/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
   join(root, 'examples/starlight/dist/zh-Hant/index.html'),
   'utf8',

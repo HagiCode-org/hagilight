@@ -33,7 +33,7 @@ function countOccurrences(value, needle) {
 
 function verifyDefaultLinksAndAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
-  const chineseHtml = readFileSync(join(temp, 'dist', 'zh-cn', 'index.html'), 'utf8');
+  const chineseHtml = readFileSync(join(temp, 'dist', 'zh-CN', 'index.html'), 'utf8');
   for (const link of [
     'https://www.hagicode.com/en-US/',
     'https://www.hagicode.com/en-US/desktop/',
@@ -87,7 +87,7 @@ function verifyDefaultLinksAndAnalytics() {
     assert.ok(!chineseFeed.includes('English RSS blog example'));
     assert.ok(!chineseFeed.includes('Excluded from RSS'));
     assert.ok(!chineseFeed.includes('RSS draft'));
-    assert.ok(chineseFeed.includes('https://hagilight.hagicode.com/zh-cn/blog/rss-example/'));
+    assert.ok(chineseFeed.includes('https://hagilight.hagicode.com/zh-CN/blog/rss-example/'));
   assert.ok(!html.includes('store.steampowered.com'));
   assert.ok(html.includes('Download Hagicode'));
   assert.ok(html.includes('Download Hagicode for Windows'));
@@ -112,7 +112,7 @@ function verifyDefaultLinksAndAnalytics() {
 
 function verifyContentFeatures() {
   const rootHtml = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
-  const translatedHtml = readFileSync(join(temp, 'dist', 'zh-cn', 'index.html'), 'utf8');
+  const translatedHtml = readFileSync(join(temp, 'dist', 'zh-CN', 'index.html'), 'utf8');
   const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
 
   assert.match(rootHtml, /data-hagilight-content-width-choice="wide"/u);
