@@ -58,10 +58,11 @@ test('article promotion carries complete copy for all ten locales and falls back
 });
 
 test('article promotion includes original artwork, theme styling, focus, and article-end positioning', async () => {
-  const [component, markdownContent, image] = await Promise.all([
+  const [component, markdownContent, image, floatingBanner] = await Promise.all([
     readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8'),
     readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8'),
     readFile(new URL('../packages/starlight/assets/light-main.png', import.meta.url)),
+    readFile(new URL('../packages/astro/PromotoBanner.astro', import.meta.url), 'utf8'),
   ]);
   const bodyPosition = markdownContent.indexOf('<DefaultMarkdownContent>');
   const translationPosition = markdownContent.indexOf('{showTranslation &&');
@@ -73,6 +74,10 @@ test('article promotion includes original artwork, theme styling, focus, and art
   assert.match(component, /copy\.subheadline/);
   assert.match(component, /copy\.features\.map/);
   assert.match(component, /copy\.imageAlt/);
+  assert.match(component, /width=\{heroImage\.width\}/);
+  assert.match(component, /height=\{heroImage\.height\}/);
+  assert.match(component, /loading="lazy"/);
+  assert.match(component, /decoding="async"/);
   assert.match(component, /:focus-visible/);
   assert.match(component, /var\(--sl-color-/);
   assert.doesNotMatch(component, /<script/u);
@@ -80,4 +85,7 @@ test('article promotion includes original artwork, theme styling, focus, and art
   assert.ok(bodyPosition >= 0 && translationPosition > bodyPosition);
   assert.ok(promotionPosition > translationPosition);
   assert.match(markdownContent, /const showHagicodePromotion = isDocsEntry\s+&& resolveArticlePromotion/u);
+  assert.match(floatingBanner, /class="hagilight-promoto__shell"[^>]*hidden/);
+  assert.match(floatingBanner, /\.hagilight-promoto__shell\s*\{[\s\S]*?position:\s*fixed/u);
+  assert.match(floatingBanner, /\.hagilight-promoto__shell\[hidden\][\s\S]*?display:\s*none/u);
 });
