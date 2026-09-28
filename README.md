@@ -214,7 +214,7 @@ starlight({
 });
 ```
 
-The shared map makes English (`en-US`) the unprefixed `root` language and offers Simplified Chinese (`zh-CN`) at `zh-cn`; the example site follows the same routes (`/` and `/zh-cn/`). English is not also listed as `en-us`, avoiding duplicate English routes and RSS feed names.
+The shared map makes English (`en-US`) the unprefixed `root` language and offers Simplified Chinese (`zh-CN`) at `zh-cn`; the example site follows the same routes (`/` and `/zh-cn/`). Locale paths preserve the configured key's casing, such as `/zh-Hant/`; content IDs must preserve that casing too. Astro's default content IDs are lowercase, so use a custom `generateId` with `docsLoader()` when using mixed-case keys, as the example does in `src/content.config.ts`. English is not also listed as `en-us`, avoiding duplicate English routes and RSS feed names.
 
 This changes the routes for sites adopting the revised map: the former shared-map layout used Chinese at `/` and English at `/en-us/`; it now uses English at `/` and Chinese at `/zh-cn/`. Review bookmarks, internal links, translated content directories, feed links, and any redirects your deployment needs. Hagilight does not add redirects or replace a consumer's custom Starlight locale map. To keep the previous layout, define it explicitly:
 
