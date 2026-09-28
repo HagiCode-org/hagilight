@@ -56,6 +56,30 @@ test('maps English aliases and rejects invalid or colliding locale tags', () => 
   assert.throws(() => resolveRssLocales({ root: { lang: 'not a tag' } }), /valid language tag/);
 });
 
+test('keeps English root and explicit Chinese routes in separate RSS feeds', () => {
+  const exampleLocales = resolveRssLocales({
+    root: { lang: 'en-US' },
+    'zh-cn': { lang: 'zh-CN' },
+  });
+  const entries = [
+    entry('blog/english-home'),
+    entry('zh-cn/blog/chinese-home'),
+  ];
+
+  assert.deepEqual(exampleLocales, [
+    { route: 'root', lang: 'en-US', filename: 'en' },
+    { route: 'zh-cn', lang: 'zh-CN', filename: 'zh-CN' },
+  ]);
+  assert.deepEqual(
+    selectRssEntries(entries, { filename: 'en', locales: exampleLocales, options }).map(({ id }) => id),
+    ['blog/english-home'],
+  );
+  assert.deepEqual(
+    selectRssEntries(entries, { filename: 'zh-CN', locales: exampleLocales, options }).map(({ id }) => id),
+    ['zh-cn/blog/chinese-home'],
+  );
+});
+
 test('classifies locale-relative blog articles without treating blog indexes as posts', () => {
   assert.equal(isBlogEntry('blog/article'), true);
   assert.equal(isBlogEntry('blog/article/index'), true);

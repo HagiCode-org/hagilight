@@ -17,8 +17,8 @@ const tenLocales = Object.fromEntries(DEFAULT_LANGUAGE_OPTIONS.map(({ code, labe
 
 test('publishes the example locale map in route order with its labels and language tags', () => {
   assert.deepEqual(Object.entries(locales), [
-    ['root', { label: '简体中文', lang: 'zh-CN' }],
-    ['en-us', { label: 'English', lang: 'en-US' }],
+    ['root', { label: 'English', lang: 'en-US' }],
+    ['zh-cn', { label: '简体中文', lang: 'zh-CN' }],
     ['zh-Hant', { label: '繁體中文', lang: 'zh-Hant' }],
     ['fr-FR', { label: 'Français', lang: 'fr-FR' }],
     ['de-DE', { label: 'Deutsch', lang: 'de-DE' }],
@@ -32,11 +32,11 @@ test('publishes the example locale map in route order with its labels and langua
 });
 
 test('offers the ten native labels in Docs catalog order for a fully configured site', () => {
-  const options = getConfiguredLanguageOptions(tenLocales, 'en-us');
+  const options = getConfiguredLanguageOptions(tenLocales, 'root');
 
   assert.deepEqual(options.map(({ label }) => label), [
-    '简体中文',
     'English',
+    '简体中文',
     '繁體中文',
     'Français',
     'Deutsch',
@@ -49,10 +49,10 @@ test('offers the ten native labels in Docs catalog order for a fully configured 
   assert.equal(options.filter(({ selected }) => selected).length, 1);
 });
 
-test('matches both shared en-us and existing en-US routes without replacing site labels', () => {
+test('matches existing en-US routes without replacing site labels', () => {
   const sharedRoute = getConfiguredLanguageOptions({
-    'en-us': locales['en-us'],
-  }, 'en-us');
+    root: locales.root,
+  }, 'root');
   const existingRoute = getConfiguredLanguageOptions({
     'en-US': { label: 'English (US)', lang: 'en-US' },
   }, 'en-US');
@@ -60,7 +60,7 @@ test('matches both shared en-us and existing en-US routes without replacing site
   assert.deepEqual(sharedRoute.map(({ code, label, lang, selected }) => ({
     code, label, lang, selected,
   })), [{
-    code: 'en-us',
+    code: 'root',
     label: 'English',
     lang: 'en-US',
     selected: true,
@@ -92,8 +92,31 @@ test('filters to configured routes and appends additional site locales', () => {
   assert.deepEqual(subset.map(({ code }) => code), ['root', 'fr-FR']);
   assert.equal(subset[1].label, 'French custom');
   assert.deepEqual(single.map(({ code }) => code), ['root']);
-  assert.deepEqual(withExtra.map(({ code }) => code), ['root', 'en-US', 'it-IT']);
-  assert.equal(withExtra[0].label, '简体中文');
+  assert.deepEqual(withExtra.map(({ code }) => code), ['en-US', 'root', 'it-IT']);
+  assert.equal(withExtra[0].label, 'English');
+});
+
+test('selects English at root and navigates to the configured Chinese route', () => {
+  const rootOptions = getConfiguredLanguageOptions(locales, 'root');
+  const chineseOptions = getConfiguredLanguageOptions(locales, 'zh-cn');
+  const toChinese = buildLocaleNavigationTarget(
+    'https://example.test/docs/guide/',
+    'zh-cn',
+    Object.keys(locales),
+    '/docs/',
+  );
+  const toEnglish = buildLocaleNavigationTarget(
+    'https://example.test/docs/zh-cn/guide/',
+    'root',
+    Object.keys(locales),
+    '/docs/',
+  );
+
+  assert.equal(rootOptions.find(({ code }) => code === 'root')?.selected, true);
+  assert.equal(chineseOptions.find(({ code }) => code === 'zh-cn')?.selected, true);
+  assert.equal(chineseOptions.find(({ code }) => code === 'zh-cn')?.label, '简体中文');
+  assert.equal(toChinese.pathname, '/docs/zh-cn/guide/');
+  assert.equal(toEnglish.pathname, '/docs/guide/');
 });
 
 test('builds equivalent locale URLs with base paths, root routes, queries and fragments', () => {
@@ -120,7 +143,7 @@ test('builds equivalent locale URLs with base paths, root routes, queries and fr
 
 test('handles generated html routes and trailing-slash settings', () => {
   const languageRoot = buildLocaleNavigationTarget(
-    'https://example.test/docs/en-us.html?view=full#top',
+    'https://example.test/docs/zh-cn.html?view=full#top',
     'zh-Hant',
     Object.keys(tenLocales),
     '/docs/',
@@ -132,7 +155,7 @@ test('handles generated html routes and trailing-slash settings', () => {
     '/docs/',
   );
   const noTrailingSlash = buildLocaleNavigationTarget(
-    'https://example.test/docs/en-us/guide/',
+    'https://example.test/docs/zh-cn/guide/',
     'fr-FR',
     Object.keys(tenLocales),
     '/docs/',
@@ -172,10 +195,10 @@ test('persists the selected locale while preserving preference fields', () => {
   });
 
   try {
-    persistStarlightLocaleSelection('fr-FR');
+    persistStarlightLocaleSelection('zh-cn');
     assert.deepEqual(JSON.parse(values.get('starlight-route')), {
       path: '/guide/',
-      lang: 'fr-FR',
+      lang: 'zh-cn',
       version: 'latest',
     });
   } finally {

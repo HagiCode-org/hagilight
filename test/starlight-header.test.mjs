@@ -44,6 +44,16 @@ test('registers Header by default and forwards the existing links options', () =
   assert.match(optionsModule, /"siteId":"example"/);
 });
 
+test('integrated header and footer resolve links from the configured route language', async () => {
+  const [header, footer] = await Promise.all([
+    readFile(new URL('../packages/starlight/Header.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/starlight/Footer.astro', import.meta.url), 'utf8'),
+  ]);
+
+  assert.match(header, /const locale = route\.lang \?\? route\.locale/);
+  assert.match(footer, /resolveSiteLinks\(currentLanguage \?\? locale,/);
+});
+
 test('rejects a conflicting Header override but supports explicit opt-out', () => {
   assert.throws(
     () => configure({}, { Header: './CustomHeader.astro' }),

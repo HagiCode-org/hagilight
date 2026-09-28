@@ -5,7 +5,10 @@ import { resolveSiteLinks } from '../packages/astro/site-links.ts';
 test('resolves localized links with nonempty fallback labels', () => {
   const traditional = resolveSiteLinks('zh-Hant');
   const unknown = resolveSiteLinks('de-DE');
+  const root = resolveSiteLinks('root');
 
+  assert.equal(root.header[0].label, '首页');
+  assert.equal(root.header[1].href, 'https://docs.hagicode.com/blog/');
   assert.equal(traditional.header[0].label, '首頁');
   assert.equal(unknown.header[0].label, 'Startseite');
   assert.equal(unknown.header[1].label, 'Blog');
@@ -145,6 +148,35 @@ test('filters related-site self, rendered destinations, and duplicate URLs', () 
 
 test('an empty related-site override disables the bundled Docs-derived list', () => {
   assert.equal(resolveSiteLinks('en-US', { relatedSites: [] }).relatedSites.length, 0);
+});
+
+test('replaces bundled sites with snapshot order and localized names without duplicate destinations', () => {
+  const defaults = resolveSiteLinks('en-US').relatedSites;
+  const links = resolveSiteLinks('zh-Hant', {
+    siteId: 'hagicode-main',
+    extraLinks: {
+      community: [{ id: 'calculator-link', label: 'Calculator', href: 'https://cost.hagicode.com', external: true }],
+    },
+    relatedSites: [
+      { id: 'hagicode-main', name: 'Main', url: 'https://www.hagicode.com/' },
+      { id: 'hagicode-docs', name: { 'en-US': 'Docs', 'zh-Hant': '文件' }, url: 'https://docs.hagicode.com/zh-Hant/' },
+      { id: 'calculator', name: 'Calculator', url: 'https://cost.hagicode.com/' },
+      { id: 'first', name: 'First', url: 'https://example.com/tool/' },
+      { id: 'duplicate', name: 'Duplicate', url: 'https://example.com/tool/#details' },
+    ],
+  });
+
+  assert.deepEqual(links.relatedSites.map(({ id }) => id), ['hagicode-docs', 'first']);
+  assert.equal(links.relatedSites[0].name, '文件');
+  assert.equal(links.relatedSites[0].href, 'https://docs.hagicode.com/zh-Hant/');
+  assert.equal(links.relatedSites[0].rel, 'noopener noreferrer');
+  assert.deepEqual(resolveSiteLinks('en-US').relatedSites, defaults);
+  assert.throws(
+    () => resolveSiteLinks('en-US', {
+      relatedSites: [{ id: 'unsafe', name: 'Unsafe', url: 'javascript:alert(1)' }],
+    }),
+    /Unsupported link protocol/,
+  );
 });
 
 test('composes additions and ID removals independently across all footer sections', () => {
