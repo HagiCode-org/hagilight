@@ -27,7 +27,7 @@
     "*.json"
   ],
   "peerDependencies": {
-    "astro": "^7.3.5"
+    "astro": "^6.0.7 || ^7.3.5"
   },
   "keywords": [
     "astro-component",

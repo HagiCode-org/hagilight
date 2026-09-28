@@ -50,5 +50,15 @@ for (const [workspace, required] of [
   if (pack.name !== workspace || pack.version !== manifest.version) {
     throw new Error(`${workspace} tarball metadata does not match its manifest`);
   }
+  if (workspace === '@hagicode/hagilight') {
+    if (manifest.peerDependencies.astro !== '^6.0.7 || ^7.3.5') {
+      throw new Error('Core package must declare the tested Astro 6 and 7 peer ranges');
+    }
+    for (const entry of ['./site-links', './PromotoBanner']) {
+      if (!manifest.exports[entry] || !files.has(manifest.exports[entry].replace(/^\.\//, ''))) {
+        throw new Error(`Core package must publish ${entry}`);
+      }
+    }
+  }
   console.log(`${workspace}@${pack.version}: package contents verified`);
 }
