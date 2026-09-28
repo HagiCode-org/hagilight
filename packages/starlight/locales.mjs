@@ -1,6 +1,6 @@
 export const locales = {
-  root: { label: '简体中文', lang: 'zh-CN' },
-  'en-us': { label: 'English', lang: 'en-US' },
+  root: { label: 'English', lang: 'en-US' },
+  'zh-cn': { label: '简体中文', lang: 'zh-CN' },
   'zh-Hant': { label: '繁體中文', lang: 'zh-Hant' },
   'fr-FR': { label: 'Français', lang: 'fr-FR' },
   'de-DE': { label: 'Deutsch', lang: 'de-DE' },

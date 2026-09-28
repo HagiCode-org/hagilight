@@ -17,7 +17,7 @@ const {
   rssLocaleFeedUrls,
 } = Astro.props;
 const currentLanguage = Astro.locals?.starlightRoute?.lang;
-const resolvedLinks = resolveSiteLinks(locale, {
+const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   ...links,
   ...(rssFeedUrl === undefined ? {} : { rssFeedUrl }),
   ...(currentLanguage && rssLocaleFeedUrls?.[currentLanguage]

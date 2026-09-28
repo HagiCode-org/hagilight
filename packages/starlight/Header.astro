@@ -12,7 +12,8 @@ interface Props {
 }
 
 const { links } = Astro.props;
-const locale = Astro.locals.starlightRoute.locale;
+const route = Astro.locals.starlightRoute;
+const locale = route.lang ?? route.locale;
 const resolvedLinks = resolveSiteLinks(locale, links);
 const shouldRenderSearch =
   config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
