@@ -12,5 +12,10 @@ const hagilightSchema = z.object({
   ...rssSchema.shape,
 });
 export const collections = {
-  docs: defineCollection({ loader: docsLoader(), schema: docsSchema({ extend: hagilightSchema }) }),
+  docs: defineCollection({
+    loader: docsLoader({
+      generateId: ({ entry }) => entry.replace(/\.[^./]+$/u, '').replace(/\/index$/u, ''),
+    }),
+    schema: docsSchema({ extend: hagilightSchema }),
+  }),
 };
