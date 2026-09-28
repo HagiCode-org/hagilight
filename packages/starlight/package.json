@@ -1,6 +1,6 @@
 {
   "name": "@hagicode/hagilight-starlight",
-  "version": "0.1.0",
+  "version": "0.2.4",
   "type": "module",
   "description": "Starlight customizations for HagiCode documentation",
   "repository": {
@@ -13,12 +13,30 @@
     "provenance": true
   },
   "exports": {
-    ".": "./index.mjs",
-    "./locales": "./locales.mjs",
-    "./article-promotion-schema": "./article-promotion-schema.mjs",
-    "./ai-disclosure-schema": "./ai-disclosure-schema.mjs",
-    "./rss-schema": "./rss-schema.mjs",
-    "./seo-schema": "./seo-schema.mjs",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    },
+    "./locales": {
+      "types": "./locales.d.ts",
+      "default": "./locales.mjs"
+    },
+    "./article-promotion-schema": {
+      "types": "./article-promotion-schema.d.ts",
+      "default": "./article-promotion-schema.mjs"
+    },
+    "./ai-disclosure-schema": {
+      "types": "./ai-disclosure-schema.d.ts",
+      "default": "./ai-disclosure-schema.mjs"
+    },
+    "./rss-schema": {
+      "types": "./rss-schema.d.ts",
+      "default": "./rss-schema.mjs"
+    },
+    "./seo-schema": {
+      "types": "./seo-schema.d.ts",
+      "default": "./seo-schema.mjs"
+    },
     "./ContentLayoutToggle": "./ContentLayoutToggle.astro",
     "./Header": "./Header.astro",
     "./Footer": "./Footer.astro",
@@ -30,15 +48,17 @@
   },
   "files": [
     "index.mjs",
+    "index.d.ts",
     "*.css",
     "*.mjs",
+    "*.d.ts",
     "rss*.xml.ts",
     "*.astro",
     "assets/*.png"
   ],
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
-    "@hagicode/hagilight": "0.1.0"
+    "@hagicode/hagilight": "0.2.3"
   },
   "peerDependencies": {
     "@astrojs/starlight": "^0.42.4",
