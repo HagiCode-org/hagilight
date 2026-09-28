@@ -159,6 +159,57 @@ override destinations or labels. RSS is omitted unless `links.rssFeedUrl` or
 Mounting this component is explicit and does not replace another footer or
 change the Starlight plugin's existing footer.
 
+## Core Astro SEO and RSS without Starlight
+
+Plain Astro sites can use the core package directly. Render `SEOHead` in the
+layout's `<head>` and explicitly mount an endpoint with `generateRssFeed`;
+neither import requires `@astrojs/starlight`, and the core package does not
+create routes or feed alternates implicitly.
+
+```astro
+---
+import SEOHead from '@hagicode/hagilight/SEOHead';
+
+const site = Astro.site?.href;
+if (!site) throw new Error('Configure an absolute Astro site URL.');
+const pageUrl = new URL(Astro.url.pathname, site).href;
+---
+
+<head>
+  <SEOHead
+    site={site}
+    page={{ url: pageUrl, title: 'Page title', description: 'Page summary.' }}
+    siteSeo={{ image: '/social-card.png' }}
+  />
+  <link rel="alternate" type="application/rss+xml" href={`${import.meta.env.BASE_URL}rss.xml`} />
+</head>
+```
+
+Mount RSS explicitly from an Astro endpoint and provide the consumer-owned
+items. Relative item links resolve under Astro's configured base path; use the
+optional `date` field only when a publication date is known.
+
+```ts
+import type { APIRoute } from 'astro';
+import { generateRssFeed } from '@hagicode/hagilight/rss';
+
+export const GET: APIRoute = ({ site }) => generateRssFeed({
+  site,
+  baseUrl: import.meta.env.BASE_URL,
+  language: 'en-US',
+  title: 'My site',
+  description: 'Recently published pages.',
+  items: [{ title: 'Page title', link: '/guide/', description: 'Page summary.' }],
+});
+```
+
+`examples/core-footer/` demonstrates the manual core integration, including
+canonical/sharing metadata and a mounted feed. `examples/starlight/` keeps the
+automatic plugin integration: it selects published docs, filters locale
+alternates, builds document structured data, and generates multilingual feeds.
+Existing Starlight schema imports such as
+`@hagicode/hagilight-starlight/seo-schema` and `/rss-schema` remain supported.
+
 RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination for the English feed; `/rss.en.xml` is its explicit alias. With the shared locale map, `/rss.xml` contains English items and `/rss.zh-CN.xml` contains Simplified Chinese items from the `/zh-CN/` route. A custom locale map without English configured has no English feed items. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
 On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.
