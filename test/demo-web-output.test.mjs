@@ -33,6 +33,13 @@ const pages = [
 ];
 const manifest = JSON.parse(readFileSync(join(root, 'packages/astro/package.json'), 'utf8'));
 const config = readFileSync(join(root, 'examples/demo-web/astro.config.mjs'), 'utf8');
+const englishFeed = readFileSync(join(outputDir, 'rss.xml'), 'utf8');
+const englishAliasFeed = readFileSync(join(outputDir, 'rss.en.xml'), 'utf8');
+const chineseFeed = readFileSync(join(outputDir, 'rss.zh-CN.xml'), 'utf8');
+
+function feedItems(xml) {
+  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => item);
+}
 
 test('both locale pages cover every core export with localized navigation and real examples', () => {
   const featureIds = [
@@ -92,22 +99,55 @@ test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, 
     assert.equal(typeof structuredData[1].description, 'string');
   }
   assert.match(config, /import \{ hagilightFavicon \} from '@hagicode\/hagilight\/favicon'/u);
-  assert.match(config, /integrations: \[hagilightFavicon\(\)\]/u);
+  assert.match(config, /hagilightFavicon\(\)/u);
+  assert.match(config, /hagilightRss\(\{ locales, getFeed: '\.\/src\/rss-feed\.mjs' \}\)/u);
 });
 
-test('feed is a valid consumer-owned output with links to the two real pages', () => {
-  const xml = readFileSync(join(outputDir, 'rss.xml'), 'utf8');
-  assert.match(xml, /^<\?xml/u);
-  assert.match(xml, /<title>Hagilight core package showcase<\/title>/u);
-  assert.match(xml, /<language>en-US<\/language>/u);
+test('integration feeds keep English and Chinese metadata, items, and links separate', () => {
+  assert.match(englishFeed, /^<\?xml/u);
+  assert.equal(englishFeed, englishAliasFeed);
+  assert.match(englishFeed, /<title>Hagilight core package showcase<\/title>/u);
+  assert.match(englishFeed, /<description>English updates from the standalone Hagilight Astro demo\.<\/description>/u);
+  assert.match(englishFeed, /<language>en-US<\/language>/u);
   assert.deepEqual(
-    [...xml.matchAll(/<link>(https:\/\/hagilight\.hagicode\.com\/[^<]*)<\/link>/gu)].map(([, link]) => link),
+    feedItems(englishFeed).map((item) => item.match(/<title>([^<]+)<\/title>/u)[1]),
     [
-      'https://hagilight.hagicode.com/',
-      'https://hagilight.hagicode.com/',
-      'https://hagilight.hagicode.com/zh-CN/',
+      'Explore Hagilight core, without Starlight.',
+      'Review generated Footer feed links.',
     ],
   );
+  assert.match(englishFeed, /<link>https:\/\/hagilight\.hagicode\.com\/#live-footer-example<\/link>/u);
+  assert.doesNotMatch(englishFeed, /探索 Hagilight core/u);
+
+  assert.match(chineseFeed, /<title>Hagilight 独立 Astro 示例<\/title>/u);
+  assert.match(chineseFeed, /<description>来自 Hagilight 独立 Astro 示例的简体中文更新。<\/description>/u);
+  assert.match(chineseFeed, /<language>zh-CN<\/language>/u);
+  assert.deepEqual(
+    feedItems(chineseFeed).map((item) => item.match(/<title>([^<]+)<\/title>/u)[1]),
+    [
+      '探索 Hagilight core，无需 Starlight。',
+      '查看自动生成的页脚订阅链接。',
+    ],
+  );
+  assert.match(chineseFeed, /<link>https:\/\/hagilight\.hagicode\.com\/zh-CN\/#live-footer-example<\/link>/u);
+  assert.doesNotMatch(chineseFeed, /Explore Hagilight core/u);
+});
+
+test('generated Footer shows one English feed and default plus current-language Chinese feeds', () => {
+  for (const [page, expected] of [
+    ['index.html', [['https://hagilight.hagicode.com/rss.xml', 'RSS Feed']]],
+    ['zh-CN/index.html', [
+      ['https://hagilight.hagicode.com/rss.xml', 'RSS 订阅'],
+      ['https://hagilight.hagicode.com/rss.zh-CN.xml', '当前语言 RSS'],
+    ]],
+  ]) {
+    const html = readFileSync(join(outputDir, page), 'utf8');
+    const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+    assert.ok(footer, `${page} has a Footer`);
+    const actual = [...footer.matchAll(/<a\b[^>]*href="([^"]*rss[^"]*)"[^>]*>([^<]*)<\/a>/giu)]
+      .map(([, href, label]) => [href, label]);
+    assert.deepEqual(actual, expected, `${page} has the expected generated RSS links`);
+  }
 });
 
 test('showcase stays free of analytics scripts and retains responsive accessible styles', () => {

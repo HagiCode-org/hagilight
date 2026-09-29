@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import { hagilightRss } from '@hagicode/hagilight/integration';
 import hagilight from '@hagicode/hagilight-starlight';
 import { locales } from '@hagicode/hagilight-starlight/locales';
 
@@ -8,11 +9,19 @@ const rssOption = (name) => {
   const key = name.replace(/[A-Z]/gu, (letter) => `_${letter}`).toUpperCase();
   return process.env[`HAGILIGHT_RSS_${key}`] !== 'false';
 };
+const coreRssOrder = process.env.HAGILIGHT_TEST_CORE_RSS_ORDER;
+if (coreRssOrder !== undefined && !['before', 'after'].includes(coreRssOrder)) {
+  throw new Error('HAGILIGHT_TEST_CORE_RSS_ORDER must be "before" or "after".');
+}
+const coreRssIntegration = coreRssOrder === undefined
+  ? []
+  : [hagilightRss({ locales, getFeed: './src/rss-feed.mjs' })];
 
 export default defineConfig({
   site: 'https://hagistar.hagicode.com',
   base,
   integrations: [
+    ...(coreRssOrder === 'before' ? coreRssIntegration : []),
     starlight({
       title: 'Hagilight example',
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
@@ -46,5 +55,6 @@ export default defineConfig({
         },
       })],
     }),
+    ...(coreRssOrder === 'after' ? coreRssIntegration : []),
   ],
 });

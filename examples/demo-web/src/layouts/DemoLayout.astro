@@ -2,7 +2,6 @@
 import Footer from '@hagicode/hagilight/Footer';
 import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
 import SEOHead from '@hagicode/hagilight/SEOHead';
-import { resolveSiteLinks } from '@hagicode/hagilight/site-links';
 import logo from '@hagicode/hagilight/logo.png';
 import favicon from '@hagicode/hagilight/favicon.ico';
 
@@ -68,11 +67,6 @@ if (!site) throw new Error('The Hagilight core demo requires an absolute Astro s
 const basePath = import.meta.env.BASE_URL;
 const pageUrl = new URL(Astro.url.pathname, site).href;
 const feedPath = `${basePath}rss.xml`;
-const feedUrl = new URL(feedPath, site).href;
-const siteLinks = { rssFeedUrl: feedUrl };
-const resolvedLinks = resolveSiteLinks(locale, siteLinks);
-const feedLink = resolvedLinks.quick.find((link) => link.id === 'rss');
-if (!feedLink) throw new Error('The core demo feed link was not resolved.');
 const structuredData = [
   {
     '@context': 'https://schema.org',
@@ -177,7 +171,7 @@ const structuredData = [
         </div>
         <nav class="resolver-example" aria-label={feedNavLabel}>
           <span>{resolverLabel}</span>
-          <a href={feedLink.href}>{feedLink.label}</a>
+          <a href={feedPath}>{feedLabel}</a>
         </nav>
       </section>
 
@@ -188,7 +182,7 @@ const structuredData = [
     </main>
 
     <div id="footer-preview">
-      <Footer locale={locale} links={siteLinks} />
+      <Footer locale={locale} />
     </div>
   </body>
 </html>

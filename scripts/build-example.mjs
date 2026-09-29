@@ -234,16 +234,35 @@ function verifyCoreFooterOutput(read) {
     assert.ok(head.includes('property="og:title"'), `${filename} has core sharing metadata`);
     assert.ok(head.includes('name="twitter:title"'), `${filename} has Twitter metadata`);
     assert.equal(headAttributeValues(head, 'link', 'href', 'application/rss\\+xml').length, 1);
+    const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+    assert.ok(footer, `${filename} has a core Footer`);
+    const rssLinks = [...footer.matchAll(/<a\b[^>]*href="([^"]*rss[^"]*)"[^>]*>([^<]*)<\/a>/giu)]
+      .map(([, href, label]) => [href, label]);
+    assert.deepEqual(rssLinks, filename === 'index.html'
+      ? [['https://hagilight.hagicode.com/rss.xml', 'RSS Feed']]
+      : [
+        ['https://hagilight.hagicode.com/rss.xml', 'RSS 订阅'],
+        ['https://hagilight.hagicode.com/rss.zh-CN.xml', '当前语言 RSS'],
+      ]);
   }
 
-  const xml = read('rss.xml');
-  assert.match(xml, /^<\?xml/u);
-  assert.match(xml, /<language>en-US<\/language>/u);
-  const links = itemLinks(xml);
-  assert.deepEqual(links, [
+  const english = read('rss.xml');
+  const englishAlias = read('rss.en.xml');
+  const chinese = read('rss.zh-CN.xml');
+  assert.equal(english, englishAlias);
+  assert.match(english, /^<\?xml/u);
+  assert.match(english, /<language>en-US<\/language>/u);
+  assert.match(chinese, /<language>zh-CN<\/language>/u);
+  assert.deepEqual(itemLinks(english), [
     'https://hagilight.hagicode.com/',
-    'https://hagilight.hagicode.com/zh-CN/',
+    'https://hagilight.hagicode.com/#live-footer-example',
   ]);
+  assert.deepEqual(itemLinks(chinese), [
+    'https://hagilight.hagicode.com/zh-CN/',
+    'https://hagilight.hagicode.com/zh-CN/#live-footer-example',
+  ]);
+  assert.ok(!english.includes('探索 Hagilight core'));
+  assert.ok(!chinese.includes('Explore Hagilight core'));
 }
 
 const defaultFeeds = build();
