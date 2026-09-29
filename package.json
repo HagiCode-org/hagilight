@@ -8,9 +8,13 @@
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
+    "test:viewport": "node test/viewport-regression.mjs",
     "build:example": "node scripts/build-example.mjs",
     "build:core-footer-example": "npm run build --workspace=hagilight-core-footer-example",
     "pack:check": "node scripts/verify-pack.mjs",
     "integration:installed": "node scripts/integration-installed.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }

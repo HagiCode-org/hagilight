@@ -32,6 +32,9 @@ export default defineConfig({
         },
         hagicodePromotion: { enabled: true },
         promoto: { enabled: true },
+        analytics: process.env.HAGILIGHT_VIEWPORT_TEST === 'true'
+          ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }
+          : undefined,
         aiDisclosures: {
           isAITranslation: true,
           isAIAuthor: true,
