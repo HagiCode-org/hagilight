@@ -13,6 +13,9 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: demo-web
+      url: https://hagilight.hagicode.com/
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
