@@ -13,7 +13,7 @@ Two independently publishable npm packages that provide shared Astro and Starlig
 ```sh
 npm install                 # install all workspaces
 npm test                   # run node --test on test/*.test.mjs
-npm run build:example      # build the examples/starlight demo workspace
+npm run build:example      # build the examples/demo-starlight-web workspace
 npm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
 npm run integration:installed  # validate an installed tarball (scripts/integration-installed.mjs)
 ```
@@ -23,7 +23,8 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 - npm workspaces: `packages/*` and `examples/*`.
 - `packages/astro/` — shared `.astro` + `.mjs` source, published as source (consumers compile with Astro). New shared components belong here, with an entry in its `exports` and `files`. Localized footer catalog lives in `packages/astro/related-sites.json` (keep in sync with Docs).
 - `packages/starlight/` — Starlight-only overrides and the plugin registered in `index.mjs`. New auto-applying components get an `exports` entry and are registered in `index.mjs`.
-- `examples/starlight/` — private demo exercising both package entry points.
+- `examples/demo-starlight-web/` — private Starlight demo exercising both package entry points.
+- `examples/demo-web/` — private core Astro demo without Starlight.
 - `scripts/` — `verify-pack.mjs`, `integration-installed.mjs`, `publish.mjs`, `release.mjs` (publishing/release helpers).
 - `test/` — node:test suites covering site links, header, language chooser, promotions, AI disclosures, article promotion, and release logic.
 
@@ -46,5 +47,7 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 - CI (`.github/workflows/ci.yml`) validates both packages and builds the example on Linux, Windows, and macOS (incl. installed-tarball build).
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes both packages to `latest` (dependency package first; existing versions are skipped).
-- `demo-gh-pages.yml` publishes the Starlight example to `https://hagilight.hagicode.com/` on successful `main` pushes (custom-domain `CNAME`, `gh-pages` branch root, Actions write permission required).
+- `.github/workflows/demo-web.yml` publishes `examples/demo-web/` to the `demo-web` branch for `https://hagilight.hagicode.com/`; select `demo-web` root as this repository's GitHub Pages source instead of `gh-pages`.
+- `.github/workflows/demo-starlight-web.yml` publishes `examples/demo-starlight-web/` to the `demo-starlight-web` branch for `https://hagistar.hagicode.com/`; that domain requires a separate hosting consumer because this repository's GitHub Pages source serves only one branch.
+- Both demo workflows run independently on pushes to `main`; neither updates `gh-pages`.
 - `release-drafter.yml` maintains the next stable draft from merged PRs.

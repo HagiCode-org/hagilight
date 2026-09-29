@@ -2,12 +2,12 @@
 
 Two independently publishable packages for Astro sites:
 
-- `@hagicode/hagilight`: shared `.astro` components (`Copyright` and the reusable promotion banner).
-- `@hagicode/hagilight-starlight`: Starlight-specific components and a plugin that adds localized shared links and copyright below the default Footer, with optional analytics and active promotions.
+- `@hagicode/hagilight`: reusable Astro components, site-link and SEO/RSS helpers, analytics providers, and shared logo and favicon assets.
+- `@hagicode/hagilight-starlight`: a Starlight plugin and components for localized navigation and footer links, SEO/RSS, content controls, promotions, AI notices, and analytics.
 
-The shared package also exports the HagiCode logo as `@hagicode/hagilight/logo.png` and the HagiCode favicon as `@hagicode/hagilight/favicon.ico`. The Starlight plugin injects the favicon into every page as a self-contained data URI by default, so consumers get the shared favicon with no configuration; a site-provided Starlight `logo` or `favicon` setting takes precedence.
+- The shared package exports the HagiCode logo (`@hagicode/hagilight/logo.png`) and favicon (`@hagicode/hagilight/favicon.ico`); the Starlight plugin embeds the shared favicon as a data URI by default, unless the site configures its own.
 
-Any site that references the core `@hagicode/hagilight` package (including plain Astro sites, not only Starlight) can auto-apply the same favicon by adding the `hagilightFavicon` integration:
+Plain Astro sites can also auto-apply the shared favicon with the `hagilightFavicon` integration:
 
 ```js
 import { hagilightFavicon } from '@hagicode/hagilight/favicon';
@@ -17,9 +17,7 @@ export default defineConfig({
 });
 ```
 
-Both the Starlight plugin's built-in favicon and the core `hagilightFavicon` integration are driven by the same `resolveFaviconHeadEntry` helper exported from `@hagicode/hagilight/favicon`, so the behavior (data-URI default, consumer `favicon`/`href` override, and skip-on-existing-icon) stays consistent everywhere.
-
-Override the shared favicon by passing a `href` (`hagilightFavicon({ href: '/your-favicon.ico' })`), or by declaring your own `<link rel="icon">` in Astro's `config.head` — the integration detects an existing icon link and skips injection, so consumers never get a duplicate favicon.
+The integration accepts a custom `href` (`hagilightFavicon({ href: '/your-favicon.ico' })`) and skips injection if Astro's `config.head` already declares an icon link.
 
 The packages publish `.astro` source directly; consumers compile it with Astro. New shared components belong in `packages/astro/`, with an entry in its `exports` and `files`. Starlight-only overrides belong in `packages/starlight/`; add their entries to `exports` and register them in `index.mjs` when they should apply automatically.
 
@@ -31,7 +29,7 @@ npm test
 npm run build:example
 ```
 
-The private `examples/starlight/` workspace demonstrates both package entry points. To use the packages in another site, install both `@hagicode/hagilight` and `@hagicode/hagilight-starlight` alongside compatible `astro` and `@astrojs/starlight` versions:
+The private `examples/demo-starlight-web/` workspace demonstrates both package entry points. To use the packages in another site, install both `@hagicode/hagilight` and `@hagicode/hagilight-starlight` alongside compatible `astro` and `@astrojs/starlight` versions:
 
 ```js
 // astro.config.mjs
@@ -49,7 +47,9 @@ The promotion banner is enabled by default. Disable it while keeping the shared 
 plugins: [hagilight({ promoto: { enabled: false } })]
 ```
 
-The static HagiCode introduction at the end of each article is enabled by default and is controlled independently from the floating banner. It includes the product screenshot, complete overview, three feature descriptions, and localized copy for Simplified Chinese, English, Traditional Chinese, Japanese, Korean, German, French, Spanish, Brazilian Portuguese, and Russian. Disable it site-wide with `hagicodePromotion: { enabled: false }`; an article's optional `hagicodePromotion` boolean can override that default:
+- The article-end HagiCode introduction is enabled by default, independently of the floating banner.
+- It includes a product screenshot, an overview, and three feature descriptions, with copy for Simplified Chinese, English, Traditional Chinese, Japanese, Korean, German, French, Spanish, Brazilian Portuguese, and Russian.
+- Disable it site-wide with `hagicodePromotion: { enabled: false }`; an article's optional `hagicodePromotion` boolean overrides that default:
 
 ```js
 plugins: [hagilight({
@@ -67,7 +67,9 @@ hagicodePromotion: false
 ---
 ```
 
-The Starlight footer mirrors the current Docs header, quick links, community links, filing links, localized section labels, and the related-site entries currently displayed by Docs. Ecosystem Sites also includes HagiTask and the AI calculator. Related sites render as links only (no description text); their names and URLs are bundled from Docs' footer catalog. Entries marked `supportsLocalePath: true` receive the active locale path (currently the main site, OpenSpec, OmniRoute, and Design). Pass `relatedSites: []` to omit the bundled list or supply an array to replace it. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog.
+- The Starlight footer uses Docs' current header, quick, community, and filing links, localized section labels, and related-site catalog, including HagiTask and the AI calculator.
+- Related sites render as links with bundled names and URLs; entries marked `supportsLocalePath: true` receive the active locale path.
+- Pass `relatedSites: []` to omit the bundled list or supply an array to replace it. Keep `packages/astro/related-sites.json` in sync when Docs changes its displayed site catalog.
 
 Use `removeLinks` to remove entries by stable ID independently from Ecosystem Sites, Quick Links, and Community. Append quick or community links with `extraLinks.quick` and `extraLinks.community`; explicit IDs are recommended for consumer entries. Append ecosystem sites with `extraLinks.relatedSites`. Existing `relatedSites` replacement, legacy quick/community additions without IDs, and route/label overrides remain supported:
 
@@ -103,7 +105,9 @@ plugins: [hagilight({
 })]
 ```
 
-Removals apply to the defaults or replacement list before additions are appended. The resolver keeps existing entries in order, validates protocols, excludes the current site and destinations already rendered in Quick Links or Community, and filters duplicate IDs and URLs within each section. Link labels fall back from Traditional Chinese to Simplified Chinese and then English. The exported `resolveSiteLinks(locale, options)` function from `@hagicode/hagilight/site-links` provides the same localized link data to consumer-owned Starlight headers and is used by Hagilight's default Header.
+- The resolver applies removals before additions, preserves entry order, validates protocols, excludes the current site and destinations already used in Quick Links or Community, and filters duplicate IDs and URLs within each section.
+- Link labels fall back from Traditional Chinese to Simplified Chinese and then English.
+- `resolveSiteLinks(locale, options)` from `@hagicode/hagilight/site-links` supplies the same localized link data to consumer-owned Starlight headers and Hagilight's default Header.
 
 Non-Starlight Astro/React sites can install only `@hagicode/hagilight` and
 call `resolveSiteLinks` directly:
@@ -121,12 +125,9 @@ const links = resolveSiteLinks(locale, {
 });
 ```
 
-Supply a validated build-time snapshot; override locale-dependent site
-routes (including Docs) in the host app. `removeLinks` and `extraLinks`
-customize sections by stable ID. The resolver retains snapshot order,
-removes the current site and duplicate destinations, and rejects unsupported
-protocols. Without `relatedSites` it uses the bundled Docs defaults; no
-Starlight plugin is needed.
+- Supply a validated build-time snapshot and override locale-dependent site routes (including Docs) in the host app.
+- `removeLinks` and `extraLinks` customize sections by stable ID; the resolver preserves snapshot order, removes the current site and duplicate destinations, and rejects unsupported protocols.
+- Without `relatedSites`, the resolver uses the bundled Docs defaults; no Starlight plugin is needed.
 
 ### Opt-in Astro footer without Starlight
 
@@ -203,18 +204,22 @@ export const GET: APIRoute = ({ site }) => generateRssFeed({
 });
 ```
 
-`examples/core-footer/` demonstrates the manual core integration, including
-canonical/sharing metadata and a mounted feed. `examples/starlight/` keeps the
+`examples/demo-web/` demonstrates the manual core integration, including
+canonical/sharing metadata and a mounted feed. `examples/demo-starlight-web/` keeps the
 automatic plugin integration: it selects published docs, filters locale
 alternates, builds document structured data, and generates multilingual feeds.
 Existing Starlight schema imports such as
 `@hagicode/hagilight-starlight/seo-schema` and `/rss-schema` remain supported.
 
-RSS is enabled by default. With Astro's `site` set, Hagilight generates a feed for each configured Starlight language. `/rss.xml` remains the default alternate-link and footer destination for the English feed; `/rss.en.xml` is its explicit alias. With the shared locale map, `/rss.xml` contains English items and `/rss.zh-CN.xml` contains Simplified Chinese items from the `/zh-CN/` route. A custom locale map without English configured has no English feed items. Feed items link to absolute, base-aware URLs, carry the selected language metadata, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
+- RSS is enabled by default; with Astro's `site` set, Hagilight generates a feed for each configured Starlight language.
+- `/rss.xml` is the default English feed destination and `/rss.en.xml` its alias; with the shared locale map, `/rss.zh-CN.xml` contains Simplified Chinese items from `/zh-CN/`. A locale map without English has no English feed items.
+- Feed items use absolute, base-aware URLs, include the selected language, and are ordered by descending `lastUpdated`; undated pages remain included without a publication date.
 
-On non-English pages, Hagilight's default footer shows the default RSS link and a second, localized “current language” RSS link. English pages keep only the default link because both URLs contain the same English feed. Consumer-owned RSS feeds continue to suppress Hagilight's generated feeds and links.
+- On non-English pages, the default footer shows the default RSS link and a localized current-language link; English pages show only the default link.
+- Consumer-owned RSS feeds suppress Hagilight's generated feeds and links.
 
-By default, feeds include documentation pages and articles under the locale-relative `blog/<article>` path. A `blog/` listing or `blog/index` page is treated as documentation. Configure the independent site-wide switches:
+- By default, feeds include documentation pages and articles under the locale-relative `blog/<article>` path; a `blog/` listing or `blog/index` page is treated as documentation.
+- Configure the independent site-wide switches:
 
 ```js
 plugins: [hagilight({
@@ -225,7 +230,8 @@ plugins: [hagilight({
 })]
 ```
 
-Both switches default to `true`. An article can opt out with `rss: false` in its frontmatter, or explicitly remain included with `rss: true`; drafts and content types disabled site-wide are always excluded. A complete multilingual configuration looks like this:
+- Both switches default to `true`. An article can opt out with `rss: false` or explicitly remain included with `rss: true`; drafts and content types disabled site-wide are excluded.
+- A complete multilingual configuration looks like this:
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -294,9 +300,13 @@ The explicit RSS override takes precedence over the configured alternate link. A
 
 ## SEO and multilingual discovery
 
-Hagilight builds on Starlight's canonical, Open Graph, Twitter Card, sitemap, and RSS head entries. SEO head composition is enabled by default and requires an absolute Astro `site` URL. It keeps Starlight's canonical URL and sitemap integration, but removes generated `hreflang` and `x-default` entries for translations that are not present as published docs in the consuming site's `docs` collection. Locale route keys and `lang` tags come from the Starlight `locales` configuration; the language chooser is navigation only and does not determine which translations are published.
+- SEO head composition is enabled by default and requires an absolute Astro `site` URL.
+- Hagilight retains Starlight's canonical URL and sitemap integration, and filters generated `hreflang` and `x-default` entries to translations present as published docs in the consumer's `docs` collection.
+- Locale route keys and `lang` tags come from Starlight's `locales` configuration; the language chooser does not determine which translations are published.
 
-Set site-wide sharing defaults and an optional organization identity with `seo`. Page-level SEO values override Starlight frontmatter. If a page has no description, Hagilight uses the first text from its document body as a description excerpt (up to 160 characters), then falls back to explicit head/site defaults. Image paths are resolved under the Astro base path. No share image is emitted when neither the page nor site config supplies one.
+- Set site-wide sharing defaults and an optional organization identity with `seo`; page-level SEO values override Starlight frontmatter.
+- Without a page description, Hagilight uses a document-body excerpt (up to 160 characters), then explicit head or site defaults.
+- Image paths resolve under the Astro base path; no share image is emitted unless the page or site config supplies one.
 
 ```js
 plugins: [hagilight({
@@ -343,7 +353,8 @@ seo:
 ---
 ```
 
-`PageTitle` controls the visible page heading and content-width toggle; it does not set the document head. Hagilight does not generate page descriptions from a shared keyword template. Its article-end `light-main.png` keeps intrinsic dimensions and lazy loading, and the initially hidden promotion banner is fixed-position so neither adds layout shift or is promoted to a preloaded social image.
+- `PageTitle` controls the visible heading and content-width toggle, not the document head; Hagilight does not generate page descriptions from a shared keyword template.
+- The article-end `light-main.png` keeps intrinsic dimensions and lazy loading; the initially hidden promotion banner is fixed-position.
 
 The SEO head wrapper composes Google Analytics with Starlight's existing head output. A consumer-provided `components.Head` cannot be combined with Hagilight's automatic SEO ownership. To own the head, disable SEO and both automatic analytics providers, then keep or compose Starlight's head in your component:
 
@@ -382,11 +393,13 @@ Do not publish `llms.txt` if the site does not want AI discovery. It is optional
 
 ## Starlight Header and language chooser
 
-The plugin registers a shared Header by default. It keeps Starlight's site title, configured search, social links, and theme control, and adds localized links from the `header` group. A site that already defines `components.Header` gets a setup error instead of having its Header silently replaced. Keep the site Header with `hagilight({ header: { enabled: false } })`; this opt-out does not change Footer or Head registration.
+- The plugin registers a shared Header by default, retaining Starlight's site title, configured search, social links, and theme control while adding localized `header` links.
+- If the site already defines `components.Header`, setup fails instead of replacing it; `hagilight({ header: { enabled: false } })` keeps the site Header without changing Footer or Head registration.
 
 ### Starlight not-found page
 
-The plugin registers a 404-specific Hero by default. It keeps Starlight's 404 title, translated guidance, and normal site shell, then adds a translated home link under the site's base path. Other pages continue to use Starlight's default Hero. Static hosts must be configured to serve the generated `404.html` for missing routes; Hagilight does not configure host fallback behavior.
+- The plugin registers a 404-specific Hero by default, retaining Starlight's title, translated guidance, and site shell while adding a translated home link under the site's base path.
+- Other pages use Starlight's default Hero; static hosts must be configured separately to serve the generated `404.html` for missing routes.
 
 If a site already owns `components.Hero`, disable the automatic override:
 
@@ -421,7 +434,9 @@ starlight({
 });
 ```
 
-The shared map makes English (`en-US`) the unprefixed `root` language and offers Simplified Chinese (`zh-CN`) at `/zh-CN/`; the example site follows the same routes (`/` and `/zh-CN/`). Locale paths preserve the configured key's casing, such as `/zh-Hant/`; content IDs must preserve that casing too. Astro's default content IDs are lowercase, so use a custom `generateId` with `docsLoader()` when using mixed-case keys, as the example does in `src/content.config.ts`. English is not also listed as `en-us`, avoiding duplicate English routes and RSS feed names.
+- The shared map uses English (`en-US`) at the unprefixed `root` route and Simplified Chinese (`zh-CN`) at `/zh-CN/`.
+- Locale paths preserve the configured key's casing; content IDs must match it. Astro's default IDs are lowercase, so mixed-case keys require a custom `generateId` with `docsLoader()`.
+- The map does not list English again as `en-us`, avoiding duplicate English routes and RSS feed names.
 
 This changes the routes for sites adopting the revised map: the former shared-map layout used Chinese at `/` and English at `/en-us/`; it now uses English at `/` and Chinese at `/zh-CN/`. Review bookmarks, internal links, translated content directories, feed links, and any redirects your deployment needs. Hagilight does not add redirects or replace a consumer's custom Starlight locale map. To keep the previous layout, define it explicitly:
 
@@ -435,7 +450,10 @@ const siteLocales = {
 
 Pass `siteLocales` as `locales`; add the corresponding translated docs to the Starlight content collection, since locale configuration alone does not create page content.
 
-On multilingual desktop pages, the Header offers a Docs-inspired language dialog. Its default native-label catalog follows the shared locale map: English (`root` / `en-US`), Simplified Chinese (`zh-CN` / `zh-CN`), Traditional Chinese (`zh-Hant`), French (`fr-FR`), German (`de-DE`), Spanish (`es-ES`), Japanese (`ja-JP`), Korean (`ko-KR`), Portuguese (`pt-BR`), and Russian (`ru-RU`). Only routes configured by the consuming site's Starlight `locales` appear; configured locales outside this catalog are included using their Starlight labels. Selecting a language follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available. Sites with one locale have no redundant chooser, and Starlight's mobile menu retains its built-in language selector.
+- On multilingual desktop pages, the Header offers a language dialog with native labels for the shared locale map.
+- The chooser shows configured Starlight locales only, using Starlight labels for locales outside the built-in catalog.
+- Language selection follows the equivalent route under the site's base path and trailing-slash rules, preserves the query and fragment, and updates Starlight's `starlight-route` preference when browser storage is available.
+- Single-locale sites have no chooser; Starlight's mobile menu retains its built-in selector.
 
 To compose the shared Header into a custom override, disable automatic registration and import it directly:
 
@@ -449,9 +467,11 @@ import HagilightHeader from '@hagicode/hagilight-starlight/Header';
 
 ### Reading width and AI disclosures
 
-Hagilight adds a desktop wide/narrow control beside Starlight's page title. Wide is the default on first visit; narrow leaves Starlight's existing content width unchanged. The selection is stored under the `hagilight-content-width` key and restored by a small head script before the page is painted. The control is hidden below Starlight's desktop breakpoint.
+- Hagilight adds a desktop wide/narrow control beside Starlight's page title; wide is the first-visit default, while narrow keeps Starlight's existing content width.
+- The selection is stored under `hagilight-content-width` and restored before paint; the control is hidden below Starlight's desktop breakpoint.
 
-AI notices are disabled unless enabled in the plugin options. `sourceLocale` defaults to `root`; translation notices are omitted on that locale. Notices use the active Starlight language when a translation is available and otherwise fall back to English. A translated notice links to its source only when a matching docs entry exists, and that URL includes the configured site base path.
+- AI notices are disabled by default; `sourceLocale` defaults to `root`, where translation notices are omitted.
+- Notices use the active Starlight language when translated, otherwise English; translated notices link to a source only when a matching docs entry exists, using the configured site base path.
 Sites with a custom Starlight `Head` must render Starlight's configured head entries (for example, by composing `@astrojs/starlight/components/Head.astro`) so the early width-preference script runs.
 
 Starlight's docs collection is consumer-defined, so add the exported optional schema when using disclosure frontmatter. Existing schema fields can be combined with the Hagilight fields:
@@ -477,7 +497,7 @@ export const collections = {
 };
 ```
 
-The schema exports validate the article override as an optional boolean. Sites that do not install `articlePromotionSchema` still get render-time type validation for the field.
+- The schema exports validate the article override as an optional boolean; sites that do not install `articlePromotionSchema` still get render-time type validation.
 
 Configure inherited values independently. Both flags default to `false`; a frontmatter value, including `false`, overrides its corresponding site default:
 
@@ -500,7 +520,8 @@ isAITranslation: false
 This guide inherits the AI-assistance notice and explicitly suppresses the translation notice.
 ```
 
-An omitted flag inherits the site default. Invalid option types or non-boolean frontmatter values fail validation. The exported `PageTitle`, `MarkdownContent`, and `ContentLayoutToggle` components are available for sites with existing Starlight overrides. Set the corresponding `contentComponents` option to `false` to keep that override, then compose the Hagilight component:
+- An omitted flag inherits the site default; invalid option types and non-boolean frontmatter values fail validation.
+- `PageTitle`, `MarkdownContent`, and `ContentLayoutToggle` are available for sites with existing Starlight overrides. Set the corresponding `contentComponents` option to `false` to keep an override, then compose the Hagilight component:
 
 ```js
 plugins: [hagilight({
@@ -527,9 +548,10 @@ import HagilightMarkdownContent from '@hagicode/hagilight-starlight/MarkdownCont
 </HagilightMarkdownContent>
 ```
 
-Pass `hagicodePromotionEnabled` to the exported component to supply the site default when composing a custom MarkdownContent; it defaults to `true`. Per-article frontmatter continues to override it, and the article-end introduction remains separate from `promoto.enabled`.
+- Pass `hagicodePromotionEnabled` to the exported component to set the site default when composing custom MarkdownContent; it defaults to `true`. Per-article frontmatter can override it, and the article-end introduction is separate from `promoto.enabled`.
 
-Google Analytics and 51LA default to the Docs IDs (`G-EN03FMT2Q4` and `L6b88a5yK4h2Xnci`) and load only on production pages (Google Analytics is skipped on `/404`). Override either ID or disable either provider explicitly:
+- Google Analytics and 51LA default to the Docs IDs (`G-EN03FMT2Q4` and `L6b88a5yK4h2Xnci`) and load only on production pages; Google Analytics is skipped on `/404`.
+- Override either ID or disable either provider explicitly:
 
 ```js
 plugins: [hagilight({
@@ -542,7 +564,9 @@ plugins: [hagilight({
 })]
 ```
 
-For a custom Starlight `Head`, omit the automatic Google Analytics option and compose the provider directly in that component. A custom Footer can similarly import `@hagicode/hagilight-starlight/Footer` and pass `locale` and `links`; direct imports of `Footer` and `PromotoFooter` remain supported. The standalone providers are available as `@hagicode/hagilight/GoogleAnalytics` and `@hagicode/hagilight/Analytics51LA`, each requiring its ID prop. Docs retains its independent links and analytics integrations and is unchanged by Hagilight.
+For a custom Starlight `Head`, omit the automatic Google Analytics option and compose the provider directly in that component. A custom Footer can similarly import `@hagicode/hagilight-starlight/Footer` and pass `locale` and `links`.
+- Direct imports of `Footer` and `PromotoFooter` remain supported; standalone providers are available as `@hagicode/hagilight/GoogleAnalytics` and `@hagicode/hagilight/Analytics51LA`, each requiring its ID prop.
+- Docs retains its independent links and analytics integrations and is unchanged by Hagilight.
 
 The Starlight demo explicitly enables the banner with `hagilight({ promoto: { enabled: true } })`. Sites can also use the component directly and provide their own localized fallback for when no remote campaign is available:
 
@@ -589,8 +613,10 @@ CI validates both packages and builds the example on Linux, Windows, and macOS, 
 
 Before enabling publication, choose and record a license for both packages, ensure `@hagicode` permits publishing them, and configure **npm trusted publishers** for `@hagicode/hagilight` and `@hagicode/hagilight-starlight`: GitHub owner `HagiCode-org`, repository `hagilight`, workflow filename `npm-publish.yml` (no environment). The workflow uses npm OIDC provenance and does not require an npm token. A new package may require an initial authorized publish before npm allows configuring its trusted publisher.
 
-## GitHub Pages demo
+## Demo site deployment
 
-The Starlight example is published to [https://hagilight.hagicode.com/](https://hagilight.hagicode.com/) after successful pushes to `main`. Point the domain's DNS to GitHub Pages (for example, with a `CNAME` record for `hagilight` pointing to `hagicode-org.github.io`). In the repository's **Settings > Pages**, set the source to **Deploy from a branch**, select `gh-pages` and `/ (root)`, then save; the deployment workflow writes the custom-domain `CNAME` file. Enable **Enforce HTTPS** once GitHub Pages provisions a certificate. In **Settings > Actions > General > Workflow permissions**, allow read and write permissions so the workflow's `GITHUB_TOKEN` can update the branch.
+The core demo at [hagilight.hagicode.com](https://hagilight.hagicode.com/) is built from `examples/demo-web/` and published to the `demo-web` branch root by `.github/workflows/demo-web.yml`. Set this repository's **Settings > Pages** source to **Deploy from a branch**, select `demo-web` and `/ (root)`, then save. This replaces the former `gh-pages` source; the new workflows do not write to `gh-pages`. Point the domain's DNS to GitHub Pages and enable **Enforce HTTPS** after GitHub provisions a certificate.
 
-If a deployment fails, open **Actions > Deploy Hagilight demo**, select the failed run, and inspect the failed install, build, or publish step's logs. A publish permission error indicates the workflow token's repository permissions need to be enabled; the site is served from the `gh-pages` branch root.
+The Starlight demo at [hagistar.hagicode.com](https://hagistar.hagicode.com/) is built from `examples/demo-starlight-web/` and published to the `demo-starlight-web` branch root by `.github/workflows/demo-starlight-web.yml`. It requires a separate hosting consumer configured to publish that branch root; this repository's GitHub Pages source cannot serve both branches. Both workflows run independently on pushes to `main` and require Actions workflow permissions that allow `GITHUB_TOKEN` to write content.
+
+If a deployment fails, open **Actions > Deploy Hagilight core demo** or **Deploy Hagilight Starlight demo** and inspect the failed install, build, or publish step. A publish permission error indicates the workflow token's repository permissions need to be enabled.
