@@ -26,11 +26,13 @@ const pageSeo = seoSchema.parse({ seo: { title, description } });</code></pre></
 import favicon from &#39;@hagicode/hagilight/favicon.ico&#39;;
 
 integrations: [hagilightFavicon()]
-&lt;link rel=&quot;icon&quot; href={favicon} type=&quot;image/x-icon&quot; /&gt;</code></pre></article><article id="rss" class="feature-card"><p class="feature-kind">真实构建产物 · 路由由使用方负责</p><h3>RSS feed</h3><p>包内 renderer 负责格式化 feed 数据，而 /rss.xml 路由和条目由 Astro 站点维护。</p><p class="evidence"><strong>在哪里查看：</strong>点击页眉或页脚中的 RSS 链接即可打开生成的 feed。</p><pre><code>import { generateRssFeed } from &#39;@hagicode/hagilight/rss&#39;;
+&lt;link rel=&quot;icon&quot; href={favicon} type=&quot;image/x-icon&quot; /&gt;</code></pre></article><article id="rss" class="feature-card"><p class="feature-kind">真实构建产物 · 多语言集成</p><h3>RSS feed</h3><p>集成根据站点提供的 feed 数据生成多语言路由；使用方仍可用 RSS renderer 自行维护路由。</p><p class="evidence"><strong>在哪里查看：</strong>点击页眉或页脚中的 RSS 链接即可打开英文或当前语言 feed。</p><pre><code>import { hagilightRss } from &#39;@hagicode/hagilight/integration&#39;;
+import { resolveRssLocales } from &#39;@hagicode/hagilight/rss-locales&#39;;
+import { generateRssFeed } from &#39;@hagicode/hagilight/rss&#39;;
 
-export const GET: APIRoute = ({ site }) =&gt; generateRssFeed({
-  site, title, description, language: &#39;zh-CN&#39;, items,
-});</code></pre></article></div></section><section id="optional-integrations" class="feature-section" aria-labelledby="optional-integrations-title"><div class="section-heading"><h2 id="optional-integrations-title">可选集成</h2><p>以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。</p></div><div class="feature-grid"><article id="analytics" class="feature-card"><p class="feature-kind">可选 · 仅生产环境加载脚本</p><h3>Google Analytics 与 51LA</h3><p>两个组件都需要 ID，并且只会在生产构建中输出第三方跟踪脚本。</p><p class="evidence"><strong>在哪里查看：</strong>本页没有挂载任一组件，因此构建后的示例不会跟踪访客。</p><pre><code>import GoogleAnalytics from &#39;@hagicode/hagilight/GoogleAnalytics&#39;;
+const locales = { root: { lang: &#39;en-US&#39; }, &#39;zh-CN&#39;: { lang: &#39;zh-CN&#39; } };
+resolveRssLocales(locales);
+integrations: [hagilightRss({ locales, getFeed: &#39;./src/rss-feed.mjs&#39; })]</code></pre></article></div></section><section id="optional-integrations" class="feature-section" aria-labelledby="optional-integrations-title"><div class="section-heading"><h2 id="optional-integrations-title">可选集成</h2><p>以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。</p></div><div class="feature-grid"><article id="analytics" class="feature-card"><p class="feature-kind">可选 · 仅生产环境加载脚本</p><h3>Google Analytics 与 51LA</h3><p>两个组件都需要 ID，并且只会在生产构建中输出第三方跟踪脚本。</p><p class="evidence"><strong>在哪里查看：</strong>本页没有挂载任一组件，因此构建后的示例不会跟踪访客。</p><pre><code>import GoogleAnalytics from &#39;@hagicode/hagilight/GoogleAnalytics&#39;;
 import Analytics51LA from &#39;@hagicode/hagilight/Analytics51LA&#39;;
 
 {import.meta.env.PUBLIC_GA_ID &amp;&amp; &lt;GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} /&gt;}
