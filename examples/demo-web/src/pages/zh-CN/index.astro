@@ -1,14 +1,132 @@
 ---
 import DemoLayout from '../../layouts/DemoLayout.astro';
+
+const sections = [
+  {
+    id: 'live-examples',
+    title: '本页中的实时示例',
+    description: '以下展示的是实际加载的包组件，而不是仿制的静态界面。',
+    features: [
+      {
+        id: 'footer',
+        title: '本地化页脚',
+        kind: '实时组件',
+        summary: '共享页脚会根据当前路由解析站点链接，并默认渲染 Copyright 组件。',
+        evidence: '滚动到页面底部即可查看真实页脚，链接标签会匹配当前语言。',
+        example: "import Footer from '@hagicode/hagilight/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />",
+      },
+      {
+        id: 'copyright',
+        title: '版权信息',
+        kind: '页脚内实时呈现 · 可单独导入',
+        summary: 'Footer 默认组合 Copyright，也可以在其他位置单独渲染。',
+        evidence: '页脚展示当前年份和 HagiCode 名称。',
+        example: "import Copyright from '@hagicode/hagilight/Copyright';\n\n<Copyright name=\"HagiCode\" />",
+      },
+      {
+        id: 'site-links',
+        title: '共享站点链接',
+        kind: '实时组合',
+        summary: '布局将由站点提供的 RSS 地址传入链接解析器和 Footer。',
+        evidence: '页眉和页脚中的 RSS 链接都会指向此示例的 feed。',
+        example: "import { resolveSiteLinks } from '@hagicode/hagilight/site-links';\n\nconst links = resolveSiteLinks('zh-CN', {\n  rssFeedUrl: '/rss.xml',\n});",
+      },
+      {
+        id: 'promotion',
+        title: '推广横幅',
+        kind: '实时组件 · 远程推广为可选',
+        summary: 'PromotoBanner 优先展示符合条件的远程推广；没有可用推广时使用本地化后备内容。',
+        evidence: '本页挂载了该组件；后备按钮会跳转到页脚，组件进入页脚区域时会隐藏。',
+        example: "import PromotoBanner from '@hagicode/hagilight/PromotoBanner';\n\n<PromotoBanner locale=\"zh-CN\" fallback={fallbackCard} />",
+      },
+      {
+        id: 'logo',
+        title: 'Logo 资源',
+        kind: '实时资源',
+        summary: '页面页眉直接导入并显示包中提供的 Logo 图片资源。',
+        evidence: '请查看页面顶部的 Hagilight 标志。',
+        example: "import logo from '@hagicode/hagilight/logo.png';\n\n<img src={logo.src} alt=\"Hagilight\" />",
+      },
+    ],
+  },
+  {
+    id: 'head-and-build',
+    title: '页面 head 与构建产物',
+    description: '这些集成会生成元数据、浏览器图标或 feed，不会额外显示成页面组件。',
+    features: [
+      {
+        id: 'seo-head',
+        title: 'SEO head',
+        kind: '真实文档 head',
+        summary: 'SEOHead 为当前路由生成 canonical 地址，以及 Open Graph 和 Twitter 标题、描述元数据。',
+        evidence: '检查本页文档 head 或查看源代码中的 canonical 和分享字段。',
+        example: "import SEOHead from '@hagicode/hagilight/SEOHead';\n\nconst site = Astro.site.href;\nconst pageUrl = new URL(Astro.url.pathname, site).href;\n\n<SEOHead\n  site={site}\n  page={{ url: pageUrl, title, description }}\n  structuredData={pageStructuredData}\n/>",
+      },
+      {
+        id: 'seo-tools',
+        title: 'SEO 工具与 schema',
+        kind: '构建时工具',
+        summary: '工具函数可构造安全的 canonical 和 JSON-LD 数据；seoSchema 用于校验可选 frontmatter 字段。',
+        evidence: '本页 head 中的 JSON-LD 脚本只包含示例站点和页面事实。',
+        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight/seo-utils';\nimport { seoSchema } from '@hagicode/hagilight/seo-schema';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });",
+      },
+      {
+        id: 'favicon',
+        title: 'Favicon',
+        kind: '浏览器标签页可见 · 构建集成',
+        summary: 'Astro 集成会加入内置 favicon；包也导出 favicon.ico 静态资源，可复制到站点目录。',
+        evidence: '查看浏览器标签页图标；集成会将 data URI 注入生成页面的 head。',
+        example: "import { hagilightFavicon } from '@hagicode/hagilight/favicon';\nimport favicon from '@hagicode/hagilight/favicon.ico';\n\nintegrations: [hagilightFavicon()]\n<link rel=\"icon\" href={favicon} type=\"image/x-icon\" />",
+      },
+      {
+        id: 'rss',
+        title: 'RSS feed',
+        kind: '真实构建产物 · 路由由使用方负责',
+        summary: '包内 renderer 负责格式化 feed 数据，而 /rss.xml 路由和条目由 Astro 站点维护。',
+        evidence: '点击页眉或页脚中的 RSS 链接即可打开生成的 feed。',
+        example: "import { generateRssFeed } from '@hagicode/hagilight/rss';\n\nexport const GET: APIRoute = ({ site }) => generateRssFeed({\n  site, title, description, language: 'zh-CN', items,\n});",
+      },
+    ],
+  },
+  {
+    id: 'optional-integrations',
+    title: '可选集成',
+    description: '以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。',
+    features: [
+      {
+        id: 'analytics',
+        title: 'Google Analytics 与 51LA',
+        kind: '可选 · 仅生产环境加载脚本',
+        summary: '两个组件都需要 ID，并且只会在生产构建中输出第三方跟踪脚本。',
+        evidence: '本页没有挂载任一组件，因此构建后的示例不会跟踪访客。',
+        example: "import GoogleAnalytics from '@hagicode/hagilight/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}",
+      },
+    ],
+  },
+];
+
+const fallback = {
+  id: 'demo-web-fallback-zh',
+  title: '没有远程推广时也有可用示例',
+  description: '没有符合条件的远程推广时，会显示这条本地示例。',
+  ctaLabel: '查看页脚行为',
+  link: '#footer-preview',
+};
 ---
 
 <DemoLayout
   locale="zh-CN"
   languageLabel="选择语言"
-  title="共享链接，不依赖 Starlight。"
-  description="这是一个独立 Astro 示例，展示 Hagilight core 包提供的本地化页脚。"
-  exploreLabel="查看页脚效果"
-  previewTitle="页脚预览"
-  previewDescription="下方链接分组由共享站点链接解析器生成。此独立 Astro 示例还会发布自己的 RSS feed。"
-  usageLabel="添加到 Astro 布局"
+  title="探索 Hagilight core，无需 Starlight。"
+  description="通过独立的 Astro 双语示例，了解 @hagicode/hagilight 提供的共享组件和构建集成。"
+  exploreLabel="浏览功能"
+  feedLabel="RSS feed"
+  indexTitle="功能索引"
+  liveFooterTitle="查看实际页脚"
+  liveFooterDescription="这是包中的 Footer 组件，包含本地化共享链接和 Copyright。滚动到此处可查看推广横幅如何为页脚让出空间。"
+  resolverLabel="由使用方解析的 feed 链接："
+  feedNavLabel="由示例站点维护的 RSS feed"
+  fallbackNotice="推广示例：符合条件的远程推广可能替代此本地后备内容。后备链接会跳转到页脚，以演示组件的可见性行为。"
+  sections={sections}
+  fallback={fallback}
 />

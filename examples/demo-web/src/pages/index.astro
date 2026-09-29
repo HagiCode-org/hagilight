@@ -1,14 +1,132 @@
 ---
 import DemoLayout from '../layouts/DemoLayout.astro';
+
+const sections = [
+  {
+    id: 'live-examples',
+    title: 'Live on this page',
+    description: 'These are real package components, rendered here rather than recreated as mockups.',
+    features: [
+      {
+        id: 'footer',
+        title: 'Localized footer',
+        kind: 'Live component',
+        summary: 'The shared footer resolves site links for this route and renders the Copyright component.',
+        evidence: 'Scroll to the bottom for the real footer; its link labels follow the page locale.',
+        example: "import Footer from '@hagicode/hagilight/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />",
+      },
+      {
+        id: 'copyright',
+        title: 'Copyright',
+        kind: 'Live in footer · direct export',
+        summary: 'Footer composes Copyright by default; sites can also render it independently.',
+        evidence: 'The footer shows the current year and HagiCode name.',
+        example: "import Copyright from '@hagicode/hagilight/Copyright';\n\n<Copyright name=\"HagiCode\" />",
+      },
+      {
+        id: 'site-links',
+        title: 'Shared site links',
+        kind: 'Live composition',
+        summary: 'The layout passes a consumer-owned RSS destination to the resolver and the Footer.',
+        evidence: 'The RSS link above and in the footer resolves to this demo’s feed.',
+        example: "import { resolveSiteLinks } from '@hagicode/hagilight/site-links';\n\nconst links = resolveSiteLinks('en-US', {\n  rssFeedUrl: '/rss.xml',\n});",
+      },
+      {
+        id: 'promotion',
+        title: 'Promotion banner',
+        kind: 'Live component · remote campaign optional',
+        summary: 'PromotoBanner prefers an eligible remote campaign and uses the localized fallback when none is available.',
+        evidence: 'The banner is mounted on this page; its fallback CTA jumps to the footer, where the component hides itself.',
+        example: "import PromotoBanner from '@hagicode/hagilight/PromotoBanner';\n\n<PromotoBanner locale=\"en-US\" fallback={fallbackCard} />",
+      },
+      {
+        id: 'logo',
+        title: 'Logo asset',
+        kind: 'Live asset',
+        summary: 'The package logo is displayed in the site header as an imported image asset.',
+        evidence: 'See the Hagilight mark at the top of this page.',
+        example: "import logo from '@hagicode/hagilight/logo.png';\n\n<img src={logo.src} alt=\"Hagilight\" />",
+      },
+    ],
+  },
+  {
+    id: 'head-and-build',
+    title: 'Page head and build outputs',
+    description: 'These integrations produce metadata, a browser icon, or a feed—not additional page widgets.',
+    features: [
+      {
+        id: 'seo-head',
+        title: 'SEO head',
+        kind: 'Live in document head',
+        summary: 'SEOHead emits a route-specific canonical URL plus Open Graph and Twitter title/description metadata.',
+        evidence: 'Inspect this page’s document head and view-source for its canonical and sharing fields.',
+        example: "import SEOHead from '@hagicode/hagilight/SEOHead';\n\nconst site = Astro.site.href;\nconst pageUrl = new URL(Astro.url.pathname, site).href;\n\n<SEOHead\n  site={site}\n  page={{ url: pageUrl, title, description }}\n  structuredData={pageStructuredData}\n/>",
+      },
+      {
+        id: 'seo-tools',
+        title: 'SEO helpers and schema',
+        kind: 'Build-time tools',
+        summary: 'Utilities build safe canonical and JSON-LD data; seoSchema validates optional frontmatter fields.',
+        evidence: 'The JSON-LD scripts in this page head contain only the demo site and page facts.',
+        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight/seo-utils';\nimport { seoSchema } from '@hagicode/hagilight/seo-schema';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });",
+      },
+      {
+        id: 'favicon',
+        title: 'Favicon',
+        kind: 'Live in browser tab · build integration',
+        summary: 'The Astro integration adds the bundled favicon; the package also exports the favicon.ico asset for static copying.',
+        evidence: 'Look at the browser tab icon. The integration injects its data URI into the generated page head.',
+        example: "import { hagilightFavicon } from '@hagicode/hagilight/favicon';\nimport favicon from '@hagicode/hagilight/favicon.ico';\n\nintegrations: [hagilightFavicon()]\n<link rel=\"icon\" href={favicon} type=\"image/x-icon\" />",
+      },
+      {
+        id: 'rss',
+        title: 'RSS feed',
+        kind: 'Live build output · consumer-owned route',
+        summary: 'The package renderer formats feed data, while this Astro site owns the /rss.xml endpoint and its entries.',
+        evidence: 'Use the RSS link in the header or footer to open the generated feed.',
+        example: "import { generateRssFeed } from '@hagicode/hagilight/rss';\n\nexport const GET: APIRoute = ({ site }) => generateRssFeed({\n  site, title, description, language: 'en-US', items,\n});",
+      },
+    ],
+  },
+  {
+    id: 'optional-integrations',
+    title: 'Optional integrations',
+    description: 'The imports below are examples only; this showcase does not load analytics or send visitor data.',
+    features: [
+      {
+        id: 'analytics',
+        title: 'Google Analytics and 51LA',
+        kind: 'Optional · production-only scripts',
+        summary: 'Both components require an ID and only emit their third-party tracking scripts in production builds.',
+        evidence: 'Neither component is mounted here, so this built demo does not track visitors.',
+        example: "import GoogleAnalytics from '@hagicode/hagilight/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}",
+      },
+    ],
+  },
+];
+
+const fallback = {
+  id: 'demo-web-fallback-en',
+  title: 'A useful link, even without a campaign',
+  description: 'This local example appears when no eligible remote promotion is available.',
+  ctaLabel: 'See the footer behavior',
+  link: '#footer-preview',
+};
 ---
 
 <DemoLayout
   locale="en-US"
   languageLabel="Language"
-  title="Shared links. No Starlight required."
-  description="An independent Astro demo of the localized Hagilight core footer."
-  exploreLabel="See the rendered footer"
-  previewTitle="Rendered footer"
-  previewDescription="The groups below come from the shared site-link resolver. This plain Astro demo also publishes its own RSS feed."
-  usageLabel="Add to an Astro layout"
+  title="Explore Hagilight core, without Starlight."
+  description="A bilingual, standalone Astro tour of the shared components and build integrations in @hagicode/hagilight."
+  exploreLabel="Explore the features"
+  feedLabel="RSS feed"
+  indexTitle="Feature index"
+  liveFooterTitle="Try the rendered footer"
+  liveFooterDescription="This is the package Footer component, including localized shared links and Copyright. Scroll here to see the promotion banner yield space to the footer."
+  resolverLabel="Consumer-resolved feed link:"
+  feedNavLabel="Consumer-owned RSS feed"
+  fallbackNotice="Promotion example: eligible remote campaigns may replace this local fallback. It links to the footer to demonstrate the component’s visibility behavior."
+  sections={sections}
+  fallback={fallback}
 />

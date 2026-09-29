@@ -1,7 +1,26 @@
 ---
 import Footer from '@hagicode/hagilight/Footer';
+import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
 import SEOHead from '@hagicode/hagilight/SEOHead';
+import { resolveSiteLinks } from '@hagicode/hagilight/site-links';
 import logo from '@hagicode/hagilight/logo.png';
+import favicon from '@hagicode/hagilight/favicon.ico';
+
+interface Feature {
+  id: string;
+  title: string;
+  kind: string;
+  summary: string;
+  evidence: string;
+  example: string;
+}
+
+interface FeatureSection {
+  id: string;
+  title: string;
+  description: string;
+  features: Feature[];
+}
 
 interface Props {
   locale: string;
@@ -9,9 +28,21 @@ interface Props {
   title: string;
   description: string;
   exploreLabel: string;
-  previewTitle: string;
-  previewDescription: string;
-  usageLabel: string;
+  feedLabel: string;
+  indexTitle: string;
+  liveFooterTitle: string;
+  liveFooterDescription: string;
+  resolverLabel: string;
+  feedNavLabel: string;
+  fallbackNotice: string;
+  sections: FeatureSection[];
+  fallback: {
+    id: string;
+    title: string;
+    description: string;
+    ctaLabel: string;
+    link: string;
+  };
 }
 
 const {
@@ -20,14 +51,45 @@ const {
   title,
   description,
   exploreLabel,
-  previewTitle,
-  previewDescription,
-  usageLabel,
+  feedLabel,
+  indexTitle,
+  liveFooterTitle,
+  liveFooterDescription,
+  resolverLabel,
+  feedNavLabel,
+  fallbackNotice,
+  sections,
+  fallback,
 } = Astro.props;
 const isChinese = locale === 'zh-CN';
 const site = Astro.site?.href;
-if (!site) throw new Error('The core footer demo requires an absolute Astro site URL.');
+if (!site) throw new Error('The Hagilight core demo requires an absolute Astro site URL.');
+
+const basePath = import.meta.env.BASE_URL;
 const pageUrl = new URL(Astro.url.pathname, site).href;
+const feedPath = `${basePath}rss.xml`;
+const feedUrl = new URL(feedPath, site).href;
+const siteLinks = { rssFeedUrl: feedUrl };
+const resolvedLinks = resolveSiteLinks(locale, siteLinks);
+const feedLink = resolvedLinks.quick.find((link) => link.id === 'rss');
+if (!feedLink) throw new Error('The core demo feed link was not resolved.');
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': site,
+    name: 'Hagilight',
+    url: site,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url: pageUrl,
+    isPartOf: { '@id': site },
+  },
+];
 ---
 
 <!doctype html>
@@ -38,68 +100,95 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
     <meta name="color-scheme" content="light" />
     <meta name="description" content={description} />
     <title>{title} — Hagilight</title>
+    <link rel="icon" href={favicon} type="image/x-icon" />
     <link
       rel="alternate"
       type="application/rss+xml"
-      title="Hagilight core footer demo"
-      href={`${import.meta.env.BASE_URL}rss.xml`}
+      title="Hagilight core package showcase"
+      href={feedPath}
     />
     <SEOHead
       site={site}
       page={{ url: pageUrl, title, description }}
+      structuredData={structuredData}
     />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href={isChinese ? '/zh-CN/' : '/'} aria-label="Hagilight">
+      <a class="brand" href={isChinese ? `${basePath}zh-CN/` : basePath} aria-label="Hagilight">
         <img src={logo.src} alt="" width="34" height="34" />
         <span>Hagilight</span>
         <span class="package-name">@hagicode/hagilight</span>
       </a>
-      <nav aria-label={languageLabel} class="language-nav">
-        <a href="/" lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
-        <a href="/zh-CN/" lang="zh-CN" aria-current={isChinese ? 'page' : undefined}>简中</a>
+      <nav aria-label={languageLabel} class="header-actions">
+        <a class="feed-link" href={feedPath}>{feedLabel}</a>
+        <div class="language-nav">
+          <a href={basePath} lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
+          <a
+            href={`${basePath}zh-CN/`}
+            lang="zh-CN"
+            aria-current={isChinese ? 'page' : undefined}
+          >简中</a>
+        </div>
       </nav>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <h1>{title}</h1>
-          <p>{description}</p>
-          <a class="jump-link" href="#footer-preview">
-            {exploreLabel}
-            <svg aria-hidden="true" viewBox="0 0 20 20">
-              <path d="M4 10h11m-5-5 5 5-5 5" />
-            </svg>
-          </a>
-        </div>
-        <div class="usage">
-          <div class="usage-heading">
-            <span>{usageLabel}</span>
-            <span>Astro</span>
-          </div>
-          <pre><code><span class="code-muted">---</span>
-<span class="code-keyword">import</span> Footer <span class="code-keyword">from</span> <span class="code-string">'@hagicode/hagilight/Footer'</span>;
-<span class="code-muted">---</span>
-
-&lt;Footer /&gt;</code></pre>
-          <p>
-            {isChinese
-              ? '省略 locale 时，会使用当前 Astro 页面语言。'
-              : 'Omit locale to use the active Astro page language.'}
-          </p>
-        </div>
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">@hagicode/hagilight <span>·</span> {isChinese ? '独立 Astro 示例' : 'Standalone Astro example'}</p>
+        <h1 id="page-title">{title}</h1>
+        <p class="hero-description">{description}</p>
+        <a class="jump-link" href="#feature-index">{exploreLabel}</a>
       </section>
 
-      <section class="preview-heading">
-        <h2>{previewTitle}</h2>
-        <p>{previewDescription}</p>
+      <nav id="feature-index" class="feature-index" aria-labelledby="index-title">
+        <h2 id="index-title">{indexTitle}</h2>
+        <ul>
+          {sections.flatMap((section) => section.features).map((feature) => (
+            <li><a href={`#${feature.id}`}>{feature.title}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      {sections.map((section) => (
+        <section id={section.id} class="feature-section" aria-labelledby={`${section.id}-title`}>
+          <div class="section-heading">
+            <h2 id={`${section.id}-title`}>{section.title}</h2>
+            <p>{section.description}</p>
+          </div>
+          <div class="feature-grid">
+            {section.features.map((feature) => (
+              <article id={feature.id} class="feature-card">
+                <p class="feature-kind">{feature.kind}</p>
+                <h3>{feature.title}</h3>
+                <p>{feature.summary}</p>
+                <p class="evidence"><strong>{isChinese ? '在哪里查看：' : 'Evidence: '}</strong>{feature.evidence}</p>
+                <pre><code>{feature.example}</code></pre>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <section id="live-footer-example" class="live-examples" aria-labelledby="live-footer-title">
+        <div class="section-heading">
+          <h2 id="live-footer-title">{liveFooterTitle}</h2>
+          <p>{liveFooterDescription}</p>
+        </div>
+        <nav class="resolver-example" aria-label={feedNavLabel}>
+          <span>{resolverLabel}</span>
+          <a href={feedLink.href}>{feedLink.label}</a>
+        </nav>
+      </section>
+
+      <section class="promotion-note" aria-label={isChinese ? '推广横幅示例' : 'Promotion banner example'}>
+        <p>{fallbackNotice}</p>
+        <PromotoBanner locale={locale} fallback={fallback} />
       </section>
     </main>
 
     <div id="footer-preview">
-      <Footer />
+      <Footer locale={locale} links={siteLinks} />
     </div>
   </body>
 </html>
@@ -145,7 +234,8 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
   }
 
   .site-header,
-  main {
+  main,
+  #footer-preview {
     width: min(100% - 3rem, 76rem);
     margin-inline: auto;
   }
@@ -155,15 +245,19 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding-block: 1.25rem;
+    padding-block: 1.1rem;
     border-bottom: 1px solid #d9d8cf;
   }
 
-  .brand {
-    display: inline-flex;
+  .brand,
+  .header-actions,
+  .language-nav {
+    display: flex;
     align-items: center;
+  }
+
+  .brand {
     gap: 0.7rem;
-    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -173,26 +267,33 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
   }
 
   .package-name {
-    margin-left: 0.25rem;
+    margin-left: 0.2rem;
     color: #53675d;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.75rem;
     font-weight: 450;
   }
 
+  .header-actions {
+    gap: 1rem;
+  }
+
+  .feed-link,
+  .language-nav a {
+    color: #415a52;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
   .language-nav {
-    display: flex;
-    gap: 0.4rem;
+    gap: 0.3rem;
   }
 
   .language-nav a {
     min-width: 2.75rem;
     padding: 0.35rem 0.55rem;
     border-radius: 0.25rem;
-    color: #415a52;
-    font-size: 0.8rem;
     text-align: center;
-    text-decoration: none;
   }
 
   .language-nav a[aria-current="page"] {
@@ -202,160 +303,228 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
   }
 
   .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
-    align-items: center;
-    gap: clamp(2rem, 6vw, 6rem);
-    padding-block: clamp(4rem, 10vw, 8rem);
+    max-width: 56rem;
+    padding-block: clamp(3.5rem, 9vw, 7rem) 3.5rem;
+  }
+
+  .eyebrow,
+  .feature-kind {
+    margin: 0 0 0.7rem;
+    color: #526b43;
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow span {
+    padding-inline: 0.25rem;
   }
 
   .hero h1 {
-    max-width: 11ch;
+    max-width: 17ch;
     margin: 0;
     color: #183b35;
     font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(3.25rem, 7.2vw, 6.25rem);
+    font-size: clamp(2.8rem, 7vw, 5.6rem);
     font-weight: 500;
     letter-spacing: -0.035em;
-    line-height: 0.98;
+    line-height: 1.03;
     text-wrap: balance;
   }
 
-  .hero-copy > p {
-    max-width: 48ch;
-    margin: 1.5rem 0 0;
+  .hero-description {
+    max-width: 62ch;
+    margin: 1.25rem 0 0;
     color: #415a52;
     font-size: clamp(1rem, 1.5vw, 1.15rem);
   }
 
   .jump-link {
     display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: 1.75rem;
+    margin-top: 1.4rem;
     color: #285447;
-    font-size: 0.95rem;
-    font-weight: 650;
-    text-decoration-thickness: 1px;
+    font-weight: 700;
   }
 
-  .jump-link svg {
-    width: 1.1rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.5;
+  .feature-index,
+  .feature-section,
+  .live-examples {
+    border-top: 1px solid #d9d8cf;
+    padding-block: 1.5rem;
   }
 
-  .usage {
-    overflow: hidden;
-    border: 1px solid #2b5047;
-    border-radius: 0.4rem;
-    color: #edf0e6;
-    background: #183b35;
+  .feature-index h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.9rem;
   }
 
-  .usage-heading {
+  .feature-index ul {
     display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #45645a;
-    color: #e0e8d9;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.72rem;
-  }
-
-  .usage pre {
-    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin: 0;
-    padding: 1.25rem 1rem;
-    color: #f4f2e9;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.86rem;
-    line-height: 1.8;
-    tab-size: 2;
+    padding: 0;
+    list-style: none;
   }
 
-  .code-muted {
-    color: #9caf9d;
+  .feature-index a {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #cbd1c4;
+    border-radius: 999px;
+    color: #285447;
+    font-size: 0.83rem;
+    text-decoration: none;
   }
 
-  .code-keyword {
-    color: #d4ed73;
-  }
-
-  .code-string {
-    color: #f0c994;
-  }
-
-  .usage > p {
-    margin: 0;
-    padding: 0 1rem 1rem;
-    color: #c2d0c4;
-    font-size: 0.82rem;
-  }
-
-  .preview-heading {
+  .section-heading {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 2rem;
-    padding: 1.25rem 0;
-    border-top: 1px solid #d9d8cf;
+    margin-bottom: 1rem;
   }
 
-  .preview-heading h2 {
+  .section-heading h2 {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 500;
   }
 
-  .preview-heading p {
-    max-width: 55ch;
+  .section-heading > p {
+    max-width: 56ch;
     margin: 0;
     color: #53675d;
-    font-size: 0.85rem;
-    text-align: right;
+    font-size: 0.88rem;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .feature-card {
+    min-width: 0;
+    padding: 1.25rem;
+    border: 1px solid #d9d8cf;
+    border-radius: 0.4rem;
+    background: #fbfaf6;
+    scroll-margin-top: 1rem;
+  }
+
+  .feature-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .feature-card > p:not(.feature-kind) {
+    margin: 0.6rem 0 0;
+    color: #415a52;
+    font-size: 0.88rem;
+  }
+
+  .feature-card .evidence {
+    color: #53675d;
+  }
+
+  .feature-card pre {
+    overflow-x: auto;
+    margin: 1rem 0 0;
+    padding: 0.85rem;
+    border-radius: 0.25rem;
+    color: #f4f2e9;
+    background: #183b35;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+
+  .feature-card code {
+    white-space: pre;
+  }
+
+  .live-examples {
+    margin-top: 1rem;
+  }
+
+  .resolver-example {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    padding: 1rem;
+    border-left: 3px solid #78904f;
+    background: #e9eadf;
+    font-size: 0.9rem;
+  }
+
+  .resolver-example span {
+    color: #53675d;
+  }
+
+  .promotion-note {
+    min-height: 3rem;
+    color: #53675d;
+    font-size: 0.8rem;
+  }
+
+  .promotion-note > p {
+    max-width: 75ch;
   }
 
   #footer-preview {
     --hagilight-footer-border: #d9d8cf;
-    width: min(100% - 3rem, 76rem);
-    margin: 0 auto;
+    padding-bottom: 1rem;
+    scroll-margin-top: 1rem;
   }
 
-  @media (max-width: 48rem) {
-    .hero {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-      padding-block: 3.5rem;
-    }
-
-    .hero h1 {
-      max-width: 12ch;
-      font-size: clamp(3rem, 12vw, 5rem);
-    }
-
-    .preview-heading {
+  @media (max-width: 52rem) {
+    .section-heading {
       display: block;
     }
 
-    .preview-heading p {
+    .section-heading > p {
       margin-top: 0.5rem;
-      text-align: left;
     }
   }
 
-  @media (max-width: 36rem) {
+  @media (max-width: 42rem) {
     .site-header,
     main,
     #footer-preview {
       width: min(100% - 2rem, 76rem);
     }
 
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header-actions {
+      gap: 0.35rem;
+    }
+
+    .feed-link {
+      padding-inline: 0.25rem;
+      font-size: 0.78rem;
+    }
+
     .package-name {
       display: none;
+    }
+  }
+
+  @media (max-width: 24rem) {
+    .site-header {
+      align-items: flex-start;
+    }
+
+    .header-actions {
+      align-items: flex-end;
+      flex-direction: column-reverse;
     }
   }
 
