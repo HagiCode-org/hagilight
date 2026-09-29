@@ -23,6 +23,7 @@
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
     "./Analytics51LA": "./Analytics51LA.astro",
     "./SEOHead": "./SEOHead.astro",
+    "./integration": "./integration.mjs",
     "./seo-utils": "./seo-utils.mjs",
     "./rss": "./rss-renderer.mjs",
     "./seo-schema": {

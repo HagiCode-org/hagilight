@@ -1,5 +1,6 @@
 ---
 import Copyright from './Copyright.astro';
+import { resolveRssFooterLinks } from './rss-footer-context.mjs';
 import { resolveSiteLinks, type SiteLinksOptions } from './site-links.ts';
 
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
 
 const { locale: propLocale, links } = Astro.props;
 const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
-const resolvedLinks = resolveSiteLinks(locale, links);
+const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
+const resolvedLinks = resolveSiteLinks(locale, footerLinks);
 ---
 
 <footer class="hagilight-footer">
