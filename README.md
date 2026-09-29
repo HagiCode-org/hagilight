@@ -8,7 +8,7 @@ For plain Astro sites and shared functionality used by the Starlight plugin.
 
 - Footer, copyright notice, promotion banner, and localized site and community links.
 - HagiCode logo and favicon assets, plus an optional integration that injects the favicon.
-- SEO head component and utilities, plus RSS generation utilities. Plain Astro sites mount the component and RSS route themselves.
+- SEO head component and utilities, plus an RSS renderer and an opt-in localized RSS integration.
 - Google Analytics and 51LA components.
 
 ## `@hagicode/hagilight-starlight`
@@ -24,6 +24,61 @@ A Starlight plugin that depends on `@hagicode/hagilight` and provides:
 ## Local development
 
 Run `npm install`, `npm test`, and `npm run build:example` from the repository root.
+
+## Localized RSS for plain Astro
+
+Plain Astro sites can keep owning RSS routes and call `generateRssFeed` from
+`@hagicode/hagilight/rss`, or opt in to generated routes and Footer links with
+`hagilightRss` from `@hagicode/hagilight/integration`:
+
+```js
+import { defineConfig } from 'astro/config';
+import { hagilightRss } from '@hagicode/hagilight/integration';
+
+const locales = {
+  root: { label: 'English', lang: 'en-US' },
+  'zh-CN': { label: '简体中文', lang: 'zh-CN' },
+};
+
+export default defineConfig({
+  site: 'https://example.test',
+  integrations: [
+    hagilightRss({ locales, getFeed: './src/rss-feed.mjs' }),
+  ],
+});
+```
+
+The `getFeed` path is resolved relative to the Astro project root. Its module
+must default-export a callback that receives `{ route, lang }` for each
+configured locale and returns `{ title, description, items }`. Items use the
+same `title`, `link`, optional `description`, and optional `date`/`pubDate`
+shape accepted by `generateRssFeed`. The integration requires an absolute
+HTTP(S) `site` URL, a nonempty Starlight-shaped `locales` map, and a valid
+callback module and result.
+
+The integration prerenders `/rss.xml`, `/rss.en.xml`, and
+`/rss.<language>.xml` for each configured non-English language. `/rss.xml` and
+`/rss.en.xml` use the configured English callback result. If no English locale
+is configured, both are valid empty English feeds; Hagilight does not invoke a
+different language's callback or borrow its content. A generated filename
+conflicting with a page or public file fails the build rather than replacing
+consumer-owned output. Removing the integration leaves route and Footer
+behavior unchanged.
+
+Generated route and item URLs honor Astro's `base`, for example
+`base: '/manual/'` generates `/manual/rss.xml` and resolves relative item links
+under `https://example.test/manual/`. The core `Footer` gets the default feed
+link and, on configured non-English pages, a current-language link from
+request-local integration context. Explicit `links.rssFeedUrl`,
+`links.rssLocaleFeedUrl`, link overrides, and existing removal options remain
+authoritative.
+
+When both Hagilight integrations are active, Starlight remains the sole RSS
+owner if its RSS generation is enabled; the core integration then adds neither
+routes nor core Footer URLs. Having both packages installed does not enable
+either integration. If the Starlight integration is present with RSS explicitly
+disabled while `hagilightRss()` is also enabled, setup fails with an ownership
+diagnostic; remove one integration or enable Starlight RSS instead.
 
 ## Desktop viewport regression baseline
 
