@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolveFaviconHeadEntry } from '@hagicode/hagilight/favicon';
+import {
+  HAGILIGHT_RSS_OWNER,
+  registerStarlightRssOwner,
+} from '@hagicode/hagilight/integration';
 import { resolveRssLocales, resolveRssOptions } from './rss-utils.mjs';
 import {
   isValidSeoImageReference,
@@ -193,6 +197,7 @@ function createConfiguredIntegration(
   componentIds,
   getConfiguredRssFeed,
   generateRss,
+  unregisterRssOwner,
 ) {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const rssConfigId = 'virtual:hagilight-starlight/rss-config';
@@ -296,6 +301,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 
   return {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
+    [HAGILIGHT_RSS_OWNER]: { package: 'starlight', enabled: generateRss },
     hooks: {
       'astro:config:setup'({ injectRoute, updateConfig }) {
         if (generateRss) {
@@ -311,6 +317,9 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
           });
         }
         updateConfig({ vite: { plugins: [vitePlugin] } });
+      },
+      'astro:config:done'() {
+        unregisterRssOwner();
       },
     },
   };
@@ -402,6 +411,7 @@ export default function hagilight(options = {}) {
     seoEnabled: seo.enabled,
     seo,
   };
+  const unregisterRssOwner = registerStarlightRssOwner(options.rss?.enabled !== false);
 
   return {
     name: '@hagicode/hagilight-starlight',
@@ -489,6 +499,7 @@ export default function hagilight(options = {}) {
           componentIds,
           () => getRssFeedUrl(config) ?? rssFeedUrl,
           generateRss,
+          unregisterRssOwner,
         ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),

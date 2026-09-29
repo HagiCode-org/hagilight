@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { resolveRssLocales as resolveCoreRssLocales } from '../packages/astro/rss-locales.mjs';
 import { generateRssFeed } from '../packages/starlight/rss-renderer.mjs';
 import { rssSchema } from '../packages/starlight/rss-schema.mjs';
 import {
@@ -48,12 +49,41 @@ test('maps English aliases and rejects invalid or colliding locale tags', () => 
     lang: 'pt-BR',
     filename: 'pt-BR',
   });
+
   assert.throws(
     () => resolveRssLocales({ root: { lang: 'en' }, 'en-us': { lang: 'en-US' } }),
     /collide on the "en" feed filename/,
   );
   assert.throws(() => resolveRssLocales({ root: { lang: '../en' } }), /valid language tag/);
   assert.throws(() => resolveRssLocales({ root: { lang: 'not a tag' } }), /valid language tag/);
+});
+
+test('core RSS locales require explicit nonempty input and share canonical filename rules', () => {
+  assert.throws(
+    () => resolveCoreRssLocales({}, { requireNonEmpty: true }),
+    /must contain at least one locale/u,
+  );
+  assert.throws(
+    () => resolveCoreRssLocales(undefined, { requireNonEmpty: true }),
+    /must contain at least one locale/u,
+  );
+  assert.deepEqual(
+    resolveCoreRssLocales({
+      root: { lang: 'en-us' },
+      'zh-cn': { lang: 'zh-cn' },
+    }, { requireNonEmpty: true }),
+    [
+      { route: 'root', lang: 'en-US', filename: 'en' },
+      { route: 'zh-cn', lang: 'zh-CN', filename: 'zh-CN' },
+    ],
+  );
+  assert.throws(
+    () => resolveCoreRssLocales({
+      root: { lang: 'en' },
+      'en-us': { lang: 'en-US' },
+    }, { requireNonEmpty: true }),
+    /collide on the "en" feed filename/u,
+  );
 });
 
 test('keeps English root and explicit Chinese routes in separate RSS feeds', () => {

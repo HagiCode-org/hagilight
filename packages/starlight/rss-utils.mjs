@@ -1,4 +1,4 @@
-const LANGUAGE_TAG_PATTERN = /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/u;
+export { resolveRssLocales } from '../astro/rss-locales.mjs';
 
 export function resolveRssOptions(options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
@@ -13,36 +13,6 @@ export function resolveRssOptions(options = {}) {
     includeDocs: options.includeDocs ?? true,
     includeBlog: options.includeBlog ?? true,
   };
-}
-
-export function resolveRssLocales(locales) {
-  const configuredLocales = locales === undefined
-    ? [['root', { lang: 'en' }]]
-    : Object.entries(locales);
-  if (configuredLocales.length === 0) configuredLocales.push(['root', { lang: 'en' }]);
-
-  const usedFilenames = new Set();
-  const resolved = configuredLocales.map(([route, config]) => {
-    const lang = typeof config === 'string' ? config : config?.lang ?? (route === 'root' ? undefined : route);
-    if (typeof lang !== 'string' || !LANGUAGE_TAG_PATTERN.test(lang)) {
-      throw new TypeError(`Hagilight RSS locale "${route}" must have a valid language tag.`);
-    }
-    let normalizedLang;
-    try {
-      [normalizedLang] = Intl.getCanonicalLocales(lang);
-    } catch {
-      throw new TypeError(`Hagilight RSS locale "${route}" has an invalid language tag "${lang}".`);
-    }
-
-    const filename = /^en(?:-us)?$/iu.test(normalizedLang) ? 'en' : normalizedLang;
-    const collisionKey = filename.toLowerCase();
-    if (usedFilenames.has(collisionKey)) {
-      throw new Error(`Hagilight RSS locales collide on the "${filename}" feed filename.`);
-    }
-    usedFilenames.add(collisionKey);
-    return { route, lang: normalizedLang, filename };
-  });
-  return resolved;
 }
 
 function getLocaleForEntry(id, locales) {
