@@ -40,6 +40,15 @@ function countOccurrences(value, needle) {
   return value.split(needle).length - 1;
 }
 
+function withAnalyticsConfig(config, analyticsOptions) {
+  const updated = config.replace(
+    /        analytics: process\.env\.HAGILIGHT_VIEWPORT_TEST === 'true'\r?\n          \? \{ googleAnalytics: \{ enabled: false \}, fiftyOneLa: \{ enabled: false \} \}\r?\n          : undefined,/u,
+    `        analytics: ${analyticsOptions},`,
+  );
+  if (updated === config) throw new Error('Could not replace the example analytics configuration');
+  return updated;
+}
+
 function verifyDefaultLinksAndAnalytics() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   const chineseHtml = readFileSync(join(temp, 'dist', 'zh-CN', 'index.html'), 'utf8');
@@ -322,11 +331,10 @@ try {
   execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
   verifyBannerBuild(false);
 
-  const analyticsConfig = enabledConfig.replace(
-    'hagilight({',
-    "hagilight({ analytics: { googleAnalytics: { measurementId: 'G-TEST123' }, fiftyOneLa: { siteId: 'test-site-51la' } },",
+  const analyticsConfig = withAnalyticsConfig(
+    enabledConfig,
+    "{ googleAnalytics: { measurementId: 'G-TEST123' }, fiftyOneLa: { siteId: 'test-site-51la' } }",
   );
-  if (analyticsConfig === enabledConfig) throw new Error('Example config does not contain the Hagilight plugin');
   writeFileSync(configPath, analyticsConfig);
   execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
   verifyBannerBuild(true);
@@ -337,12 +345,11 @@ try {
   assert.ok(!developmentHtml.includes('sdk.51.la'));
   assert.ok(!developmentHtml.includes('LA.init('));
 
-  const customHeadConfig = enabledConfig
+  const customHeadConfig = withAnalyticsConfig(
+    enabledConfig,
+    '{ googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }',
+  )
     .replace(/        seo: \{\r?\n[\s\S]*?        \},\r?\n(?=        rss: \{)/u, '        seo: { enabled: false },\n')
-    .replace(
-      'hagilight({',
-      'hagilight({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },',
-    )
     .replace('starlight({', "starlight({ components: { Head: './CustomHead.astro' },");
   if (customHeadConfig === enabledConfig) throw new Error('Could not prepare the consumer-owned Head fixture');
   writeFileSync(join(temp, 'CustomHead.astro'), `---

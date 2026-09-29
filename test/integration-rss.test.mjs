@@ -93,7 +93,7 @@ test('integration injects localized static routes and base-aware footer URLs', (
   assert.ok(moduleSource.includes('baseUrl: "/manual/"'));
   assert.ok(moduleSource.includes('"defaultFeedUrl":"https://example.test/manual/rss.xml"'));
   assert.ok(moduleSource.includes('"zh-CN":"https://example.test/manual/rss.zh-CN.xml"'));
-  assert.ok(moduleSource.includes(fileURLToPath(new URL('rss-feed.mjs', fixtureRoot))));
+  assert.ok(moduleSource.includes(JSON.stringify(fileURLToPath(new URL('rss-feed.mjs', fixtureRoot)))));
 });
 
 test('integration rejects missing callback modules and consumer-owned RSS routes', () => {
