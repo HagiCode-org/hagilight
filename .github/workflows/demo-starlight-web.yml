@@ -1,4 +1,4 @@
-name: Deploy Hagilight demo
+name: Deploy Hagilight Starlight demo
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: demo-gh-pages
+  group: deploy-demo-starlight-web
   cancel-in-progress: false
 
 jobs:
@@ -23,11 +23,11 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npm run build:example
-      - name: Publish demo to GitHub Pages
+      - name: Publish Starlight demo
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./examples/starlight/dist
-          publish_branch: gh-pages
+          publish_dir: ./examples/demo-starlight-web/dist
+          publish_branch: demo-starlight-web
           enable_jekyll: false
-          cname: hagilight.hagicode.com
+          cname: hagistar.hagicode.com
