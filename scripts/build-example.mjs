@@ -16,7 +16,7 @@ function build(env = {}) {
     // cannot execute directly; route it through the shell like the sibling scripts.
     shell: process.platform === 'win32',
   });
-  const outputDir = join(root, 'examples/starlight/dist');
+  const outputDir = join(root, 'examples/demo-starlight-web/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
 }
 
@@ -26,7 +26,7 @@ function buildCoreFooter() {
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
-  const outputDir = join(root, 'examples/core-footer/dist');
+  const outputDir = join(root, 'examples/demo-web/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
 }
 
@@ -51,8 +51,8 @@ function verifyDefaultFeeds(read) {
   assert.match(traditionalChinese, /<language>zh-Hant<\/language>/u);
 
   const englishLinks = itemLinks(english);
-  assert.ok(englishLinks.includes('https://hagilight.hagicode.com/'));
-  assert.ok(englishLinks.includes('https://hagilight.hagicode.com/blog/rss-example/'));
+  assert.ok(englishLinks.includes('https://hagistar.hagicode.com/'));
+  assert.ok(englishLinks.includes('https://hagistar.hagicode.com/blog/rss-example/'));
   assert.ok(!englishLinks.some((link) => link.includes('/en-us/')));
   assert.ok(!english.includes('Excluded from RSS'));
   assert.ok(!english.includes('RSS draft'));
@@ -63,18 +63,18 @@ function verifyDefaultFeeds(read) {
   assert.ok(!traditionalChinese.includes('English RSS blog example'));
 
   const chineseLinks = itemLinks(chinese);
-  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-CN/'));
-  assert.ok(chineseLinks.includes('https://hagilight.hagicode.com/zh-CN/blog/rss-example/'));
+  assert.ok(chineseLinks.includes('https://hagistar.hagicode.com/zh-CN/'));
+  assert.ok(chineseLinks.includes('https://hagistar.hagicode.com/zh-CN/blog/rss-example/'));
   assert.ok(!chineseLinks.some((link) => link.includes('/en-us/')));
   assert.ok(!chineseLinks.some((link) => link.includes('/rss-undated/')));
   assert.ok(itemLinks(traditionalChinese)
-    .includes('https://hagilight.hagicode.com/zh-Hant/blog/rss-example/'));
+    .includes('https://hagistar.hagicode.com/zh-Hant/blog/rss-example/'));
 
   const undated = feedItems(english).find((item) => item.includes('/rss-undated/'));
   assert.ok(undated);
   assert.doesNotMatch(undated, /<pubDate>/u);
   const datedLinks = englishLinks.filter((link) => link.includes('blog/rss-example'));
-  assert.deepEqual(datedLinks, ['https://hagilight.hagicode.com/blog/rss-example/']);
+  assert.deepEqual(datedLinks, ['https://hagistar.hagicode.com/blog/rss-example/']);
   assert.match(feedItems(english)[0], /<pubDate>/u);
 }
 
@@ -141,7 +141,7 @@ function verifySeoPage(read, filename, {
 
 function verifySeoOutput(read, basePath = '/') {
   const base = basePath === '/' ? '' : basePath.replace(/\/+$/u, '');
-  const siteUrl = `https://hagilight.hagicode.com${base}`;
+  const siteUrl = `https://hagistar.hagicode.com${base}`;
   const imageUrl = `${siteUrl}/share-card.svg`;
   const home = verifySeoPage(read, 'index.html', {
     canonical: `${siteUrl}/`,
@@ -223,8 +223,8 @@ function verifySeoOutput(read, basePath = '/') {
 
 function verifyCoreFooterOutput(read) {
   for (const [filename, expectedCanonical] of [
-    ['index.html', 'https://core-footer.hagilight.example/'],
-    ['zh-CN/index.html', 'https://core-footer.hagilight.example/zh-CN/'],
+    ['index.html', 'https://hagilight.hagicode.com/'],
+    ['zh-CN/index.html', 'https://hagilight.hagicode.com/zh-CN/'],
   ]) {
     const html = read(filename);
     const head = html.slice(0, html.indexOf('</head>'));
@@ -241,31 +241,31 @@ function verifyCoreFooterOutput(read) {
   assert.match(xml, /<language>en-US<\/language>/u);
   const links = itemLinks(xml);
   assert.deepEqual(links, [
-    'https://core-footer.hagilight.example/',
-    'https://core-footer.hagilight.example/zh-CN/',
+    'https://hagilight.hagicode.com/',
+    'https://hagilight.hagicode.com/zh-CN/',
   ]);
 }
 
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
-const englishHome = readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8');
-const chineseHome = readFileSync(join(root, 'examples/starlight/dist/zh-CN/index.html'), 'utf8');
+const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
+const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
-  join(root, 'examples/starlight/dist/zh-Hant/index.html'),
+  join(root, 'examples/demo-starlight-web/dist/zh-Hant/index.html'),
   'utf8',
 );
 assert.ok(englishHome.includes('https://docs.hagicode.com/en-US/blog/'));
 assert.ok(!englishHome.includes('https://docs.hagicode.com/blog/'));
-assert.ok(!englishHome.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
+assert.ok(!englishHome.includes('https://hagistar.hagicode.com/rss.zh-CN.xml'));
 assert.ok(chineseHome.includes('https://docs.hagicode.com/blog/'));
-assert.ok(chineseHome.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
-assert.ok(!chineseHome.includes('https://hagilight.hagicode.com/rss.en.xml'));
+assert.ok(chineseHome.includes('https://hagistar.hagicode.com/rss.zh-CN.xml'));
+assert.ok(!chineseHome.includes('https://hagistar.hagicode.com/rss.en.xml'));
 assert.ok(traditionalChineseHome.includes('hreflang="zh-Hant"'));
-assert.ok(traditionalChineseHome.includes('canonical" href="https://hagilight.hagicode.com/zh-Hant/"'));
+assert.ok(traditionalChineseHome.includes('canonical" href="https://hagistar.hagicode.com/zh-Hant/"'));
 assert.ok(traditionalChineseHome.includes('本頁示範了覆寫'));
-assert.ok(!readFileSync(join(root, 'examples/starlight/dist/index.html'), 'utf8')
-  .includes('https://hagilight.hagicode.com/rss.en.xml'));
+assert.ok(!readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8')
+  .includes('https://hagistar.hagicode.com/rss.en.xml'));
 
 const blogOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-blog-only/',

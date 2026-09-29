@@ -58,7 +58,7 @@ function verifyDefaultLinksAndAnalytics() {
     'https://cost.hagicode.com',
     'https://docs.hagicode.com/en-US/installation/docker-compose/',
     'https://docs.hagicode.com/en-US/product-overview/',
-    'https://hagilight.hagicode.com/rss.xml',
+    'https://hagistar.hagicode.com/rss.xml',
     'https://newbe.hagicode.com/',
     'https://index.hagicode.com/data/',
     'https://builder.hagicode.com/',
@@ -76,27 +76,27 @@ function verifyDefaultLinksAndAnalytics() {
     const feed = readFileSync(join(temp, 'dist', 'rss.xml'), 'utf8');
     const traditionalChineseFeed = readFileSync(join(temp, 'dist', 'rss.zh-Hant.xml'), 'utf8');
     assert.match(feed, /<rss\b/u);
-    assert.ok(feed.includes('https://hagilight.hagicode.com/'));
-    assert.ok(feed.includes('https://hagilight.hagicode.com/blog/rss-example/'));
-    assert.ok(!feed.includes('https://hagilight.hagicode.com/en-us/'));
+    assert.ok(feed.includes('https://hagistar.hagicode.com/'));
+    assert.ok(feed.includes('https://hagistar.hagicode.com/blog/rss-example/'));
+    assert.ok(!feed.includes('https://hagistar.hagicode.com/en-us/'));
     assert.match(html, /rel="alternate"[^>]*type="application\/rss\+xml"/u);
-    assert.ok(!html.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
-    assert.ok(chineseHtml.includes('https://hagilight.hagicode.com/rss.zh-CN.xml'));
-    assert.ok(!chineseHtml.includes('https://hagilight.hagicode.com/rss.en.xml'));
+    assert.ok(!html.includes('https://hagistar.hagicode.com/rss.zh-CN.xml'));
+    assert.ok(chineseHtml.includes('https://hagistar.hagicode.com/rss.zh-CN.xml'));
+    assert.ok(!chineseHtml.includes('https://hagistar.hagicode.com/rss.en.xml'));
     const englishAlias = readFileSync(join(temp, 'dist', 'rss.en.xml'), 'utf8');
     const chineseFeed = readFileSync(join(temp, 'dist', 'rss.zh-CN.xml'), 'utf8');
     assert.equal(feed, englishAlias);
     assert.match(feed, /<language>en-US<\/language>/u);
     assert.match(chineseFeed, /<language>zh-CN<\/language>/u);
     assert.match(traditionalChineseFeed, /<language>zh-Hant<\/language>/u);
-    assert.ok(traditionalChineseFeed.includes('https://hagilight.hagicode.com/zh-Hant/blog/rss-example/'));
+    assert.ok(traditionalChineseFeed.includes('https://hagistar.hagicode.com/zh-Hant/blog/rss-example/'));
     assert.ok(!feed.includes('Chinese RSS blog example'));
     assert.ok(!feed.includes('Excluded from RSS'));
     assert.ok(!feed.includes('RSS draft'));
     assert.ok(!chineseFeed.includes('English RSS blog example'));
     assert.ok(!chineseFeed.includes('Excluded from RSS'));
     assert.ok(!chineseFeed.includes('RSS draft'));
-    assert.ok(chineseFeed.includes('https://hagilight.hagicode.com/zh-CN/blog/rss-example/'));
+    assert.ok(chineseFeed.includes('https://hagistar.hagicode.com/zh-CN/blog/rss-example/'));
   assert.ok(!html.includes('store.steampowered.com'));
   assert.ok(html.includes('Download Hagicode'));
   assert.ok(html.includes('Download Hagicode for Windows'));
@@ -154,6 +154,7 @@ function verifySeoIntegration() {
   const head = english.slice(0, english.indexOf('</head>'));
   const canonicals = [...head.matchAll(/<link\b[^>]*rel="canonical"[^>]*>/gu)];
   assert.equal(canonicals.length, 1);
+  assert.ok(canonicals[0][0].includes('href="https://hagistar.hagicode.com/"'));
   assert.ok(head.includes('property="og:title"'));
   assert.ok(head.includes('name="twitter:title"'));
   assert.ok(head.includes('rel="sitemap"'));
@@ -295,14 +296,14 @@ try {
     });
     tarballs.push(join(temp, JSON.parse(output)[0].filename));
   }
-  const example = JSON.parse(readFileSync('examples/starlight/package.json', 'utf8'));
+  const example = JSON.parse(readFileSync('examples/demo-starlight-web/package.json', 'utf8'));
   verifyCoreFooter(tarballs[0], example.dependencies.astro);
   const configPath = join(temp, 'astro.config.mjs');
-  const enabledConfig = readFileSync('examples/starlight/astro.config.mjs', 'utf8');
-  cpSync('examples/starlight/package.json', join(temp, 'package.json'));
+  const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
+  cpSync('examples/demo-starlight-web/package.json', join(temp, 'package.json'));
   writeFileSync(configPath, enabledConfig);
-  cpSync('examples/starlight/src', join(temp, 'src'), { recursive: true });
-  cpSync('examples/starlight/public', join(temp, 'public'), { recursive: true });
+  cpSync('examples/demo-starlight-web/src', join(temp, 'src'), { recursive: true });
+  cpSync('examples/demo-starlight-web/public', join(temp, 'public'), { recursive: true });
   execFileSync(npm, ['install', '--prefix', temp, '--no-save', ...tarballs,
     `astro@${example.dependencies.astro}`, `@astrojs/starlight@${example.dependencies['@astrojs/starlight']}`], {
     stdio: 'inherit',
