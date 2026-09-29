@@ -1,20 +1,42 @@
-# Core footer demo
+# Hagilight core package showcase
 
-Private Astro workspace showing `@hagicode/hagilight/Footer`, `SEOHead`, and
-the consumer-mounted RSS generator without Starlight. It builds for
-`https://hagilight.hagicode.com/` and is published to the `demo-web` branch.
+Private, standalone Astro workspace demonstrating the public exports of
+`@hagicode/hagilight` without Starlight. It builds the English home page,
+Simplified Chinese page, and consumer-owned `/rss.xml` feed for
+`https://hagilight.hagicode.com/`.
 
 From the Hagilight repository root:
 
 ```sh
 npm run dev --workspace=hagilight-core-footer-example
 npm run build:core-footer-example
+node --test test/demo-web-output.test.mjs
 ```
 
-The site has English and Simplified Chinese routes, an absolute Astro `site`,
-sharing metadata on each page, and an RSS endpoint at `/rss.xml`. The layout
-declares the feed alternate and the endpoint supplies its own feed entries;
-the core package does not register routes or alternates automatically.
+## Export-to-example map
+
+| Core export | Where to see it |
+| --- | --- |
+| `./Footer` | The rendered localized footer at the bottom of either page |
+| `./Copyright` | Copyright in the live footer and direct-import snippet |
+| `./PromotoBanner` | Live banner with a locale-specific fallback; the fallback CTA targets the footer |
+| `./site-links` | Consumer-owned RSS link resolved in the layout and passed to Footer |
+| `./logo.png` | Hagilight logo in the page header |
+| `./favicon` | `astro.config.mjs` registers `hagilightFavicon()` |
+| `./favicon.ico` | Imported into the page head as a static icon asset |
+| `./SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
+| `./seo-utils`, `./seo-schema` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
+| `./rss` | `src/pages/rss.xml.ts` calls `generateRssFeed`; the site owns the route and feed entries |
+| `./GoogleAnalytics`, `./Analytics51LA` | Opt-in usage snippets only; neither integration is mounted here |
+
+## Observing the examples
+
+- Use the feature index to navigate to each live or instructional example. Switch between `/` and `/zh-CN/` to compare localized page content and footer links.
+- The logo is in the header; scroll to the bottom to inspect the real Footer and Copyright. The promotion component may show an eligible remote campaign instead of the local fallback. When the fallback is used, its link jumps to the footer and the banner yields that area.
+- Inspect the built page source or document head for each route's canonical URL, sharing metadata, JSON-LD, favicon link, and RSS alternate. The favicon integration is registered in the Astro config; the layout also imports the exported `.ico` asset for a deterministic static `<link>`.
+- Follow the RSS link in the page header or footer, or open `/rss.xml`. The endpoint and supplied entries belong to this example; the core package only formats the feed.
+- Analytics components emit scripts only in production and require `measurementId` (`GoogleAnalytics`) or `siteId` (`Analytics51LA`). Add the documented component to a consumer layout only when intentionally opting in with the site's IDs. This showcase does not mount them or load tracking scripts.
+- The focused output test builds the demo and checks both locale pages, all package exports, head/feed output, and the absence of analytics tracking scripts. Its CSS assertions cover narrow-layout, keyboard focus, and reduced-motion rules.
 
 The `demo-web` branch root is the GitHub Pages source for `hagilight.hagicode.com`;
 update **Settings > Pages** from the former `gh-pages` source. The separate
