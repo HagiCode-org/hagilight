@@ -10,7 +10,7 @@ const rssOption = (name) => {
 };
 
 export default defineConfig({
-  site: 'https://hagilight.hagicode.com',
+  site: 'https://hagistar.hagicode.com',
   base,
   integrations: [
     starlight({
@@ -23,7 +23,7 @@ export default defineConfig({
           image: '/share-card.svg',
           organization: {
             name: 'Hagilight',
-            url: 'https://hagilight.hagicode.com/',
+            url: 'https://hagistar.hagicode.com/',
           },
         },
         rss: {
@@ -39,7 +39,7 @@ export default defineConfig({
         },
         links: {
           siteId: 'hagilight-example',
-          siteUrl: 'https://hagilight.hagicode.com/',
+          siteUrl: 'https://hagistar.hagicode.com/',
         },
       })],
     }),
