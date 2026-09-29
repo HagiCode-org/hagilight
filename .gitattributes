@@ -1,0 +1,6 @@
+# Enforce LF line endings on checkout for every text source so that
+# line-ending-sensitive tests (e.g. test/demo-workflows.test.mjs) and shell
+# scripts behave identically on Windows, macOS, and Linux CI runners.
+# Without this, GitHub's Windows runner (core.autocrlf=true) checks out text
+# files with CRLF and breaks exact-match assertions against workflow YAML.
+* text=auto eol=lf
