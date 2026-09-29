@@ -37,6 +37,17 @@ jobs:
           npm run build:example 2>&1 | tee .ci-artifacts/build.log
           npm run pack:check 2>&1 | tee .ci-artifacts/pack.log
           npm run integration:installed 2>&1 | tee .ci-artifacts/integration.log
+      - name: Install Chromium for viewport regression
+        if: matrix.platform == 'linux'
+        run: npx playwright install --with-deps chromium
+      - name: Run desktop viewport regression
+        if: matrix.platform == 'linux'
+        shell: bash
+        env:
+          HAGILIGHT_ARTIFACT_DIR: .ci-artifacts/viewport
+        run: |
+          set -o pipefail
+          npm run test:viewport 2>&1 | tee .ci-artifacts/viewport.log
       - name: Append validation summary
         if: always()
         shell: bash
