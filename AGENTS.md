@@ -47,7 +47,8 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 - CI (`.github/workflows/ci.yml`) validates both packages and builds the example on Linux, Windows, and macOS (incl. installed-tarball build).
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes both packages to `latest` (dependency package first; existing versions are skipped).
-- `.github/workflows/demo-web.yml` publishes `examples/demo-web/` to the `demo-web` branch for `https://hagilight.hagicode.com/`; select `demo-web` root as this repository's GitHub Pages source instead of `gh-pages`.
-- `.github/workflows/demo-starlight-web.yml` publishes `examples/demo-starlight-web/` to the `demo-starlight-web` branch for `https://hagistar.hagicode.com/`; that domain requires a separate hosting consumer because this repository's GitHub Pages source serves only one branch.
+- `.github/workflows/demo-web.yml` publishes `examples/demo-web/` to the `demo-web` branch and creates the `demo-web` GitHub deployment with `https://hagilight.hagicode.com/`; select `demo-web` root as this repository's GitHub Pages source instead of `gh-pages`.
+- `.github/workflows/demo-starlight-web.yml` publishes `examples/demo-starlight-web/` to the `demo-starlight-web` branch and creates the separate `demo-starlight-web` GitHub deployment with `https://hagistar.hagicode.com/`; that domain requires a separate hosting consumer because this repository's GitHub Pages source serves only one branch.
+- A successful deployment means its workflow built the example and published its branch; it does not verify that the separate Starlight host has consumed the snapshot or that either site is reachable.
 - Both demo workflows run independently on pushes to `main`; neither updates `gh-pages`.
 - `release-drafter.yml` maintains the next stable draft from merged PRs.

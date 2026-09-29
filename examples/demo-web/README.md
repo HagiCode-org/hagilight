@@ -38,8 +38,15 @@ node --test test/demo-web-output.test.mjs
 - Analytics components emit scripts only in production and require `measurementId` (`GoogleAnalytics`) or `siteId` (`Analytics51LA`). Add the documented component to a consumer layout only when intentionally opting in with the site's IDs. This showcase does not mount them or load tracking scripts.
 - The focused output test builds the demo and checks both locale pages, all package exports, head/feed output, and the absence of analytics tracking scripts. Its CSS assertions cover narrow-layout, keyboard focus, and reduced-motion rules.
 
+The GitHub **Deployments** page shows separate `demo-web` and
+`demo-starlight-web` publication entries, linked to
+`https://hagilight.hagicode.com/` and `https://hagistar.hagicode.com/`,
+respectively. A successful entry means its workflow built the example and
+published its branch; it does not verify that the separate Starlight host has
+consumed the snapshot or that either site is reachable.
+
 The `demo-web` branch root is the GitHub Pages source for `hagilight.hagicode.com`;
 update **Settings > Pages** from the former `gh-pages` source. The separate
-Starlight example is published to `demo-starlight-web` for
-`hagistar.hagicode.com`, which requires a separate hosting consumer because
-this repository can select only one GitHub Pages branch.
+Starlight example is published to `demo-starlight-web`, which requires a
+separate hosting consumer because this repository can select only one GitHub
+Pages branch.
