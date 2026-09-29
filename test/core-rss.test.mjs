@@ -63,6 +63,7 @@ test('core package exposes feed generation without implicit route or Starlight d
   const core = JSON.parse(manifest);
   const starlight = JSON.parse(starlightManifest);
   assert.equal(core.exports['./rss'], './rss-renderer.mjs');
+  assert.equal(core.exports['./rss-locales'], './rss-locales.mjs');
   assert.equal(Object.keys(core.exports).some((path) => path.includes('rss.xml')), false);
   assert.equal(core.dependencies?.['@astrojs/starlight'], undefined);
   assert.equal(core.dependencies?.['@astrojs/rss'], '^4.0.19');

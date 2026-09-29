@@ -1,4 +1,4 @@
-export { resolveRssLocales } from '../astro/rss-locales.mjs';
+export { resolveRssLocales } from '@hagicode/hagilight/rss-locales';
 
 export function resolveRssOptions(options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {

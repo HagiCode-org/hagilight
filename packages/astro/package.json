@@ -25,6 +25,7 @@
     "./SEOHead": "./SEOHead.astro",
     "./integration": "./integration.mjs",
     "./seo-utils": "./seo-utils.mjs",
+    "./rss-locales": "./rss-locales.mjs",
     "./rss": "./rss-renderer.mjs",
     "./seo-schema": {
       "types": "./seo-schema.d.ts",
