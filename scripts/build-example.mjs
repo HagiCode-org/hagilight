@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
+execFileSync(npm, ['run', 'build'], {
+  cwd: root,
+  stdio: 'inherit',
+  shell: process.platform === 'win32',
+});
+
 function build(env = {}) {
   execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
     cwd: root,
@@ -148,6 +154,7 @@ function verifySeoOutput(read, basePath = '/') {
     sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
     image: imageUrl,
   });
+  assert.match(home.html, new RegExp(`<a href="${base}/sitemap-index\\.xml"[^>]*>Sitemap</a>`, 'u'));
   assert.ok(home.head.includes('Hagilight example'));
   assert.ok(home.head.includes('Explore reusable Astro components'));
   assert.match(home.html, /<h1\b[^>]*>Hagilight example<\/h1>/u);
@@ -159,6 +166,7 @@ function verifySeoOutput(read, basePath = '/') {
     sitemap: `${base}/sitemap-index.xml` || '/sitemap-index.xml',
     image: imageUrl,
   });
+  assert.match(chineseHome.html, new RegExp(`<a href="${base}/sitemap-index\\.xml"[^>]*>站点地图</a>`, 'u'));
   assert.match(chineseHome.html, /<html lang="zh-CN"/u);
   assert.match(chineseHome.html, /<h1\b[^>]*>Hagilight 示例<\/h1>/u);
   assert.ok(chineseHome.head.includes('了解可复用的 Astro 组件'));
@@ -222,15 +230,16 @@ function verifySeoOutput(read, basePath = '/') {
 }
 
 function verifyCoreFooterOutput(read) {
-  for (const [filename, expectedCanonical] of [
-    ['index.html', 'https://hagilight.hagicode.com/'],
-    ['zh-CN/index.html', 'https://hagilight.hagicode.com/zh-CN/'],
+  for (const [filename, expectedCanonical, sitemapLabel] of [
+    ['index.html', 'https://hagilight.hagicode.com/', 'Sitemap'],
+    ['zh-CN/index.html', 'https://hagilight.hagicode.com/zh-CN/', '站点地图'],
   ]) {
     const html = read(filename);
     const head = html.slice(0, html.indexOf('</head>'));
     const canonicals = headAttributeValues(head, 'link', 'href', '\\brel="canonical"');
     assert.equal(canonicals.length, 1, `${filename} has one core canonical`);
     assert.equal(canonicals[0], expectedCanonical);
+    assert.match(html, new RegExp(`<a href="/sitemap-index\\.xml"[^>]*>${sitemapLabel}</a>`, 'u'));
     assert.ok(head.includes('property="og:title"'), `${filename} has core sharing metadata`);
     assert.ok(head.includes('name="twitter:title"'), `${filename} has Twitter metadata`);
     assert.equal(headAttributeValues(head, 'link', 'href', 'application/rss\\+xml').length, 1);

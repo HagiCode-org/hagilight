@@ -1,93 +1,133 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { posix } from 'node:path';
+import {
+  PACKAGES,
+  assertPackageGraph,
+  buildPackages,
+  npm,
+  readManifest,
+  root,
+} from './packages.mjs';
 
-function collectExportPaths(exports) {
-  const paths = [];
-  for (const value of Object.values(exports)) {
-    if (typeof value === 'string') {
-      paths.push(value);
-    } else if (value && typeof value === 'object') {
-      for (const sub of Object.values(value)) {
-        if (typeof sub === 'string') paths.push(sub);
-      }
-    }
-  }
-  return paths;
-}
-
-for (const [workspace, required] of [
-  ['@hagicode/hagilight', [
+const REQUIRED_FILES = {
+  '@hagicode/hagilight-core': [
     'Footer.astro',
     'Copyright.astro',
     'PromotoBanner.astro',
-    'logo.png',
     'GoogleAnalytics.astro',
     'Analytics51LA.astro',
-    'site-links.ts',
-    'related-sites.json',
-    'promotions.ts',
-    'promoto-banner.ts',
+    'logo.png',
+    'favicon.ico',
+    'dist/related-sites.json',
+    'dist/promoto-banner.js',
+  ],
+  '@hagicode/hagilight': [
     'SEOHead.astro',
-    'seo-utils.mjs',
-    'seo-schema.mjs',
-    'seo-schema.d.ts',
-    'rss-renderer.mjs',
-  ]],
-  ['@hagicode/hagilight-starlight', [
-    'index.mjs',
-    'SEOHead.astro',
-    'seo-utils.mjs',
-    'seo-schema.mjs',
+    'robots.txt.ts',
     'rss.xml.ts',
-    'ai-disclosure-schema.mjs',
-    'ai-disclosures.mjs',
+    'rss.[language].xml.ts',
+    'dist/integration.js',
+    'dist/integration.d.ts',
+    'dist/rss-middleware.js',
+    'dist/rss-runtime.js',
+  ],
+  '@hagicode/hagilight-starlight': [
+    'SEOHead.astro',
+    'Header.astro',
+    'LanguageChooser.astro',
     'AIDisclosureNotice.astro',
-    'content-width.mjs',
-    'content-width-i18n.mjs',
-    'content-width.css',
     'ContentLayoutToggle.astro',
+    'content-width.css',
     'Footer.astro',
     'MarkdownContent.astro',
     'ArticlePromotion.astro',
-    'article-promotion-schema.mjs',
     'assets/light-main.png',
     'PageTitle.astro',
     'PromotoFooter.astro',
-  ]],
-]) {
-  const directory = workspace === '@hagicode/hagilight' ? 'astro' : 'starlight';
-  const manifest = JSON.parse(readFileSync(`packages/${directory}/package.json`, 'utf8'));
-  const output = execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm',
-    ['pack', '--dry-run', '--json', '-w', workspace], {
-      encoding: 'utf8',
-      shell: process.platform === 'win32',
-    });
+    'NotFoundHero.astro',
+    'rss.xml.ts',
+    'rss.[language].xml.ts',
+    'dist/rss-renderer.js',
+    'dist/seo-utils.js',
+  ],
+};
+
+function exportTargets(exports) {
+  return Object.entries(exports).map(([subpath, value]) => {
+    if (typeof value === 'string') return { subpath, runtime: value };
+    if (!value || typeof value !== 'object' || typeof value.default !== 'string') {
+      throw new Error(`Export ${subpath} must be a string or a { types, default } condition object`);
+    }
+    return { subpath, runtime: value.default, types: value.types };
+  });
+}
+
+const relativeImportPattern = /(?:import|export)\s[^'"]*?from\s+['"](\.{1,2}\/[^'"]+)['"]|import\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)|import\s+['"](\.{1,2}\/[^'"]+)['"]/gu;
+
+function assertRelativeImportsShipped(name, files, readShipped) {
+  for (const file of files) {
+    if (!/\.(?:astro|js|ts)$/u.test(file) || file.endsWith('.d.ts')) continue;
+    for (const match of readShipped(file).matchAll(relativeImportPattern)) {
+      const specifier = match[1] ?? match[2] ?? match[3];
+      const target = posix.normalize(posix.join(posix.dirname(file), specifier));
+      if (!files.has(target)) {
+        throw new Error(`${name} ${file} imports ${specifier}, but ${target} is missing from its tarball`);
+      }
+    }
+  }
+}
+
+buildPackages();
+const manifests = PACKAGES.map(({ directory }) => readManifest(directory));
+const version = assertPackageGraph(manifests);
+
+for (const [index, { name, directory }] of PACKAGES.entries()) {
+  const manifest = manifests[index];
+  const output = execFileSync(npm, ['pack', '--dry-run', '--json', '--ignore-scripts', '-w', name], {
+    cwd: root,
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
   const [pack] = JSON.parse(output);
   const files = new Set(pack.files.map((file) => file.path));
-  for (const file of ['package.json', ...required]) {
-    if (!files.has(file)) throw new Error(`${workspace} is missing ${file} from its tarball`);
+  if (pack.name !== name || pack.version !== manifest.version) {
+    throw new Error(`${name} tarball metadata does not match its manifest`);
   }
-  for (const target of collectExportPaths(manifest.exports)) {
-    if (!files.has(target.replace(/^\.\//, ''))) throw new Error(`${workspace} export ${target} is missing from its tarball`);
+  for (const file of ['package.json', ...REQUIRED_FILES[name]]) {
+    if (!files.has(file)) throw new Error(`${name} is missing ${file} from its tarball`);
   }
-  if (pack.name !== workspace || pack.version !== manifest.version) {
-    throw new Error(`${workspace} tarball metadata does not match its manifest`);
+  for (const { subpath, runtime, types } of exportTargets(manifest.exports)) {
+    for (const target of [runtime, types].filter(Boolean)) {
+      if (!files.has(target.replace(/^\.\//u, ''))) {
+        throw new Error(`${name} export ${subpath} target ${target} is missing from its tarball`);
+      }
+    }
+    if (runtime.endsWith('.js') && !types) {
+      throw new Error(`${name} export ${subpath} must declare generated types for ${runtime}`);
+    }
+    if (types && runtime.replace(/\.js$/u, '.d.ts') !== types) {
+      throw new Error(`${name} export ${subpath} types ${types} do not match runtime ${runtime}`);
+    }
   }
-  if (workspace === '@hagicode/hagilight') {
+  for (const file of files) {
+    if (file.endsWith('.mjs') || /(?:^|\/)src\//u.test(file) || file.endsWith('.tsbuildinfo')) {
+      throw new Error(`${name} must not publish source or build metadata: ${file}`);
+    }
+  }
+  assertRelativeImportsShipped(name, files, (file) => readFileSync(posix.join(root, directory, file), 'utf8'));
+
+  if (manifest.peerDependencies?.astro === undefined) {
+    throw new Error(`${name} must declare an Astro peer dependency`);
+  }
+  if (name === '@hagicode/hagilight-core' || name === '@hagicode/hagilight') {
     if (manifest.peerDependencies.astro !== '^6.0.7 || ^7.3.5') {
-      throw new Error('Core package must declare the tested Astro 6 and 7 peer ranges');
-    }
-    for (const entry of ['./Footer', './site-links', './PromotoBanner']) {
-      if (!manifest.exports[entry] || !files.has(manifest.exports[entry].replace(/^\.\//, ''))) {
-        throw new Error(`Core package must publish ${entry}`);
-      }
-      if (manifest.dependencies?.['@astrojs/rss'] !== '^4.0.19') {
-        throw new Error('Core package must own the @astrojs/rss serializer dependency');
-      }
-      if (manifest.dependencies?.['@astrojs/starlight']) {
-        throw new Error('Core package must not depend on Starlight');
-      }
+      throw new Error(`${name} must declare the tested Astro 6 and 7 peer ranges`);
     }
   }
-  console.log(`${workspace}@${pack.version}: package contents verified`);
+  if (name === '@hagicode/hagilight-core' && manifest.dependencies?.['@astrojs/rss'] !== '^4.0.19') {
+    throw new Error('Shared core must own the @astrojs/rss serializer dependency');
+  }
+  console.log(`${name}@${pack.version}: package contents verified (${files.size} files)`);
 }
+console.log(`All Hagilight packages share version ${version} and depend only on the shared core.`);

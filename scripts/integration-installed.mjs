@@ -14,9 +14,10 @@ import { once } from 'node:events';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { CORE_PACKAGE, PACKAGES, assertPackageGraph, buildPackages, npm, root } from './packages.mjs';
 
 const temp = mkdtempSync(join(tmpdir(), 'hagilight-integration-'));
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
 function listFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -234,23 +235,82 @@ async function fetchDevelopmentPage(astro) {
   }
 }
 
-function verifyCoreFooter(tarball, astroVersion) {
-  const coreTemp = join(temp, 'core-only');
-  mkdirSync(coreTemp);
-  writeFileSync(join(coreTemp, 'package.json'), JSON.stringify({
-    name: 'hagilight-core-footer-example',
-    private: true,
-    type: 'module',
-  }));
-  cpSync('test/fixtures/core-footer/astro.config.mjs', join(coreTemp, 'astro.config.mjs'));
-  cpSync('test/fixtures/core-footer/src', join(coreTemp, 'src'), { recursive: true });
-  execFileSync(npm, ['install', '--prefix', coreTemp, '--no-save', tarball, `astro@${astroVersion}`], {
+// Astro only compiles installed component packages that the consumer manifest
+// declares, so each consumer lists its tarballs and registry packages explicitly.
+function installConsumer(directory, dependencies, name = 'hagilight-installed-consumer') {
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, private: true, type: 'module', dependencies }));
+  execFileSync(npm, ['install', '--prefix', directory, '--no-audit', '--no-fund'], {
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
+  return join(directory, 'node_modules');
+}
 
-  const nodeModules = join(coreTemp, 'node_modules');
-  assert.ok(!existsSync(join(nodeModules, '@astrojs', 'starlight')), 'Core-only site must not install Starlight');
+const tarballSpec = (path) => `file:${path}`;
+
+function assertInstalled(nodeModules, { present = [], absent = [] }) {
+  for (const name of present) {
+    assert.ok(existsSync(join(nodeModules, ...name.split('/'))), `${name} must be installed`);
+  }
+  for (const name of absent) {
+    assert.ok(!existsSync(join(nodeModules, ...name.split('/'))), `${name} must not be installed`);
+  }
+}
+
+function typecheckConsumer(directory, fixtures) {
+  const typesDirectory = join(directory, 'hagilight-types');
+  mkdirSync(typesDirectory, { recursive: true });
+  cpSync('test/types/tsconfig.json', join(typesDirectory, 'tsconfig.json'));
+  for (const fixture of fixtures) cpSync(`test/types/${fixture}`, join(typesDirectory, fixture));
+  execFileSync(process.execPath, [tsc, '-p', join(typesDirectory, 'tsconfig.json')], { stdio: 'inherit' });
+}
+
+function verifyCoreOnly(tarballs, astroVersion) {
+  const coreOnly = join(temp, 'core-only');
+  const nodeModules = installConsumer(coreOnly, {
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    astro: astroVersion,
+  });
+  assertInstalled(nodeModules, {
+    present: [CORE_PACKAGE],
+    absent: ['@hagicode/hagilight', '@hagicode/hagilight-starlight', '@astrojs/starlight'],
+  });
+  const manifest = JSON.parse(readFileSync(join(nodeModules, '@hagicode', 'hagilight-core', 'package.json'), 'utf8'));
+  const specifiers = Object.entries(manifest.exports)
+    .filter(([, target]) => typeof target === 'object')
+    .map(([subpath]) => `${CORE_PACKAGE}/${subpath.slice(2)}`);
+  writeFileSync(join(coreOnly, 'load-exports.mjs'), `
+for (const specifier of ${JSON.stringify(specifiers)}) {
+  const module = await import(specifier);
+  if (Object.keys(module).length === 0) throw new Error(specifier + ' has no runtime exports');
+}
+const { resolveSiteLinks } = await import('${CORE_PACKAGE}/links');
+if (!resolveSiteLinks('en-US').quick.some(({ id }) => id === 'sitemap')) throw new Error('core links are incomplete');
+const { resolveFaviconHeadEntry } = await import('${CORE_PACKAGE}/favicon');
+if (!resolveFaviconHeadEntry([])?.attrs.href.startsWith('data:image/x-icon;base64,')) throw new Error('core favicon is missing');
+const { generateRssFeed } = await import('${CORE_PACKAGE}/rss');
+const feed = await (await generateRssFeed({ site: 'https://example.test', title: 'Feed', description: 'Updates', items: [{ title: 'Post', link: '/post/' }] })).text();
+if (!feed.includes('https://example.test/post/')) throw new Error('core RSS output is incomplete');
+`);
+  execFileSync(process.execPath, ['load-exports.mjs'], { cwd: coreOnly, stdio: 'inherit' });
+  typecheckConsumer(coreOnly, ['core.ts']);
+}
+
+function verifyCoreFooter(tarballs, astroVersion) {
+  const coreTemp = join(temp, 'astro-core');
+  mkdirSync(coreTemp);
+  cpSync('test/fixtures/core-footer/astro.config.mjs', join(coreTemp, 'astro.config.mjs'));
+  cpSync('test/fixtures/core-footer/src', join(coreTemp, 'src'), { recursive: true });
+  const nodeModules = installConsumer(coreTemp, {
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    astro: astroVersion,
+  }, 'hagilight-core-footer-example');
+  assertInstalled(nodeModules, {
+    present: [CORE_PACKAGE],
+    absent: ['@hagicode/hagilight', '@hagicode/hagilight-starlight', '@astrojs/starlight'],
+  });
+  typecheckConsumer(coreTemp, ['core.ts']);
   const astro = join(nodeModules, 'astro', 'bin', 'astro.mjs');
   execFileSync(process.execPath, [astro, 'build'], { cwd: coreTemp, stdio: 'inherit' });
 
@@ -260,16 +320,12 @@ function verifyCoreFooter(tarball, astroVersion) {
   assert.ok(englishHtml.includes('Quick Links'));
   assert.ok(englishHtml.includes('Community'));
   assert.ok(!englishHtml.includes('Ecosystem Sites'));
-  for (const [html, expectedCanonical] of [
-    [englishHtml, 'https://consumer.example.test/'],
-    [chineseHtml, 'https://consumer.example.test/zh-CN/'],
-  ]) {
-    const head = html.slice(0, html.indexOf('</head>'));
-    assert.equal([...head.matchAll(/<link\b[^>]*rel="canonical"[^>]*>/gu)].length, 1);
-    assert.ok(head.includes(`href="${expectedCanonical}"`));
-    assert.ok(head.includes('property="og:title"'));
-    assert.ok(head.includes('name="twitter:title"'));
-    assert.equal([...head.matchAll(/application\/rss\+xml/gu)].length, 1);
+  for (const [locale, html] of [['en-US', englishHtml], ['zh-CN', chineseHtml]]) {
+    assert.ok(
+      /<footer\b[^>]*class="hagilight-footer"/u.test(html),
+      `${locale} page has the core Footer: ${html.slice(html.indexOf('<body'), html.indexOf('</body>') + 7)}`,
+    );
+    assert.equal([...html.matchAll(/application\/rss\+xml/gu)].length, 1);
   }
   assert.match(coreFeed, /<rss\b/u);
   assert.match(coreFeed, /<language>en-US<\/language>/u);
@@ -289,7 +345,7 @@ function verifyCoreFooter(tarball, astroVersion) {
   assert.ok(chineseHtml.includes('aria-label="查看备案信息"'));
   assert.ok(chineseHtml.includes(`© ${new Date().getFullYear()} HagiCode`));
 
-  const css = readFileSync(join(nodeModules, '@hagicode', 'hagilight', 'Footer.astro'), 'utf8');
+  const css = readFileSync(join(nodeModules, '@hagicode', 'hagilight-core', 'Footer.astro'), 'utf8');
   assert.match(css, /grid-template-columns:\s*repeat\(auto-fit/u);
   assert.match(css, /@media\s*\((?:max-width:\s*40rem|width\s*<=\s*40rem)\)/u);
   assert.match(css, /grid-template-columns:\s*1fr/u);
@@ -297,27 +353,35 @@ function verifyCoreFooter(tarball, astroVersion) {
 }
 
 try {
-  const tarballs = [];
-  for (const workspace of ['@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
-    const output = execFileSync(npm, ['pack', '--json', '-w', workspace, '--pack-destination', temp], {
+  buildPackages();
+  assertPackageGraph();
+  const tarballs = {};
+  for (const { name } of PACKAGES) {
+    const output = execFileSync(npm, ['pack', '--json', '--ignore-scripts', '-w', name, '--pack-destination', temp], {
+      cwd: root,
       encoding: 'utf8',
       shell: process.platform === 'win32',
     });
-    tarballs.push(join(temp, JSON.parse(output)[0].filename));
+    tarballs[name] = join(temp, JSON.parse(output)[0].filename);
   }
   const example = JSON.parse(readFileSync('examples/demo-starlight-web/package.json', 'utf8'));
-  verifyCoreFooter(tarballs[0], example.dependencies.astro);
+  verifyCoreOnly(tarballs, example.dependencies.astro);
+  verifyCoreFooter(tarballs, example.dependencies.astro);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
-  cpSync('examples/demo-starlight-web/package.json', join(temp, 'package.json'));
   writeFileSync(configPath, enabledConfig);
   cpSync('examples/demo-starlight-web/src', join(temp, 'src'), { recursive: true });
   cpSync('examples/demo-starlight-web/public', join(temp, 'public'), { recursive: true });
-  execFileSync(npm, ['install', '--prefix', temp, '--no-save', ...tarballs,
-    `astro@${example.dependencies.astro}`, `@astrojs/starlight@${example.dependencies['@astrojs/starlight']}`], {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
+  const starlightModules = installConsumer(temp, {
+    ...example.dependencies,
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    '@hagicode/hagilight-starlight': tarballSpec(tarballs['@hagicode/hagilight-starlight']),
+  }, example.name);
+  assertInstalled(starlightModules, {
+    present: [CORE_PACKAGE, '@hagicode/hagilight-starlight', '@astrojs/starlight'],
+    absent: ['@hagicode/hagilight'],
   });
+  typecheckConsumer(temp, ['core.ts', 'starlight.ts']);
   const astro = join(temp, 'node_modules', 'astro', 'bin', 'astro.mjs');
   execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
   verifyBannerBuild(true);

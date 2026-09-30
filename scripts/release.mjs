@@ -1,9 +1,14 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import {
+  CORE_PACKAGE,
+  EXAMPLES,
+  PACKAGES,
+  assertPackageGraph,
+  readManifest,
+  root,
+} from './packages.mjs';
 
-const packages = ['@hagicode/hagilight', '@hagicode/hagilight-starlight'];
-const packageVersion = JSON.parse(readFileSync('packages/astro/package.json', 'utf8')).version;
-const starlight = JSON.parse(readFileSync('packages/starlight/package.json', 'utf8'));
+const packageVersion = readManifest(PACKAGES[0].directory).version;
 
 export function stableVersion(tag) {
   const match = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(tag);
@@ -56,15 +61,29 @@ async function fetchReleases() {
   return releases;
 }
 
-function assertPackages() {
-  if (packageVersion !== starlight.version || starlight.dependencies['@hagicode/hagilight'] !== packageVersion) {
-    throw new Error('Both packages and the Starlight dependency must have the same version');
-  }
+/** Hagilight dependency fields to stamp in each workspace, in core-first package order. */
+export function dependencyStamps(version) {
+  const names = new Set(PACKAGES.map(({ name }) => name));
+  return [
+    ...PACKAGES.map(({ name }) => ({
+      workspace: name,
+      values: [`version=${version}`, ...(name === CORE_PACKAGE ? [] : [`dependencies.${CORE_PACKAGE}=${version}`])],
+    })),
+    ...EXAMPLES.map(({ name, directory }) => {
+      const manifest = readManifest(directory);
+      return {
+        workspace: name,
+        values: ['dependencies', 'devDependencies'].flatMap((field) => Object.keys(manifest[field] ?? {})
+          .filter((dependency) => names.has(dependency))
+          .map((dependency) => `${field}.${dependency}=${version}`)),
+      };
+    }),
+  ].filter(({ values }) => values.length > 0);
 }
 
 async function main() {
   const [command, argument] = process.argv.slice(2);
-  assertPackages();
+  assertPackageGraph();
   if (command === 'dev') {
     const base = nextBaseVersion(await fetchReleases(), packageVersion);
     const run = process.env.GITHUB_RUN_NUMBER;
@@ -82,13 +101,11 @@ async function main() {
     if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-dev\.[1-9]\d*\.[1-9]\d*\.[0-9a-f]{7})?$/.test(argument ?? '')) {
       throw new Error(`Invalid publish version: ${argument}`);
     }
-    for (const name of packages) {
-      execFileSync('npm', ['pkg', 'set', `version=${argument}`, '-w', name], { stdio: 'inherit' });
+    for (const { workspace, values } of dependencyStamps(argument)) {
+      execFileSync('npm', ['pkg', 'set', ...values, '-w', workspace], { cwd: root, stdio: 'inherit' });
     }
-    execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, '-w', packages[1]], { stdio: 'inherit' });
-    execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, `dependencies.@hagicode/hagilight-starlight=${argument}`, '-w', 'hagilight-example'], { stdio: 'inherit' });
-    execFileSync('npm', ['pkg', 'set', `dependencies.@hagicode/hagilight=${argument}`, '-w', 'hagilight-core-footer-example'], { stdio: 'inherit' });
-    execFileSync('npm', ['install', '--package-lock-only', '--ignore-scripts', '--offline'], { stdio: 'inherit' });
+    execFileSync('npm', ['install', '--package-lock-only', '--ignore-scripts', '--offline'], { cwd: root, stdio: 'inherit' });
+    assertPackageGraph();
   } else {
     throw new Error('Usage: node scripts/release.mjs dev|verify <tag>|stamp <version>');
   }
