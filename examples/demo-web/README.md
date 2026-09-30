@@ -1,13 +1,14 @@
 # Hagilight core package showcase
 
 Private, standalone Astro workspace demonstrating the public exports of
-`@hagicode/hagilight` without Starlight. It builds English and Simplified
-Chinese pages and separate localized RSS feeds for
+`@hagicode/hagilight` and `@hagicode/hagilight-core` without Starlight. It
+builds English and Simplified Chinese pages and separate localized RSS feeds for
 `https://hagilight.hagicode.com/`.
 
 From the Hagilight repository root:
 
 ```sh
+npm run build              # compile the packages before running the dev server
 npm run dev --workspace=hagilight-core-footer-example
 npm run build:core-footer-example
 node --test test/demo-web-output.test.mjs
@@ -15,23 +16,33 @@ node --test test/demo-web-output.test.mjs
 
 ## Export-to-example map
 
-| Core export | Where to see it |
+| Export | Where to see it |
 | --- | --- |
-| `./Footer` | The rendered localized footer at the bottom of either page |
-| `./Copyright` | Copyright in the live footer and direct-import snippet |
-| `./PromotoBanner` | Live banner with a locale-specific fallback; the fallback CTA targets the footer |
-| `./site-links` | Resolver usage snippet; the live Footer receives generated RSS URLs from the integration |
-| `./logo.png` | Hagilight logo in the page header |
-| `./favicon` | `astro.config.mjs` registers `hagilightFavicon()` |
-| `./favicon.ico` | Imported into the page head as a static icon asset |
-| `./SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
-| `./seo-utils`, `./seo-schema` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
-| `./rss` | RSS rendering API used by the generated routes |
-| `./integration` | `hagilight()` generates a sitemap and robots.txt; `hagilightRss()` registers localized routes and Footer feed URLs |
-| `./GoogleAnalytics`, `./Analytics51LA` | Opt-in usage snippets only; neither integration is mounted here |
+| `@hagicode/hagilight-core/Footer` | The rendered localized footer at the bottom of either page |
+| `@hagicode/hagilight/SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
+| `@hagicode/hagilight/integration` | Explicitly registered `hagilight()` generates a sitemap and robots.txt by default; `hagilightRss()` registers localized routes and Footer feed URLs from the typed `src/rss-feed.ts`; `hagilightFavicon()` is registered in `astro.config.mjs` |
+| `@hagicode/hagilight-core/Copyright` | Copyright in the live footer and direct-import snippet |
+| `@hagicode/hagilight-core/PromotoBanner`, `/promotions` | Live banner with a locale-specific fallback; the fallback CTA targets the footer |
+| `@hagicode/hagilight-core/links` | Resolver usage snippet; the live Footer receives generated RSS URLs from the integration |
+| `@hagicode/hagilight-core/logo.png` | Hagilight logo in the page header |
+| `@hagicode/hagilight-core/favicon`, `/favicon.ico` | Favicon helper snippet; the `.ico` asset is imported into the page head |
+| `@hagicode/hagilight-core/seo`, `/seo-schema` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
+| `@hagicode/hagilight-core/rss`, `/rss-ownership` | RSS rendering API used by the generated routes, and route-owner coordination with Starlight |
+| `@hagicode/hagilight-core/GoogleAnalytics`, `/Analytics51LA` | Opt-in usage snippets only; neither integration is mounted here |
 
 ## Observing the examples
 
+- `examples/demo-web/astro.config.mjs` registers `hagilight()` explicitly and
+  sets the public `site`. That integration enables the sitemap and robots
+  output by default; `hagilight({ enabled: false })` disables both. Existing
+  `@astrojs/sitemap` or Starlight integration owns sitemap generation, and a
+  consumer `public/robots.txt` or `src/pages/robots.txt.*` takes precedence.
+- The build publishes `sitemap-index.xml` and a `robots.txt` `Sitemap:` line
+  pointing to its absolute URL. With a base such as `/manual/`, the sitemap
+  index and entries include that path. The robots policy must be served at the
+  origin root (`/robots.txt`) when deployed under a base path.
+- Hagilight does not generate `llms.txt`; add a consumer-owned file with
+  localized links only when wanted, or omit it to publish no AI discovery file.
 - Use the feature index to navigate to each live or instructional example. Switch between `/` and `/zh-CN/` to compare localized page content and footer links.
 - The logo is in the header; scroll to the bottom to inspect the real Footer and Copyright. The promotion component may show an eligible remote campaign instead of the local fallback. When the fallback is used, its link jumps to the footer and the banner yields that area.
 - Inspect the built page source or document head for each route's canonical URL, sharing metadata, JSON-LD, favicon link, and RSS alternate. The favicon and localized RSS integrations are registered in the Astro config; the layout also imports the exported `.ico` asset for a deterministic static `<link>`.

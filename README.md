@@ -1,34 +1,129 @@
 # HagiLight
 
-Reusable Astro components and a Starlight plugin for HagiCode sites. This repository contains two npm packages:
+Reusable Astro components, integrations, and a Starlight plugin for HagiCode
+sites. This repository publishes three npm packages, all authored in
+TypeScript and shipped as ESM with generated `.d.ts` declarations. Astro
+components, Astro route entry points, styles, JSON, and images are shipped in
+their native formats.
+
+```mermaid
+flowchart LR
+  A["@hagicode/hagilight"] --> C["@hagicode/hagilight-core"]
+  S["@hagicode/hagilight-starlight"] --> C
+```
+
+Both feature packages depend on the matching version of the shared core and
+never on each other. Install core directly when your site imports a core entry
+point.
+
+## `@hagicode/hagilight-core`
+
+Shared building blocks for plain Astro and Starlight sites. Requires `astro`
+`^6.0.7 || ^7.3.5`; it has no Starlight dependency.
+
+| Import | Provides |
+| --- | --- |
+| `@hagicode/hagilight-core/links` | `resolveSiteLinks()` and the localized header/footer link catalog types |
+| `@hagicode/hagilight-core/favicon` | `resolveFaviconHeadEntry()` and `getHagilightFaviconDataUri()` |
+| `@hagicode/hagilight-core/seo` | Metadata, canonical head composition, and JSON-LD builders |
+| `@hagicode/hagilight-core/seo-schema` | `seoSchema` for optional `seo` frontmatter |
+| `@hagicode/hagilight-core/rss` | `generateRssFeed()` and `resolveRssLocales()` |
+| `@hagicode/hagilight-core/rss-ownership` | Coordination that keeps one integration as the RSS route owner |
+| `@hagicode/hagilight-core/promotions` | Typed promotion campaign loader |
+| `@hagicode/hagilight-core/Footer` | Localized footer with generated RSS and sitemap links |
+| `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/Analytics51LA` | Astro components |
+| `@hagicode/hagilight-core/logo.png`, `/favicon.ico` | Brand assets |
 
 ## `@hagicode/hagilight`
 
-For plain Astro sites and shared functionality used by the Starlight plugin.
+Plain Astro integrations and components (`astro` `^6.0.7 || ^7.3.5`):
 
-- Footer, copyright notice, promotion banner, and localized site and community links.
-- HagiCode logo and favicon assets, plus an optional integration that injects the favicon.
-- SEO head component and utilities, plus an RSS renderer and an opt-in localized RSS integration.
-- An Astro integration that generates a sitemap and `robots.txt` by default.
-- Google Analytics and 51LA components.
+| Import | Provides |
+| --- | --- |
+| `@hagicode/hagilight/integration` | `hagilight()` (sitemap and robots.txt), `hagilightRss()`, `hagilightFavicon()`, and their option types |
+| `@hagicode/hagilight/SEOHead` | Canonical, Open Graph, Twitter, and JSON-LD head entries |
 
 ## `@hagicode/hagilight-starlight`
 
-A Starlight plugin that depends on `@hagicode/hagilight` and provides:
+A Starlight plugin (`@astrojs/starlight` `^0.42.4`, `astro` `^7.3.5`) that adds
+the localized header, language chooser, and footer links; content-width toggle;
+custom 404 page; end-of-article HagiCode introduction; floating promotion
+banner; AI translation or authorship disclosures; SEO metadata and multilingual
+page discovery; RSS feeds; Google Analytics and 51LA; and the shared favicon.
 
-- Localized header, language chooser, and footer links.
-- Content-width toggle, page title and Markdown content components, and a custom 404 page.
-- End-of-article HagiCode introduction, floating promotion banner, and AI translation or authorship disclosures.
-- SEO metadata, multilingual page discovery, and RSS feeds.
-- Google Analytics, 51LA, and the shared favicon.
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import starlight from '@astrojs/starlight';
+import hagilight from '@hagicode/hagilight-starlight';
+import { locales } from '@hagicode/hagilight-starlight/locales';
+
+export default defineConfig({
+  site: 'https://docs.example.test',
+  integrations: [starlight({ title: 'Docs', locales, plugins: [hagilight({ rss: { includeDocs: false } })] })],
+});
+```
+
+```ts
+// src/content.config.ts
+import { defineCollection } from 'astro:content';
+import { docsLoader } from '@astrojs/starlight/loaders';
+import { docsSchema } from '@astrojs/starlight/schema';
+import { hagilightSchema } from '@hagicode/hagilight-starlight/schema';
+
+export const collections = { docs: defineCollection({ loader: docsLoader(), schema: docsSchema({ extend: hagilightSchema }) }) };
+```
+
+`HagilightStarlightOptions` types every plugin option, so misspelled or
+mistyped options fail type-checking in `astro.config.ts` or JSDoc-checked
+configs; the plugin still validates options at runtime. Components such as
+`@hagicode/hagilight-starlight/Header` and `/MarkdownContent` remain importable
+for sites that compose their own Starlight overrides.
+
+## TypeScript usage
+
+Every JavaScript entry point has a `types` export condition, so TypeScript
+resolves declarations with `moduleResolution` `NodeNext`, `Node16`, or
+`Bundler` without application-level module declarations. For example, type the
+module passed to `hagilightRss({ getFeed })`:
+
+```ts
+// src/rss-feed.ts
+import type { RssFeedCallback } from '@hagicode/hagilight/integration';
+
+const getFeed: RssFeedCallback = async ({ lang }) => ({
+  title: 'Updates',
+  description: `Updates in ${lang}`,
+  items: [{ title: 'Release notes', link: '/blog/release/', date: new Date() }],
+});
+export default getFeed;
+```
 
 ## Local development
 
-Run `npm install`, `npm test`, and `npm run build:example` from the repository root.
+Run commands from the repository root:
+
+```sh
+npm install
+npm run build              # tsc -b: core, then @hagicode/hagilight and the Starlight package
+npm run typecheck          # build, check Astro route entry points, and check test/types fixtures
+npm test                   # builds first, then runs node --test
+npm run build:example      # builds packages and both examples, then verifies their output
+npm run pack:check         # verifies all three tarballs, exports, and version alignment
+npm run integration:installed  # installs tarballs into isolated core, Astro, and Starlight consumers
+```
+
+Sources live in `packages/*/src/*.ts` and compile to the ignored
+`packages/*/dist/` directories; `.astro` components and route files import the
+built `dist/*.js` modules, so build before running examples from a clean
+checkout. The release workflow stamps one version into all three packages and
+the core dependency of both feature packages (`scripts/release.mjs stamp`), then
+`scripts/publish.mjs` publishes core first, followed by the plain-Astro and
+Starlight packages.
 
 ## Sitemap and robots.txt for plain Astro
 
-Register the core integration in `astro.config.mjs` (importing a component alone
+Register the plain-Astro integration in `astro.config.mjs` (importing a component alone
 cannot register an Astro integration):
 
 ```js
@@ -41,18 +136,44 @@ export default defineConfig({
 });
 ```
 
-By default, Astro's sitemap integration generates `sitemap-index.xml` and
-Hagilight generates `robots.txt` pointing to it. Set `hagilight({ enabled: false })`
-to disable both. An existing `@astrojs/sitemap` integration or Starlight owns the
-sitemap instead; a consumer-owned `public/robots.txt` or `src/pages/robots.txt.*`
-is left untouched. Set Astro's `site` to the public origin; if deploying under a
-`base` path, ensure the host serves robots.txt at the origin root as well, since
-search engines look for `/robots.txt`.
+With an absolute HTTP(S) `site`, Astro's sitemap integration generates
+`sitemap-index.xml` and Hagilight generates `robots.txt` with an absolute
+`Sitemap:` URL to that index. For `base: '/manual/'`, verify
+`https://example.test/manual/sitemap-index.xml` and the sitemap entries under
+`https://example.test/manual/`; the localized Footer sitemap link uses that
+same base-aware path. Set `hagilight({ enabled: false })` to disable both
+generated outputs. An existing `@astrojs/sitemap` integration or Starlight owns
+sitemap generation instead; a consumer-owned `public/robots.txt` or
+`src/pages/robots.txt.*` remains authoritative.
+
+If you need a site-specific crawl policy, own `public/robots.txt` and include
+the absolute URL of the deployed sitemap index:
+
+```text
+User-agent: *
+Allow: /
+Disallow: /private/
+Sitemap: https://example.test/manual/sitemap-index.xml
+```
+
+Hagilight does not generate `llms.txt`. To publish AI discovery links, add your
+own `public/llms.txt` with only the localized pages you want to expose:
+
+```text
+# Example documentation
+
+- [English](https://example.test/manual/)
+- [简体中文](https://example.test/manual/zh-CN/)
+```
+
+If you do not want AI discovery, do not add an `llms.txt` file. Deployments
+under a `base` path must still serve `/robots.txt` at the origin root, because
+crawlers look for that exact URL.
 
 ## Localized RSS for plain Astro
 
 Plain Astro sites can keep owning RSS routes and call `generateRssFeed` from
-`@hagicode/hagilight/rss`, or opt in to generated routes and Footer links with
+`@hagicode/hagilight-core/rss`, or opt in to generated routes and Footer links with
 `hagilightRss` from `@hagicode/hagilight/integration`:
 
 ```js
@@ -67,14 +188,14 @@ const locales = {
 export default defineConfig({
   site: 'https://example.test',
   integrations: [
-    hagilightRss({ locales, getFeed: './src/rss-feed.mjs' }),
+    hagilightRss({ locales, getFeed: './src/rss-feed.ts' }),
   ],
 });
 ```
 
 The `getFeed` path is resolved relative to the Astro project root. Its module
-must default-export a callback that receives `{ route, lang }` for each
-configured locale and returns `{ title, description, items }`. Items use the
+must default-export an `RssFeedCallback` that receives `{ route, lang }` for
+each configured locale and returns `{ title, description, items }`. Items use the
 same `title`, `link`, optional `description`, and optional `date`/`pubDate`
 shape accepted by `generateRssFeed`. The integration requires an absolute
 HTTP(S) `site` URL, a nonempty Starlight-shaped `locales` map, and a valid
@@ -98,8 +219,9 @@ request-local integration context. Explicit `links.rssFeedUrl`,
 authoritative.
 
 When both Hagilight integrations are active, Starlight remains the sole RSS
-owner if its RSS generation is enabled; the core integration then adds neither
-routes nor core Footer URLs. Having both packages installed does not enable
+owner if its RSS generation is enabled; `hagilightRss()` then adds neither
+routes nor Footer URLs. Both packages coordinate through
+`@hagicode/hagilight-core/rss-ownership`. Having both packages installed does not enable
 either integration. If the Starlight integration is present with RSS explicitly
 disabled while `hagilightRss()` is also enabled, setup fails with an ownership
 diagnostic; remove one integration or enable Starlight RSS instead.
