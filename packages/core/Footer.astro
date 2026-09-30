@@ -1,0 +1,167 @@
+---
+import Copyright from './Copyright.astro';
+import { resolveSiteLinks, type SiteLinksOptions } from './dist/links.js';
+import { resolveRssFooterLinks } from './dist/rss-footer-context.js';
+
+interface Props {
+  locale?: string;
+  links?: SiteLinksOptions;
+}
+
+const { locale: propLocale, links } = Astro.props;
+const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
+const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
+const sitemapOverride = footerLinks.overrides?.sitemap;
+const resolvedLinks = resolveSiteLinks(locale, {
+  ...footerLinks,
+  overrides: {
+    ...footerLinks.overrides,
+    sitemap: {
+      ...sitemapOverride,
+      href: sitemapOverride?.href ?? `${import.meta.env.BASE_URL}sitemap-index.xml`,
+    },
+  },
+});
+---
+
+<footer class="hagilight-footer">
+  <div class="hagilight-footer__sections">
+    {resolvedLinks.relatedSites.length > 0 && (
+      <section>
+        <h2>{resolvedLinks.labels.relatedSites}</h2>
+        <nav aria-label={resolvedLinks.labels.navigation.relatedSites}>
+          <ul>
+            {resolvedLinks.relatedSites.map((site) => (
+              <li>
+                <a href={site.href} target={site.target} rel={site.rel}>{site.name}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </section>
+    )}
+    <section>
+      <h2>{resolvedLinks.labels.quickLinks}</h2>
+      <nav aria-label={resolvedLinks.labels.navigation.quickLinks}>
+        <ul>
+          {resolvedLinks.quick.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target={link.target}
+                rel={link.rel}
+                aria-label={link.ariaLabel}
+              >{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </section>
+    <section>
+      <h2>{resolvedLinks.labels.community}</h2>
+      <nav aria-label={resolvedLinks.labels.navigation.community}>
+        <ul>
+          {resolvedLinks.community.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                target={link.target}
+                rel={link.rel}
+                aria-label={link.ariaLabel}
+              >{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </section>
+  </div>
+  <nav class="hagilight-footer__filings" aria-label={resolvedLinks.labels.navigation.filings}>
+    {resolvedLinks.filings.map((link) => (
+      <a
+        href={link.href}
+        target={link.target}
+        rel={link.rel}
+        aria-label={link.ariaLabel}
+      >{link.label}</a>
+    ))}
+  </nav>
+  <p class="hagilight-footer__copyright"><Copyright name="HagiCode" /></p>
+</footer>
+
+<style>
+  .hagilight-footer {
+    border-top: 1px solid var(--hagilight-footer-border, currentColor);
+    color: var(--hagilight-footer-color, inherit);
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .hagilight-footer__sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 1.5rem;
+    margin: 0 auto 1.5rem;
+    max-width: 72rem;
+  }
+
+  .hagilight-footer section {
+    min-width: 0;
+  }
+
+  .hagilight-footer h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 650;
+  }
+
+  .hagilight-footer ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hagilight-footer a {
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 0.2em;
+  }
+
+  .hagilight-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .hagilight-footer a:focus-visible {
+    border-radius: 0.125rem;
+    outline: 2px solid currentColor;
+    outline-offset: 0.2rem;
+  }
+
+  .hagilight-footer__filings {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1.5rem;
+    border-top: 1px solid var(--hagilight-footer-border, currentColor);
+    padding-top: 1rem;
+    text-align: center;
+  }
+
+  .hagilight-footer__copyright {
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  @media (max-width: 40rem) {
+    .hagilight-footer__sections {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .hagilight-footer__filings {
+      justify-content: flex-start;
+      gap: 0.75rem 1rem;
+    }
+  }
+</style>

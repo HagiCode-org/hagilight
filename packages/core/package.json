@@ -1,0 +1,79 @@
+{
+  "name": "@hagicode/hagilight-core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared TypeScript utilities, components, and assets for HagiCode Astro and Starlight sites",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "prepack": "tsc -b"
+  },
+  "exports": {
+    "./Footer": "./Footer.astro",
+    "./links": {
+      "types": "./dist/links.d.ts",
+      "default": "./dist/links.js"
+    },
+    "./favicon": {
+      "types": "./dist/favicon.d.ts",
+      "default": "./dist/favicon.js"
+    },
+    "./seo": {
+      "types": "./dist/seo.d.ts",
+      "default": "./dist/seo.js"
+    },
+    "./seo-schema": {
+      "types": "./dist/seo-schema.d.ts",
+      "default": "./dist/seo-schema.js"
+    },
+    "./rss": {
+      "types": "./dist/rss.d.ts",
+      "default": "./dist/rss.js"
+    },
+    "./rss-ownership": {
+      "types": "./dist/rss-ownership.d.ts",
+      "default": "./dist/rss-ownership.js"
+    },
+    "./promotions": {
+      "types": "./dist/promotions.d.ts",
+      "default": "./dist/promotions.js"
+    },
+    "./Copyright": "./Copyright.astro",
+    "./PromotoBanner": "./PromotoBanner.astro",
+    "./GoogleAnalytics": "./GoogleAnalytics.astro",
+    "./Analytics51LA": "./Analytics51LA.astro",
+    "./logo.png": "./logo.png",
+    "./favicon.ico": "./favicon.ico"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.json",
+    "*.astro",
+    "logo.png",
+    "favicon.ico"
+  ],
+  "peerDependencies": {
+    "astro": "^6.0.7 || ^7.3.5"
+  },
+  "devDependencies": {
+    "astro": "^7.3.5"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19"
+  },
+  "keywords": [
+    "astro-component",
+    "withastro",
+    "astro-components",
+    "typescript"
+  ]
+}
