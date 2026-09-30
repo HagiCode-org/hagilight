@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { hagilight } from '@hagicode/hagilight/integration';
 
 function runSetup({ site, integrations = [], enabled = true, consumerPolicy } = {}) {
@@ -41,7 +41,7 @@ test('registers sitemap and a prerendered robots route by default', (t) => {
   assert.equal(result.routes.length, 1);
   assert.deepEqual(result.routes[0], {
     pattern: '/robots.txt',
-    entrypoint: resolve(new URL('../packages/astro/robots.txt.ts', import.meta.url).pathname),
+    entrypoint: fileURLToPath(new URL('../packages/astro/robots.txt.ts', import.meta.url)),
     prerender: true,
   });
 });
