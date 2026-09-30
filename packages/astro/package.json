@@ -2,7 +2,7 @@
   "name": "@hagicode/hagilight",
   "version": "0.1.0",
   "type": "module",
-  "description": "Shared Astro components for HagiCode sites",
+  "description": "Astro integrations and components for HagiCode sites",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HagiCode-org/hagilight.git",
@@ -12,46 +12,39 @@
     "access": "public",
     "provenance": true
   },
+  "scripts": {
+    "build": "tsc -b",
+    "prepack": "tsc -b"
+  },
   "exports": {
-    "./Footer": "./Footer.astro",
-    "./Copyright": "./Copyright.astro",
-    "./PromotoBanner": "./PromotoBanner.astro",
-    "./logo.png": "./logo.png",
-    "./favicon.ico": "./favicon.ico",
-    "./favicon": "./favicon.mjs",
-    "./site-links": "./site-links.ts",
-    "./GoogleAnalytics": "./GoogleAnalytics.astro",
-    "./Analytics51LA": "./Analytics51LA.astro",
-    "./SEOHead": "./SEOHead.astro",
-    "./integration": "./integration.mjs",
-    "./seo-utils": "./seo-utils.mjs",
-    "./rss-locales": "./rss-locales.mjs",
-    "./rss": "./rss-renderer.mjs",
-    "./seo-schema": {
-      "types": "./seo-schema.d.ts",
-      "default": "./seo-schema.mjs"
-    }
+    "./integration": {
+      "types": "./dist/integration.d.ts",
+      "default": "./dist/integration.js"
+    },
+    "./SEOHead": "./SEOHead.astro"
   },
   "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
     "*.astro",
-    "*.png",
-    "*.ico",
-    "*.mjs",
-    "*.ts",
-    "*.json"
+    "robots.txt.ts",
+    "rss*.xml.ts"
   ],
   "peerDependencies": {
     "astro": "^6.0.7 || ^7.3.5"
   },
+  "devDependencies": {
+    "astro": "^7.3.5"
+  },
   "dependencies": {
-    "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.4"
+    "@astrojs/sitemap": "^3.7.4",
+    "@hagicode/hagilight-core": "0.1.0"
   },
   "keywords": [
     "astro-component",
+    "astro-integration",
     "withastro",
     "astro-components",
-    "starlight",
     "documentation-components"
   ]
 }

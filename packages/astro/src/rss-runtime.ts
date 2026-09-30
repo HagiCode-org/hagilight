@@ -1,37 +1,43 @@
-import { generateRssFeed } from './rss-renderer.mjs';
+import { generateRssFeed } from '@hagicode/hagilight-core/rss';
+import type { RssFeedContent, RssRuntimeConfig } from './rss-config.js';
 
-const EMPTY_ENGLISH_FEED = {
+const EMPTY_ENGLISH_FEED: RssFeedContent = {
   title: 'Hagilight RSS Feed',
   description: 'English-language feed for this site.',
   items: [],
 };
 
-export async function renderRssFeed(config, filename) {
+export async function renderRssFeed(
+  config: Pick<RssRuntimeConfig, 'site' | 'baseUrl' | 'locales' | 'getFeed'>,
+  filename: string | undefined,
+): Promise<Response> {
   const locale = config.locales.find((entry) => entry.filename === filename);
   if (!locale && filename !== 'en') {
     throw new Error(`Hagilight RSS has no configured locale for "${filename}".`);
   }
 
-  let feed;
+  let feed: RssFeedContent;
   if (!locale) {
     feed = EMPTY_ENGLISH_FEED;
   } else {
     if (typeof config.getFeed !== 'function') {
       throw new TypeError('Hagilight RSS getFeed module must default-export a callback function.');
     }
-    feed = await config.getFeed({ route: locale.route, lang: locale.lang });
-    if (!feed || typeof feed !== 'object' || Array.isArray(feed)) {
+    const result: unknown = await config.getFeed({ route: locale.route, lang: locale.lang });
+    if (!result || typeof result !== 'object' || Array.isArray(result)) {
       throw new TypeError(`Hagilight RSS getFeed callback for "${locale.lang}" must return an object.`);
     }
-    if (typeof feed.title !== 'string' || !feed.title.trim()) {
+    const candidate = result as Partial<RssFeedContent>;
+    if (typeof candidate.title !== 'string' || !candidate.title.trim()) {
       throw new TypeError(`Hagilight RSS getFeed callback for "${locale.lang}" must return a non-empty title.`);
     }
-    if (typeof feed.description !== 'string' || !feed.description.trim()) {
+    if (typeof candidate.description !== 'string' || !candidate.description.trim()) {
       throw new TypeError(`Hagilight RSS getFeed callback for "${locale.lang}" must return a non-empty description.`);
     }
-    if (!Array.isArray(feed.items)) {
+    if (!Array.isArray(candidate.items)) {
       throw new TypeError(`Hagilight RSS getFeed callback for "${locale.lang}" must return an items array.`);
     }
+    feed = candidate as RssFeedContent;
   }
 
   return generateRssFeed({

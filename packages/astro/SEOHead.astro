@@ -1,15 +1,10 @@
 ---
 import {
-  composeCoreSeoHead,
+  composeCanonicalSeoHead,
   resolveSeoMetadata,
   serializeJsonLd,
-} from './seo-utils.mjs';
-
-interface HeadEntry {
-  tag: string;
-  attrs?: Record<string, string | boolean | number | undefined>;
-  content?: string;
-}
+  type HeadEntry,
+} from '@hagicode/hagilight-core/seo';
 
 interface Props {
   page?: {
@@ -46,7 +41,7 @@ const metadata = {
   site,
 };
 const canonicalUrl = page.url?.toString() ?? currentPageUrl;
-const composedHead = composeCoreSeoHead(head, metadata, {
+const composedHead = composeCanonicalSeoHead(head, metadata, {
   canonicalUrl,
   explicitHead: [head],
 });
