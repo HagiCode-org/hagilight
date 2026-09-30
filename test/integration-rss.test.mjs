@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { hagilightRss } from '../packages/astro/integration.mjs';
-import { renderRssFeed } from '../packages/astro/rss-runtime.mjs';
-import hagilightStarlight from '../packages/starlight/index.mjs';
+import { hagilightRss } from '@hagicode/hagilight/integration';
+import { renderRssFeed } from '../packages/astro/dist/rss-runtime.js';
+import hagilightStarlight from '@hagicode/hagilight-starlight';
 
 const fixtureRoot = new URL('./fixtures/core-rss-integration/', import.meta.url);
 const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));

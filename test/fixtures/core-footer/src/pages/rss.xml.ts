@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { generateRssFeed } from '@hagicode/hagilight/rss';
+import { generateRssFeed } from '@hagicode/hagilight-core/rss';
 
 export const GET: APIRoute = ({ site }) => generateRssFeed({
   site,

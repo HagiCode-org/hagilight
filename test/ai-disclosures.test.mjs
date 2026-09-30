@@ -6,13 +6,13 @@ import {
   getSourcePath,
   isTranslationLocale,
   resolveAIDisclosureFlags,
-} from '../packages/starlight/ai-disclosures.mjs';
+} from '../packages/starlight/dist/ai-disclosures.js';
 import {
   restoreContentWidth,
   setContentWidth,
   synchronizeContentWidthFromStorage,
   STORAGE_KEY,
-} from '../packages/starlight/content-width.mjs';
+} from '../packages/starlight/dist/content-width.js';
 
 function createRoot() {
   const buttons = ['wide', 'narrow'].map((mode) => ({

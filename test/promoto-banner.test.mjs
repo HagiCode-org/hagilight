@@ -6,7 +6,7 @@ import {
   getPromotionVisibility,
   selectPromotionCards,
   shouldAutoRotate,
-} from '../packages/astro/promoto-banner.ts';
+} from '../packages/core/dist/promoto-banner.js';
 
 const fallback = {
   id: 'site-fallback',

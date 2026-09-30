@@ -42,6 +42,11 @@ const artifactDir = resolve(
 );
 
 function buildExamples() {
+  execFileSync(npm, ['run', 'build'], {
+    cwd: root,
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  });
   for (const workspace of ['hagilight-core-footer-example', 'hagilight-example']) {
     execFileSync(npm, ['run', 'build', `--workspace=${workspace}`], {
       cwd: root,

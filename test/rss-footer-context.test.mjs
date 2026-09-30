@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { resolveRssFooterLinks } from '../packages/astro/rss-footer-context.mjs';
-import { resolveSiteLinks } from '../packages/astro/site-links.ts';
+import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
+import { resolveRssFooterLinks } from '../packages/astro/dist/rss-footer-context.js';
 
 const rssContext = {
   defaultFeedUrl: 'https://example.test/manual/rss.xml',

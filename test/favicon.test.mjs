@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { hagilightFavicon, getHagilightFaviconDataUri } from '../packages/astro/favicon.mjs';
+import { getHagilightFaviconDataUri } from '@hagicode/hagilight-core/favicon';
+import { hagilightFavicon } from '@hagicode/hagilight/integration';
 
 function setup(options = {}, head = []) {
   const config = { head };

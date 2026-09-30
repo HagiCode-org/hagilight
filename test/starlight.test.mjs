@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import hagilight from '../packages/starlight/index.mjs';
+import hagilight from '@hagicode/hagilight-starlight';
 import {
   getNotFoundHomeHref,
   getNotFoundHomeLabel,
   isNotFoundEntry,
-} from '../packages/starlight/not-found.mjs';
+} from '../packages/starlight/dist/not-found.js';
 
 function configure(options = {}, components = {}, logo, additionalConfig = {}, astroConfig = {}) {
   const config = { components, logo, ...additionalConfig };
@@ -29,7 +29,7 @@ test('registers a configured footer without discarding an opted-out header overr
 
   assert.equal(updated.components.Header, './Header.astro');
   assert.deepEqual(updated.logo, {
-    src: fileURLToPath(import.meta.resolve('@hagicode/hagilight/logo.png')),
+    src: fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/logo.png')),
     alt: 'HagiCode',
   });
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);

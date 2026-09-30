@@ -1,14 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { resolveRssLocales as resolveCoreRssLocales } from '../packages/astro/rss-locales.mjs';
-import { generateRssFeed } from '../packages/starlight/rss-renderer.mjs';
-import { rssSchema } from '../packages/starlight/rss-schema.mjs';
+import { resolveRssLocales } from '@hagicode/hagilight-core/rss';
+import { rssSchema } from '@hagicode/hagilight-starlight/schema';
+import { generateRssFeed } from '../packages/starlight/dist/rss-renderer.js';
 import {
   isBlogEntry,
-  resolveRssLocales,
   resolveRssOptions,
   selectRssEntries,
-} from '../packages/starlight/rss-utils.mjs';
+} from '../packages/starlight/dist/rss-utils.js';
 
 const locales = resolveRssLocales({
   root: { lang: 'zh-CN' },
@@ -60,15 +59,15 @@ test('maps English aliases and rejects invalid or colliding locale tags', () => 
 
 test('core RSS locales require explicit nonempty input and share canonical filename rules', () => {
   assert.throws(
-    () => resolveCoreRssLocales({}, { requireNonEmpty: true }),
+    () => resolveRssLocales({}, { requireNonEmpty: true }),
     /must contain at least one locale/u,
   );
   assert.throws(
-    () => resolveCoreRssLocales(undefined, { requireNonEmpty: true }),
+    () => resolveRssLocales(undefined, { requireNonEmpty: true }),
     /must contain at least one locale/u,
   );
   assert.deepEqual(
-    resolveCoreRssLocales({
+    resolveRssLocales({
       root: { lang: 'en-us' },
       'zh-cn': { lang: 'zh-cn' },
     }, { requireNonEmpty: true }),
@@ -78,7 +77,7 @@ test('core RSS locales require explicit nonempty input and share canonical filen
     ],
   );
   assert.throws(
-    () => resolveCoreRssLocales({
+    () => resolveRssLocales({
       root: { lang: 'en' },
       'en-us': { lang: 'en-US' },
     }, { requireNonEmpty: true }),

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import hagilight from '../packages/starlight/index.mjs';
+import hagilight from '@hagicode/hagilight-starlight';
 
 function configure(options = {}, components = {}) {
   const config = { components };
@@ -87,7 +87,8 @@ test('publishes Header and its chooser implementation files', async () => {
 
   assert.equal(packageJson.exports['./Header'], './Header.astro');
   assert.ok(packageJson.files.includes('*.astro'));
-  assert.ok(packageJson.files.includes('*.mjs'));
+  assert.ok(packageJson.files.includes('dist/**/*.js'));
+  assert.ok(packageJson.files.includes('dist/**/*.d.ts'));
   assert.match(chooser, /import \{\s*getKeyboardTargetIndex/s);
   assert.match(chooser, /showModal\(\)/);
   assert.match(chooser, /addEventListener\('cancel'/);

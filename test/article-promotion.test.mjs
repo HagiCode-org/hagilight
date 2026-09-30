@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { articlePromotionSchema } from '../packages/starlight/article-promotion-schema.mjs';
+import { articlePromotionSchema } from '@hagicode/hagilight-starlight/schema';
 import {
   COPY,
   getArticlePromotionCopy,
   resolveArticlePromotion,
-} from '../packages/starlight/article-promotion.mjs';
+} from '../packages/starlight/dist/article-promotion.js';
 
 test('article promotion inherits the site default and preserves explicit article overrides', () => {
   assert.equal(resolveArticlePromotion(undefined), true);
@@ -62,7 +62,7 @@ test('article promotion includes original artwork, theme styling, focus, and art
     readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8'),
     readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8'),
     readFile(new URL('../packages/starlight/assets/light-main.png', import.meta.url)),
-    readFile(new URL('../packages/astro/PromotoBanner.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8'),
   ]);
   const bodyPosition = markdownContent.indexOf('<DefaultMarkdownContent>');
   const translationPosition = markdownContent.indexOf('{showTranslation &&');

@@ -31,7 +31,8 @@ const pages = [
     labels: ['实时组件', '真实文档 head', '可选 · 仅生产环境加载脚本'],
   },
 ];
-const manifest = JSON.parse(readFileSync(join(root, 'packages/astro/package.json'), 'utf8'));
+const manifests = ['astro', 'core'].map((directory) =>
+  JSON.parse(readFileSync(join(root, `packages/${directory}/package.json`), 'utf8')));
 const config = readFileSync(join(root, 'examples/demo-web/astro.config.mjs'), 'utf8');
 const englishFeed = readFileSync(join(outputDir, 'rss.xml'), 'utf8');
 const englishAliasFeed = readFileSync(join(outputDir, 'rss.en.xml'), 'utf8');
@@ -41,7 +42,7 @@ function feedItems(xml) {
   return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/gu)].map(([, item]) => item);
 }
 
-test('both locale pages cover every core export with localized navigation and real examples', () => {
+test('both locale pages cover every plain-Astro and shared-core export with localized navigation and real examples', () => {
   const featureIds = [
     'footer',
     'copyright',
@@ -58,8 +59,10 @@ test('both locale pages cover every core export with localized navigation and re
   for (const page of pages) {
     const html = readFileSync(join(outputDir, page.file), 'utf8');
     assert.ok(html.includes(`<html lang="${page.locale}"`), `${page.file} has its locale`);
-    for (const [exportPath] of Object.entries(manifest.exports)) {
-      assert.ok(html.includes(exportPath.slice(2)), `${page.file} documents ${exportPath}`);
+    for (const manifest of manifests) {
+      for (const exportPath of Object.keys(manifest.exports)) {
+        assert.ok(html.includes(`${manifest.name}/${exportPath.slice(2)}`), `${page.file} documents ${manifest.name}/${exportPath.slice(2)}`);
+      }
     }
     for (const id of featureIds) {
       assert.ok(html.includes(`href="#${id}"`), `${page.file} links to ${id}`);
@@ -68,6 +71,7 @@ test('both locale pages cover every core export with localized navigation and re
     assert.ok(html.includes('href="/" lang="en-US"'), `${page.file} links to English`);
     assert.ok(html.includes('href="/zh-CN/"'), `${page.file} links to Simplified Chinese`);
     assert.match(html, /<a class="feed-link" href="\/rss\.xml">[^<]+<\/a>/u);
+    assert.match(html, new RegExp(`<a href="/sitemap-index\\.xml"[^>]*>${page.locale === 'zh-CN' ? '站点地图' : 'Sitemap'}</a>`, 'u'));
     for (const label of page.labels) assert.ok(html.includes(label), `${page.file} labels ${label}`);
     assert.match(html, /<footer\b/u, `${page.file} renders the package footer`);
     assert.match(html, /hagilight-footer__copyright[^>]*>[\s\S]*?© \d{4} HagiCode/u);
@@ -77,7 +81,7 @@ test('both locale pages cover every core export with localized navigation and re
       banner.includes('&quot;link&quot;:&quot;#footer-preview&quot;'),
       `${page.file} banner fallback targets the footer`,
     );
-    assert.match(html, /@hagicode\/hagilight\/site-links/u);
+    assert.match(html, /@hagicode\/hagilight-core\/links/u);
   }
 });
 
@@ -98,9 +102,9 @@ test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, 
     assert.equal(structuredData[1].url, page.canonical);
     assert.equal(typeof structuredData[1].description, 'string');
   }
-  assert.match(config, /import \{ hagilightFavicon \} from '@hagicode\/hagilight\/favicon'/u);
+  assert.match(config, /import \{ hagilight, hagilightFavicon, hagilightRss \} from '@hagicode\/hagilight\/integration'/u);
   assert.match(config, /hagilightFavicon\(\)/u);
-  assert.match(config, /hagilightRss\(\{ locales, getFeed: '\.\/src\/rss-feed\.mjs' \}\)/u);
+  assert.match(config, /hagilightRss\(\{ locales, getFeed: '\.\/src\/rss-feed\.ts' \}\)/u);
 });
 
 test('integration feeds keep English and Chinese metadata, items, and links separate', () => {
@@ -162,4 +166,33 @@ test('showcase stays free of analytics scripts and retains responsive accessible
   assert.match(css, /(?:max-width:\s*42rem|width<=42rem)/u);
   assert.match(css, /prefers-reduced-motion:\s*reduce/u);
   assert.match(css, /overflow-x:\s*auto/u);
+});
+
+test('sitemap and robots output use the configured base path', () => {
+  for (const base of ['/', '/discovery-base/']) {
+    if (base !== '/') {
+      execFileSync(npm, ['run', 'build:core-footer-example'], {
+        cwd: root,
+        env: { ...process.env, HAGILIGHT_DEMO_BASE: base },
+        stdio: 'pipe',
+        shell: process.platform === 'win32',
+      });
+    }
+
+    const buildRoot = outputDir;
+    const robots = readFileSync(join(buildRoot, 'robots.txt'), 'utf8');
+    const sitemapIndex = readFileSync(join(buildRoot, 'sitemap-index.xml'), 'utf8');
+    const baseUrl = base === '/' ? '' : base.slice(0, -1);
+    const sitemapUrl = `https://hagilight.hagicode.com${baseUrl}/sitemap-index.xml`;
+    const home = readFileSync(join(buildRoot, 'index.html'), 'utf8');
+    assert.equal(robots, `User-agent: *\nAllow: /\nSitemap: ${sitemapUrl}\n`);
+    assert.match(home, new RegExp(`<a href="${baseUrl}/sitemap-index\\.xml"[^>]*>Sitemap</a>`, 'u'));
+    assert.match(sitemapIndex, /<sitemapindex\b/u);
+
+    const sitemapFile = sitemapIndex.match(/<loc>[^<]*\/([^/<]+\.xml)<\/loc>/u)?.[1];
+    assert.ok(sitemapFile, 'sitemap index references a generated sitemap file');
+    const sitemap = readFileSync(join(buildRoot, sitemapFile), 'utf8');
+    assert.ok(sitemap.includes(`https://hagilight.hagicode.com${baseUrl}/`));
+    assert.ok(sitemap.includes(`https://hagilight.hagicode.com${baseUrl}/zh-CN/`));
+  }
 });

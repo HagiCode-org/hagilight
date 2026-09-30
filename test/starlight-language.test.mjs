@@ -7,7 +7,7 @@ import {
   getConfiguredLanguageOptions,
   getKeyboardTargetIndex,
   persistStarlightLocaleSelection,
-} from '../packages/starlight/language-routing.mjs';
+} from '../packages/starlight/dist/language-routing.js';
 import { locales } from '@hagicode/hagilight-starlight/locales';
 
 const tenLocales = Object.fromEntries(DEFAULT_LANGUAGE_OPTIONS.map(({ code, label, lang }) => [

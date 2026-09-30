@@ -5,19 +5,22 @@ import {
   buildArticleStructuredData,
   buildBreadcrumbStructuredData,
   buildOrganizationStructuredData,
-  composeCoreSeoHead,
+  composeCanonicalSeoHead,
   isValidSeoImageReference,
   resolveCanonicalUrl,
   resolveSeoImageUrl,
   resolveSeoMetadata,
   serializeJsonLd,
-} from '@hagicode/hagilight/seo-utils';
-import { seoSchema } from '@hagicode/hagilight/seo-schema';
+} from '@hagicode/hagilight-core/seo';
+import { seoSchema } from '@hagicode/hagilight-core/seo-schema';
 
 test('core SEO utilities and schema import without Starlight dependencies', async () => {
-  const core = JSON.parse(await readFile(new URL('../packages/astro/package.json', import.meta.url), 'utf8'));
-  assert.equal(core.exports['./SEOHead'], './SEOHead.astro');
+  const [core, astro] = await Promise.all(['core', 'astro'].map(async (directory) =>
+    JSON.parse(await readFile(new URL(`../packages/${directory}/package.json`, import.meta.url), 'utf8'))));
+  assert.equal(astro.exports['./SEOHead'], './SEOHead.astro');
+  assert.deepEqual(core.exports['./seo'], { types: './dist/seo.d.ts', default: './dist/seo.js' });
   assert.equal(core.dependencies?.['@astrojs/starlight'], undefined);
+  assert.equal(core.peerDependencies?.['@astrojs/starlight'], undefined);
   assert.deepEqual(seoSchema.parse({ seo: { title: '  Share title  ', image: '/social.svg' } }), {
     seo: { title: 'Share title', image: '/social.svg' },
   });
@@ -74,7 +77,7 @@ test('uses page metadata over site defaults and preserves consumer-owned head en
     image: 'https://docs.example.test/manual/default.svg',
   });
 
-  const head = composeCoreSeoHead([consumerTitle, customCanonical, unrelated], {
+  const head = composeCanonicalSeoHead([consumerTitle, customCanonical, unrelated], {
     ...metadata,
     site: 'https://docs.example.test',
   }, {

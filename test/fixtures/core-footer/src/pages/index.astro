@@ -1,10 +1,5 @@
 ---
-import SEOHead from '@hagicode/hagilight/SEOHead';
-import Footer from '@hagicode/hagilight/Footer';
-
-const site = Astro.site?.href;
-if (!site) throw new Error('The installed core fixture requires an absolute Astro site URL.');
-const pageUrl = new URL(Astro.url.pathname, site).href;
+import Footer from '@hagicode/hagilight-core/Footer';
 ---
 
 <!doctype html>
@@ -12,7 +7,6 @@ const pageUrl = new URL(Astro.url.pathname, site).href;
   <head>
     <meta charset="UTF-8" />
     <link rel="alternate" type="application/rss+xml" href={`${import.meta.env.BASE_URL}rss.xml`} />
-    <SEOHead site={site} page={{ url: pageUrl, title: 'Installed core SEO', description: 'Standalone core metadata.' }} />
   </head>
   <body><Footer links={{ relatedSites: [] }} /></body>
 </html>

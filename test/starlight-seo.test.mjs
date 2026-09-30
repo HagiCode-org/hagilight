@@ -1,20 +1,22 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { seoSchema } from '../packages/starlight/seo-schema.mjs';
+import {
+  composeSeoHead,
+  extractSeoDescription,
+  isValidSeoImageReference,
+  resolveSeoImageUrl,
+  resolveSeoMetadata,
+  serializeJsonLd,
+} from '@hagicode/hagilight-core/seo';
+import { seoSchema } from '@hagicode/hagilight-core/seo-schema';
 import {
   buildDocsPageUrl,
   buildStructuredData,
-  composeSeoHead,
   createPublishedDocsLookup,
-  extractSeoDescription,
   filterPublishedLocaleAlternates,
-  isValidSeoImageReference,
-  resolveSeoImageUrl,
   resolveSeoLocales,
-  resolveSeoMetadata,
   resolveSeoPage,
-  serializeJsonLd,
-} from '../packages/starlight/seo-utils.mjs';
+} from '../packages/starlight/dist/seo-utils.js';
 
 const locales = resolveSeoLocales({
   root: { lang: 'zh-CN' },

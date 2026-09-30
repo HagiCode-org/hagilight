@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { resolveSiteLinks } from '../packages/astro/site-links.ts';
+import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 
 test('resolves localized links with nonempty fallback labels', () => {
   const traditional = resolveSiteLinks('zh-Hant');
@@ -22,12 +22,17 @@ test('resolves localized links with nonempty fallback labels', () => {
   assert.ok(!resolveSiteLinks('ja-JP').quick.some((link) => link.id === 'rss'));
   assert.equal(resolveSiteLinks('ja-JP', { rssFeedUrl: 'https://example.com/feed.xml' })
     .quick.find((link) => link.id === 'rss').href, 'https://example.com/feed.xml');
+  assert.equal(resolveSiteLinks('zh-CN').quick.find((link) => link.id === 'sitemap').label, '站点地图');
+  assert.equal(resolveSiteLinks('zh-CN').quick.find((link) => link.id === 'sitemap').href, '/sitemap-index.xml');
+  assert.equal(resolveSiteLinks('en-US', {
+    overrides: { sitemap: { href: '/manual/sitemap-index.xml' } },
+  }).quick.find((link) => link.id === 'sitemap').href, '/manual/sitemap-index.xml');
 });
 
 test('matches Docs footer destinations, order, and localized link copy', () => {
   const links = resolveSiteLinks('en-US', { rssFeedUrl: 'https://docs.example.com/feed.xml' });
   assert.deepEqual(links.quick.map(({ id }) => id), [
-    'downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'blogPosts', 'rss', 'about',
+    'downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'blogPosts', 'rss', 'sitemap', 'about',
   ]);
   assert.deepEqual(links.community.map(({ id }) => id), [
     'github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup',

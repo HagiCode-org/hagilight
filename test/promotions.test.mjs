@@ -6,7 +6,7 @@ import {
   parsePromotionContent,
   parsePromotionFlags,
   resolvePromotionDocumentUrls,
-} from '../packages/astro/promotions.ts';
+} from '@hagicode/hagilight-core/promotions';
 
 function json(payload) {
   return new Response(JSON.stringify(payload), {
