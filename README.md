@@ -9,6 +9,7 @@ For plain Astro sites and shared functionality used by the Starlight plugin.
 - Footer, copyright notice, promotion banner, and localized site and community links.
 - HagiCode logo and favicon assets, plus an optional integration that injects the favicon.
 - SEO head component and utilities, plus an RSS renderer and an opt-in localized RSS integration.
+- An Astro integration that generates a sitemap and `robots.txt` by default.
 - Google Analytics and 51LA components.
 
 ## `@hagicode/hagilight-starlight`
@@ -24,6 +25,29 @@ A Starlight plugin that depends on `@hagicode/hagilight` and provides:
 ## Local development
 
 Run `npm install`, `npm test`, and `npm run build:example` from the repository root.
+
+## Sitemap and robots.txt for plain Astro
+
+Register the core integration in `astro.config.mjs` (importing a component alone
+cannot register an Astro integration):
+
+```js
+import { defineConfig } from 'astro/config';
+import { hagilight } from '@hagicode/hagilight/integration';
+
+export default defineConfig({
+  site: 'https://example.test',
+  integrations: [hagilight()],
+});
+```
+
+By default, Astro's sitemap integration generates `sitemap-index.xml` and
+Hagilight generates `robots.txt` pointing to it. Set `hagilight({ enabled: false })`
+to disable both. An existing `@astrojs/sitemap` integration or Starlight owns the
+sitemap instead; a consumer-owned `public/robots.txt` or `src/pages/robots.txt.*`
+is left untouched. Set Astro's `site` to the public origin; if deploying under a
+`base` path, ensure the host serves robots.txt at the origin root as well, since
+search engines look for `/robots.txt`.
 
 ## Localized RSS for plain Astro
 

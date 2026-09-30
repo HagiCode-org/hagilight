@@ -27,7 +27,7 @@ node --test test/demo-web-output.test.mjs
 | `./SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
 | `./seo-utils`, `./seo-schema` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
 | `./rss` | RSS rendering API used by the generated routes |
-| `./integration` | `hagilightRss()` registers localized routes and Footer feed URLs |
+| `./integration` | `hagilight()` generates a sitemap and robots.txt; `hagilightRss()` registers localized routes and Footer feed URLs |
 | `./GoogleAnalytics`, `./Analytics51LA` | Opt-in usage snippets only; neither integration is mounted here |
 
 ## Observing the examples
