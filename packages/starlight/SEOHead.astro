@@ -1,14 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
+import { composeSeoHead, resolveSeoMetadata, serializeJsonLd } from '@hagicode/hagilight-core/seo';
 import {
   buildStructuredData,
-  composeSeoHead,
   createPublishedDocsLookup,
   filterPublishedLocaleAlternates,
-  resolveSeoMetadata,
   resolveSeoPage,
-  serializeJsonLd,
-} from './seo-utils.mjs';
+} from './dist/seo-utils.js';
 
 const { options } = Astro.props;
 const route = Astro.locals.starlightRoute;

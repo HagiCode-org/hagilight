@@ -1,5 +1,5 @@
 ---
-import { getContentWidthLabels } from './content-width-i18n.mjs';
+import { getContentWidthLabels } from './dist/content-width-i18n.js';
 const { lang } = Astro.locals.starlightRoute;
 const labels = getContentWidthLabels(lang);
 ---
@@ -18,7 +18,7 @@ const labels = getContentWidthLabels(lang);
     restoreContentWidth,
     setContentWidth,
     synchronizeContentWidthFromStorage,
-  } from './content-width.mjs';
+  } from './dist/content-width.js';
 
   const root = document.documentElement;
   restoreContentWidth(root);

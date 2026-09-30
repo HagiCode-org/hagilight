@@ -7,8 +7,8 @@ import {
   getSourcePath,
   isTranslationLocale,
   resolveAIDisclosureFlags,
-} from './ai-disclosures.mjs';
-import { resolveArticlePromotion } from './article-promotion.mjs';
+} from './dist/ai-disclosures.js';
+import { resolveArticlePromotion } from './dist/article-promotion.js';
 
 const {
   aiDisclosures = { isAITranslation: false, isAIAuthor: false, sourceLocale: 'root' },

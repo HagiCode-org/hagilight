@@ -1,7 +1,7 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute, GetStaticPaths } from 'astro';
 import rssConfig from 'virtual:hagilight-starlight/rss-config';
-import { generateRssFeed } from './rss-renderer.mjs';
+import { generateRssFeed } from './dist/rss-renderer.js';
 
 export const getStaticPaths: GetStaticPaths = () => {
   const filenames = new Set(['en', ...rssConfig.locales.map(({ filename }) => filename)]);

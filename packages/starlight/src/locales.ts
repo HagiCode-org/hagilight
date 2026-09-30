@@ -1,3 +1,9 @@
+export interface LocaleDefinition {
+  label: string;
+  lang: string;
+}
+
+/** Starlight `locales` map for every language HagiCode documentation publishes. */
 export const locales = {
   root: { label: 'English', lang: 'en-US' },
   'zh-CN': { label: '简体中文', lang: 'zh-CN' },
@@ -9,6 +15,6 @@ export const locales = {
   'ko-KR': { label: '한국어', lang: 'ko-KR' },
   'pt-BR': { label: 'Português (Brasil)', lang: 'pt-BR' },
   'ru-RU': { label: 'Русский', lang: 'ru-RU' },
-};
+} as const satisfies Record<string, LocaleDefinition>;
 
-export default locales;
+export type HagicodeLocaleKey = keyof typeof locales;

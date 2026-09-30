@@ -1,16 +1,32 @@
-import { locales } from './locales.mjs';
+import { locales } from './locales.js';
+import type { TrailingSlash } from './not-found.js';
 
-export const DEFAULT_LANGUAGE_OPTIONS = Object.entries(locales).map(([code, locale]) => ({
+export interface LanguageOption {
+  code: string;
+  label: string;
+  lang: string;
+}
+
+export interface ConfiguredLanguageOption extends LanguageOption {
+  selected: boolean;
+}
+
+export type ConfiguredLocales = Readonly<Record<string, string | { label?: string; lang?: string } | undefined>>;
+
+export const DEFAULT_LANGUAGE_OPTIONS: readonly LanguageOption[] = Object.entries(locales).map(([code, locale]) => ({
   code,
   label: locale.label,
   lang: locale.lang,
 }));
 
-const normalizeLang = (lang) => lang?.replaceAll('_', '-').toLowerCase();
+const normalizeLang = (lang: string | undefined): string | undefined => lang?.replaceAll('_', '-').toLowerCase();
 
-export function getConfiguredLanguageOptions(locales, currentLocale) {
+export function getConfiguredLanguageOptions(
+  configuredLocales: ConfiguredLocales | undefined,
+  currentLocale: string | undefined,
+): ConfiguredLanguageOption[] {
   const catalog = DEFAULT_LANGUAGE_OPTIONS;
-  return Object.entries(locales ?? {})
+  return Object.entries(configuredLocales ?? {})
     .map(([code, locale]) => {
       const lang = typeof locale === 'string' ? locale : locale?.lang ?? code;
       const catalogEntry = catalog.find((entry) =>
@@ -27,10 +43,10 @@ export function getConfiguredLanguageOptions(locales, currentLocale) {
       };
     })
     .sort((left, right) => left.catalogOrder - right.catalogOrder)
-    .map(({ catalogOrder, ...option }) => option);
+    .map(({ catalogOrder: _catalogOrder, ...option }) => option);
 }
 
-export function getKeyboardTargetIndex(index, key, count) {
+export function getKeyboardTargetIndex(index: number, key: string, count: number): number {
   if (count < 1) return -1;
   switch (key) {
     case 'ArrowDown':
@@ -49,12 +65,12 @@ export function getKeyboardTargetIndex(index, key, count) {
 }
 
 export function buildLocaleNavigationTarget(
-  currentUrl,
-  targetLocale,
-  configuredLocales,
-  basePath = '/',
-  trailingSlash = 'ignore',
-) {
+  currentUrl: string | URL,
+  targetLocale: string,
+  configuredLocales: readonly string[],
+  basePath: string = '/',
+  trailingSlash: TrailingSlash = 'ignore',
+): URL {
   const targetUrl = new URL(currentUrl);
   const base = basePath.replace(/\/+$/u, '');
   const hasBase = base === ''
@@ -85,15 +101,15 @@ export function buildLocaleNavigationTarget(
   return targetUrl;
 }
 
-export function persistStarlightLocaleSelection(locale) {
+export function persistStarlightLocaleSelection(locale: string): void {
   try {
     const storedValue = window.localStorage.getItem('starlight-route');
-    let routePreference = {};
+    let routePreference: Record<string, unknown> = {};
     if (storedValue) {
       try {
-        const parsed = JSON.parse(storedValue);
+        const parsed: unknown = JSON.parse(storedValue);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          routePreference = parsed;
+          routePreference = parsed as Record<string, unknown>;
         }
       } catch {
         routePreference = {};

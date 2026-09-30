@@ -1,4 +1,18 @@
-const COPY = {
+export interface ArticlePromotionFeature {
+  label: string;
+  description: string;
+}
+
+export interface ArticlePromotionCopy {
+  title: string;
+  lead: string;
+  subheadline: string;
+  imageAlt: string;
+  features: readonly ArticlePromotionFeature[];
+  visitLabel: string;
+}
+
+export const COPY: Readonly<Record<string, ArticlePromotionCopy>> = {
   'zh-CN': {
     title: 'HagiCode',
     lead: 'HagiCode 是一套智能体编码工作台：结构化工作流、多 Agent 并行执行与 Hero Dungeon 视图，把想法变成真正交付的软件。',
@@ -121,18 +135,16 @@ const COPY = {
   },
 };
 
-function resolveArticlePromotion(frontmatterValue, siteDefault = true) {
+export function resolveArticlePromotion(frontmatterValue: unknown, siteDefault: boolean = true): boolean {
   if (typeof siteDefault !== 'boolean') {
     throw new TypeError('Hagilight hagicodePromotion enabled default must be a boolean.');
   }
   if (frontmatterValue !== undefined && typeof frontmatterValue !== 'boolean') {
     throw new TypeError('Hagilight frontmatter hagicodePromotion must be a boolean.');
   }
-  return frontmatterValue ?? siteDefault;
+  return (frontmatterValue as boolean | undefined) ?? siteDefault;
 }
 
-function getArticlePromotionCopy(lang) {
-  return COPY[lang] ?? COPY['en-US'];
+export function getArticlePromotionCopy(lang: string | undefined): ArticlePromotionCopy {
+  return (lang === undefined ? undefined : COPY[lang]) ?? COPY['en-US']!;
 }
-
-export { COPY, getArticlePromotionCopy, resolveArticlePromotion };

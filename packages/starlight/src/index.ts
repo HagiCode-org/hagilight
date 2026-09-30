@@ -1,23 +1,159 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { resolveFaviconHeadEntry } from '@hagicode/hagilight/favicon';
+import type { AstroIntegration } from 'astro';
+import type { HookParameters, StarlightPlugin } from '@astrojs/starlight/types';
+import { resolveFaviconHeadEntry } from '@hagicode/hagilight-core/favicon';
+import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
 import {
-  HAGILIGHT_RSS_OWNER,
+  RSS_OWNER,
   registerStarlightRssOwner,
-} from '@hagicode/hagilight/integration';
-import { resolveRssLocales, resolveRssOptions } from './rss-utils.mjs';
-import {
-  isValidSeoImageReference,
-  resolveSeoImageUrl,
-  resolveSeoLocales,
-} from './seo-utils.mjs';
+  type RssOwnerClaim,
+} from '@hagicode/hagilight-core/rss-ownership';
+import { isValidSeoImageReference, resolveSeoImageUrl } from '@hagicode/hagilight-core/seo';
+import type { AIDisclosureDefaults } from './ai-disclosures.js';
+import type { StarlightRssRuntimeConfig } from './rss-renderer.js';
+import { resolveRssOptions, type RssContentOptions } from './rss-utils.js';
+import { resolveSeoLocales, type SeoLocale, type SeoOrganization } from './seo-utils.js';
+
+export interface HagilightToggleOptions {
+  enabled?: boolean;
+}
+
+export interface HagilightGoogleAnalyticsOptions {
+  /** Defaults to `true` when the provider options are omitted, otherwise to whether `measurementId` is set. */
+  enabled?: boolean;
+  /** Google Analytics 4 measurement ID such as `G-ABC123`. */
+  measurementId?: `G-${string}`;
+}
+
+export interface HagilightFiftyOneLaOptions {
+  /** Defaults to `true` when the provider options are omitted, otherwise to whether `siteId` is set. */
+  enabled?: boolean;
+  siteId?: string;
+}
+
+export interface HagilightAnalyticsOptions {
+  googleAnalytics?: HagilightGoogleAnalyticsOptions;
+  fiftyOneLa?: HagilightFiftyOneLaOptions;
+}
+
+export interface HagilightSeoOptions {
+  /** Replace Starlight's Head with Hagilight SEO metadata. Defaults to `true`; requires Astro `site`. */
+  enabled?: boolean;
+  title?: string;
+  description?: string;
+  /** Absolute HTTP(S) URL or site-root path of the default sharing image. */
+  image?: string;
+  organization?: SeoOrganization;
+}
+
+export interface HagilightRssOptions extends RssContentOptions {
+  /** Generate `/rss.xml` and localized feeds. Defaults to `true`; requires Astro `site`. */
+  enabled?: boolean;
+}
+
+export interface HagilightContentComponentsOptions {
+  pageTitle?: boolean;
+  markdownContent?: boolean;
+}
+
+export type HagilightAIDisclosureOptions = Partial<AIDisclosureDefaults>;
+
+export interface HagilightStarlightOptions {
+  header?: HagilightToggleOptions;
+  notFoundPage?: HagilightToggleOptions;
+  rss?: HagilightRssOptions;
+  analytics?: HagilightAnalyticsOptions;
+  seo?: HagilightSeoOptions;
+  contentComponents?: HagilightContentComponentsOptions;
+  aiDisclosures?: HagilightAIDisclosureOptions;
+  /** End-of-article HagiCode introduction. */
+  hagicodePromotion?: HagilightToggleOptions;
+  /** Floating promotion banner rendered after the footer. */
+  promoto?: HagilightToggleOptions;
+  /** Header and footer link customization passed to `resolveSiteLinks`. */
+  links?: SiteLinksOptions;
+}
+
+type ConfigSetup = HookParameters<'config:setup'>;
+type StarlightUserConfig = ConfigSetup['config'];
+type HeadEntries = NonNullable<StarlightUserConfig['head']>;
+
+interface ResolvedSeoOptions {
+  enabled: boolean;
+  title: string | undefined;
+  description: string | undefined;
+  image?: string;
+  organization?: SeoOrganization;
+}
+
+interface SerializedOptions {
+  promotoEnabled: boolean;
+  hagicodePromotionEnabled: boolean;
+  links: SiteLinksOptions;
+  googleAnalyticsMeasurementId: string | undefined;
+  fiftyOneLaId: string | undefined;
+  aiDisclosures: AIDisclosureDefaults;
+  seoEnabled: boolean;
+  seo: ResolvedSeoOptions;
+  seoSite?: string | undefined;
+  seoBasePath?: string;
+  seoLocales?: SeoLocale[];
+  seoDefaultLocale?: string;
+  seoFormat?: string;
+  seoTrailingSlash?: string;
+  consumerHead?: HeadEntries;
+}
+
+interface ComponentIds {
+  header: string | undefined;
+  hero: string | undefined;
+  footer: string;
+  pageTitle: string | undefined;
+  markdownContent: string | undefined;
+  head: string | undefined;
+}
+
+interface ProviderSpec {
+  name: string;
+  idKey: string;
+  pattern: RegExp;
+  defaultId: string;
+}
+
+const packageRoot = new URL('../', import.meta.url);
+const packageFile = (name: string): string => fileURLToPath(new URL(name, packageRoot));
+const coreExport = (name: string): string => fileURLToPath(import.meta.resolve(`@hagicode/hagilight-core/${name}`));
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function optionalRecord(value: unknown, label: string): Record<string, unknown> | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) throw new TypeError(`Hagilight ${label} options must be an object.`);
+  return value;
+}
+
+function optionalBoolean(
+  record: Record<string, unknown> | undefined,
+  key: string,
+  label: string,
+): boolean | undefined {
+  const value = record?.[key];
+  if (value !== undefined && typeof value !== 'boolean') {
+    throw new TypeError(`Hagilight ${label} option must be a boolean.`);
+  }
+  return value;
+}
 
 const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
 const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';
 const DEFAULT_51LA_ID = 'L6b88a5yK4h2Xnci';
-const defaultLogo = fileURLToPath(import.meta.resolve('@hagicode/hagilight/logo.png'));
-const contentWidthCssPath = fileURLToPath(new URL('./content-width.css', import.meta.url));
+const defaultLogo = coreExport('logo.png');
+const contentWidthCssPath = packageFile('content-width.css');
 const contentWidthHeadScript = `(() => {
   let mode = 'wide';
   try {
@@ -29,8 +165,8 @@ const contentWidthHeadScript = `(() => {
   document.documentElement.dataset.hagilightContentWidth = mode;
 })();`;
 
-function resolveProvider(config, { name, idKey, pattern, defaultId }) {
-  if (config !== undefined && (!config || typeof config !== 'object' || Array.isArray(config))) {
+function resolveProvider(config: unknown, { name, idKey, pattern, defaultId }: ProviderSpec): string | undefined {
+  if (config !== undefined && !isRecord(config)) {
     throw new TypeError(`Hagilight ${name} analytics options must be an object.`);
   }
 
@@ -47,7 +183,7 @@ function resolveProvider(config, { name, idKey, pattern, defaultId }) {
   return id;
 }
 
-function resolveAIDisclosures(config) {
+function resolveAIDisclosures(config: unknown): AIDisclosureDefaults {
   if (config === undefined) {
     return {
       isAITranslation: false,
@@ -55,10 +191,10 @@ function resolveAIDisclosures(config) {
       sourceLocale: 'root',
     };
   }
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+  if (!isRecord(config)) {
     throw new TypeError('Hagilight aiDisclosures options must be an object.');
   }
-  for (const key of ['isAITranslation', 'isAIAuthor']) {
+  for (const key of ['isAITranslation', 'isAIAuthor'] as const) {
     if (config[key] !== undefined && typeof config[key] !== 'boolean') {
       throw new TypeError(`Hagilight aiDisclosures ${key} option must be a boolean.`);
     }
@@ -68,24 +204,24 @@ function resolveAIDisclosures(config) {
     throw new TypeError('Hagilight aiDisclosures sourceLocale option must be a non-empty string.');
   }
   return {
-    isAITranslation: config.isAITranslation ?? false,
-    isAIAuthor: config.isAIAuthor ?? false,
+    isAITranslation: (config.isAITranslation as boolean | undefined) ?? false,
+    isAIAuthor: (config.isAIAuthor as boolean | undefined) ?? false,
     sourceLocale: sourceLocale.trim(),
   };
 }
 
-function resolveHagicodePromotion(config) {
+function resolveHagicodePromotion(config: unknown): boolean {
   if (config === undefined) return true;
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+  if (!isRecord(config)) {
     throw new TypeError('Hagilight hagicodePromotion options must be an object.');
   }
   if (config.enabled !== undefined && typeof config.enabled !== 'boolean') {
     throw new TypeError('Hagilight hagicodePromotion enabled option must be a boolean.');
   }
-  return config.enabled ?? true;
+  return (config.enabled as boolean | undefined) ?? true;
 }
 
-function getRssFeedUrl(config) {
+function getRssFeedUrl(config: StarlightUserConfig): string | undefined {
   if (!Array.isArray(config.head)) return undefined;
   const rssLink = config.head.find((entry) => {
     const attrs = entry?.attrs;
@@ -95,10 +231,10 @@ function getRssFeedUrl(config) {
       && attrs.type.toLowerCase() === 'application/rss+xml'
       && typeof attrs.href === 'string';
   });
-  return rssLink?.attrs.href;
+  return rssLink?.attrs?.href as string | undefined;
 }
 
-function optionalSeoText(value, field) {
+function optionalSeoText(value: unknown, field: string): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== 'string' || !value.trim()) {
     throw new TypeError(`Hagilight SEO ${field} must be a non-empty string.`);
@@ -106,8 +242,8 @@ function optionalSeoText(value, field) {
   return value.trim();
 }
 
-function resolveSeoOptions(config) {
-  if (config !== undefined && (!config || typeof config !== 'object' || Array.isArray(config))) {
+function resolveSeoOptions(config: unknown): ResolvedSeoOptions {
+  if (config !== undefined && !isRecord(config)) {
     throw new TypeError('Hagilight seo options must be an object.');
   }
   if (config?.enabled !== undefined && typeof config.enabled !== 'boolean') {
@@ -119,17 +255,17 @@ function resolveSeoOptions(config) {
     throw new TypeError('Hagilight SEO image must be an absolute HTTP(S) URL or a site-root path.');
   }
 
-  let organization;
+  let organization: SeoOrganization | undefined;
   if (config?.organization !== undefined) {
     const identity = config.organization;
-    if (!identity || typeof identity !== 'object' || Array.isArray(identity)) {
+    if (!isRecord(identity)) {
       throw new TypeError('Hagilight SEO organization option must be an object.');
     }
     const name = optionalSeoText(identity.name, 'organization name');
     const url = optionalSeoText(identity.url, 'organization URL');
     if (!name) throw new TypeError('Hagilight SEO organization name is required.');
     if (!url) throw new TypeError('Hagilight SEO organization URL is required.');
-    let parsedUrl;
+    let parsedUrl: URL;
     try {
       parsedUrl = new URL(url);
     } catch {
@@ -149,7 +285,7 @@ function resolveSeoOptions(config) {
   }
 
   return {
-    enabled: config?.enabled ?? true,
+    enabled: (config?.enabled as boolean | undefined) ?? true,
     title: optionalSeoText(config?.title, 'title'),
     description: optionalSeoText(config?.description, 'description'),
     ...(image === undefined ? {} : { image }),
@@ -157,13 +293,13 @@ function resolveSeoOptions(config) {
   };
 }
 
-function resolveAstroSite(site) {
+function resolveAstroSite(site: unknown): string {
   if (site === undefined || site === null || site === '') {
     throw new Error('Hagilight SEO requires an absolute Astro site URL. Set site or disable generated SEO with seo: { enabled: false }.');
   }
-  let parsed;
+  let parsed: URL;
   try {
-    parsed = new URL(site);
+    parsed = new URL(site as string | URL);
   } catch {
     throw new Error('Hagilight SEO requires Astro site to be an absolute HTTP(S) URL.');
   }
@@ -173,12 +309,12 @@ function resolveAstroSite(site) {
   return parsed.href;
 }
 
-function resolveDefaultSeoLocale(defaultLocale, locales) {
-  const configured = typeof defaultLocale === 'object' && defaultLocale !== null
+function resolveDefaultSeoLocale(defaultLocale: unknown, locales: readonly SeoLocale[]): string {
+  const configured = isRecord(defaultLocale)
     ? defaultLocale.locale ?? defaultLocale.lang
     : defaultLocale;
   if (configured === undefined) {
-    return locales.find(({ route }) => route === 'root')?.route ?? locales[0].route;
+    return locales.find(({ route }) => route === 'root')?.route ?? locales[0]!.route;
   }
   const found = locales.find(({ route, lang }) =>
     route === configured || lang.toLowerCase() === String(configured).toLowerCase(),
@@ -190,24 +326,22 @@ function resolveDefaultSeoLocale(defaultLocale, locales) {
 }
 
 function createConfiguredIntegration(
-  instanceId,
-  serializedOptions,
-  rssConfig,
-  rssLocaleFeedUrls,
-  componentIds,
-  getConfiguredRssFeed,
-  generateRss,
-  unregisterRssOwner,
-) {
+  instanceId: string,
+  serializedOptions: SerializedOptions,
+  rssConfig: StarlightRssRuntimeConfig,
+  rssLocaleFeedUrls: Record<string, string>,
+  componentIds: ComponentIds,
+  getConfiguredRssFeed: () => string | undefined,
+  generateRss: boolean,
+  unregisterRssOwner: () => void,
+): AstroIntegration & { readonly [RSS_OWNER]: RssOwnerClaim } {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const rssConfigId = 'virtual:hagilight-starlight/rss-config';
-  const headerPath = componentIds.header
-    ? fileURLToPath(new URL('./Header.astro', import.meta.url))
-    : undefined;
-  const footerPath = fileURLToPath(new URL('./Footer.astro', import.meta.url));
-  const pageTitlePath = fileURLToPath(new URL('./PageTitle.astro', import.meta.url));
-  const markdownContentPath = fileURLToPath(new URL('./MarkdownContent.astro', import.meta.url));
-  const seoHeadPath = fileURLToPath(new URL('./SEOHead.astro', import.meta.url));
+  const headerPath = componentIds.header ? packageFile('Header.astro') : undefined;
+  const footerPath = packageFile('Footer.astro');
+  const pageTitlePath = packageFile('PageTitle.astro');
+  const markdownContentPath = packageFile('MarkdownContent.astro');
+  const seoHeadPath = packageFile('SEOHead.astro');
   const headerSource = headerPath
     ? `---
 import Header from ${JSON.stringify(headerPath)};
@@ -218,11 +352,11 @@ import options from '${optionsId}';
 `
     : undefined;
   const promotionImport = serializedOptions.promotoEnabled
-    ? "import PromotoBanner from '@hagicode/hagilight/PromotoBanner';"
+    ? `import PromotoBanner from ${JSON.stringify(coreExport('PromotoBanner'))};`
     : '';
   const promotionRender = serializedOptions.promotoEnabled ? '<PromotoBanner />' : '';
   const analyticsImport = serializedOptions.fiftyOneLaId
-    ? "import Analytics51LA from '@hagicode/hagilight/Analytics51LA';"
+    ? `import Analytics51LA from ${JSON.stringify(coreExport('Analytics51LA'))};`
     : '';
   const analyticsRender = serializedOptions.fiftyOneLaId
     ? '<Analytics51LA siteId={options.fiftyOneLaId} />'
@@ -262,7 +396,7 @@ import options from '${optionsId}';
   const headSource = `---
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
 import SEOHead from ${JSON.stringify(seoHeadPath)};
-import GoogleAnalytics from '@hagicode/hagilight/GoogleAnalytics';
+import GoogleAnalytics from ${JSON.stringify(coreExport('GoogleAnalytics'))};
 import options from '${optionsId}';
 const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 ---
@@ -272,19 +406,19 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
   <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId} />
 )}
 `;
-  const modules = new Map([
-    ...(componentIds.header ? [[componentIds.header, headerSource]] : []),
+  const modules = new Map<string, string>([
+    ...(componentIds.header && headerSource ? [[componentIds.header, headerSource] as const] : []),
     [componentIds.footer, footerSource],
-    ...(componentIds.pageTitle ? [[componentIds.pageTitle, pageTitleSource]] : []),
-    ...(componentIds.markdownContent ? [[componentIds.markdownContent, markdownContentSource]] : []),
-    ...(componentIds.head ? [[componentIds.head, headSource]] : []),
+    ...(componentIds.pageTitle ? [[componentIds.pageTitle, pageTitleSource] as const] : []),
+    ...(componentIds.markdownContent ? [[componentIds.markdownContent, markdownContentSource] as const] : []),
+    ...(componentIds.head ? [[componentIds.head, headSource] as const] : []),
   ]);
   const vitePlugin = {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
-    resolveId(id) {
+    resolveId(id: string): string | null {
       return modules.has(id) || id === optionsId || id === rssConfigId ? `\0${id}` : null;
     },
-    load(id) {
+    load(id: string): string | null {
       if (!id.startsWith('\0')) return null;
       const moduleId = id.slice(1);
       if (moduleId === optionsId) {
@@ -301,18 +435,18 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 
   return {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
-    [HAGILIGHT_RSS_OWNER]: { package: 'starlight', enabled: generateRss },
+    [RSS_OWNER]: { package: 'starlight', enabled: generateRss },
     hooks: {
       'astro:config:setup'({ injectRoute, updateConfig }) {
         if (generateRss) {
           injectRoute({
             pattern: '/rss.xml',
-            entrypoint: fileURLToPath(new URL('./rss.xml.ts', import.meta.url)),
+            entrypoint: packageFile('rss.xml.ts'),
             prerender: true,
           });
           injectRoute({
             pattern: '/rss.[language].xml',
-            entrypoint: fileURLToPath(new URL('./rss.[language].xml.ts', import.meta.url)),
+            entrypoint: packageFile('rss.[language].xml.ts'),
             prerender: true,
           });
         }
@@ -325,49 +459,30 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
   };
 }
 
-export default function hagilight(options = {}) {
-  if (!options || typeof options !== 'object' || Array.isArray(options)) {
+/** Starlight plugin that applies HagiCode header, footer, content, SEO, RSS, and analytics customizations. */
+export default function hagilight(options: HagilightStarlightOptions = {}): StarlightPlugin {
+  if (!isRecord(options)) {
     throw new TypeError('Hagilight Starlight options must be an object.');
   }
-  if (options.header !== undefined
-    && (!options.header || typeof options.header !== 'object' || Array.isArray(options.header))) {
-    throw new TypeError('Hagilight header options must be an object.');
-  }
-  if (options.header?.enabled !== undefined && typeof options.header.enabled !== 'boolean') {
-    throw new TypeError('Hagilight header enabled option must be a boolean.');
-  }
-  if (options.notFoundPage !== undefined
-    && (!options.notFoundPage || typeof options.notFoundPage !== 'object' || Array.isArray(options.notFoundPage))) {
-    throw new TypeError('Hagilight notFoundPage options must be an object.');
-  }
-  if (options.notFoundPage?.enabled !== undefined && typeof options.notFoundPage.enabled !== 'boolean') {
-    throw new TypeError('Hagilight notFoundPage enabled option must be a boolean.');
-  }
-  if (options.rss !== undefined
-    && (!options.rss || typeof options.rss !== 'object' || Array.isArray(options.rss))) {
-    throw new TypeError('Hagilight rss options must be an object.');
-  }
-  if (options.rss?.enabled !== undefined && typeof options.rss.enabled !== 'boolean') {
-    throw new TypeError('Hagilight rss enabled option must be a boolean.');
-  }
-  const rssOptions = resolveRssOptions(options.rss);
-  if (options.analytics !== undefined
-    && (!options.analytics || typeof options.analytics !== 'object' || Array.isArray(options.analytics))) {
-    throw new TypeError('Hagilight analytics options must be an object.');
-  }
-  const seo = resolveSeoOptions(options.seo);
-  if (options.contentComponents !== undefined
-    && (!options.contentComponents || typeof options.contentComponents !== 'object' || Array.isArray(options.contentComponents))) {
-    throw new TypeError('Hagilight contentComponents options must be an object.');
-  }
-  for (const key of ['pageTitle', 'markdownContent']) {
-    if (options.contentComponents?.[key] !== undefined && typeof options.contentComponents[key] !== 'boolean') {
-      throw new TypeError(`Hagilight contentComponents ${key} option must be a boolean.`);
-    }
-  }
-  const analytics = options.analytics ?? {};
-  const aiDisclosures = resolveAIDisclosures(options.aiDisclosures);
-  const hagicodePromotionEnabled = resolveHagicodePromotion(options.hagicodePromotion);
+  const input: Record<string, unknown> = options;
+  const header = optionalRecord(input.header, 'header');
+  const headerEnabled = optionalBoolean(header, 'enabled', 'header enabled') !== false;
+  const notFoundPage = optionalRecord(input.notFoundPage, 'notFoundPage');
+  const notFoundPageEnabled = optionalBoolean(notFoundPage, 'enabled', 'notFoundPage enabled') !== false;
+  const rss = optionalRecord(input.rss, 'rss');
+  const rssEnabled = optionalBoolean(rss, 'enabled', 'rss enabled') !== false;
+  const rssOptions = resolveRssOptions(rss);
+  const analytics = optionalRecord(input.analytics, 'analytics') ?? {};
+  const seo = resolveSeoOptions(input.seo);
+  const contentComponents = optionalRecord(input.contentComponents, 'contentComponents');
+  const pageTitleEnabled = optionalBoolean(contentComponents, 'pageTitle', 'contentComponents pageTitle') !== false;
+  const markdownContentEnabled = optionalBoolean(
+    contentComponents,
+    'markdownContent',
+    'contentComponents markdownContent',
+  ) !== false;
+  const aiDisclosures = resolveAIDisclosures(input.aiDisclosures);
+  const hagicodePromotionEnabled = resolveHagicodePromotion(input.hagicodePromotion);
   const googleAnalyticsMeasurementId = resolveProvider(analytics.googleAnalytics, {
     name: 'Google Analytics',
     idKey: 'measurementId',
@@ -380,17 +495,15 @@ export default function hagilight(options = {}) {
     pattern: FIFTY_ONE_LA_ID_PATTERN,
     defaultId: DEFAULT_51LA_ID,
   });
+  const promoto = optionalRecord(input.promoto, 'promoto');
+  const promotoEnabled = optionalBoolean(promoto, 'enabled', 'promoto enabled') !== false;
   const instanceId = randomUUID();
-  const headerEnabled = options.header?.enabled !== false;
-  const notFoundPageEnabled = options.notFoundPage?.enabled !== false;
-  const pageTitleEnabled = options.contentComponents?.pageTitle !== false;
-  const markdownContentEnabled = options.contentComponents?.markdownContent !== false;
-  const componentIds = {
+  const componentIds: ComponentIds = {
     header: headerEnabled
       ? `virtual:hagilight-starlight/${instanceId}/Header.astro`
       : undefined,
     hero: notFoundPageEnabled
-      ? fileURLToPath(new URL('./NotFoundHero.astro', import.meta.url))
+      ? packageFile('NotFoundHero.astro')
       : undefined,
     footer: `virtual:hagilight-starlight/${instanceId}/Footer.astro`,
     pageTitle: pageTitleEnabled ? `virtual:hagilight-starlight/${instanceId}/PageTitle.astro` : undefined,
@@ -401,8 +514,8 @@ export default function hagilight(options = {}) {
       ? `virtual:hagilight-starlight/${instanceId}/Head.astro`
       : undefined,
   };
-  const serializedOptions = {
-    promotoEnabled: options.promoto?.enabled !== false,
+  const serializedOptions: SerializedOptions = {
+    promotoEnabled,
     hagicodePromotionEnabled,
     links: options.links ?? {},
     googleAnalyticsMeasurementId,
@@ -411,7 +524,7 @@ export default function hagilight(options = {}) {
     seoEnabled: seo.enabled,
     seo,
   };
-  const unregisterRssOwner = registerStarlightRssOwner(options.rss?.enabled !== false);
+  const unregisterRssOwner = registerStarlightRssOwner(rssEnabled);
 
   return {
     name: '@hagicode/hagilight-starlight',
@@ -436,11 +549,11 @@ export default function hagilight(options = {}) {
           if (seo.enabled) {
             throw new Error('Hagilight SEO cannot replace an existing Starlight Head override. Set seo: { enabled: false } and disable Google Analytics to keep your Head, or compose your site metadata explicitly.');
           }
-          throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Disable Google Analytics or compose @hagicode/hagilight/GoogleAnalytics in your Head instead.');
+          throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Disable Google Analytics or compose @hagicode/hagilight-core/GoogleAnalytics in your Head instead.');
         }
 
-        let seoSite;
-        let seoLocales = [];
+        let seoSite: string | undefined;
+        let seoLocales: SeoLocale[] = [];
         let defaultSeoLocale = 'root';
         if (seo.enabled) {
           seoSite = resolveAstroSite(astroConfig.site);
@@ -474,11 +587,11 @@ export default function hagilight(options = {}) {
           : seo;
         serializedOptions.consumerHead = config.head ?? [];
 
-        const generateRss = options.rss?.enabled !== false && !getRssFeedUrl(config);
+        const generateRss = rssEnabled && !getRssFeedUrl(config);
         if (generateRss && !astroConfig.site) {
           throw new Error('Hagilight RSS requires the Astro site option. Set site or disable RSS with rss: { enabled: false }.');
         }
-        const rssLocales = generateRss ? resolveRssLocales(config.locales) : [];
+        const rssLocales: RssLocale[] = generateRss ? resolveRssLocales(config.locales) : [];
         const baseUrl = generateRss
           ? new URL((astroConfig.base ?? '/').replace(/\/?$/u, '/'), astroConfig.site)
           : undefined;
@@ -507,10 +620,10 @@ export default function hagilight(options = {}) {
           head: [
             ...(config.head ?? []),
             ...(rssFeedUrl ? [{
-              tag: 'link',
+              tag: 'link' as const,
               attrs: { rel: 'alternate', type: 'application/rss+xml', href: rssFeedUrl },
             }] : []),
-            { tag: 'script', content: contentWidthHeadScript },
+            { tag: 'script' as const, content: contentWidthHeadScript },
             ...(() => {
               const entry = resolveFaviconHeadEntry(
                 config.head,

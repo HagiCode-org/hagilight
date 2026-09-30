@@ -4,7 +4,7 @@ import context from 'virtual:starlight/project-context';
 import {
   buildLocaleNavigationTarget,
   getConfiguredLanguageOptions,
-} from './language-routing.mjs';
+} from './dist/language-routing.js';
 
 const currentLocale = Astro.locals.starlightRoute.locale ?? config.defaultLocale?.locale ?? 'root';
 const options = getConfiguredLanguageOptions(config.locales, currentLocale);
@@ -101,7 +101,7 @@ const navigationOptions = options.map((option) => ({
   import {
     getKeyboardTargetIndex,
     persistStarlightLocaleSelection,
-  } from './language-routing.mjs';
+  } from './dist/language-routing.js';
 
   class HagilightLanguageChooser extends HTMLElement {
     connectedCallback() {

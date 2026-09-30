@@ -1,7 +1,7 @@
 ---
-import Copyright from '@hagicode/hagilight/Copyright';
+import Copyright from '@hagicode/hagilight-core/Copyright';
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
-import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight/site-links';
+import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 
 interface Props {
   locale?: string;
@@ -17,8 +17,16 @@ const {
   rssLocaleFeedUrls,
 } = Astro.props;
 const currentLanguage = Astro.locals?.starlightRoute?.lang;
+const sitemapOverride = links?.overrides?.sitemap;
 const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   ...links,
+  overrides: {
+    ...links?.overrides,
+    sitemap: {
+      ...sitemapOverride,
+      href: sitemapOverride?.href ?? `${import.meta.env.BASE_URL}sitemap-index.xml`,
+    },
+  },
   ...(rssFeedUrl === undefined ? {} : { rssFeedUrl }),
   ...(currentLanguage && rssLocaleFeedUrls?.[currentLanguage]
     ? { rssLocaleFeedUrl: rssLocaleFeedUrls[currentLanguage] }

@@ -5,7 +5,7 @@ import {
   getNotFoundHomeHref,
   getNotFoundHomeLabel,
   isNotFoundEntry,
-} from './not-found.mjs';
+} from './dist/not-found.js';
 
 const route = Astro.locals.starlightRoute;
 const isNotFound = isNotFoundEntry(route.entry.id);

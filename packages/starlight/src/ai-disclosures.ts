@@ -1,4 +1,20 @@
-const COPY = {
+export interface AIDisclosureCopy {
+  author: string;
+  translation: string;
+  source: string;
+}
+
+export interface AIDisclosureFlags {
+  isAITranslation: boolean;
+  isAIAuthor: boolean;
+}
+
+export interface AIDisclosureDefaults extends AIDisclosureFlags {
+  /** Locale route key of the original-language content, `root` by default. */
+  sourceLocale: string;
+}
+
+export const COPY: Readonly<Record<string, AIDisclosureCopy>> = {
   'de-DE': {
     author: 'Dieser Inhalt wurde mit KI-Unterstützung erstellt. Bitte prüfen Sie wichtige Angaben.',
     translation: 'Dieser Beitrag wurde mit KI übersetzt.',
@@ -51,8 +67,11 @@ const COPY = {
   },
 };
 
-export function resolveAIDisclosureFlags(frontmatter, defaults) {
-  for (const key of ['isAITranslation', 'isAIAuthor']) {
+export function resolveAIDisclosureFlags(
+  frontmatter: Partial<Record<keyof AIDisclosureFlags, unknown>>,
+  defaults: AIDisclosureFlags,
+): AIDisclosureFlags {
+  for (const key of ['isAITranslation', 'isAIAuthor'] as const) {
     if (frontmatter[key] !== undefined && typeof frontmatter[key] !== 'boolean') {
       throw new TypeError(`Hagilight frontmatter ${key} must be a boolean.`);
     }
@@ -61,39 +80,61 @@ export function resolveAIDisclosureFlags(frontmatter, defaults) {
     }
   }
   return {
-    isAITranslation: frontmatter.isAITranslation ?? defaults.isAITranslation,
-    isAIAuthor: frontmatter.isAIAuthor ?? defaults.isAIAuthor,
+    isAITranslation: (frontmatter.isAITranslation as boolean | undefined) ?? defaults.isAITranslation,
+    isAIAuthor: (frontmatter.isAIAuthor as boolean | undefined) ?? defaults.isAIAuthor,
   };
 }
 
-export function getAIDisclosureCopy(lang) {
-  if (COPY[lang]) return COPY[lang];
+export function getAIDisclosureCopy(lang: string | undefined): AIDisclosureCopy {
+  const exact = lang === undefined ? undefined : COPY[lang];
+  if (exact) return exact;
   const language = lang?.split('-')[0];
-  return COPY[language] ?? COPY['en-US'];
+  return (language === undefined ? undefined : COPY[language]) ?? COPY['en-US']!;
 }
 
-export function getSourceEntryId(routeId, currentLocale, sourceLocale) {
+export function getSourceEntryId(routeId: string, currentLocale: string | undefined, sourceLocale: string): string {
   const prefix = currentLocale && currentLocale !== 'root' ? `${currentLocale}/` : '';
   const routeSlug = prefix && routeId.startsWith(prefix) ? routeId.slice(prefix.length) : routeId;
   if (sourceLocale === 'root') return routeSlug === 'index' ? '' : routeSlug;
   return `${sourceLocale}/${routeSlug || 'index'}`;
 }
 
-export function normalizeDocsEntryId(id) {
+export function normalizeDocsEntryId(id: string): string {
   return id === 'index' ? '' : id;
 }
 
-export function getSourcePath({ docs, routeId, currentLocale, sourceLocale, pathname, baseUrl }) {
+export interface SourcePathOptions {
+  docs: readonly { id: string }[];
+  routeId: string;
+  currentLocale: string | undefined;
+  sourceLocale: string;
+  pathname: string;
+  baseUrl: string;
+}
+
+export function getSourcePath({
+  docs,
+  routeId,
+  currentLocale,
+  sourceLocale,
+  pathname,
+  baseUrl,
+}: SourcePathOptions): string | undefined {
   const sourceId = getSourceEntryId(routeId, currentLocale, sourceLocale);
   if (!docs.some((entry) => normalizeDocsEntryId(entry.id) === sourceId)) return undefined;
   return buildSourcePathname(pathname, baseUrl, currentLocale, sourceLocale);
 }
 
-export function isTranslationLocale(locale, sourceLocale) {
+export function isTranslationLocale(locale: string | undefined, sourceLocale: string): boolean {
   return (locale ?? 'root') !== sourceLocale;
 }
 
-export function buildSourcePathname(pathname, baseUrl, currentLocale, sourceLocale) {
+export function buildSourcePathname(
+  pathname: string,
+  baseUrl: string,
+  currentLocale: string | undefined,
+  sourceLocale: string,
+): string {
   const basePath = new URL(baseUrl, 'https://hagilight.invalid').pathname;
   const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
   const relativePath = pathname.startsWith(normalizedBase)
@@ -104,5 +145,3 @@ export function buildSourcePathname(pathname, baseUrl, currentLocale, sourceLoca
   if (sourceLocale !== 'root') segments.unshift(sourceLocale);
   return `${normalizedBase}${segments.join('/')}`;
 }
-
-export { COPY };

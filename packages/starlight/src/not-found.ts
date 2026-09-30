@@ -1,4 +1,6 @@
-const homeLabels = {
+export type TrailingSlash = 'always' | 'never' | 'ignore';
+
+const homeLabels: Record<string, string> = {
   de: 'Zur Startseite',
   en: 'Back to home',
   es: 'Volver al inicio',
@@ -11,11 +13,17 @@ const homeLabels = {
   'zh-hant': '返回首頁',
 };
 
-export function isNotFoundEntry(entryId) {
+export function isNotFoundEntry(entryId: string): boolean {
   return entryId === '404' || entryId.endsWith('/404');
 }
 
-export function getNotFoundHomeHref({ basePath = '/', locale, trailingSlash = 'ignore' }) {
+export interface NotFoundHomeHrefOptions {
+  basePath?: string;
+  locale?: string | undefined;
+  trailingSlash?: TrailingSlash;
+}
+
+export function getNotFoundHomeHref({ basePath = '/', locale, trailingSlash = 'ignore' }: NotFoundHomeHrefOptions): string {
   const base = basePath.replace(/\/+$/u, '');
   const localePath = locale && locale !== 'root' ? `/${locale}` : '';
   const path = `${base}${localePath}` || '/';
@@ -27,7 +35,7 @@ export function getNotFoundHomeHref({ basePath = '/', locale, trailingSlash = 'i
   return `${path.replace(/\/+$/u, '')}/`;
 }
 
-export function getNotFoundHomeLabel(lang) {
+export function getNotFoundHomeLabel(lang: string | undefined): string {
   const language = lang?.replaceAll('_', '-').toLowerCase() ?? 'en';
-  return homeLabels[language] ?? homeLabels[language.split('-')[0]] ?? homeLabels.en;
+  return homeLabels[language] ?? homeLabels[language.split('-')[0]!] ?? homeLabels.en!;
 }

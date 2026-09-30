@@ -1,5 +1,5 @@
 ---
-import { getAIDisclosureCopy } from './ai-disclosures.mjs';
+import { getAIDisclosureCopy } from './dist/ai-disclosures.js';
 const { kind, lang, sourceHref } = Astro.props;
 const copy = getAIDisclosureCopy(lang);
 ---

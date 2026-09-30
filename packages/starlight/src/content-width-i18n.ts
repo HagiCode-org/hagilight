@@ -1,4 +1,10 @@
-const labels = {
+export interface ContentWidthLabels {
+  group: string;
+  wide: string;
+  narrow: string;
+}
+
+const labels: Record<string, ContentWidthLabels> = {
   'de-DE': { group: 'Inhaltsbreite', wide: 'Breit', narrow: 'Schmal' },
   'en-US': { group: 'Content width', wide: 'Wide', narrow: 'Narrow' },
   'es-ES': { group: 'Ancho del contenido', wide: 'Ancho', narrow: 'Estrecho' },
@@ -11,6 +17,6 @@ const labels = {
   'zh-Hant': { group: '內容寬度', wide: '寬', narrow: '窄' },
 };
 
-export function getContentWidthLabels(lang) {
-  return labels[lang] ?? labels['en-US'];
+export function getContentWidthLabels(lang: string | undefined): ContentWidthLabels {
+  return (lang === undefined ? undefined : labels[lang]) ?? labels['en-US']!;
 }

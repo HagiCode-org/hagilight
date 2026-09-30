@@ -1,10 +1,37 @@
-export { resolveRssLocales } from '@hagicode/hagilight/rss-locales';
+import type { RssLocale } from '@hagicode/hagilight-core/rss';
 
-export function resolveRssOptions(options = {}) {
+export interface RssContentOptions {
+  /** Include non-blog documentation pages. Defaults to `true`. */
+  includeDocs?: boolean;
+  /** Include pages under `blog/`. Defaults to `true`. */
+  includeBlog?: boolean;
+}
+
+export type ResolvedRssContentOptions = Required<RssContentOptions>;
+
+/** The subset of a Starlight docs collection entry used to build feeds. */
+export interface RssDocsEntry {
+  id: string;
+  data: {
+    title: string;
+    description?: string | undefined;
+    draft?: boolean | undefined;
+    rss?: unknown;
+    lastUpdated?: unknown;
+  };
+}
+
+export interface SelectRssEntriesOptions {
+  filename: string | undefined;
+  locales: readonly RssLocale[];
+  options: ResolvedRssContentOptions;
+}
+
+export function resolveRssOptions(options: RssContentOptions = {}): ResolvedRssContentOptions {
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('Hagilight rss options must be an object.');
   }
-  for (const key of ['includeDocs', 'includeBlog']) {
+  for (const key of ['includeDocs', 'includeBlog'] as const) {
     if (options[key] !== undefined && typeof options[key] !== 'boolean') {
       throw new TypeError(`Hagilight rss ${key} option must be a boolean.`);
     }
@@ -15,7 +42,7 @@ export function resolveRssOptions(options = {}) {
   };
 }
 
-function getLocaleForEntry(id, locales) {
+function getLocaleForEntry(id: string, locales: readonly RssLocale[]) {
   const localized = locales
     .filter(({ route }) => route !== 'root')
     .sort((a, b) => b.route.length - a.route.length)
@@ -27,13 +54,20 @@ function getLocaleForEntry(id, locales) {
   return undefined;
 }
 
-export function isBlogEntry(id) {
+export function isBlogEntry(id: string): boolean {
   const segments = id.split('/').filter(Boolean);
   if (segments.at(-1) === 'index') segments.pop();
   return segments[0] === 'blog' && segments.length > 1;
 }
 
-export function selectRssEntries(entries, { filename, locales, options }) {
+function timestamp(value: unknown): number | undefined {
+  return value instanceof Date ? value.getTime() : undefined;
+}
+
+export function selectRssEntries<Entry extends RssDocsEntry>(
+  entries: readonly Entry[],
+  { filename, locales, options }: SelectRssEntriesOptions,
+): Entry[] {
   const locale = locales.find((item) => item.filename === filename);
   if (!locale) {
     if (filename === 'en') return [];
@@ -48,13 +82,13 @@ export function selectRssEntries(entries, { filename, locales, options }) {
       if (data.draft || data.rss === false) return false;
 
       const entryLocale = getLocaleForEntry(id, locales);
-      if (entryLocale?.locale.filename !== filename) return false;
+      if (!entryLocale || entryLocale.locale.filename !== filename) return false;
       const isBlog = isBlogEntry(entryLocale.relativeId);
       return isBlog ? options.includeBlog : options.includeDocs;
     })
     .sort((a, b) => {
-      const aDate = a.data.lastUpdated instanceof Date ? a.data.lastUpdated.getTime() : undefined;
-      const bDate = b.data.lastUpdated instanceof Date ? b.data.lastUpdated.getTime() : undefined;
+      const aDate = timestamp(a.data.lastUpdated);
+      const bDate = timestamp(b.data.lastUpdated);
       if (aDate === undefined || Number.isNaN(aDate)) return bDate === undefined || Number.isNaN(bDate) ? 0 : 1;
       if (bDate === undefined || Number.isNaN(bDate)) return -1;
       return bDate - aDate;
