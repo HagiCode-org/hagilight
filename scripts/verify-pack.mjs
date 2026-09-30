@@ -94,7 +94,7 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   if (pack.name !== name || pack.version !== manifest.version) {
     throw new Error(`${name} tarball metadata does not match its manifest`);
   }
-  for (const file of ['package.json', ...REQUIRED_FILES[name]]) {
+  for (const file of ['package.json', 'README.md', ...REQUIRED_FILES[name]]) {
     if (!files.has(file)) throw new Error(`${name} is missing ${file} from its tarball`);
   }
   for (const { subpath, runtime, types } of exportTargets(manifest.exports)) {

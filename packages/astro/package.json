@@ -24,6 +24,7 @@
     "./SEOHead": "./SEOHead.astro"
   },
   "files": [
+    "README.md",
     "dist/**/*.js",
     "dist/**/*.d.ts",
     "*.astro",

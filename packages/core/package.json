@@ -54,6 +54,7 @@
     "./favicon.ico": "./favicon.ico"
   },
   "files": [
+    "README.md",
     "dist/**/*.js",
     "dist/**/*.d.ts",
     "dist/**/*.json",
