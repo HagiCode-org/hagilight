@@ -30,8 +30,9 @@ jobs:
           cache-dependency-path: package-lock.json
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - name: Test, build and check both packages
+      - name: Build, type-check, test, and check all three packages
         run: |
+          npm run typecheck
           npm test
           npm run build:example
           npm run pack:check
@@ -40,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: echo "version=$(node scripts/release.mjs dev)" >> "$GITHUB_OUTPUT"
-      - name: Stamp both packages and dependencies
+      - name: Stamp core, both dependent packages, and example dependencies
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/release.mjs stamp "$VERSION"
@@ -48,7 +49,7 @@ jobs:
         run: |
           npm run pack:check
           npm run integration:installed
-      - name: Publish dependency then Starlight (dev)
+      - name: Publish core, then plain Astro and Starlight (dev)
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/publish.mjs dev
@@ -59,7 +60,7 @@ jobs:
           RESULT: ${{ job.status }}
         run: |
           echo "## npm dev publish" >> "$GITHUB_STEP_SUMMARY"
-          echo "Both Hagilight packages, version $VERSION: $RESULT (dist-tag: dev)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Hagilight core, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: dev)." >> "$GITHUB_STEP_SUMMARY"
 
   publish-release:
     if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease && !github.event.release.draft
@@ -80,12 +81,13 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: echo "version=$(node scripts/release.mjs verify "$RELEASE_TAG")" >> "$GITHUB_OUTPUT"
-      - name: Test, build and check both packages
+      - name: Build, type-check, test, and check all three packages
         run: |
+          npm run typecheck
           npm test
           npm run build:example
           npm run pack:check
-      - name: Stamp both packages and dependencies
+      - name: Stamp core, both dependent packages, and example dependencies
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/release.mjs stamp "$VERSION"
@@ -93,7 +95,7 @@ jobs:
         run: |
           npm run pack:check
           npm run integration:installed
-      - name: Publish dependency then Starlight (latest)
+      - name: Publish core, then plain Astro and Starlight (latest)
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/publish.mjs latest
@@ -104,4 +106,4 @@ jobs:
           RESULT: ${{ job.status }}
         run: |
           echo "## npm stable publish" >> "$GITHUB_STEP_SUMMARY"
-          echo "Both Hagilight packages, version $VERSION: $RESULT (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Hagilight core, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"
