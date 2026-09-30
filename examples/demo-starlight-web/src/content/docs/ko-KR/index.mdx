@@ -6,7 +6,7 @@ isAITranslation: true
 isAIAuthor: true
 ---
 
-import Copyright from '@hagicode/hagilight/Copyright';
+import Copyright from '@hagicode/hagilight-core/Copyright';
 
 이 페이지는 공유 Astro 컴포넌트를 사용합니다:
 
@@ -28,8 +28,8 @@ Astro 페이지나 MDX 문서의 frontmatter에서 컴포넌트를 가져온 다
 
 ```astro
 ---
-import Copyright from '@hagicode/hagilight/Copyright';
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import Copyright from '@hagicode/hagilight-core/Copyright';
+import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 ---
 
 <Copyright name="HagiCode" />
@@ -171,7 +171,7 @@ JSON 구성 데이터는 별도의 펜스 블록으로 표시할 수 있습니�
 
 | 패키지 | 용도 | 주요 항목 |
 | --- | --- | --- |
-| `@hagicode/hagilight` | 공유 Astro 컴포넌트 | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-core` | 공유 Astro 컴포넌트 | `Copyright`, `PromotoBanner` |
 | `@hagicode/hagilight-starlight` | Starlight 바닥글 통합 | `hagilight()` |
 
 #### 배너 컨트롤

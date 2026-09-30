@@ -1,4 +1,6 @@
-export default async ({ lang }) => {
+import type { RssFeedCallback } from '@hagicode/hagilight/integration';
+
+const getFeed: RssFeedCallback = async ({ lang }) => {
   if (lang === 'en-US') {
     return {
       title: 'Hagilight core package showcase',
@@ -38,3 +40,5 @@ export default async ({ lang }) => {
 
   throw new Error(`The Hagilight demo has no RSS content configured for "${lang}".`);
 };
+
+export default getFeed;

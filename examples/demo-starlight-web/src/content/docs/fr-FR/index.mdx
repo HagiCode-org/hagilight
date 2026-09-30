@@ -6,7 +6,7 @@ isAITranslation: true
 isAIAuthor: true
 ---
 
-import Copyright from '@hagicode/hagilight/Copyright';
+import Copyright from '@hagicode/hagilight-core/Copyright';
 
 Cette page utilise le composant Astro partagé :
 
@@ -28,8 +28,8 @@ Importez un composant dans le frontmatter d'une page Astro ou d'un document MDX,
 
 ```astro
 ---
-import Copyright from '@hagicode/hagilight/Copyright';
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import Copyright from '@hagicode/hagilight-core/Copyright';
+import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 ---
 
 <Copyright name="HagiCode" />
@@ -171,7 +171,7 @@ Les tableaux rendent les responsabilités des paquets faciles à parcourir :
 
 | Paquet | Usage prévu | Entrée principale |
 | --- | --- | --- |
-| `@hagicode/hagilight` | Composants Astro partagés | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-core` | Composants Astro partagés | `Copyright`, `PromotoBanner` |
 | `@hagicode/hagilight-starlight` | Intégration du pied de page Starlight | `hagilight()` |
 
 #### Contrôles de la bannière

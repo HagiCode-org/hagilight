@@ -5,7 +5,7 @@ lastUpdated: 2026-09-27
 isAIAuthor: false
 ---
 
-import Copyright from '@hagicode/hagilight/Copyright';
+import Copyright from '@hagicode/hagilight-core/Copyright';
 
 本页使用了共享的 Astro 组件：
 
@@ -27,8 +27,8 @@ Hagilight 是一组用于 Astro 与 Starlight 站点的可复用小组件。这�
 
 ```astro
 ---
-import Copyright from '@hagicode/hagilight/Copyright';
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import Copyright from '@hagicode/hagilight-core/Copyright';
+import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 ---
 
 <Copyright name="HagiCode" />
@@ -170,7 +170,7 @@ JSON 配置数据可以在独立的围栏块中展示：
 
 | 包 | 用途 | 主入口 |
 | --- | --- | --- |
-| `@hagicode/hagilight` | 共享 Astro 组件 | `Copyright`、`PromotoBanner` |
+| `@hagicode/hagilight-core` | 共享 Astro 组件 | `Copyright`、`PromotoBanner` |
 | `@hagicode/hagilight-starlight` | Starlight 页脚集成 | `hagilight()` |
 
 #### 横幅控制

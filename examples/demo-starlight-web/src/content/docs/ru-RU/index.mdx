@@ -6,7 +6,7 @@ isAITranslation: true
 isAIAuthor: true
 ---
 
-import Copyright from '@hagicode/hagilight/Copyright';
+import Copyright from '@hagicode/hagilight-core/Copyright';
 
 На этой странице используется общий компонент Astro:
 
@@ -28,8 +28,8 @@ Hagilight — это небольшой набор повторно исполь
 
 ```astro
 ---
-import Copyright from '@hagicode/hagilight/Copyright';
-import PromotoBanner from '@hagicode/hagilight/PromotoBanner';
+import Copyright from '@hagicode/hagilight-core/Copyright';
+import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 ---
 
 <Copyright name="HagiCode" />
@@ -171,7 +171,7 @@ export default defineConfig({
 
 | Пакет | Назначение | Основной вход |
 | --- | --- | --- |
-| `@hagicode/hagilight` | Общие компоненты Astro | `Copyright`, `PromotoBanner` |
+| `@hagicode/hagilight-core` | Общие компоненты Astro | `Copyright`, `PromotoBanner` |
 | `@hagicode/hagilight-starlight` | Интеграция колонтитула Starlight | `hagilight()` |
 
 #### Управление баннером

@@ -7,8 +7,11 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.4",
-    "@hagicode/hagilight": "0.1.0",
+    "@hagicode/hagilight-core": "0.1.0",
     "@hagicode/hagilight-starlight": "0.1.0",
     "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "@hagicode/hagilight": "0.1.0"
   }
 }

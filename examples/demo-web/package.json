@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hagicode/hagilight": "0.1.0",
+    "@hagicode/hagilight-core": "0.1.0",
     "astro": "^7.3.5"
   }
 }

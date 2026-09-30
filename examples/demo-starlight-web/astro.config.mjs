@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import { hagilightRss } from '@hagicode/hagilight/integration';
 import hagilight from '@hagicode/hagilight-starlight';
 import { locales } from '@hagicode/hagilight-starlight/locales';
 
@@ -13,9 +12,10 @@ const coreRssOrder = process.env.HAGILIGHT_TEST_CORE_RSS_ORDER;
 if (coreRssOrder !== undefined && !['before', 'after'].includes(coreRssOrder)) {
   throw new Error('HAGILIGHT_TEST_CORE_RSS_ORDER must be "before" or "after".');
 }
+// Test-only: exercises RSS route ownership against the plain-Astro package.
 const coreRssIntegration = coreRssOrder === undefined
   ? []
-  : [hagilightRss({ locales, getFeed: './src/rss-feed.mjs' })];
+  : [(await import('@hagicode/hagilight/integration')).hagilightRss({ locales, getFeed: './src/rss-feed.mjs' })];
 
 export default defineConfig({
   site: 'https://hagistar.hagicode.com',
