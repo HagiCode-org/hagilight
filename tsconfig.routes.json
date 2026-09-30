@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "tsBuildInfoFile": null,
+    "rootDir": ".",
+    "types": ["node", "astro/client"]
+  },
+  "files": [
+    "packages/astro/src/virtual.d.ts",
+    "packages/astro/robots.txt.ts",
+    "packages/astro/rss.xml.ts",
+    "packages/astro/rss.[language].xml.ts",
+    "packages/starlight/src/virtual.d.ts",
+    "packages/starlight/rss.xml.ts",
+    "packages/starlight/rss.[language].xml.ts"
+  ]
+}
