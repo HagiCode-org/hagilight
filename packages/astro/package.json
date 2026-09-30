@@ -44,7 +44,8 @@
     "astro": "^6.0.7 || ^7.3.5"
   },
   "dependencies": {
-    "@astrojs/rss": "^4.0.19"
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4"
   },
   "keywords": [
     "astro-component",

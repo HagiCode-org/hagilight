@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, extname, isAbsolute, resolve, win32 } from 'node:path';
+import sitemap from '@astrojs/sitemap';
 import { resolveRssLocales } from './rss-locales.mjs';
 
 export const HAGILIGHT_RSS_OWNER = Symbol.for('@hagicode/hagilight/rss-owner');
@@ -10,6 +11,40 @@ const RSS_OWNER_REGISTRY = Symbol.for('@hagicode/hagilight/rss-owner-registry');
 const PAGE_SOURCE_EXTENSIONS = new Set(['.astro', '.html', '.js', '.jsx', '.md', '.mdx', '.ts', '.tsx']);
 const registeredRssOwners = globalThis[RSS_OWNER_REGISTRY] ?? new Map();
 globalThis[RSS_OWNER_REGISTRY] = registeredRssOwners;
+
+export function hagilight({ enabled = true } = {}) {
+  if (typeof enabled !== 'boolean') {
+    throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
+  }
+  return {
+    name: '@hagicode/hagilight:discovery',
+    hooks: {
+      'astro:config:setup'({ config, injectRoute, updateConfig }) {
+        if (!enabled) return;
+        if (!config.site) {
+          throw new Error('Hagilight sitemap and robots require an absolute Astro site URL. Set `site` in astro.config.mjs.');
+        }
+        const integrations = config.integrations ?? [];
+        if (!integrations.some(({ name }) => name === '@astrojs/sitemap' || name === '@astrojs/starlight')) {
+          updateConfig({ integrations: [sitemap()] });
+        }
+
+        const pageRoot = resolve(fileURLToPath(config.srcDir), 'pages');
+        const publicRoot = fileURLToPath(config.publicDir);
+        const hasRobotsPage = existsSync(pageRoot) && readdirSync(pageRoot).some((name) =>
+          /^robots\.txt\.(?:astro|html|js|jsx|md|mdx|ts|tsx)$/u.test(name)
+          || name === 'robots.txt');
+        if (!hasRobotsPage && !existsSync(resolve(publicRoot, 'robots.txt'))) {
+          injectRoute({
+            pattern: '/robots.txt',
+            entrypoint: fileURLToPath(new URL('./robots.txt.ts', import.meta.url)),
+            prerender: true,
+          });
+        }
+      },
+    },
+  };
+}
 
 export function registerStarlightRssOwner(enabled) {
   const token = Symbol('starlight-rss-owner');
