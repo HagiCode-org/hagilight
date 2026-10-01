@@ -1,6 +1,6 @@
 # @hagicode/hagilight
 
-Astro integrations and components for HagiCode sites without Starlight. Provides sitemap and `robots.txt` generation, optional localized RSS feeds and favicon, and a reusable SEO head component.
+Astro integrations and components for HagiCode sites without Starlight. Provides sitemap and `robots.txt` generation, localized RSS feeds (enabled by default) and favicon, and a reusable SEO head component.
 
 ## Install
 
@@ -23,8 +23,8 @@ export default defineConfig({
 });
 ```
 
-`hagilight()` generates a sitemap and `robots.txt` when the site does not already provide them. Set an absolute HTTP(S) `site` URL. `hagilightFavicon()` adds the bundled icon unless the site already declares one.
+`hagilight()` generates a sitemap and `robots.txt` when the site does not already provide them, and localized RSS feeds (`/rss.xml`, `/rss.<language>.xml`) by default. Set an absolute HTTP(S) `site` URL. `hagilightFavicon()` adds the bundled icon unless the site already declares one.
 
-For localized RSS, use `hagilightRss({ locales, getFeed: './src/rss-feed.ts' })` from the same `/integration` entry point; `getFeed` points to a project-root-relative module exporting a feed callback. Import `@hagicode/hagilight/SEOHead` for SEO metadata in an Astro page or layout.
+RSS is on by default: `hagilight()` derives feed locales from the Astro `i18n` config and serves a built-in empty feed. Customize it with the `rss` option, for example `hagilight({ rss: { getFeed: './src/rss-feed.ts' } })`; `getFeed` points to a project-root-relative module exporting a feed callback. Pass `rss: false` to disable RSS. Import `@hagicode/hagilight/SEOHead` for SEO metadata in an Astro page or layout.
 
 See the [repository documentation](https://github.com/HagiCode-org/hagilight#readme) for RSS configuration, feed callback types, and integration behavior.

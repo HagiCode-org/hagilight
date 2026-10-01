@@ -20,7 +20,7 @@ node --test test/demo-web-output.test.mjs
 | --- | --- |
 | `@hagicode/hagilight-core/Footer` | The rendered localized footer at the bottom of either page |
 | `@hagicode/hagilight/SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
-| `@hagicode/hagilight/integration` | Explicitly registered `hagilight()` generates a sitemap and robots.txt by default; `hagilightRss()` registers localized routes and Footer feed URLs from the typed `src/rss-feed.ts`; `hagilightFavicon()` is registered in `astro.config.mjs` |
+| `@hagicode/hagilight/integration` | Registered `hagilight()` generates a sitemap, robots.txt, and RSS feeds by default; `rss: { getFeed: './src/rss-feed.ts' }` registers localized routes and Footer feed URLs from the typed `src/rss-feed.ts`; `hagilightFavicon()` is registered in `astro.config.mjs` |
 | `@hagicode/hagilight-core/Copyright` | Copyright in the live footer and direct-import snippet |
 | `@hagicode/hagilight-core/PromotoBanner`, `/promotions` | Live banner with a locale-specific fallback; the fallback CTA targets the footer |
 | `@hagicode/hagilight-core/links` | Resolver usage snippet; the live Footer receives generated RSS URLs from the integration |

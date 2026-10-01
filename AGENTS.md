@@ -5,7 +5,7 @@ Three publishable, TypeScript-authored npm packages that provide shared Astro an
 ## Scope and ownership
 
 - `@hagicode/hagilight-core` — shared TypeScript utilities (links, favicon, SEO, RSS, RSS route ownership, promotions), shared `.astro` components (`Copyright`, `PromotoBanner`, `GoogleAnalytics`, `Analytics51LA`), and brand assets. No Starlight dependency.
-- `@hagicode/hagilight` — plain-Astro integrations (`hagilight`, `hagilightRss`, `hagilightFavicon`), `Footer`, `SEOHead`, and generated routes. Depends on core only.
+- `@hagicode/hagilight` — plain-Astro integration (`hagilight`, which generates sitemap, robots.txt, and RSS feeds by default, plus the `rss` option for customization), `hagilightFavicon`, `Footer`, `SEOHead`, and generated routes. Depends on core only.
 - `@hagicode/hagilight-starlight` — Starlight plugin (header, footer links, locale chooser, content-width control, 404 hero, RSS, analytics, AI disclosures). Depends on core only.
 - This repository is **documentation-maintenance scope only** for agent edits: modify `AGENTS.md` as instructed. Treat source, generated, and cache files as read-only unless the user expands scope.
 
