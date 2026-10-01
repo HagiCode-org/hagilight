@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { hagilight } from '@hagicode/hagilight/integration';
 
-function runSetup({ site, integrations = [], enabled = true, consumerPolicy } = {}) {
+function runSetup({ site, integrations = [], enabled = true, rss, consumerPolicy } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'hagilight-discovery-'));
   const srcDir = join(root, 'src');
   const pageRoot = join(srcDir, 'pages');
@@ -18,7 +18,8 @@ function runSetup({ site, integrations = [], enabled = true, consumerPolicy } = 
 
   const updated = [];
   const routes = [];
-  hagilight({ enabled }).hooks['astro:config:setup']({
+  const middlewares = [];
+  hagilight({ enabled, rss }).hooks['astro:config:setup']({
     config: {
       site,
       integrations,
@@ -26,24 +27,27 @@ function runSetup({ site, integrations = [], enabled = true, consumerPolicy } = 
       publicDir: pathToFileURL(`${publicDir}/`),
     },
     injectRoute: (route) => routes.push(route),
+    addMiddleware: (middleware) => middlewares.push(middleware),
     updateConfig: (config) => updated.push(config),
   });
-  return { root, updated, routes };
+  return { root, updated, routes, middlewares };
 }
 
-test('registers sitemap and a prerendered robots route by default', (t) => {
+const rssRoutes = (routes) => routes
+  .filter(({ pattern }) => pattern.startsWith('/rss'))
+  .map(({ pattern }) => pattern)
+  .sort();
+
+test('registers sitemap, robots, and RSS feeds by default', (t) => {
   const result = runSetup({ site: new URL('https://example.test') });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-  assert.equal(result.updated.length, 1);
-  assert.equal(result.updated[0].integrations.length, 1);
+  assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
   assert.equal(result.updated[0].integrations[0].name, '@astrojs/sitemap');
-  assert.equal(result.routes.length, 1);
-  assert.deepEqual(result.routes[0], {
-    pattern: '/robots.txt',
-    entrypoint: fileURLToPath(new URL('../packages/astro/robots.txt.ts', import.meta.url)),
-    prerender: true,
-  });
+  assert.ok(result.routes.some((route) => route.pattern === '/robots.txt' && route.prerender));
+  assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
+  assert.equal(result.middlewares.length, 1);
+  assert.equal(result.middlewares[0].order, 'pre');
 });
 
 test('requires an absolute HTTP(S) Astro site when discovery is enabled', (t) => {
@@ -62,6 +66,7 @@ test('requires an absolute HTTP(S) Astro site when discovery is enabled', (t) =>
         publicDir: pathToFileURL(`${publicDir}/`),
       },
       injectRoute: () => {},
+      addMiddleware: () => {},
       updateConfig: () => {},
     }), /absolute HTTP\(S\) Astro site URL.*Set `site` in astro\.config\.mjs/u);
   }
@@ -73,9 +78,10 @@ test('disables both generated outputs without requiring a site', (t) => {
 
   assert.deepEqual(result.updated, []);
   assert.deepEqual(result.routes, []);
+  assert.deepEqual(result.middlewares, []);
 });
 
-test('leaves sitemap generation to existing sitemap and Starlight integrations', (t) => {
+test('leaves sitemap generation to existing sitemap and Starlight integrations while still generating RSS', (t) => {
   for (const name of ['@astrojs/sitemap', '@astrojs/starlight']) {
     const result = runSetup({
       site: 'https://example.test',
@@ -83,8 +89,9 @@ test('leaves sitemap generation to existing sitemap and Starlight integrations',
     });
     t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-    assert.deepEqual(result.updated, []);
-    assert.equal(result.routes.length, 1);
+    assert.ok(!result.updated.some((entry) => entry.integrations));
+    assert.ok(result.routes.some((route) => route.pattern === '/robots.txt'));
+    assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
   }
 });
 
@@ -96,7 +103,18 @@ test('preserves consumer-owned robots routes and public files', (t) => {
     });
     t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-    assert.equal(result.updated.length, 1);
-    assert.deepEqual(result.routes, []);
+    assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
+    assert.ok(!result.routes.some((route) => route.pattern === '/robots.txt'));
+    assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
   }
+});
+
+test('disables RSS when rss: false', (t) => {
+  const result = runSetup({ site: 'https://example.test', rss: false });
+  t.after(() => rmSync(result.root, { recursive: true, force: true }));
+
+  assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
+  assert.ok(result.routes.some((route) => route.pattern === '/robots.txt'));
+  assert.deepEqual(rssRoutes(result.routes), []);
+  assert.deepEqual(result.middlewares, []);
 });

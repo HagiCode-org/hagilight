@@ -57,7 +57,8 @@ function claimOf(integration: unknown): RssOwnerClaim | undefined {
 /**
  * Decide whether the plain-Astro RSS integration should generate routes.
  * Consumes pending Starlight claims. Returns `'starlight'` when an enabled
- * Starlight RSS integration owns the routes, otherwise `'astro'`.
+ * Starlight RSS integration owns the routes, otherwise `'astro'`. A disabled or
+ * absent Starlight claim lets the plain-Astro integration own the routes.
  */
 export function resolvePlainAstroRssOwner(integrations: readonly unknown[] = []): RssOwnerPackage {
   const owners = registry();
@@ -72,8 +73,5 @@ export function resolvePlainAstroRssOwner(integrations: readonly unknown[] = [])
     throw new Error('Hagilight RSS cannot determine a sole route owner because multiple Starlight RSS integrations are enabled.');
   }
   if (active.length === 1) return 'starlight';
-  if (starlightOwners.length > 0) {
-    throw new Error('Hagilight RSS cannot establish route ownership: Starlight RSS is explicitly disabled while hagilightRss() requests feed generation. Enable Starlight RSS or remove hagilightRss().');
-  }
   return 'astro';
 }

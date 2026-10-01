@@ -5,11 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
-import {
-  RSS_OWNER,
-  resolvePlainAstroRssOwner,
-  type RssOwnerClaim,
-} from '@hagicode/hagilight-core/rss-ownership';
+import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
 
 export type {
   RssFeedCallback,
@@ -21,18 +17,26 @@ export type {
 export interface HagilightOptions {
   /** Generate `sitemap-index.xml` and `robots.txt`. Defaults to `true`. */
   enabled?: boolean;
+  /**
+   * Generate localized `/rss.xml` and `/rss.<language>.xml` feeds. Defaults to
+   * `true`, so integrating `hagilight()` is enough to publish an RSS feed.
+   * Pass `false` to disable, or an options object to customize the feed:
+   * - `locales`: Starlight-shaped locale map. Derived from the Astro `i18n`
+   *   config when omitted.
+   * - `getFeed`: project-root-relative module whose default export is an
+   *   `RssFeedCallback`. A built-in empty feed is used when omitted.
+   */
+  rss?: boolean | HagilightRssOptions;
 }
 
 export interface HagilightRssOptions {
-  /** Starlight-shaped locale map, for example `{ root: { lang: 'en-US' }, 'zh-CN': { lang: 'zh-CN' } }`. */
-  locales: RssLocalesInput;
-  /** Project-root-relative module whose default export is an `RssFeedCallback`. */
-  getFeed: string;
+  /** Starlight-shaped locale map, for example `{ root: { lang: 'en-US' }, 'zh-CN': { lang: 'zh-CN' } }`. Derived from Astro `i18n` when omitted. */
+  locales?: RssLocalesInput;
+  /** Project-root-relative module whose default export is an `RssFeedCallback`. A built-in empty feed is used when omitted. */
+  getFeed?: string;
 }
 
 export type HagilightFaviconOptions = FaviconOptions;
-
-export type HagilightRssIntegration = AstroIntegration & { readonly [RSS_OWNER]: RssOwnerClaim };
 
 const VIRTUAL_RSS_CONFIG = 'virtual:hagilight/rss-config';
 const VIRTUAL_RSS_CONFIG_RESOLVED = `\0${VIRTUAL_RSS_CONFIG}`;
@@ -65,20 +69,45 @@ function resolveDiscoverySite(site: unknown): URL {
 }
 
 /**
- * Generate a sitemap and `robots.txt` for a plain Astro site. An existing
- * `@astrojs/sitemap` or Starlight integration owns sitemap generation, and a
- * consumer-owned robots page or public file takes precedence.
+ * Built-in RSS feed used when a consumer does not supply a `getFeed` module.
+ * It is serialized into the generated virtual module, so it must stay a pure
+ * function with no external references.
  */
-export function hagilight({ enabled = true }: HagilightOptions = {}): AstroIntegration {
+const BUILTIN_RSS_FEED = async (): Promise<{ title: string; description: string; items: never[] }> => ({
+  title: 'Site Updates',
+  description: 'RSS feed for this site.',
+  items: [],
+});
+const BUILTIN_RSS_FEED_SOURCE = BUILTIN_RSS_FEED.toString();
+
+/**
+ * Generate a sitemap and `robots.txt` for a plain Astro site, and (by default)
+ * localized RSS feeds. An existing `@astrojs/sitemap` or Starlight integration
+ * owns sitemap generation, a consumer-owned robots page or public file takes
+ * precedence, and an enabled Starlight Hagilight integration owns RSS feeds.
+ */
+export function hagilight({ enabled = true, rss }: HagilightOptions = {}): AstroIntegration {
   if (typeof enabled !== 'boolean') {
     throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
+  }
+  if (rss !== undefined && typeof rss !== 'boolean' && !isRecord(rss)) {
+    throw new TypeError('Hagilight RSS option must be a boolean or an options object.');
+  }
+  if (isRecord(rss)) {
+    if (rss.locales !== undefined && !isRecord(rss.locales)) {
+      throw new TypeError('Hagilight RSS locales must be an object.');
+    }
+    if (rss.getFeed !== undefined && (typeof rss.getFeed !== 'string' || !rss.getFeed.trim())) {
+      throw new TypeError('Hagilight RSS getFeed must be a non-empty module path.');
+    }
   }
   return {
     name: '@hagicode/hagilight:discovery',
     hooks: {
-      'astro:config:setup'({ config, injectRoute, updateConfig }) {
+      'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig }) {
         if (!enabled) return;
         resolveDiscoverySite(config.site);
+
         const integrations: readonly unknown[] = config.integrations ?? [];
         if (!integrations.some((integration) => {
           const name = integrationName(integration);
@@ -99,38 +128,76 @@ export function hagilight({ enabled = true }: HagilightOptions = {}): AstroInteg
             prerender: true,
           });
         }
+
+        if (rss === false) return;
+        if (resolvePlainAstroRssOwner(config.integrations) === 'starlight') return;
+
+        const rssOptions: HagilightRssOptions = rss === true || rss === undefined ? {} : rss;
+        const locales = resolveRssLocales(
+          deriveRssLocales(rssOptions.locales, config),
+          { requireNonEmpty: false },
+        );
+        const modulePath = rssOptions.getFeed
+          ? resolveFeedModule(config.root, rssOptions.getFeed)
+          : null;
+
+        const site = resolveSite(config.site);
+        assertNoRouteCollisions(config, locales);
+        const baseSegments = `${config.base || '/' }`.split('/').filter(Boolean);
+        const baseUrl = baseSegments.length > 0 ? `/${baseSegments.join('/')}/` : '/';
+        const baseLocation = new URL(baseUrl, site);
+        const defaultFeedUrl = new URL('rss.xml', baseLocation).href;
+        const localeFeedUrls = Object.fromEntries(locales
+          .filter(({ filename }) => filename !== 'en')
+          .map(({ lang, filename }) => [lang, new URL(`rss.${filename}.xml`, baseLocation).href]));
+
+        injectRoute({ pattern: '/rss.xml', entrypoint: routeEntrypoint('rss.xml.ts'), prerender: true });
+        injectRoute({ pattern: '/rss.[language].xml', entrypoint: routeEntrypoint('rss.[language].xml.ts'), prerender: true });
+        addMiddleware({ entrypoint: fileURLToPath(new URL('./rss-middleware.js', import.meta.url)), order: 'pre' });
+        updateConfig({
+          vite: {
+            plugins: [createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUrl, localeFeedUrls })],
+          },
+        });
       },
     },
   };
 }
 
-/** Inject the bundled HagiCode favicon unless the site head already declares an icon. */
-export function hagilightFavicon(options: HagilightFaviconOptions = {}): AstroIntegration {
-  if (!isRecord(options)) {
-    throw new TypeError('Hagilight favicon options must be an object.');
+function deriveRssLocales(locales: RssLocalesInput | undefined, config: AstroConfig): RssLocalesInput | undefined {
+  if (locales !== undefined) return locales;
+  const i18n = config.i18n as { defaultLocale?: string; locales?: unknown[] } | undefined;
+  if (!i18n?.locales?.length) return undefined;
+  const defaultLocale = i18n.defaultLocale ?? String(i18n.locales[0]);
+  const map: Record<string, { lang: string }> = {};
+  for (const entry of i18n.locales) {
+    const lang = typeof entry === 'string' ? entry : (entry as { codes?: string[]; path?: string }).codes?.[0]
+      ?? (entry as { path?: string }).path;
+    if (typeof lang !== 'string' || !lang.trim()) continue;
+    if (lang === defaultLocale) map.root = { lang };
+    else map[lang] = { lang };
   }
-  return {
-    name: '@hagicode/hagilight:favicon',
-    hooks: {
-      'astro:config:setup'({ config, updateConfig }) {
-        const head = (config as { head?: Parameters<typeof resolveFaviconHeadEntry>[0] }).head;
-        const entry = resolveFaviconHeadEntry(head, options);
-        if (!entry) return;
-        updateConfig({ head: [...(head ?? []), entry] } as Parameters<typeof updateConfig>[0]);
-      },
-    },
-  };
+  return map;
 }
 
-function resolveRssOptions(options: unknown): { locales: RssLocale[]; getFeed: string } {
-  if (!isRecord(options)) {
-    throw new TypeError('Hagilight RSS integration options must be an object.');
+function resolveFeedModule(root: URL, reference: string): string {
+  if (reference.startsWith('file:') || isAbsolute(reference) || win32.isAbsolute(reference)) {
+    throw new TypeError('Hagilight RSS getFeed must be a path relative to the Astro project root.');
   }
-  const locales = resolveRssLocales(options.locales as RssLocalesInput | undefined, { requireNonEmpty: true });
-  if (typeof options.getFeed !== 'string' || !options.getFeed.trim()) {
-    throw new TypeError('Hagilight RSS getFeed must be a non-empty module path such as "./src/rss-feed.mjs".');
+  const modulePath = resolve(fileURLToPath(root), reference);
+  if (!existsSync(modulePath) || !statSync(modulePath).isFile()) {
+    throw new Error(`Hagilight RSS getFeed module "${reference}" was not found relative to the Astro project root.`);
   }
-  return { locales, getFeed: options.getFeed.trim() };
+  return modulePath;
+}
+
+interface VirtualRssConfig {
+  modulePath: string | null;
+  site: string;
+  baseUrl: string;
+  locales: readonly RssLocale[];
+  defaultFeedUrl: string;
+  localeFeedUrls: Record<string, string>;
 }
 
 function resolveSite(site: unknown): string {
@@ -144,17 +211,6 @@ function resolveSite(site: unknown): string {
     throw new Error('Hagilight RSS requires an absolute HTTP(S) Astro site URL.');
   }
   return parsed.href;
-}
-
-function resolveFeedModule(root: URL, reference: string): string {
-  if (reference.startsWith('file:') || isAbsolute(reference) || win32.isAbsolute(reference)) {
-    throw new TypeError('Hagilight RSS getFeed must be a path relative to the Astro project root.');
-  }
-  const modulePath = resolve(fileURLToPath(root), reference);
-  if (!existsSync(modulePath) || !statSync(modulePath).isFile()) {
-    throw new Error(`Hagilight RSS getFeed module "${reference}" was not found relative to the Astro project root.`);
-  }
-  return modulePath;
 }
 
 function assertNoRouteCollisions(config: ConfigPaths, locales: readonly RssLocale[]): void {
@@ -196,12 +252,12 @@ function assertNoRouteCollisions(config: ConfigPaths, locales: readonly RssLocal
   }
 
   if (collisions.length > 0) {
-    throw new Error(`Hagilight RSS route conflicts with consumer-owned file(s): ${collisions.join(', ')}. Remove the conflicting route or do not enable hagilightRss().`);
+    throw new Error(`Hagilight RSS route conflicts with consumer-owned file(s): ${collisions.join(', ')}. Remove the conflicting route or disable RSS with rss: false.`);
   }
 }
 
 interface VirtualRssConfig {
-  modulePath: string;
+  modulePath: string | null;
   site: string;
   baseUrl: string;
   locales: readonly RssLocale[];
@@ -210,6 +266,8 @@ interface VirtualRssConfig {
 }
 
 function createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUrl, localeFeedUrls }: VirtualRssConfig) {
+  const feedImport = modulePath ? `import * as siteFeedModule from ${JSON.stringify(modulePath)};` : '';
+  const getFeedExpr = modulePath ? 'siteFeedModule.default' : `(${BUILTIN_RSS_FEED_SOURCE})`;
   return {
     name: '@hagicode/hagilight:rss',
     resolveId(id: string): string | null {
@@ -218,12 +276,12 @@ function createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUr
     load(id: string): string | null {
       if (id !== VIRTUAL_RSS_CONFIG_RESOLVED) return null;
       return [
-        `import * as siteFeedModule from ${JSON.stringify(modulePath)};`,
+        feedImport,
         'const config = {',
         `  site: ${JSON.stringify(site)},`,
         `  baseUrl: ${JSON.stringify(baseUrl)},`,
         `  locales: ${JSON.stringify(locales)},`,
-        '  getFeed: siteFeedModule.default,',
+        `  getFeed: ${getFeedExpr},`,
         `  footer: ${JSON.stringify({ defaultFeedUrl, localeFeedUrls, locales })},`,
         '};',
         'export default config;',
@@ -232,60 +290,19 @@ function createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUr
   };
 }
 
-/**
- * Generate localized `/rss.xml`, `/rss.en.xml`, and `/rss.<language>.xml`
- * routes and expose their URLs to the plain-Astro Footer. An enabled Starlight
- * Hagilight RSS integration in the same project owns the routes instead.
- */
-export function hagilightRss(input: HagilightRssOptions): HagilightRssIntegration {
-  const options = resolveRssOptions(input);
-
+/** Inject the bundled HagiCode favicon unless the site head already declares an icon. */
+export function hagilightFavicon(options: HagilightFaviconOptions = {}): AstroIntegration {
+  if (!isRecord(options)) {
+    throw new TypeError('Hagilight favicon options must be an object.');
+  }
   return {
-    name: '@hagicode/hagilight:rss',
-    [RSS_OWNER]: { package: 'astro', enabled: true },
+    name: '@hagicode/hagilight:favicon',
     hooks: {
-      'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig }) {
-        if (resolvePlainAstroRssOwner(config.integrations) === 'starlight') return;
-
-        const site = resolveSite(config.site);
-        const modulePath = resolveFeedModule(config.root, options.getFeed);
-        assertNoRouteCollisions(config, options.locales);
-        const baseSegments = `${config.base || '/'}`
-          .split('/')
-          .filter(Boolean);
-        const baseUrl = baseSegments.length > 0 ? `/${baseSegments.join('/')}/` : '/';
-        const baseLocation = new URL(baseUrl, site);
-        const defaultFeedUrl = new URL('rss.xml', baseLocation).href;
-        const localeFeedUrls = Object.fromEntries(options.locales
-          .filter(({ filename }) => filename !== 'en')
-          .map(({ lang, filename }) => [lang, new URL(`rss.${filename}.xml`, baseLocation).href]));
-
-        injectRoute({
-          pattern: '/rss.xml',
-          entrypoint: routeEntrypoint('rss.xml.ts'),
-          prerender: true,
-        });
-        injectRoute({
-          pattern: '/rss.[language].xml',
-          entrypoint: routeEntrypoint('rss.[language].xml.ts'),
-          prerender: true,
-        });
-        addMiddleware({
-          entrypoint: fileURLToPath(new URL('./rss-middleware.js', import.meta.url)),
-          order: 'pre',
-        });
-        updateConfig({
-          vite: {
-            plugins: [createVirtualPlugin({
-              modulePath,
-              site,
-              baseUrl,
-              locales: options.locales,
-              defaultFeedUrl,
-              localeFeedUrls,
-            })],
-          },
-        });
+      'astro:config:setup'({ config, updateConfig }) {
+        const head = (config as { head?: Parameters<typeof resolveFaviconHeadEntry>[0] }).head;
+        const entry = resolveFaviconHeadEntry(head, options);
+        if (!entry) return;
+        updateConfig({ head: [...(head ?? []), entry] } as Parameters<typeof updateConfig>[0]);
       },
     },
   };

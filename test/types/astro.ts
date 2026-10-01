@@ -3,23 +3,20 @@ import type { AstroIntegration } from 'astro';
 import {
   hagilight,
   hagilightFavicon,
-  hagilightRss,
-  type HagilightRssIntegration,
   type HagilightRssOptions,
   type RssFeedCallback,
 } from '@hagicode/hagilight/integration';
 
 const rssOptions: HagilightRssOptions = {
-  locales: { root: { label: 'English', lang: 'en-US' }, 'zh-CN': { label: '简体中文', lang: 'zh-CN' } },
   getFeed: './src/rss-feed.ts',
 };
-const rss: HagilightRssIntegration = hagilightRss(rssOptions);
 const integrations: AstroIntegration[] = [
   hagilight(),
   hagilight({ enabled: false }),
+  hagilight({ rss: false }),
+  hagilight({ rss: rssOptions }),
   hagilightFavicon(),
   hagilightFavicon({ href: '/favicon.svg' }),
-  rss,
 ];
 const getFeed: RssFeedCallback = async ({ route, lang }) => ({
   title: `${route} ${lang}`,
@@ -30,9 +27,9 @@ const getFeed: RssFeedCallback = async ({ route, lang }) => ({
 // @ts-expect-error The discovery switch is a boolean.
 hagilight({ enabled: 'yes' });
 // @ts-expect-error getFeed is a project-relative module path, not the callback itself.
-hagilightRss({ locales: rssOptions.locales, getFeed });
-// @ts-expect-error RSS generation requires a locale map.
-hagilightRss({ getFeed: './src/rss-feed.ts' });
+hagilight({ rss: { getFeed } });
+// @ts-expect-error RSS content locales, when provided, must be a locale map.
+hagilight({ rss: { locales: 'en' } });
 // @ts-expect-error Feed callbacks must return a description.
 const missingDescription: RssFeedCallback = () => ({ title: 'Feed', items: [] });
 

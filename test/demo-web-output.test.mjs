@@ -102,9 +102,9 @@ test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, 
     assert.equal(structuredData[1].url, page.canonical);
     assert.equal(typeof structuredData[1].description, 'string');
   }
-  assert.match(config, /import \{ hagilight, hagilightFavicon, hagilightRss \} from '@hagicode\/hagilight\/integration'/u);
+  assert.match(config, /import \{ hagilight, hagilightFavicon \} from '@hagicode\/hagilight\/integration'/u);
   assert.match(config, /hagilightFavicon\(\)/u);
-  assert.match(config, /hagilightRss\(\{ locales, getFeed: '\.\/src\/rss-feed\.ts' \}\)/u);
+  assert.match(config, /hagilight\(\{ rss: \{ getFeed: '\.\/src\/rss-feed\.ts' \} \}\)/u);
 });
 
 test('integration feeds keep English and Chinese metadata, items, and links separate', () => {

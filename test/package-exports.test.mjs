@@ -19,7 +19,7 @@ const expectedExports = {
   '@hagicode/hagilight-core/rss': ['generateRssFeed', 'resolveRssLocales'],
   '@hagicode/hagilight-core/rss-ownership': ['RSS_OWNER', 'registerStarlightRssOwner', 'resolvePlainAstroRssOwner'],
   '@hagicode/hagilight-core/promotions': ['loadActivePromotions'],
-  '@hagicode/hagilight/integration': ['hagilight', 'hagilightFavicon', 'hagilightRss'],
+  '@hagicode/hagilight/integration': ['hagilight', 'hagilightFavicon'],
   '@hagicode/hagilight-starlight': ['default'],
   '@hagicode/hagilight-starlight/locales': ['locales'],
   '@hagicode/hagilight-starlight/schema': ['aiDisclosureSchema', 'articlePromotionSchema', 'hagilightSchema', 'rssSchema'],

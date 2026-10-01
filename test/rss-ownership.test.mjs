@@ -26,7 +26,7 @@ test('ambiguous or disabled Starlight ownership is diagnosed', () => {
   registerStarlightRssOwner(true);
   assert.throws(() => resolvePlainAstroRssOwner(), /multiple Starlight RSS integrations/u);
   registerStarlightRssOwner(false);
-  assert.throws(() => resolvePlainAstroRssOwner(), /Starlight RSS is explicitly disabled/u);
+  // A disabled Starlight claim lets the plain-Astro integration own the routes.
   assert.equal(resolvePlainAstroRssOwner(), 'astro');
 });
 

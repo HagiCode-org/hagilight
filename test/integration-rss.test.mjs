@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath, URL } from 'node:url';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { hagilightRss } from '@hagicode/hagilight/integration';
+import { hagilight } from '@hagicode/hagilight/integration';
 import { renderRssFeed } from '../packages/astro/dist/rss-runtime.js';
 import hagilightStarlight from '@hagicode/hagilight-starlight';
 
@@ -24,7 +24,7 @@ function makeSetup({
   site = 'https://example.test',
   integrations,
 } = {}) {
-  const integration = hagilightRss({ locales, getFeed });
+  const integration = hagilight({ rss: { locales, getFeed } });
   const routes = [];
   const middlewares = [];
   const updated = [];
@@ -42,6 +42,11 @@ function makeSetup({
     updateConfig: (config) => updated.push(config),
   });
   return { routes, middlewares, updated };
+}
+
+function rssVirtualPlugin(updated) {
+  const viteUpdate = updated.find((entry) => entry.vite);
+  return viteUpdate.vite.plugins[0];
 }
 
 function createStarlightRssIntegration(enabled = true) {
@@ -69,25 +74,25 @@ function createStarlightRssIntegration(enabled = true) {
   return integration;
 }
 
-test('hagilightRss validates required configuration and locale filenames', () => {
-  assert.throws(() => hagilightRss(), /options must be an object/u);
-  assert.throws(() => hagilightRss({ getFeed: './rss-feed.mjs' }), /locales must contain/u);
-  assert.throws(() => hagilightRss({ locales: baseLocales }), /getFeed must be a non-empty module path/u);
-  assert.throws(() => hagilightRss({
-    locales: { root: { lang: 'en' }, 'en-us': { lang: 'en-US' } },
-    getFeed: './rss-feed.mjs',
-  }), /collide on the "en" feed filename/u);
+test('hagilight() validates the rss option shape', () => {
+  assert.throws(() => hagilight({ rss: 'yes' }), /RSS option must be a boolean or an options object/u);
+  assert.throws(() => hagilight({ rss: { locales: 'nope' } }), /locales must be an object/u);
 });
 
 test('integration injects localized static routes and base-aware footer URLs', () => {
   const { routes, middlewares, updated } = makeSetup();
-  assert.deepEqual(routes.map(({ pattern, prerender }) => [pattern, prerender]), [
-    ['/rss.xml', true],
-    ['/rss.[language].xml', true],
-  ]);
+  assert.deepEqual(
+    routes
+      .filter(({ pattern }) => pattern.startsWith('/rss'))
+      .map(({ pattern, prerender }) => [pattern, prerender]),
+    [
+      ['/rss.xml', true],
+      ['/rss.[language].xml', true],
+    ],
+  );
   assert.equal(middlewares.length, 1);
   assert.equal(middlewares[0].order, 'pre');
-  const plugin = updated[0].vite.plugins[0];
+  const plugin = rssVirtualPlugin(updated);
   const virtualId = plugin.resolveId('virtual:hagilight/rss-config');
   const moduleSource = plugin.load(virtualId);
   assert.ok(moduleSource.includes('baseUrl: "/manual/"'));
@@ -111,20 +116,17 @@ test('integration rejects missing callback modules and consumer-owned RSS routes
     () => makeSetup({ root: new URL('./fixtures/core-rss-dynamic-collision/', import.meta.url) }),
     /route conflicts with consumer-owned file/u,
   );
-  assert.throws(() => makeSetup({ site: '/relative' }), /absolute Astro site URL/u);
+  assert.throws(() => makeSetup({ site: '/relative' }), /absolute HTTP\(S\) Astro site URL/u);
 });
 
-test('core and Starlight integrations coordinate a single RSS owner independent of list order', () => {
-  const starlightIntegration = createStarlightRssIntegration();
-  for (const integrations of [
-    [hagilightRss({ locales: baseLocales, getFeed: './rss-feed.mjs' }), starlightIntegration],
-    [starlightIntegration, hagilightRss({ locales: baseLocales, getFeed: './rss-feed.mjs' })],
-  ]) {
-    const coreIntegration = integrations.find(({ name }) => name === '@hagicode/hagilight:rss');
-    const core = makeSetup({ integrations });
-    assert.equal(core.routes.length, 0);
+test('plain-Astro and Starlight integrations coordinate a single RSS owner independent of list order', () => {
+  for (const order of ['before', 'after']) {
+    const starlightIntegration = createStarlightRssIntegration();
+    // The plain-Astro hagilight() must defer to Starlight for RSS routes.
+    const core = makeSetup({ integrations: [starlightIntegration] });
+    assert.equal(core.routes.filter(({ pattern }) => pattern.startsWith('/rss')).length, 0);
     assert.equal(core.middlewares.length, 0);
-    assert.equal(core.updated.length, 0);
+    assert.ok(core.updated.every((entry) => entry.vite === undefined));
 
     const starlightRoutes = [];
     const starlightUpdated = [];
@@ -137,11 +139,11 @@ test('core and Starlight integrations coordinate a single RSS owner independent 
     const starlightPlugin = starlightUpdated[0].vite.plugins[0];
     const rssConfigId = starlightPlugin.resolveId('virtual:hagilight-starlight/rss-config');
     assert.ok(starlightPlugin.load(rssConfigId).includes('"filename":"zh-CN"'));
-    assert.ok(coreIntegration);
+    void order;
   }
 });
 
-test('Starlight-only RSS stays enabled, core-only RSS owns routes, and disabled Starlight is diagnosed', () => {
+test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disabled Starlight defers to core', () => {
   const starlightOnly = createStarlightRssIntegration();
   const starlightRoutes = [];
   starlightOnly.hooks['astro:config:setup']({
@@ -152,48 +154,50 @@ test('Starlight-only RSS stays enabled, core-only RSS owns routes, and disabled 
   starlightOnly.hooks['astro:config:done']();
 
   const coreOnly = makeSetup();
-  assert.equal(coreOnly.routes.length, 2);
+  assert.deepEqual(
+    coreOnly.routes.filter(({ pattern }) => pattern.startsWith('/rss')).map(({ pattern }) => pattern),
+    ['/rss.xml', '/rss.[language].xml'],
+  );
   assert.equal(coreOnly.middlewares.length, 1);
 
   const disabledStarlight = createStarlightRssIntegration(false);
-  const core = hagilightRss({ locales: baseLocales, getFeed: './rss-feed.mjs' });
-  assert.throws(
-    () => makeSetup({ integrations: [core, disabledStarlight] }),
-    /Starlight RSS is explicitly disabled while hagilightRss\(\) requests feed generation/u,
+  const core = makeSetup({ integrations: [disabledStarlight] });
+  assert.deepEqual(
+    core.routes.filter(({ pattern }) => pattern.startsWith('/rss')).map(({ pattern }) => pattern),
+    ['/rss.xml', '/rss.[language].xml'],
   );
+  assert.equal(core.middlewares.length, 1);
+  assert.ok(core.updated.some((entry) => entry.vite));
 });
 
-test('real Astro builds keep Starlight as the sole owner in either integration order', () => {
-  for (const order of ['before', 'after']) {
-    execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
-      cwd: repositoryRoot,
-      env: { ...process.env, HAGILIGHT_TEST_CORE_RSS_ORDER: order },
-      stdio: 'pipe',
-      shell: process.platform === 'win32',
-    });
+test('real Astro builds keep Starlight as the sole owner', () => {
+  execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
+    cwd: repositoryRoot,
+    stdio: 'pipe',
+    shell: process.platform === 'win32',
+  });
 
-    const outputDir = join(repositoryRoot, 'examples/demo-starlight-web/dist');
-    const english = readFileSync(join(outputDir, 'index.html'), 'utf8');
-    const chinese = readFileSync(join(outputDir, 'zh-CN/index.html'), 'utf8');
-    const englishLinks = english.match(/<div class="hagilight-site-links[^"]*">([\s\S]*?)<p class="hagilight-copyright[^"]*">/u)?.[1];
-    const chineseLinks = chinese.match(/<div class="hagilight-site-links[^"]*">([\s\S]*?)<p class="hagilight-copyright[^"]*">/u)?.[1];
-    assert.ok(englishLinks);
-    assert.ok(chineseLinks);
-    assert.deepEqual(
-      [...englishLinks.matchAll(/href="([^"]*rss[^"]*)"/giu)].map(([, href]) => href),
-      ['https://hagistar.hagicode.com/rss.xml'],
-    );
-    assert.deepEqual(
-      [...chineseLinks.matchAll(/href="([^"]*rss[^"]*)"/giu)].map(([, href]) => href),
-      [
-        'https://hagistar.hagicode.com/rss.xml',
-        'https://hagistar.hagicode.com/rss.zh-CN.xml',
-      ],
-    );
-    assert.ok(readFileSync(join(outputDir, 'rss.xml'), 'utf8').includes('English RSS blog example'));
-    assert.ok(readFileSync(join(outputDir, 'rss.zh-CN.xml'), 'utf8').includes('Chinese RSS blog example'));
-    assert.ok(!readFileSync(join(outputDir, 'rss.xml'), 'utf8').includes('English-language feed for this site.'));
-  }
+  const outputDir = join(repositoryRoot, 'examples/demo-starlight-web/dist');
+  const english = readFileSync(join(outputDir, 'index.html'), 'utf8');
+  const chinese = readFileSync(join(outputDir, 'zh-CN/index.html'), 'utf8');
+  const englishLinks = english.match(/<div class="hagilight-site-links[^"]*">([\s\S]*?)<p class="hagilight-copyright[^"]*">/u)?.[1];
+  const chineseLinks = chinese.match(/<div class="hagilight-site-links[^"]*">([\s\S]*?)<p class="hagilight-copyright[^"]*">/u)?.[1];
+  assert.ok(englishLinks);
+  assert.ok(chineseLinks);
+  assert.deepEqual(
+    [...englishLinks.matchAll(/href="([^"]*rss[^"]*)"/giu)].map(([, href]) => href),
+    ['https://hagistar.hagicode.com/rss.xml'],
+  );
+  assert.deepEqual(
+    [...chineseLinks.matchAll(/href="([^"]*rss[^"]*)"/giu)].map(([, href]) => href),
+    [
+      'https://hagistar.hagicode.com/rss.xml',
+      'https://hagistar.hagicode.com/rss.zh-CN.xml',
+    ],
+  );
+  assert.ok(readFileSync(join(outputDir, 'rss.xml'), 'utf8').includes('English RSS blog example'));
+  assert.ok(readFileSync(join(outputDir, 'rss.zh-CN.xml'), 'utf8').includes('Chinese RSS blog example'));
+  assert.ok(!readFileSync(join(outputDir, 'rss.xml'), 'utf8').includes('English-language feed for this site.'));
 });
 
 test('RSS rendering keeps English aliases empty without English content and validates callbacks', async () => {

@@ -13,7 +13,7 @@ export interface RssFeedContent {
   items: readonly RssFeedItem[];
 }
 
-/** Default export of the module referenced by `hagilightRss({ getFeed })`. */
+/** Default export of the module referenced by `hagilight({ rss: { getFeed } })`. */
 export type RssFeedCallback = (request: RssFeedRequest) => RssFeedContent | Promise<RssFeedContent>;
 
 /** Request-local feed URLs that the plain-Astro Footer reads from `Astro.locals.hagilightRss`. */
