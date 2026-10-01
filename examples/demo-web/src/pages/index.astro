@@ -84,7 +84,7 @@ const sections = [
         kind: 'Live build output · localized integration',
         summary: 'The integration generates locale-specific routes from site-owned feed data; the core RSS renderer remains available for consumer-owned routes, and @hagicode/hagilight-core/rss-ownership lets a Starlight plugin in the same project own the routes.',
         evidence: 'Use the RSS link in the header or footer to open the English or current-language feed.',
-        example: "import { hagilightRss, type RssFeedCallback } from '@hagicode/hagilight/integration';\nimport { generateRssFeed, resolveRssLocales } from '@hagicode/hagilight-core/rss';\n\nconst locales = { root: { lang: 'en-US' }, 'zh-CN': { lang: 'zh-CN' } };\nresolveRssLocales(locales);\nintegrations: [hagilightRss({ locales, getFeed: './src/rss-feed.ts' })]",
+        example: "import { hagilight, type RssFeedCallback } from '@hagicode/hagilight/integration';\n\nintegrations: [hagilight({ rss: { getFeed: './src/rss-feed.ts' } })]",
       },
     ],
   },

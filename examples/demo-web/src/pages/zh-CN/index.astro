@@ -84,7 +84,7 @@ const sections = [
         kind: '真实构建产物 · 多语言集成',
         summary: '集成根据站点提供的 feed 数据生成多语言路由；使用方仍可用 core 的 RSS renderer 自行维护路由，@hagicode/hagilight-core/rss-ownership 让同一项目中的 Starlight 插件接管路由。',
         evidence: '点击页眉或页脚中的 RSS 链接即可打开英文或当前语言 feed。',
-        example: "import { hagilightRss, type RssFeedCallback } from '@hagicode/hagilight/integration';\nimport { generateRssFeed, resolveRssLocales } from '@hagicode/hagilight-core/rss';\n\nconst locales = { root: { lang: 'en-US' }, 'zh-CN': { lang: 'zh-CN' } };\nresolveRssLocales(locales);\nintegrations: [hagilightRss({ locales, getFeed: './src/rss-feed.ts' })]",
+        example: "import { hagilight, type RssFeedCallback } from '@hagicode/hagilight/integration';\n\nintegrations: [hagilight({ rss: { getFeed: './src/rss-feed.ts' } })]",
       },
     ],
   },
