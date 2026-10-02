@@ -27,4 +27,11 @@ export default defineConfig({
 
 RSS is on by default: `hagilight()` derives feed locales from the Astro `i18n` config and serves a built-in empty feed. Customize it with the `rss` option, for example `hagilight({ rss: { getFeed: './src/rss-feed.ts' } })`; `getFeed` points to a project-root-relative module exporting a feed callback. Pass `rss: false` to disable RSS. Import `@hagicode/hagilight/SEOHead` for SEO metadata in an Astro page or layout.
 
+Use `@hagicode/hagilight/Footer` for the shared localized footer with the
+literal `power by hagilight@<version>` attribution. The version is read at build
+time from this package's own manifest, not from Astro. Existing
+`@hagicode/hagilight-core/Footer` imports remain supported and render without a
+feature-package attribution; switch that import to `@hagicode/hagilight/Footer`
+to opt in while keeping the same `locale` and `links` props.
+
 See the [repository documentation](https://github.com/HagiCode-org/hagilight#readme) for RSS configuration, feed callback types, and integration behavior.

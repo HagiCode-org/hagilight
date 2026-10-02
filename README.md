@@ -42,6 +42,13 @@ Plain Astro integrations and components (`astro` `^6.0.7 || ^7.3.5`):
 | --- | --- |
 | `@hagicode/hagilight/integration` | `hagilight()` (sitemap, robots.txt, and RSS feeds by default), `hagilightFavicon()`, and their option types |
 | `@hagicode/hagilight/SEOHead` | Canonical, Open Graph, Twitter, and JSON-LD head entries |
+| `@hagicode/hagilight/Footer` | Shared footer with `power by hagilight@<version>` attribution |
+
+The plain-Astro Footer reads the exact build-time `version` from its own
+`@hagicode/hagilight` package manifest; it does not report an `astro` framework
+version. Existing sites that import `@hagicode/hagilight-core/Footer` can keep
+that core-only footer (with no feature-package attribution) or switch to
+`@hagicode/hagilight/Footer` to display the Hagilight version.
 
 ## `@hagicode/hagilight-starlight`
 
@@ -50,6 +57,9 @@ the localized header, language chooser, and footer links; content-width toggle;
 custom 404 page; end-of-article HagiCode introduction; floating promotion
 banner; AI translation or authorship disclosures; SEO metadata and multilingual
 page discovery; RSS feeds; Google Analytics and 51LA; and the shared favicon.
+Its Footer appends `power by hagilight-starlight@<version>` using the exact
+build-time version from the `@hagicode/hagilight-starlight` manifest, not the
+Astro or Starlight dependency version.
 
 ```js
 // astro.config.mjs
