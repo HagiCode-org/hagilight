@@ -140,6 +140,70 @@ async function assertNoPageOverflow(page, route, viewport, region = 'document') 
   );
 }
 
+async function assertFooter(page, route, viewport, kind) {
+  const attributionSelector = kind === 'core'
+    ? '.hagilight-footer__attribution'
+    : '.hagilight-copyright__attribution';
+  const copyrightSelector = kind === 'core'
+    ? '.hagilight-footer__copyright'
+    : '.hagilight-copyright';
+  const linksSelector = kind === 'core' ? '.hagilight-footer a' : '.hagilight-site-links a';
+  const attribution = page.locator(attributionSelector);
+  check(await attribution.count() === 1, route, viewport, 'footer attribution', 'expected one provider attribution');
+
+  const provider = kind === 'core' ? 'hagilight' : 'hagilight-starlight';
+  const longText = `power by ${provider}@1.2.3-preview.${'1234567890'.repeat(8)}+build.metadata`;
+  const wrapMode = await attribution.evaluate((element, text) => {
+    element.textContent = text;
+    return getComputedStyle(element).overflowWrap;
+  }, longText);
+  check(wrapMode === 'anywhere', route, viewport, 'footer attribution', `expected wrapping, got ${wrapMode}`);
+
+  if (kind === 'starlight') {
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((value) => {
+        document.documentElement.dataset.theme = value;
+      }, theme);
+      const color = await attribution.evaluate((element) => getComputedStyle(element).color);
+      check(color !== 'rgba(0, 0, 0, 0)', route, viewport, `footer ${theme} theme`, 'attribution is transparent');
+    }
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'light';
+    });
+  }
+
+  const copyright = page.locator(copyrightSelector).first();
+  const [copyrightBox, attributionBox] = await Promise.all([
+    copyright.boundingBox(),
+    attribution.boundingBox(),
+  ]);
+  check(Boolean(copyrightBox && attributionBox), route, viewport, 'footer attribution', 'could not measure copyright content');
+  check(
+    attributionBox.x >= copyrightBox.x - 1
+      && attributionBox.x + attributionBox.width <= copyrightBox.x + copyrightBox.width + 1,
+    route,
+    viewport,
+    'footer attribution',
+    'attribution exceeds the copyright container',
+  );
+  if (viewport.width <= 640) {
+    check(
+      await attribution.evaluate((element) => element.getClientRects().length > 1),
+      route,
+      viewport,
+      'footer attribution',
+      'long prerelease token did not wrap onto multiple lines',
+    );
+  }
+  await assertNoPageOverflow(page, route, viewport, 'long footer attribution');
+
+  const firstLink = page.locator(linksSelector).first();
+  check(await firstLink.count() === 1, route, viewport, 'footer links', 'no keyboard-operable footer link exists');
+  await firstLink.focus();
+  await page.keyboard.press('Tab');
+  check(await page.locator(':focus-visible').count() === 1, route, viewport, 'footer links', 'keyboard focus is not visible');
+}
+
 async function assertCorePage(page, route, viewport) {
   const header = await bounds(page, '.site-header', route, viewport, 'core header');
   const brand = await bounds(page, '.site-header .brand', route, viewport, 'core brand');
@@ -336,6 +400,10 @@ async function runCase(browser, origins, route, viewport) {
     region = route.kind === 'core' ? 'core layout' : 'Starlight layout';
     if (route.kind === 'core') await assertCorePage(page, label, viewport);
     else await assertStarlightPage(page, label, viewport);
+    region = 'footer presentation';
+    await assertFooter(page, label, viewport, route.kind);
+    await page.setViewportSize({ width: 375, height: 812 });
+    await assertFooter(page, label, { width: 375, height: 812 }, route.kind);
 
     check(
       localErrors.length === 0,

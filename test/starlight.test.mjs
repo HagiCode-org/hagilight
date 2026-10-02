@@ -103,6 +103,11 @@ test('passes disabled promotion configuration to the footer wrapper', () => {
   assert.match(updated.components.Footer, /\/Footer\.astro$/);
   assert.match(updated.components.Head, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
   assert.equal(integrations.length, 1);
+  const [vite] = integrationVitePlugins(integrations[0]);
+  const footerSource = vite.load(vite.resolveId(updated.components.Footer));
+  assert.match(footerSource, /import Footer from .*Footer\.astro/u);
+  assert.match(footerSource, /<Footer/u);
+  assert.doesNotMatch(footerSource, /PromotoBanner/u);
 });
 
 test('rejects an existing footer override instead of replacing it', () => {

@@ -18,6 +18,8 @@ import { CORE_PACKAGE, PACKAGES, assertPackageGraph, buildPackages, npm, root } 
 
 const temp = mkdtempSync(join(tmpdir(), 'hagilight-integration-'));
 const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
+const ASTRO_PACKAGE = '@hagicode/hagilight';
+const STARLIGHT_PACKAGE = '@hagicode/hagilight-starlight';
 function listFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -27,6 +29,9 @@ function listFiles(directory) {
 
 function verifyBannerBuild(expected) {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
+  const starlightManifest = JSON.parse(
+    readFileSync(join(temp, 'node_modules', ...STARLIGHT_PACKAGE.split('/'), 'package.json'), 'utf8'),
+  );
   const bundles = listFiles(join(temp, 'dist', '_astro'))
     .filter((path) => path.endsWith('.js'))
     .map((path) => readFileSync(path, 'utf8'));
@@ -35,6 +40,9 @@ function verifyBannerBuild(expected) {
   if (hasBannerMarkup !== expected || hasBannerScript !== expected) {
     throw new Error(`Installed example banner output mismatch (expected ${expected ? 'enabled' : 'disabled'})`);
   }
+  assert.equal(countOccurrences(html, `power by hagilight-starlight@${starlightManifest.version}`), 1);
+  assert.ok(!html.includes('power by hagilight@'), 'the Starlight footer does not claim plain-Astro attribution');
+  assert.ok(html.includes(`© ${new Date().getFullYear()} HagiCode`));
 }
 
 function countOccurrences(value, needle) {
@@ -266,6 +274,35 @@ function typecheckConsumer(directory, fixtures) {
   execFileSync(process.execPath, [tsc, '-p', join(typesDirectory, 'tsconfig.json')], { stdio: 'inherit' });
 }
 
+function installedManifestPath(directory, packageName) {
+  return join(directory, 'node_modules', ...packageName.split('/'), 'package.json');
+}
+
+function setInstalledVersion(directory, packageName, version) {
+  const path = installedManifestPath(directory, packageName);
+  const manifest = JSON.parse(readFileSync(path, 'utf8'));
+  manifest.version = version;
+  writeFileSync(path, JSON.stringify(manifest, null, 2));
+  return manifest;
+}
+
+function buildAstro(directory, astro) {
+  execFileSync(process.execPath, [astro, 'build'], { cwd: directory, stdio: 'inherit' });
+}
+
+function captureAstroBuildFailure(directory, astro) {
+  try {
+    execFileSync(process.execPath, [astro, 'build'], {
+      cwd: directory,
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+  } catch (error) {
+    return `${error.stdout ?? ''}\n${error.stderr ?? ''}\n${error.message}`;
+  }
+  throw new Error('Expected the Astro build to fail for invalid package metadata');
+}
+
 function verifyCoreOnly(tarballs, astroVersion) {
   const coreOnly = join(temp, 'core-only');
   const nodeModules = installConsumer(coreOnly, {
@@ -326,6 +363,8 @@ function verifyCoreFooter(tarballs, astroVersion) {
       `${locale} page has the core Footer: ${html.slice(html.indexOf('<body'), html.indexOf('</body>') + 7)}`,
     );
     assert.equal([...html.matchAll(/application\/rss\+xml/gu)].length, 1);
+    assert.ok(!html.includes('power by hagilight@'), `${locale} core Footer has no plain-Astro attribution`);
+    assert.ok(!html.includes('power by hagilight-starlight@'), `${locale} core Footer has no Starlight attribution`);
   }
   assert.match(coreFeed, /<rss\b/u);
   assert.match(coreFeed, /<language>en-US<\/language>/u);
@@ -352,6 +391,122 @@ function verifyCoreFooter(tarballs, astroVersion) {
   assert.ok(css.includes(':focus-visible'), 'Footer links must retain a visible keyboard-focus style');
 }
 
+function verifyAstroFooter(tarballs, astroVersion) {
+  const astroTemp = join(temp, 'astro-feature');
+  mkdirSync(astroTemp);
+  cpSync('test/fixtures/core-footer/astro.config.mjs', join(astroTemp, 'astro.config.mjs'));
+  cpSync('test/fixtures/core-footer/src', join(astroTemp, 'src'), { recursive: true });
+  for (const file of [
+    join(astroTemp, 'src/pages/index.astro'),
+    join(astroTemp, 'src/pages/zh-CN/index.astro'),
+  ]) {
+    const source = readFileSync(file, 'utf8');
+    const updated = source.replace(
+      "'@hagicode/hagilight-core/Footer'",
+      "'@hagicode/hagilight/Footer'",
+    );
+    if (updated === source) throw new Error(`Could not switch the fixture to the feature Footer in ${file}`);
+    writeFileSync(file, updated);
+  }
+
+  const nodeModules = installConsumer(astroTemp, {
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    [ASTRO_PACKAGE]: tarballSpec(tarballs[ASTRO_PACKAGE]),
+    astro: astroVersion,
+  }, 'hagilight-astro-footer-consumer');
+  assertInstalled(nodeModules, {
+    present: [CORE_PACKAGE, ASTRO_PACKAGE],
+    absent: [STARLIGHT_PACKAGE, '@astrojs/starlight'],
+  });
+  typecheckConsumer(astroTemp, ['core.ts']);
+
+  const astro = join(nodeModules, 'astro', 'bin', 'astro.mjs');
+  const packageManifestPath = installedManifestPath(astroTemp, ASTRO_PACKAGE);
+  const installedManifest = JSON.parse(readFileSync(packageManifestPath, 'utf8'));
+  const astroDependencyVersion = JSON.parse(
+    readFileSync(installedManifestPath(astroTemp, 'astro'), 'utf8'),
+  ).version;
+  const coreVersion = JSON.parse(
+    readFileSync(installedManifestPath(astroTemp, CORE_PACKAGE), 'utf8'),
+  ).version;
+  const declaredAstroPackageVersion = JSON.parse(
+    readFileSync('examples/demo-web/package.json', 'utf8'),
+  ).dependencies[ASTRO_PACKAGE];
+  const versions = [
+    '6.3.2',
+    '4.7.0-very-long-prerelease.12345678901234567890+build.metadata.2026',
+  ];
+  for (const version of versions) {
+    assert.notEqual(version, astroDependencyVersion);
+    assert.notEqual(version, coreVersion);
+    assert.notEqual(version, declaredAstroPackageVersion);
+    setInstalledVersion(astroTemp, ASTRO_PACKAGE, version);
+    buildAstro(astroTemp, astro);
+    for (const page of ['index.html', 'zh-CN/index.html']) {
+      const html = readFileSync(join(astroTemp, 'dist', page), 'utf8');
+      const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+      assert.ok(footer, `${page} includes the installed feature Footer`);
+      assert.equal(countOccurrences(footer, `power by hagilight@${version}`), 1);
+      assert.ok(!footer.includes('power by hagilight-starlight@'));
+      assert.ok(footer.includes(`© ${new Date().getFullYear()} HagiCode`));
+      if (page === 'zh-CN/index.html') {
+        assert.ok(footer.includes('https://feeds.example/rss.xml'));
+      }
+    }
+  }
+
+  for (const invalidMetadata of [
+    { label: 'missing', value: (manifest) => { delete manifest.version; } },
+    { label: 'empty', value: (manifest) => { manifest.version = ''; } },
+  ]) {
+    const manifest = JSON.parse(JSON.stringify(installedManifest));
+    invalidMetadata.value(manifest);
+    writeFileSync(packageManifestPath, JSON.stringify(manifest, null, 2));
+    const output = captureAstroBuildFailure(astroTemp, astro);
+    assert.match(
+      output,
+      /@hagicode\/hagilight requires a nonempty string version/u,
+    );
+  }
+
+  writeFileSync(packageManifestPath, '{');
+  const unreadableOutput = captureAstroBuildFailure(astroTemp, astro);
+  assert.match(unreadableOutput, /package\.json|JSON|SyntaxError/u);
+  assert.doesNotMatch(unreadableOutput, /power by hagilight@undefined/u);
+  writeFileSync(packageManifestPath, JSON.stringify(installedManifest, null, 2));
+}
+
+function addDirectStarlightFooterPage(directory) {
+  const docsDirectory = join(directory, 'src', 'content', 'docs');
+  mkdirSync(docsDirectory, { recursive: true });
+  writeFileSync(join(docsDirectory, 'footer-components.mdx'), `---
+title: Footer component coverage
+---
+
+import Footer from '@hagicode/hagilight-starlight/Footer';
+import PromotoFooter from '@hagicode/hagilight-starlight/PromotoFooter';
+
+<Footer />
+
+<PromotoFooter />
+`);
+}
+
+function verifyDirectStarlightFooters(directory, version, expectedBannerCount) {
+  const html = readFileSync(join(directory, 'dist', 'zh-CN', 'footer-components', 'index.html'), 'utf8');
+  const copyrights = [...html.matchAll(
+    /<p\b[^>]*class="[^"]*\bhagilight-copyright\b[^"]*"[^>]*>([\s\S]*?)<\/p>/gu,
+  )].map(([, copyright]) => copyright);
+  assert.equal(copyrights.length, 3, 'the plugin, direct Footer, and PromotoFooter all render');
+  for (const copyright of copyrights) {
+    assert.equal(countOccurrences(copyright, `power by hagilight-starlight@${version}`), 1);
+    assert.ok(!copyright.includes('power by hagilight@'));
+    assert.ok(copyright.includes(`© ${new Date().getFullYear()} HagiCode`));
+  }
+  assert.equal(countOccurrences(html, '编辑此页'), 3, 'all three Starlight footer paths retain built-in edit links');
+  assert.equal(countOccurrences(html, '<hagilight-promoto-banner'), expectedBannerCount);
+}
+
 try {
   buildPackages();
   assertPackageGraph();
@@ -367,6 +522,7 @@ try {
   const example = JSON.parse(readFileSync('examples/demo-starlight-web/package.json', 'utf8'));
   verifyCoreOnly(tarballs, example.dependencies.astro);
   verifyCoreFooter(tarballs, example.dependencies.astro);
+  verifyAstroFooter(tarballs, example.dependencies.astro);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
   writeFileSync(configPath, enabledConfig);
@@ -375,15 +531,29 @@ try {
   const starlightModules = installConsumer(temp, {
     ...example.dependencies,
     [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
-    '@hagicode/hagilight-starlight': tarballSpec(tarballs['@hagicode/hagilight-starlight']),
+    [ASTRO_PACKAGE]: tarballSpec(tarballs[ASTRO_PACKAGE]),
+    [STARLIGHT_PACKAGE]: tarballSpec(tarballs[STARLIGHT_PACKAGE]),
   }, example.name);
   assertInstalled(starlightModules, {
-    present: [CORE_PACKAGE, '@hagicode/hagilight-starlight', '@astrojs/starlight'],
-    absent: ['@hagicode/hagilight'],
+    present: [CORE_PACKAGE, ASTRO_PACKAGE, STARLIGHT_PACKAGE, '@astrojs/starlight'],
   });
+  const astroManifest = setInstalledVersion(temp, ASTRO_PACKAGE, '5.3.1-astro-fixture+build.7');
+  const starlightManifest = setInstalledVersion(temp, STARLIGHT_PACKAGE, '8.2.4-starlight-fixture.19+metadata');
+  const starlightFrameworkVersion = JSON.parse(
+    readFileSync(installedManifestPath(temp, '@astrojs/starlight'), 'utf8'),
+  ).version;
+  const coreManifest = JSON.parse(readFileSync(installedManifestPath(temp, CORE_PACKAGE), 'utf8'));
+  assert.notEqual(starlightManifest.version, starlightFrameworkVersion);
+  assert.notEqual(starlightManifest.version, coreManifest.version);
+  assert.notEqual(starlightManifest.version, example.dependencies[STARLIGHT_PACKAGE]);
+  assert.notEqual(astroManifest.version, JSON.parse(
+    readFileSync(installedManifestPath(temp, 'astro'), 'utf8'),
+  ).version);
+  assert.notEqual(astroManifest.version, coreManifest.version);
+  assert.notEqual(astroManifest.version, example.devDependencies[ASTRO_PACKAGE]);
   typecheckConsumer(temp, ['core.ts', 'starlight.ts']);
   const astro = join(temp, 'node_modules', 'astro', 'bin', 'astro.mjs');
-  execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
+  buildAstro(temp, astro);
   verifyBannerBuild(true);
   verifyDefaultLinksAndAnalytics();
   verifyContentFeatures();
@@ -392,16 +562,21 @@ try {
   const disabledConfig = enabledConfig.replace('promoto: { enabled: true }', 'promoto: { enabled: false }');
   if (disabledConfig === enabledConfig) throw new Error('Example config does not explicitly enable the promotion banner');
   writeFileSync(configPath, disabledConfig);
-  execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
+  buildAstro(temp, astro);
   verifyBannerBuild(false);
+
+  addDirectStarlightFooterPage(temp);
+  buildAstro(temp, astro);
+  verifyDirectStarlightFooters(temp, starlightManifest.version, 1);
 
   const analyticsConfig = withAnalyticsConfig(
     enabledConfig,
     "{ googleAnalytics: { measurementId: 'G-TEST123' }, fiftyOneLa: { siteId: 'test-site-51la' } }",
   );
   writeFileSync(configPath, analyticsConfig);
-  execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
+  buildAstro(temp, astro);
   verifyBannerBuild(true);
+  verifyDirectStarlightFooters(temp, starlightManifest.version, 2);
   verifyAnalyticsBuild();
 
   const developmentHtml = await fetchDevelopmentPage(astro);
@@ -424,11 +599,31 @@ import DefaultHead from '@astrojs/starlight/components/Head.astro';
 <meta name="consumer-head" content="retained" />
 `);
   writeFileSync(configPath, customHeadConfig);
-  execFileSync(process.execPath, [astro, 'build'], { cwd: temp, stdio: 'inherit' });
+  buildAstro(temp, astro);
   const customHeadHtml = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   assert.ok(customHeadHtml.includes('name="consumer-head" content="retained"'));
   assert.doesNotMatch(customHeadHtml, /<script type="application\/ld\+json">/u);
   assert.ok(!customHeadHtml.includes('googletagmanager.com'));
+
+  const starlightManifestPath = installedManifestPath(temp, STARLIGHT_PACKAGE);
+  const originalStarlightManifest = JSON.parse(readFileSync(starlightManifestPath, 'utf8'));
+  for (const invalidMetadata of [
+    { value: (manifest) => { delete manifest.version; } },
+    { value: (manifest) => { manifest.version = ''; } },
+  ]) {
+    const manifest = JSON.parse(JSON.stringify(originalStarlightManifest));
+    invalidMetadata.value(manifest);
+    writeFileSync(starlightManifestPath, JSON.stringify(manifest, null, 2));
+    const output = captureAstroBuildFailure(temp, astro);
+    assert.match(
+      output,
+      /@hagicode\/hagilight-starlight requires a nonempty string version/u,
+    );
+  }
+  writeFileSync(starlightManifestPath, '{');
+  const unreadableStarlightOutput = captureAstroBuildFailure(temp, astro);
+  assert.match(unreadableStarlightOutput, /package\.json|JSON|SyntaxError/u);
+  assert.doesNotMatch(unreadableStarlightOutput, /power by hagilight-starlight@undefined/u);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

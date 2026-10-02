@@ -23,6 +23,7 @@ const REQUIRED_FILES = {
     'dist/promoto-banner.js',
   ],
   '@hagicode/hagilight': [
+    'Footer.astro',
     'SEOHead.astro',
     'robots.txt.ts',
     'rss.xml.ts',

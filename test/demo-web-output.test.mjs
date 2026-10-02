@@ -75,6 +75,7 @@ test('both locale pages cover every plain-Astro and shared-core export with loca
     for (const label of page.labels) assert.ok(html.includes(label), `${page.file} labels ${label}`);
     assert.match(html, /<footer\b/u, `${page.file} renders the package footer`);
     assert.match(html, /hagilight-footer__copyright[^>]*>[\s\S]*?© \d{4} HagiCode/u);
+    assert.ok(html.includes('@hagicode/hagilight-core/Footer'), `${page.file} documents the supported core Footer`);
     const banner = html.match(/<hagilight-promoto-banner\b[^>]*>/u)?.[0] ?? '';
     assert.ok(banner.includes(page.fallbackId), `${page.file} carries its localized banner fallback`);
     assert.ok(
@@ -82,6 +83,34 @@ test('both locale pages cover every plain-Astro and shared-core export with loca
       `${page.file} banner fallback targets the footer`,
     );
     assert.match(html, /@hagicode\/hagilight-core\/links/u);
+  }
+});
+
+test('plain-Astro footer includes one exact package-version attribution and preserves footer details', () => {
+  const version = manifests[0].version;
+  for (const page of pages) {
+    const html = readFileSync(join(outputDir, page.file), 'utf8');
+    const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+    assert.ok(footer, `${page.file} has a footer`);
+    assert.equal(
+      footer.split(`power by hagilight@${version}`).length - 1,
+      1,
+      `${page.file} has exactly one attribution from the @hagicode/hagilight manifest`,
+    );
+    assert.doesNotMatch(footer, /power by hagilight-starlight@/u);
+    assert.ok(
+      footer.includes(`© ${new Date().getFullYear()} HagiCode</span> | <span class="hagilight-footer__attribution"`),
+      `${page.file} appends the attribution inside the existing copyright paragraph`,
+    );
+    assert.ok(footer.includes('beian.miit.gov.cn/'), `${page.file} retains the filing links`);
+    assert.ok(footer.includes('www.gov.cn') || footer.includes('www.beian.gov.cn'), `${page.file} retains the public-security filing link`);
+    const expectedRss = page.locale === 'zh-CN'
+      ? ['https://hagilight.hagicode.com/rss.xml', 'https://hagilight.hagicode.com/rss.zh-CN.xml']
+      : ['https://hagilight.hagicode.com/rss.xml'];
+    for (const destination of expectedRss) {
+      assert.ok(footer.includes(destination), `${page.file} retains ${destination}`);
+    }
+    assert.doesNotMatch(footer, /<script\b|https?:\/\/[^"]*(?:version|registry)/iu);
   }
 });
 
