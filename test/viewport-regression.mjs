@@ -152,7 +152,7 @@ async function assertFooter(page, route, viewport, kind) {
   check(await attribution.count() === 1, route, viewport, 'footer attribution', 'expected one provider attribution');
 
   const provider = kind === 'core' ? 'hagilight' : 'hagilight-starlight';
-  const longText = `power by ${provider}@1.2.3-preview.${'1234567890'.repeat(8)}+build.metadata`;
+  const longText = `Powered By ${provider}@1.2.3-preview.${'1234567890'.repeat(8)}+build.metadata`;
   const wrapMode = await attribution.evaluate((element, text) => {
     element.textContent = text;
     return getComputedStyle(element).overflowWrap;

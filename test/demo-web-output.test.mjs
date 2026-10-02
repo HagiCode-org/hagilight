@@ -93,11 +93,11 @@ test('plain-Astro footer includes one exact package-version attribution and pres
     const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
     assert.ok(footer, `${page.file} has a footer`);
     assert.equal(
-      footer.split(`power by hagilight@${version}`).length - 1,
+      footer.split(`Powered By hagilight@${version}`).length - 1,
       1,
       `${page.file} has exactly one attribution from the @hagicode/hagilight manifest`,
     );
-    assert.doesNotMatch(footer, /power by hagilight-starlight@/u);
+    assert.doesNotMatch(footer, /Powered By hagilight-starlight@/u);
     assert.ok(
       footer.includes(`© ${new Date().getFullYear()} HagiCode</span> | <span class="hagilight-footer__attribution"`),
       `${page.file} appends the attribution inside the existing copyright paragraph`,

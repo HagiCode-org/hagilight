@@ -40,8 +40,8 @@ function verifyBannerBuild(expected) {
   if (hasBannerMarkup !== expected || hasBannerScript !== expected) {
     throw new Error(`Installed example banner output mismatch (expected ${expected ? 'enabled' : 'disabled'})`);
   }
-  assert.equal(countOccurrences(html, `power by hagilight-starlight@${starlightManifest.version}`), 1);
-  assert.ok(!html.includes('power by hagilight@'), 'the Starlight footer does not claim plain-Astro attribution');
+  assert.equal(countOccurrences(html, `Powered By hagilight-starlight@${starlightManifest.version}`), 1);
+  assert.ok(!html.includes('Powered By hagilight@'), 'the Starlight footer does not claim plain-Astro attribution');
   assert.ok(html.includes(`© ${new Date().getFullYear()} HagiCode`));
 }
 
@@ -363,8 +363,8 @@ function verifyCoreFooter(tarballs, astroVersion) {
       `${locale} page has the core Footer: ${html.slice(html.indexOf('<body'), html.indexOf('</body>') + 7)}`,
     );
     assert.equal([...html.matchAll(/application\/rss\+xml/gu)].length, 1);
-    assert.ok(!html.includes('power by hagilight@'), `${locale} core Footer has no plain-Astro attribution`);
-    assert.ok(!html.includes('power by hagilight-starlight@'), `${locale} core Footer has no Starlight attribution`);
+    assert.ok(!html.includes('Powered By hagilight@'), `${locale} core Footer has no plain-Astro attribution`);
+    assert.ok(!html.includes('Powered By hagilight-starlight@'), `${locale} core Footer has no Starlight attribution`);
   }
   assert.match(coreFeed, /<rss\b/u);
   assert.match(coreFeed, /<language>en-US<\/language>/u);
@@ -446,8 +446,8 @@ function verifyAstroFooter(tarballs, astroVersion) {
       const html = readFileSync(join(astroTemp, 'dist', page), 'utf8');
       const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
       assert.ok(footer, `${page} includes the installed feature Footer`);
-      assert.equal(countOccurrences(footer, `power by hagilight@${version}`), 1);
-      assert.ok(!footer.includes('power by hagilight-starlight@'));
+      assert.equal(countOccurrences(footer, `Powered By hagilight@${version}`), 1);
+      assert.ok(!footer.includes('Powered By hagilight-starlight@'));
       assert.ok(footer.includes(`© ${new Date().getFullYear()} HagiCode`));
       if (page === 'zh-CN/index.html') {
         assert.ok(footer.includes('https://feeds.example/rss.xml'));
@@ -472,7 +472,7 @@ function verifyAstroFooter(tarballs, astroVersion) {
   writeFileSync(packageManifestPath, '{');
   const unreadableOutput = captureAstroBuildFailure(astroTemp, astro);
   assert.match(unreadableOutput, /package\.json|JSON|SyntaxError/u);
-  assert.doesNotMatch(unreadableOutput, /power by hagilight@undefined/u);
+  assert.doesNotMatch(unreadableOutput, /Powered By hagilight@undefined/u);
   writeFileSync(packageManifestPath, JSON.stringify(installedManifest, null, 2));
 }
 
@@ -499,8 +499,8 @@ function verifyDirectStarlightFooters(directory, version, expectedBannerCount) {
   )].map(([, copyright]) => copyright);
   assert.equal(copyrights.length, 3, 'the plugin, direct Footer, and PromotoFooter all render');
   for (const copyright of copyrights) {
-    assert.equal(countOccurrences(copyright, `power by hagilight-starlight@${version}`), 1);
-    assert.ok(!copyright.includes('power by hagilight@'));
+    assert.equal(countOccurrences(copyright, `Powered By hagilight-starlight@${version}`), 1);
+    assert.ok(!copyright.includes('Powered By hagilight@'));
     assert.ok(copyright.includes(`© ${new Date().getFullYear()} HagiCode`));
   }
   assert.equal(countOccurrences(html, '编辑此页'), 3, 'all three Starlight footer paths retain built-in edit links');
@@ -623,7 +623,7 @@ import DefaultHead from '@astrojs/starlight/components/Head.astro';
   writeFileSync(starlightManifestPath, '{');
   const unreadableStarlightOutput = captureAstroBuildFailure(temp, astro);
   assert.match(unreadableStarlightOutput, /package\.json|JSON|SyntaxError/u);
-  assert.doesNotMatch(unreadableStarlightOutput, /power by hagilight-starlight@undefined/u);
+  assert.doesNotMatch(unreadableStarlightOutput, /Powered By hagilight-starlight@undefined/u);
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }
