@@ -85,7 +85,15 @@ const resolvedLinks = resolveSiteLinks(locale, {
       >{link.label}</a>
     ))}
   </nav>
-  <p class="hagilight-footer__copyright"><Copyright name="HagiCode" /></p>
+  <p class="hagilight-footer__copyright">
+    <Copyright name="HagiCode" />
+    {Astro.slots.has('attribution') && (
+      <>
+        {' | '}
+        <span class="hagilight-footer__attribution"><slot name="attribution" /></span>
+      </>
+    )}
+  </p>
 </footer>
 
 <style>
@@ -151,6 +159,10 @@ const resolvedLinks = resolveSiteLinks(locale, {
     margin: 1rem 0 0;
     font-size: 0.8rem;
     text-align: center;
+  }
+
+  .hagilight-footer__attribution {
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 40rem) {

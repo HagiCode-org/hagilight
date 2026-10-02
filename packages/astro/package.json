@@ -21,7 +21,8 @@
       "types": "./dist/integration.d.ts",
       "default": "./dist/integration.js"
     },
-    "./SEOHead": "./SEOHead.astro"
+    "./SEOHead": "./SEOHead.astro",
+    "./Footer": "./Footer.astro"
   },
   "files": [
     "README.md",

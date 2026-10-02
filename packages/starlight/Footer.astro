@@ -2,6 +2,7 @@
 import Copyright from '@hagicode/hagilight-core/Copyright';
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import manifest from './package.json';
 
 interface Props {
   locale?: string;
@@ -16,6 +17,9 @@ const {
   rssFeedUrl,
   rssLocaleFeedUrls,
 } = Astro.props;
+if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
+  throw new Error('@hagicode/hagilight-starlight requires a nonempty string version in its package.json.');
+}
 const currentLanguage = Astro.locals?.starlightRoute?.lang;
 const sitemapOverride = links?.overrides?.sitemap;
 const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
@@ -83,7 +87,11 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     ))}
   </nav>
 </div>
-<p class="hagilight-copyright"><Copyright name="HagiCode" /></p>
+<p class="hagilight-copyright">
+  <Copyright name="HagiCode" />
+  {' | '}
+  <span class="hagilight-copyright__attribution">power by hagilight-starlight@{manifest.version}</span>
+</p>
 
 <style>
   .hagilight-site-links {
@@ -138,5 +146,9 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     color: var(--sl-color-gray-3);
     font-size: var(--sl-text-xs);
     text-align: center;
+  }
+
+  .hagilight-copyright__attribution {
+    overflow-wrap: anywhere;
   }
 </style>

@@ -1,0 +1,15 @@
+---
+import type { ComponentProps } from 'astro/types';
+import manifest from './package.json';
+import CoreFooter from '@hagicode/hagilight-core/Footer';
+
+interface Props extends ComponentProps<typeof CoreFooter> {}
+
+if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
+  throw new Error('@hagicode/hagilight requires a nonempty string version in its package.json.');
+}
+---
+
+<CoreFooter {...Astro.props}>
+  <span slot="attribution">power by hagilight@{manifest.version}</span>
+</CoreFooter>
