@@ -11,9 +11,9 @@ const sections = [
         id: 'footer',
         title: '本地化页脚',
         kind: '实时组件',
-        summary: '共享页脚会根据当前路由解析站点链接，并默认渲染 Copyright 组件。',
-        evidence: '滚动到页面底部即可查看真实页脚，链接标签会匹配当前语言。',
-        example: "import Footer from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />",
+        summary: '功能包页脚会解析本地化链接，并附加 @hagicode/hagilight 自身的精确构建版本。',
+        evidence: '滚动到页面底部即可查看真实页脚和包版本标识。',
+        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter 仍可单独使用，且不会显示功能包标识。 */}\n<CoreFooter locale=\"zh-CN\" />",
       },
       {
         id: 'copyright',

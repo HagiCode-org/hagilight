@@ -11,9 +11,9 @@ const sections = [
         id: 'footer',
         title: 'Localized footer',
         kind: 'Live component',
-        summary: 'The shared footer resolves site links for this route and renders the Copyright component.',
-        evidence: 'Scroll to the bottom for the real footer; its link labels follow the page locale.',
-        example: "import Footer from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />",
+        summary: 'The feature footer resolves localized links and appends its exact build-time @hagicode/hagilight version.',
+        evidence: 'Scroll to the bottom for the real footer and its package attribution.',
+        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter remains available without feature-package attribution. */}\n<CoreFooter locale=\"en-US\" />",
       },
       {
         id: 'copyright',
