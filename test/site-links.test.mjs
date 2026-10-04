@@ -40,7 +40,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
   assert.deepEqual(links.relatedSites.map(({ id }) => id), [
     'hagitask', 'costCalculator',
     'hagicode-main', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
-    'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
+    'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
   ]);
   assert.equal(links.quick[0].label, 'Download Hagicode');
   assert.equal(links.quick[1].label, 'Download Hagicode for Windows');
@@ -67,6 +67,20 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'https://beian.miit.gov.cn/',
     'http://www.beian.gov.cn/portal/registerSystemInfo',
   ]);
+});
+
+test('includes Awesome Sites in the shared footer links for every locale', () => {
+  for (const locale of [
+    'zh-CN', 'zh-Hant', 'en-US', 'ja-JP', 'ko-KR',
+    'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+  ]) {
+    const sites = resolveSiteLinks(locale).relatedSites.filter(({ id }) => id === 'awesome-sites');
+    assert.equal(sites.length, 1);
+    assert.equal(sites[0].name, 'Awesome Sites');
+    assert.equal(sites[0].href, 'https://awesome.hagicode.com/');
+    assert.equal(sites[0].target, '_blank');
+    assert.equal(sites[0].rel, 'noopener noreferrer');
+  }
 });
 
 test('renders localized filing labels while keeping the canonical filing numbers', () => {

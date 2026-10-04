@@ -185,6 +185,22 @@
     "url": "https://status.hagicode.com/"
   },
   {
+    "id": "awesome-sites",
+    "name": {
+      "zh-CN": "Awesome Sites",
+      "zh-Hant": "Awesome Sites",
+      "en-US": "Awesome Sites",
+      "ja-JP": "Awesome Sites",
+      "ko-KR": "Awesome Sites",
+      "de-DE": "Awesome Sites",
+      "fr-FR": "Awesome Sites",
+      "es-ES": "Awesome Sites",
+      "pt-BR": "Awesome Sites",
+      "ru-RU": "Awesome Sites"
+    },
+    "url": "https://awesome.hagicode.com/"
+  },
+  {
     "id": "awesome-design-gallery",
     "name": {
       "zh-CN": "Awesome Design MD",
