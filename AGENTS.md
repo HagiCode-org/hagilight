@@ -6,7 +6,7 @@ Three publishable, TypeScript-authored npm packages that provide shared Astro an
 
 - `@hagicode/hagilight-core` — shared TypeScript utilities (links, favicon, SEO, RSS, RSS route ownership, promotions), shared `.astro` components (`Copyright`, `PromotoBanner`, `GoogleAnalytics`, `Analytics51LA`), and brand assets. No Starlight dependency.
 - `@hagicode/hagilight` — plain-Astro integration (`hagilight`, which generates sitemap, robots.txt, and RSS feeds by default, plus the `rss` option for customization), `hagilightFavicon`, `Footer`, `SEOHead`, and generated routes. Depends on core only.
-- `@hagicode/hagilight-starlight` — Starlight plugin (header, footer links, locale chooser, content-width control, 404 hero, RSS, analytics, AI disclosures). Depends on core only.
+- `@hagicode/hagilight-starlight` — Starlight plugin (header, footer links, locale chooser, content-width control, theme picker with three extra light/dark themes and a randomized first-visit default, 404 hero, RSS, analytics, AI disclosures). Depends on core only.
 - This repository is **documentation-maintenance scope only** for agent edits: modify `AGENTS.md` as instructed. Treat source, generated, and cache files as read-only unless the user expands scope.
 
 ## Commands
@@ -43,7 +43,7 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 ## Testing
 
 - `npm test` builds the packages, then runs `node --test test/*.test.mjs`.
-- Run tests after any change to link resolution, header/language logic, promotions, or AI disclosures.
+- Run tests after any change to link resolution, header/language logic, theme picker logic, promotions, or AI disclosures.
 - `npm run build:example` must succeed as a consumer integration check.
 
 ## Deployment / Publishing

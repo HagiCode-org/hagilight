@@ -1,6 +1,6 @@
 # @hagicode/hagilight-starlight
 
-A Starlight plugin for HagiCode documentation sites. Adds a localized header and footer, language chooser, content-width toggle, custom 404 page, SEO metadata, RSS feeds, analytics, and AI-content disclosures.
+A Starlight plugin for HagiCode documentation sites. Adds a localized header and footer, language chooser, content-width toggle, theme picker, custom 404 page, SEO metadata, RSS feeds, analytics, and AI-content disclosures.
 
 ## Install
 
@@ -28,6 +28,14 @@ export default defineConfig({
 ```
 
 The plugin also exposes `@hagicode/hagilight-starlight/schema` for optional SEO frontmatter and individual Astro components such as `/Header` and `/MarkdownContent` for custom Starlight overrides. Configure features through the typed `HagilightStarlightOptions` passed to `hagilight()`.
+
+### Theme picker
+
+By default the plugin replaces Starlight's light/dark toggle with a theme picker offering nine choices: the default theme plus the Ocean, Sakura, and Forest themes in light and dark, and a "Default" choice that follows the visitor's system color scheme while a randomly assigned theme (stable per visitor, stored in `localStorage`) provides the palette. Disable it to keep Starlight's built-in toggle or compose `@hagicode/hagilight-starlight/ThemeSelect` yourself:
+
+```js
+hagilight({ themes: { enabled: false } })
+```
 
 The plugin footer and direct `/Footer` and `/PromotoFooter` components append
 the literal `Powered By hagilight-starlight@<version>`. The version comes from
