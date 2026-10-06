@@ -39,7 +39,9 @@ const REQUIRED_FILES = {
     'LanguageChooser.astro',
     'AIDisclosureNotice.astro',
     'ContentLayoutToggle.astro',
+    'ThemeSelect.astro',
     'content-width.css',
+    'themes.css',
     'Footer.astro',
     'MarkdownContent.astro',
     'ArticlePromotion.astro',
@@ -90,7 +92,10 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
     encoding: 'utf8',
     shell: process.platform === 'win32',
   });
-  const [pack] = JSON.parse(output);
+  // npm ≥ 12 returns a workspace-keyed object for `pack --json`; older versions return an array.
+  const parsedPackOutput = JSON.parse(output);
+  const packs = Array.isArray(parsedPackOutput) ? parsedPackOutput : Object.values(parsedPackOutput);
+  const [pack] = packs;
   const files = new Set(pack.files.map((file) => file.path));
   if (pack.name !== name || pack.version !== manifest.version) {
     throw new Error(`${name} tarball metadata does not match its manifest`);
