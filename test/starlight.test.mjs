@@ -345,8 +345,8 @@ test('respects a site feed and supports disabling RSS generation', () => {
 
   assert.deepEqual(ownRoutes, []);
   assert.deepEqual(disabledRoutes, []);
-  assert.equal(ownFeed.updated.head.length, 3);
-  assert.equal(disabled.updated.head.length, 2);
+  assert.equal(ownFeed.updated.head.length, 4);
+  assert.equal(disabled.updated.head.length, 3);
   assert.throws(() => configure({ rss: null }), /rss options must be an object/);
   assert.throws(() => configure({ rss: { enabled: 'yes' } }), /rss enabled option must be a boolean/);
   assert.throws(() => configure({ rss: { includeDocs: 'yes' } }), /rss includeDocs option must be a boolean/);

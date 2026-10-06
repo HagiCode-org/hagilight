@@ -20,6 +20,7 @@ const options: HagilightStarlightOptions = {
     organization: { name: 'Example', url: 'https://example.test/', logo: '/logo.png' },
   },
   contentComponents: { pageTitle: true, markdownContent: false },
+  themes: { enabled: true },
   aiDisclosures: { isAITranslation: true, sourceLocale: 'root' },
   hagicodePromotion: { enabled: false },
   promoto: { enabled: true },
@@ -32,6 +33,8 @@ const shapes = [aiDisclosureSchema.shape.isAIAuthor, articlePromotionSchema.shap
 
 // @ts-expect-error Section switches are option objects, not booleans.
 hagilight({ header: false });
+// @ts-expect-error Theme picker enabled is a boolean.
+hagilight({ themes: { enabled: 'yes' } });
 // @ts-expect-error SEO enabled is a boolean.
 hagilight({ seo: { enabled: 'yes' } });
 // @ts-expect-error Unknown top-level options are rejected.

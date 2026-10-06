@@ -1,0 +1,176 @@
+---
+import {
+  applyThemeChoice,
+  getThemePickerLabels,
+  parseThemeChoice,
+  readStoredThemeChoice,
+  type ThemeChoice,
+} from './dist/themes.js';
+
+const { lang } = Astro.locals.starlightRoute;
+const labels = getThemePickerLabels(lang);
+const accessibleLabel = Astro.locals.t('themeSelect.accessibleLabel');
+const lightLabel = Astro.locals.t('themeSelect.light');
+const darkLabel = Astro.locals.t('themeSelect.dark');
+
+/* Inlined copies of Starlight's laptop, sun, moon, and down-caret icons; the Starlight
+ * Icon component is not part of the package's public exports. */
+const icons = {
+  laptop: `<path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/>`,
+  sun: `<path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/>`,
+  moon: `<path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/>`,
+  caret: `<path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/>`,
+};
+
+const groups = [
+  {
+    label: labels.defaultThemeGroup,
+    prefix: labels.defaultOption,
+    choices: ['default-light', 'default-dark'],
+  },
+  {
+    label: labels.themes.ocean,
+    prefix: labels.themes.ocean,
+    choices: ['ocean-light', 'ocean-dark'],
+  },
+  {
+    label: labels.themes.sakura,
+    prefix: labels.themes.sakura,
+    choices: ['sakura-light', 'sakura-dark'],
+  },
+  {
+    label: labels.themes.forest,
+    prefix: labels.themes.forest,
+    choices: ['forest-light', 'forest-dark'],
+  },
+] as const satisfies ReadonlyArray<{
+  label: string;
+  prefix: string;
+  choices: readonly ThemeChoice[];
+}>;
+
+const groupOptionLabel = (prefix: string, choice: ThemeChoice): string =>
+  `${prefix} · ${choice.endsWith('-light') ? lightLabel : darkLabel}`;
+---
+
+<hagilight-theme-select class="theme-picker">
+  <label style="--sl-select-width: 12.5em">
+    <span class="sr-only">{accessibleLabel}</span>
+    <svg class="icon label-icon" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" set:html={icons.laptop} />
+    <select autocomplete="off">
+      <option value="default" selected>{labels.defaultOption}</option>
+      {groups.map((group) => (
+        <optgroup label={group.label}>
+          {group.choices.map((choice) => (
+            <option value={choice}>{groupOptionLabel(group.prefix, choice)}</option>
+          ))}
+        </optgroup>
+      ))}
+    </select>
+    <svg class="icon caret" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" set:html={icons.caret} />
+  </label>
+  <template class="mode-icons">
+    <svg class="mode-auto" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" set:html={icons.laptop} />
+    <svg class="mode-light" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" set:html={icons.sun} />
+    <svg class="mode-dark" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" set:html={icons.moon} />
+  </template>
+</hagilight-theme-select>
+
+<script>
+  import { applyThemeChoice, parseThemeChoice, readStoredThemeChoice, type ThemeChoice } from './dist/themes.js';
+
+  const modeClass = (choice: ThemeChoice): string =>
+    choice.endsWith('-light') ? 'mode-light' : choice.endsWith('-dark') ? 'mode-dark' : 'mode-auto';
+
+  class HagilightThemeSelect extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.initialized) return;
+      this.dataset.initialized = 'true';
+
+      const select = this.querySelector('select');
+      if (!(select instanceof HTMLSelectElement)) return;
+
+      const sync = (choice: ThemeChoice) => {
+        select.value = choice;
+        const icon = this.querySelector('svg.label-icon');
+        const next = this.querySelector('template.mode-icons')?.content.querySelector(`.${modeClass(choice)}`);
+        if (icon && next) icon.replaceChildren(...next.cloneNode(true).childNodes);
+      };
+
+      sync(readStoredThemeChoice());
+
+      select.addEventListener('change', () => {
+        const choice = parseThemeChoice(select.value);
+        applyThemeChoice(choice);
+        sync(choice);
+      });
+
+      matchMedia('(prefers-color-scheme: light)').addEventListener('change', (event) => {
+        if (readStoredThemeChoice() !== 'default') return;
+        document.documentElement.dataset.theme = event.matches ? 'light' : 'dark';
+      });
+    }
+  }
+
+  if (!customElements.get('hagilight-theme-select')) {
+    customElements.define('hagilight-theme-select', HagilightThemeSelect);
+  }
+</script>
+
+<style>
+  .theme-picker {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .theme-picker:hover {
+    color: var(--sl-color-white);
+  }
+
+  .theme-picker .icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1em;
+    height: 1em;
+    pointer-events: none;
+  }
+
+  .theme-picker select {
+    width: calc(var(--sl-select-width) + 1rem);
+    border: 0;
+    margin-inline: -0.5rem;
+    padding-block: 0.625rem;
+    padding-inline: calc(0.875rem + 0.75rem) calc(1.25rem + 0.75rem);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    appearance: none;
+  }
+
+  .theme-picker option,
+  .theme-picker optgroup {
+    background-color: var(--sl-color-bg-nav);
+    color: var(--sl-color-gray-1);
+  }
+
+  .theme-picker .label-icon {
+    inset-inline-start: 0;
+    font-size: 0.875rem;
+  }
+
+  .theme-picker .caret {
+    inset-inline-end: 0;
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 50rem) {
+    .theme-picker select {
+      font-size: var(--sl-text-sm);
+    }
+  }
+</style>

@@ -15,6 +15,7 @@ import type { AIDisclosureDefaults } from './ai-disclosures.js';
 import type { StarlightRssRuntimeConfig } from './rss-renderer.js';
 import { resolveRssOptions, type RssContentOptions } from './rss-utils.js';
 import { resolveSeoLocales, type SeoLocale, type SeoOrganization } from './seo-utils.js';
+import { THEME_BOOTSTRAP } from './themes.js';
 
 export interface HagilightToggleOptions {
   enabled?: boolean;
@@ -53,6 +54,16 @@ export interface HagilightRssOptions extends RssContentOptions {
   enabled?: boolean;
 }
 
+export interface HagilightThemesOptions {
+  /**
+   * Replace Starlight's light/dark picker with the Hagilight theme picker: four themes
+   * (the default plus Ocean, Sakura, and Forest) in light and dark, plus a "default"
+   * choice that assigns first-visit users one of the extra themes at random.
+   * Defaults to `true`.
+   */
+  enabled?: boolean;
+}
+
 export interface HagilightContentComponentsOptions {
   pageTitle?: boolean;
   markdownContent?: boolean;
@@ -68,6 +79,8 @@ export interface HagilightStarlightOptions {
   seo?: HagilightSeoOptions;
   contentComponents?: HagilightContentComponentsOptions;
   aiDisclosures?: HagilightAIDisclosureOptions;
+  /** Theme picker with three extra light/dark themes plus a randomized first-visit default. */
+  themes?: HagilightThemesOptions;
   /** End-of-article HagiCode introduction. */
   hagicodePromotion?: HagilightToggleOptions;
   /** Floating promotion banner rendered after the footer. */
@@ -113,6 +126,7 @@ interface ComponentIds {
   pageTitle: string | undefined;
   markdownContent: string | undefined;
   head: string | undefined;
+  themeSelect: string | undefined;
 }
 
 interface ProviderSpec {
@@ -154,6 +168,7 @@ const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';
 const DEFAULT_51LA_ID = 'L6b88a5yK4h2Xnci';
 const defaultLogo = coreExport('logo.png');
 const contentWidthCssPath = packageFile('content-width.css');
+const themesCssPath = packageFile('themes.css');
 const contentWidthHeadScript = `(() => {
   let mode = 'wide';
   try {
@@ -475,6 +490,8 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
   const analytics = optionalRecord(input.analytics, 'analytics') ?? {};
   const seo = resolveSeoOptions(input.seo);
   const contentComponents = optionalRecord(input.contentComponents, 'contentComponents');
+  const themes = optionalRecord(input.themes, 'themes');
+  const themesEnabled = optionalBoolean(themes, 'enabled', 'themes enabled') !== false;
   const pageTitleEnabled = optionalBoolean(contentComponents, 'pageTitle', 'contentComponents pageTitle') !== false;
   const markdownContentEnabled = optionalBoolean(
     contentComponents,
@@ -513,6 +530,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     head: seo.enabled || googleAnalyticsMeasurementId
       ? `virtual:hagilight-starlight/${instanceId}/Head.astro`
       : undefined,
+    themeSelect: themesEnabled ? packageFile('ThemeSelect.astro') : undefined,
   };
   const serializedOptions: SerializedOptions = {
     promotoEnabled,
@@ -544,6 +562,9 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
         }
         if (markdownContentEnabled && config.components?.MarkdownContent) {
           throw new Error('Hagilight cannot replace an existing Starlight MarkdownContent override. Set contentComponents: { markdownContent: false } and compose @hagicode/hagilight-starlight/MarkdownContent into your MarkdownContent component.');
+        }
+        if (themesEnabled && config.components?.ThemeSelect) {
+          throw new Error('Hagilight cannot replace an existing Starlight ThemeSelect override. Set themes: { enabled: false } to keep it, or compose @hagicode/hagilight-starlight/ThemeSelect into your component.');
         }
         if (componentIds.head && config.components?.Head) {
           if (seo.enabled) {
@@ -616,7 +637,11 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
         ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),
-          customCss: [...(config.customCss ?? []), contentWidthCssPath],
+          customCss: [
+            ...(config.customCss ?? []),
+            contentWidthCssPath,
+            ...(themesEnabled ? [themesCssPath] : []),
+          ],
           head: [
             ...(config.head ?? []),
             ...(rssFeedUrl ? [{
@@ -624,6 +649,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
               attrs: { rel: 'alternate', type: 'application/rss+xml', href: rssFeedUrl },
             }] : []),
             { tag: 'script' as const, content: contentWidthHeadScript },
+            ...(themesEnabled ? [{ tag: 'script' as const, content: THEME_BOOTSTRAP }] : []),
             ...(() => {
               const entry = resolveFaviconHeadEntry(
                 config.head,
@@ -640,6 +666,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
             ...(componentIds.pageTitle ? { PageTitle: componentIds.pageTitle } : {}),
             ...(componentIds.markdownContent ? { MarkdownContent: componentIds.markdownContent } : {}),
             ...(componentIds.head ? { Head: componentIds.head } : {}),
+            ...(componentIds.themeSelect ? { ThemeSelect: componentIds.themeSelect } : {}),
           },
         });
       },

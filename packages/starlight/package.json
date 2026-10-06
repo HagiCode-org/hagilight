@@ -30,6 +30,7 @@
       "default": "./dist/schema.js"
     },
     "./ContentLayoutToggle": "./ContentLayoutToggle.astro",
+    "./ThemeSelect": "./ThemeSelect.astro",
     "./Header": "./Header.astro",
     "./Footer": "./Footer.astro",
     "./MarkdownContent": "./MarkdownContent.astro",

@@ -1,0 +1,160 @@
+/*
+ * Hagilight extra themes: Ocean, Sakura, and Forest. Each theme overrides Starlight's
+ * color custom properties for its dark and light appearance. The applied theme is exposed
+ * through `data-hagilight-theme` on `<html>` by the theme picker's pre-paint bootstrap
+ * script, while light/dark mode keeps using Starlight's `data-theme` attribute.
+ *
+ * Starlight's dark palette is the `:root` default, so dark overrides must exclude the light
+ * mode with `:not([data-theme='light'])`; otherwise they would out-specify the light palette
+ * because custom CSS loads after Starlight's own styles.
+ */
+
+/* Ocean — cool blue accent. */
+:root[data-hagilight-theme='ocean']:not([data-theme='light']),
+:root[data-hagilight-theme='ocean']:not([data-theme='light']) ::backdrop {
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(212, 24%, 94%);
+  --sl-color-gray-2: hsl(212, 12%, 77%);
+  --sl-color-gray-3: hsl(212, 10%, 56%);
+  --sl-color-gray-4: hsl(212, 10%, 36%);
+  --sl-color-gray-5: hsl(212, 14%, 23%);
+  --sl-color-gray-6: hsl(212, 18%, 16%);
+  --sl-color-black: hsl(212, 20%, 10%);
+
+  --sl-hue-orange: 25;
+  --sl-hue-green: 160;
+  --sl-hue-blue: 206;
+  --sl-hue-purple: 265;
+  --sl-hue-red: 355;
+
+  --sl-color-accent-low: hsl(212, 64%, 22%);
+  --sl-color-accent: hsl(206, 100%, 63%);
+  --sl-color-accent-high: hsl(205, 100%, 84%);
+
+  --sl-color-backdrop-overlay: hsla(212, 40%, 8%, 0.66);
+}
+
+:root[data-hagilight-theme='ocean'][data-theme='light'],
+:root[data-hagilight-theme='ocean'][data-theme='light'] ::backdrop {
+  --sl-color-white: hsl(212, 24%, 10%);
+  --sl-color-gray-1: hsl(212, 18%, 16%);
+  --sl-color-gray-2: hsl(212, 12%, 23%);
+  --sl-color-gray-3: hsl(212, 10%, 36%);
+  --sl-color-gray-4: hsl(212, 8%, 56%);
+  --sl-color-gray-5: hsl(212, 10%, 77%);
+  --sl-color-gray-6: hsl(212, 26%, 94%);
+  --sl-color-gray-7: hsl(212, 32%, 97%);
+  --sl-color-black: hsl(0, 0%, 100%);
+
+  --sl-hue-orange: 25;
+  --sl-hue-green: 160;
+  --sl-hue-blue: 206;
+  --sl-hue-purple: 265;
+  --sl-hue-red: 355;
+
+  --sl-color-accent-high: hsl(211, 80%, 30%);
+  --sl-color-accent: hsl(206, 90%, 42%);
+  --sl-color-accent-low: hsl(206, 88%, 90%);
+
+  --sl-color-backdrop-overlay: hsla(212, 30%, 35%, 0.66);
+}
+
+/* Sakura — rose accent with warm neutrals. */
+:root[data-hagilight-theme='sakura']:not([data-theme='light']),
+:root[data-hagilight-theme='sakura']:not([data-theme='light']) ::backdrop {
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(340, 24%, 94%);
+  --sl-color-gray-2: hsl(340, 12%, 77%);
+  --sl-color-gray-3: hsl(340, 10%, 56%);
+  --sl-color-gray-4: hsl(340, 10%, 36%);
+  --sl-color-gray-5: hsl(340, 14%, 23%);
+  --sl-color-gray-6: hsl(340, 18%, 16%);
+  --sl-color-black: hsl(340, 20%, 10%);
+
+  --sl-hue-orange: 20;
+  --sl-hue-green: 145;
+  --sl-hue-blue: 230;
+  --sl-hue-purple: 285;
+  --sl-hue-red: 350;
+
+  --sl-color-accent-low: hsl(338, 60%, 22%);
+  --sl-color-accent: hsl(340, 85%, 70%);
+  --sl-color-accent-high: hsl(340, 100%, 88%);
+
+  --sl-color-backdrop-overlay: hsla(340, 40%, 8%, 0.66);
+}
+
+:root[data-hagilight-theme='sakura'][data-theme='light'],
+:root[data-hagilight-theme='sakura'][data-theme='light'] ::backdrop {
+  --sl-color-white: hsl(340, 24%, 10%);
+  --sl-color-gray-1: hsl(340, 18%, 16%);
+  --sl-color-gray-2: hsl(340, 12%, 23%);
+  --sl-color-gray-3: hsl(340, 10%, 36%);
+  --sl-color-gray-4: hsl(340, 8%, 56%);
+  --sl-color-gray-5: hsl(340, 10%, 77%);
+  --sl-color-gray-6: hsl(340, 26%, 94%);
+  --sl-color-gray-7: hsl(340, 32%, 97%);
+  --sl-color-black: hsl(0, 0%, 100%);
+
+  --sl-hue-orange: 20;
+  --sl-hue-green: 145;
+  --sl-hue-blue: 230;
+  --sl-hue-purple: 285;
+  --sl-hue-red: 350;
+
+  --sl-color-accent-high: hsl(338, 80%, 34%);
+  --sl-color-accent: hsl(340, 80%, 44%);
+  --sl-color-accent-low: hsl(340, 90%, 91%);
+
+  --sl-color-backdrop-overlay: hsla(340, 30%, 35%, 0.66);
+}
+
+/* Forest — green accent with cool neutrals. */
+:root[data-hagilight-theme='forest']:not([data-theme='light']),
+:root[data-hagilight-theme='forest']:not([data-theme='light']) ::backdrop {
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(150, 20%, 94%);
+  --sl-color-gray-2: hsl(150, 10%, 77%);
+  --sl-color-gray-3: hsl(150, 8%, 56%);
+  --sl-color-gray-4: hsl(150, 8%, 36%);
+  --sl-color-gray-5: hsl(150, 12%, 23%);
+  --sl-color-gray-6: hsl(150, 16%, 16%);
+  --sl-color-black: hsl(150, 18%, 10%);
+
+  --sl-hue-orange: 35;
+  --sl-hue-green: 155;
+  --sl-hue-blue: 200;
+  --sl-hue-purple: 262;
+  --sl-hue-red: 5;
+
+  --sl-color-accent-low: hsl(152, 60%, 20%);
+  --sl-color-accent: hsl(158, 80%, 52%);
+  --sl-color-accent-high: hsl(150, 90%, 78%);
+
+  --sl-color-backdrop-overlay: hsla(150, 40%, 8%, 0.66);
+}
+
+:root[data-hagilight-theme='forest'][data-theme='light'],
+:root[data-hagilight-theme='forest'][data-theme='light'] ::backdrop {
+  --sl-color-white: hsl(150, 20%, 10%);
+  --sl-color-gray-1: hsl(150, 16%, 16%);
+  --sl-color-gray-2: hsl(150, 10%, 23%);
+  --sl-color-gray-3: hsl(150, 8%, 36%);
+  --sl-color-gray-4: hsl(150, 6%, 56%);
+  --sl-color-gray-5: hsl(150, 8%, 77%);
+  --sl-color-gray-6: hsl(150, 24%, 94%);
+  --sl-color-gray-7: hsl(150, 30%, 97%);
+  --sl-color-black: hsl(0, 0%, 100%);
+
+  --sl-hue-orange: 35;
+  --sl-hue-green: 155;
+  --sl-hue-blue: 200;
+  --sl-hue-purple: 262;
+  --sl-hue-red: 5;
+
+  --sl-color-accent-high: hsl(152, 100%, 24%);
+  --sl-color-accent: hsl(155, 100%, 26%);
+  --sl-color-accent-low: hsl(152, 85%, 89%);
+
+  --sl-color-backdrop-overlay: hsla(150, 30%, 35%, 0.66);
+}
