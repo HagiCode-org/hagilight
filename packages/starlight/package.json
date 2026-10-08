@@ -29,6 +29,10 @@
       "types": "./dist/schema.d.ts",
       "default": "./dist/schema.js"
     },
+    "./showcase": {
+      "types": "./dist/showcase.d.ts",
+      "default": "./dist/showcase.js"
+    },
     "./ContentLayoutToggle": "./ContentLayoutToggle.astro",
     "./ThemeSelect": "./ThemeSelect.astro",
     "./Header": "./Header.astro",
@@ -46,7 +50,7 @@
     "*.astro",
     "*.css",
     "rss*.xml.ts",
-    "assets/*.png"
+    "assets/showcase/*"
   ],
   "dependencies": {
     "@hagicode/hagilight-core": "0.1.0"

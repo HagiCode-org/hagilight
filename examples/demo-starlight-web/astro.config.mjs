@@ -30,7 +30,7 @@ export default defineConfig({
           includeDocs: rssOption('includeDocs'),
           includeBlog: rssOption('includeBlog'),
         },
-        hagicodePromotion: { enabled: true },
+        hagicodePromotion: { enabled: process.env.HAGILIGHT_EXAMPLE_PROMOTION !== 'false' },
         promoto: { enabled: true },
         analytics: process.env.HAGILIGHT_VIEWPORT_TEST === 'true'
           ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }
