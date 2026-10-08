@@ -12,6 +12,7 @@
     "pretest": "npm run build",
     "test": "node --test test/*.test.mjs",
     "test:viewport": "node test/viewport-regression.mjs",
+    "prebuild:example": "npm run build",
     "build:example": "node scripts/build-example.mjs",
     "build:core-footer-example": "npm run build && npm run build --workspace=hagilight-core-footer-example",
     "pack:check": "node scripts/verify-pack.mjs",
