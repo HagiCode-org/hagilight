@@ -1,50 +1,154 @@
 ---
-import heroImage from './assets/light-main.png';
+import { Image } from 'astro:assets';
+import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
+import {
+  resolveMicrosoftStoreBadgeLanguage,
+  resolveMicrosoftStoreProductId,
+} from './dist/windows-download.js';
+import heroes from './assets/showcase/heroes.webp';
+import pillarEfficient from './assets/showcase/pillar-efficient.svg';
+import pillarFun from './assets/showcase/pillar-fun.svg';
+import pillarSmart from './assets/showcase/pillar-smart.svg';
+import proposalWorkflow from './assets/showcase/proposal-workflow.webp';
+import workbench from './assets/showcase/workbench.webp';
 
 const { lang } = Astro.props;
 const copy = getArticlePromotionCopy(lang);
+const siteLinks = resolveSiteLinks(lang);
+const linkHref = (id: string, fallback: string) =>
+  [...siteLinks.header, ...siteLinks.quick].find((link) => link.id === id)?.href ?? fallback;
+const homeHref = linkHref('home', 'https://www.hagicode.com/');
+const docsHref = linkHref('productDocs', 'https://docs.hagicode.com/');
+const storeHref = linkHref('microsoftStore', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW');
+const downloadsHref = linkHref('downloadClient', 'https://www.hagicode.com/');
+const storeProductId = resolveMicrosoftStoreProductId(storeHref);
+const badgeLanguage = resolveMicrosoftStoreBadgeLanguage(lang);
+
+// Keyed by the ids in assets/showcase/manifest.json and in the copy catalog's gallery.
+const galleryImages: Record<string, ImageMetadata> = {
+  workbench,
+  'proposal-workflow': proposalWorkflow,
+  heroes,
+};
+const pillarIcons: Record<string, ImageMetadata> = {
+  smart: pillarSmart,
+  efficient: pillarEfficient,
+  fun: pillarFun,
+};
+const gallery = copy.gallery.flatMap((item) => {
+  const image = galleryImages[item.id];
+  return image ? [{ ...item, image }] : [];
+});
 ---
 
 <section class="hagilight-article-promotion" aria-labelledby="hagilight-article-promotion-title">
-  <div>
+  <div class="hagilight-article-promotion__intro">
     <h2 id="hagilight-article-promotion-title">{copy.title}</h2>
     <p>{copy.lead}</p>
     <p>{copy.subheadline}</p>
   </div>
-  <img
-    src={heroImage.src}
-    alt={copy.imageAlt}
-    width={heroImage.width}
-    height={heroImage.height}
-    loading="lazy"
-    decoding="async"
-  />
-  <ul aria-label={copy.title}>
+
+  <div class="hagilight-article-promotion__actions">
+    <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--primary" href={homeHref}>
+      {copy.visitLabel}
+    </a>
+    <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary" href={docsHref}>
+      {copy.docsLabel}
+    </a>
+    <div class="hagilight-article-promotion__windows">
+      <div class="hagilight-article-promotion__windows-header">
+        <span class="hagilight-article-promotion__windows-label">{copy.windowsLabel}</span>
+        <a class="hagilight-article-promotion__downloads" href={downloadsHref}>{copy.allDownloadsLabel}</a>
+      </div>
+      <ms-store-badge
+        productid={storeProductId}
+        productname="HagiCode"
+        window-mode="direct"
+        theme="auto"
+        size="large"
+        animation="on"
+        language={badgeLanguage}
+        aria-label={copy.windowsStoreAriaLabel}
+        title={copy.windowsStoreAriaLabel}
+      >
+        <a
+          class="hagilight-article-promotion__store-fallback"
+          href={storeHref}
+          aria-label={copy.windowsStoreAriaLabel}
+          title={copy.windowsStoreAriaLabel}
+        >{copy.windowsStoreLabel}</a>
+      </ms-store-badge>
+    </div>
+  </div>
+
+  <div class="hagilight-article-promotion__gallery-block">
+    <h3 id="hagilight-article-promotion-gallery-title">{copy.galleryHeading}</h3>
+    <ul class="hagilight-article-promotion__gallery" aria-labelledby="hagilight-article-promotion-gallery-title">
+      {gallery.map((item) => (
+        <li>
+          <figure>
+            <Image
+              src={item.image}
+              alt={item.alt}
+              width={item.image.width}
+              height={item.image.height}
+              widths={[480, 800, item.image.width]}
+              sizes="(min-width: 50rem) 720px, 100vw"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+            />
+            <figcaption>{item.caption}</figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <ul class="hagilight-article-promotion__features" aria-label={copy.title}>
     {copy.features.map((feature) => (
       <li>
+        <span
+          class="hagilight-article-promotion__icon"
+          aria-hidden="true"
+          style={`--hagilight-pillar-icon: url(${pillarIcons[feature.id]?.src})`}
+        ></span>
         <strong>{feature.label}</strong>
         <span>{feature.description}</span>
       </li>
     ))}
   </ul>
-  <a href="https://www.hagicode.com/">{copy.visitLabel}</a>
+
+  <div class="hagilight-article-promotion__share">
+    <h3 id="hagilight-article-promotion-share-title">{copy.shareLabel}</h3>
+    <p class="hagilight-article-promotion__share-text">{copy.shareText}</p>
+  </div>
 </section>
+<script type="module" src="https://get.microsoft.com/badge/ms-store-badge.bundled.js" is:inline></script>
 
 <style>
   .hagilight-article-promotion {
     display: grid;
-    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
     margin: 2rem auto;
     padding: clamp(1rem, 3vw, 1.75rem);
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--sl-radius-lg);
+    border-radius: var(--sl-radius-lg, 0.75rem);
     background: var(--sl-color-bg-nav);
     color: var(--sl-color-text);
   }
 
-  .hagilight-article-promotion h2 {
+  .hagilight-article-promotion h2,
+  .hagilight-article-promotion h3 {
     margin: 0;
+    color: var(--sl-color-white);
+    line-height: 1.25;
+  }
+
+  .hagilight-article-promotion h3 {
+    font-size: var(--sl-text-lg, 1.125rem);
   }
 
   .hagilight-article-promotion p {
@@ -52,57 +156,179 @@ const copy = getArticlePromotionCopy(lang);
     line-height: 1.6;
   }
 
-  .hagilight-article-promotion img {
-    width: 100%;
-    height: auto;
-    border-radius: var(--sl-radius-md);
-  }
-
   .hagilight-article-promotion ul {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .hagilight-article-promotion li {
-    display: grid;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--sl-radius-md);
-  }
-
-  .hagilight-article-promotion li strong {
-    color: var(--sl-color-text-accent);
-  }
-
-  .hagilight-article-promotion > a {
-    display: inline-flex;
-    justify-self: start;
-    align-items: center;
-    min-height: 2.75rem;
-    padding: 0.5rem 1rem;
-    border-radius: var(--sl-radius-sm);
-    background: var(--sl-color-text-accent);
-    color: var(--sl-color-bg);
-    font-weight: 700;
-    text-decoration: none;
-  }
-
-  .hagilight-article-promotion > a:hover {
-    filter: brightness(1.08);
-  }
-
-  .hagilight-article-promotion > a:focus-visible {
+  .hagilight-article-promotion a:focus-visible {
     outline: 2px solid var(--sl-color-text-accent);
     outline-offset: 3px;
   }
 
+  .hagilight-article-promotion__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+  }
+
+  .hagilight-article-promotion__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--sl-color-text-accent);
+    border-radius: var(--sl-radius-sm, 0.375rem);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .hagilight-article-promotion__cta--primary {
+    background: var(--sl-color-text-accent);
+    color: var(--sl-color-bg);
+  }
+
+  .hagilight-article-promotion__cta--secondary {
+    background: transparent;
+    color: var(--sl-color-text-accent);
+  }
+
+  .hagilight-article-promotion__cta:hover {
+    filter: brightness(1.08);
+  }
+
+  .hagilight-article-promotion__windows {
+    display: grid;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.25rem 0.75rem 0.75rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--sl-radius-md, 0.5rem);
+    background: var(--sl-color-gray-6);
+  }
+
+  .hagilight-article-promotion__windows-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 1rem;
+  }
+
+  .hagilight-article-promotion__windows-label {
+    font-weight: 600;
+  }
+
+  /* Reserve the large badge's height (104px) so it replaces the fallback link without a layout jump. */
+  .hagilight-article-promotion__windows ms-store-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    max-width: 100%;
+    min-height: 6.5rem;
+  }
+
+  /* Keep the badge's fixed height and shrink it to the slot on narrow screens without distortion. */
+  .hagilight-article-promotion__windows ms-store-badge::part(img) {
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .hagilight-article-promotion__store-fallback,
+  .hagilight-article-promotion__downloads {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+  }
+
+  .hagilight-article-promotion__gallery-block {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .hagilight-article-promotion__gallery {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .hagilight-article-promotion figure {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .hagilight-article-promotion img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--sl-radius-md, 0.5rem);
+  }
+
+  .hagilight-article-promotion figcaption {
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm, 0.875rem);
+    line-height: 1.5;
+  }
+
+  .hagilight-article-promotion__features {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .hagilight-article-promotion__features li {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--sl-radius-md, 0.5rem);
+  }
+
+  .hagilight-article-promotion__features strong {
+    color: var(--sl-color-text-accent);
+  }
+
+  .hagilight-article-promotion__icon {
+    width: 2rem;
+    height: 2rem;
+    background: var(--sl-color-text-accent);
+    mask: var(--hagilight-pillar-icon) center / contain no-repeat;
+    -webkit-mask: var(--hagilight-pillar-icon) center / contain no-repeat;
+  }
+
+  .hagilight-article-promotion__share {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .hagilight-article-promotion__share-text {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--sl-color-gray-4);
+    border-radius: var(--sl-radius-md, 0.5rem);
+    background: var(--sl-color-bg);
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+
   @media (max-width: 30rem) {
-    .hagilight-article-promotion ul {
+    .hagilight-article-promotion__features {
       grid-template-columns: 1fr;
+    }
+
+    .hagilight-article-promotion__actions {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
     }
   }
 </style>

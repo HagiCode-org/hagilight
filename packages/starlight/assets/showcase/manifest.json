@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "budgets": {
+    "totalKiB": 768,
+    "rasterKiB": 200,
+    "svgKiB": 8
+  },
+  "assets": [
+    {
+      "id": "workbench",
+      "kind": "sourced",
+      "file": "workbench.webp",
+      "width": 1600,
+      "height": 845,
+      "bytes": 57630,
+      "source": {
+        "repo": "docs",
+        "path": "src/content/docs/img/screenshots/shared/kanban-view/original.png"
+      },
+      "transforms": [
+        "crop 2015x1064+0+0 of the 3839x2159 original (top-left: header, session rail, Pending/In Progress/Archived columns)",
+        "resize to 1600 px wide",
+        "webp quality 90"
+      ],
+      "audit": {
+        "verdict": "pass-after-crop",
+        "checkedOn": "2026-10-08",
+        "notes": "Current HagiCode brand, English UI with Chinese session titles. The crop removes the bottom status bar (Steam wishlist strip) and the Pending card whose title mentions Steam. No paths, credentials, or personal data in the kept region. The full original fails the audit (retired Steam channel)."
+      }
+    },
+    {
+      "id": "proposal-workflow",
+      "kind": "sourced",
+      "file": "proposal-workflow.webp",
+      "width": 1600,
+      "height": 340,
+      "bytes": 21666,
+      "source": {
+        "repo": "docs",
+        "path": "src/content/docs/img/screenshots/shared/classic-proposal-view/original.png"
+      },
+      "transforms": [
+        "crop 3128x665+670+215 of the 3839x2159 original (proposal stage stepper and the Execution Completed card)",
+        "resize to 1600 px wide",
+        "webp quality 90"
+      ],
+      "audit": {
+        "verdict": "pass-after-crop",
+        "checkedOn": "2026-10-08",
+        "notes": "English UI. The crop drops the session sidebar (Steam in a session title), the status bar (Steam wishlist strip), and the idea folder row, which shows a local user path. The kept region shows only the proposal stage stepper and the Archive Plan action."
+      }
+    },
+    {
+      "id": "heroes",
+      "kind": "sourced",
+      "file": "heroes.webp",
+      "width": 1200,
+      "height": 1111,
+      "bytes": 101748,
+      "source": {
+        "repo": "docs",
+        "path": "src/content/docs/img/screenshots/shared/kanban-view/original.png"
+      },
+      "transforms": [
+        "crop 1302x1205+2035+260 of the 3839x2159 original (Ember Keep hero panel, three hero cards)",
+        "resize to 1200 px wide",
+        "webp quality 88"
+      ],
+      "audit": {
+        "verdict": "pass-after-crop",
+        "checkedOn": "2026-10-08",
+        "notes": "Current HagiCode UI, English panel text with two Chinese hero names. Hero portraits are the product's own art; no third-party brand, no private data, no Steam content in the kept region."
+      }
+    },
+    {
+      "id": "pillar-smart",
+      "kind": "svg",
+      "file": "pillar-smart.svg",
+      "width": 48,
+      "height": 48,
+      "bytes": 271,
+      "transforms": [],
+      "audit": {
+        "verdict": "pass",
+        "checkedOn": "2026-10-08",
+        "notes": "Hand-authored light bulb outline for the Smart card. No text, no logo, no third-party brand. Used as a CSS mask so the Starlight accent color applies."
+      }
+    },
+    {
+      "id": "pillar-efficient",
+      "kind": "svg",
+      "file": "pillar-efficient.svg",
+      "width": 48,
+      "height": 48,
+      "bytes": 281,
+      "transforms": [],
+      "audit": {
+        "verdict": "pass",
+        "checkedOn": "2026-10-08",
+        "notes": "Hand-authored three parallel arrows for the Efficient card. No text, no logo, no third-party brand. Used as a CSS mask so the Starlight accent color applies."
+      }
+    },
+    {
+      "id": "pillar-fun",
+      "kind": "svg",
+      "file": "pillar-fun.svg",
+      "width": 48,
+      "height": 48,
+      "bytes": 269,
+      "transforms": [],
+      "audit": {
+        "verdict": "pass",
+        "checkedOn": "2026-10-08",
+        "notes": "Hand-authored star outline for the Fun card. No text, no logo, no third-party brand. Used as a CSS mask so the Starlight accent color applies."
+      }
+    }
+  ]
+}

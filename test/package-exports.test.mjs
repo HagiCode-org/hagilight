@@ -23,6 +23,7 @@ const expectedExports = {
   '@hagicode/hagilight-starlight': ['default'],
   '@hagicode/hagilight-starlight/locales': ['locales'],
   '@hagicode/hagilight-starlight/schema': ['aiDisclosureSchema', 'articlePromotionSchema', 'hagilightSchema', 'rssSchema'],
+  '@hagicode/hagilight-starlight/showcase': ['getShowcaseCopy', 'showcaseLocales'],
 };
 
 test('every JavaScript export resolves to built ESM with a sibling declaration file', async () => {
