@@ -45,7 +45,13 @@ const REQUIRED_FILES = {
     'Footer.astro',
     'MarkdownContent.astro',
     'ArticlePromotion.astro',
-    'assets/light-main.png',
+    'assets/showcase/manifest.json',
+    'assets/showcase/workbench.webp',
+    'assets/showcase/proposal-workflow.webp',
+    'assets/showcase/heroes.webp',
+    'assets/showcase/pillar-smart.svg',
+    'assets/showcase/pillar-efficient.svg',
+    'assets/showcase/pillar-fun.svg',
     'PageTitle.astro',
     'PromotoFooter.astro',
     'NotFoundHero.astro',
@@ -53,7 +59,14 @@ const REQUIRED_FILES = {
     'rss.[language].xml.ts',
     'dist/rss-renderer.js',
     'dist/seo-utils.js',
+    'dist/showcase.js',
+    'dist/windows-download.js',
+    'dist/article-promotion-copy/index.js',
   ],
+};
+
+const FORBIDDEN_FILES = {
+  '@hagicode/hagilight-starlight': ['assets/light-main.png'],
 };
 
 function exportTargets(exports) {
@@ -102,6 +115,9 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   }
   for (const file of ['package.json', 'README.md', ...REQUIRED_FILES[name]]) {
     if (!files.has(file)) throw new Error(`${name} is missing ${file} from its tarball`);
+  }
+  for (const file of FORBIDDEN_FILES[name] ?? []) {
+    if (files.has(file)) throw new Error(`${name} must not ship the retired ${file}`);
   }
   for (const { subpath, runtime, types } of exportTargets(manifest.exports)) {
     for (const target of [runtime, types].filter(Boolean)) {

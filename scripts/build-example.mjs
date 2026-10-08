@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
+import { COPY } from '../packages/starlight/dist/article-promotion.js';
+import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -274,9 +277,113 @@ function verifyCoreFooterOutput(read) {
   assert.ok(!chinese.includes('Explore Hagilight core'));
 }
 
+
+const SHOWCASE_PAGES = {
+  'en-US': 'index.html',
+  'zh-CN': 'zh-CN/index.html',
+  'zh-Hant': 'zh-Hant/index.html',
+  'ja-JP': 'ja-JP/index.html',
+  'ko-KR': 'ko-KR/index.html',
+  'de-DE': 'de-DE/index.html',
+  'fr-FR': 'fr-FR/index.html',
+  'es-ES': 'es-ES/index.html',
+  'pt-BR': 'pt-BR/index.html',
+  'ru-RU': 'ru-RU/index.html',
+};
+const BADGE_LOADER = 'https://get.microsoft.com/badge/ms-store-badge.bundled.js';
+const KIB = 1024;
+
+function escapeHtml(value) {
+  return value.replace(/&/gu, '&amp;').replace(/</gu, '&lt;').replace(/>/gu, '&gt;')
+    .replace(/"/gu, '&quot;').replace(/'/gu, '&#39;');
+}
+
+function includesText(html, text) {
+  return html.includes(text) || html.includes(escapeHtml(text));
+}
+
+function showcaseSection(html, filename) {
+  const start = html.indexOf('<section class="hagilight-article-promotion');
+  assert.notEqual(start, -1, `${filename} renders the HagiCode showcase`);
+  return html.slice(start, html.indexOf('</section>', start));
+}
+
+function verifyShowcaseOutput(read) {
+  const outputDir = join(root, 'examples/demo-starlight-web/dist');
+  const astroDir = join(outputDir, '_astro');
+  const hrefsOf = (links, ids) => ids.map((id) => links.find((link) => link.id === id).href);
+  for (const [locale, filename] of Object.entries(SHOWCASE_PAGES)) {
+    const html = read(filename);
+    const copy = COPY[locale];
+    const section = showcaseSection(html, filename);
+    const links = resolveSiteLinks(locale);
+    const [home, productDocs, microsoftStore, downloadClient] = hrefsOf(
+      [...links.header, ...links.quick],
+      ['home', 'productDocs', 'microsoftStore', 'downloadClient'],
+    );
+
+    assert.ok(includesText(section, copy.lead), `${filename} has the ${locale} lead`);
+    assert.ok(includesText(section, copy.shareText), `${filename} has the ${locale} share sentence`);
+    assert.ok(includesText(section, copy.features[0].label), `${filename} has the localized pillar labels`);
+    assert.ok(section.includes(`href="${home}"`), `${filename} primary CTA`);
+    assert.ok(section.includes(`href="${productDocs}"`), `${filename} secondary CTA`);
+    assert.ok(section.includes(`href="${downloadClient}"`), `${filename} all-downloads link`);
+
+    const badge = section.match(/<ms-store-badge\b([^>]*)>([\s\S]*?)<\/ms-store-badge>/u);
+    assert.ok(badge, `${filename} has the Microsoft Store badge`);
+    assert.match(badge[1], /\bproductid="9N3PM0N3SVDW"/u);
+    assert.match(badge[1], /\bwindow-mode="direct"/u);
+    assert.match(badge[1], /\btheme="auto"/u);
+    assert.match(badge[1], /\bsize="large"/u);
+    assert.ok(badge[1].includes(`language="${resolveMicrosoftStoreBadgeLanguage(locale)}"`), `${filename} badge language`);
+    assert.ok(includesText(badge[1], copy.windowsStoreAriaLabel), `${filename} badge accessible name`);
+    assert.ok(badge[2].includes(`href="${microsoftStore}"`), `${filename} fallback link`);
+    assert.ok(includesText(badge[2], copy.windowsStoreLabel), `${filename} fallback text`);
+
+    assert.equal(html.split(BADGE_LOADER).length - 1, 1, `${filename} loads the badge script once`);
+    assert.ok(html.includes(`<script type="module" src="${BADGE_LOADER}">`), `${filename} badge loader is a module script`);
+
+    const images = [...section.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
+    assert.equal(images.length, copy.gallery.length, `${filename} gallery image count`);
+    images.forEach((tag, index) => {
+      const alt = tag.match(/\balt="([^"]+)"/u)?.[1];
+      assert.ok(alt, `${filename} image ${index} has alt text`);
+      assert.ok([copy.gallery[index].alt, escapeHtml(copy.gallery[index].alt)].includes(alt), `${filename} image ${index} localized alt`);
+      assert.match(tag, /\bloading="lazy"/u);
+      assert.match(tag, /\bdecoding="async"/u);
+      assert.match(tag, /\bwidth="\d+"/u);
+      assert.match(tag, /\bheight="\d+"/u);
+      for (const [, url] of tag.matchAll(/(\/_astro\/[^\s",]+\.webp)/gu)) {
+        assert.match(url, /\.[\w-]{6,}\.webp$/u, `${url} is content-hashed`);
+        assert.ok(statSync(join(outputDir, url)).size <= 200 * KIB, `${url} stays within the 200 KiB raster budget`);
+      }
+    });
+    for (const [, url] of section.matchAll(/url\((\/_astro\/pillar-[^)]+)\)/gu)) {
+      assert.match(url, /\.svg$/u);
+      assert.ok(statSync(join(outputDir, url)).size <= 8 * KIB, `${url} stays within the 8 KiB SVG budget`);
+    }
+  }
+
+  const showcaseFiles = readdirSync(astroDir).filter((file) => /^(?:workbench|proposal-workflow|heroes|pillar-)/u.test(file));
+  assert.ok(showcaseFiles.some((file) => file.endsWith('.webp')) && showcaseFiles.some((file) => file.endsWith('.svg')));
+  assert.ok(showcaseFiles.every((file) => /\.(?:webp|svg)$/u.test(file)), 'showcase images are WebP or SVG');
+  const total = showcaseFiles.reduce((sum, file) => sum + statSync(join(astroDir, file)).size, 0);
+  assert.ok(total <= 768 * KIB, `built showcase images total ${total} bytes, over the 768 KiB budget`);
+}
+
+function verifyShowcaseDisabled(read) {
+  for (const [locale, filename] of Object.entries(SHOWCASE_PAGES)) {
+    const html = read(filename);
+    for (const marker of ['hagilight-article-promotion', 'ms-store-badge', 'get.microsoft.com']) {
+      assert.ok(!html.includes(marker), `${filename} (${locale}) renders no showcase markup when disabled: ${marker}`);
+    }
+  }
+}
+
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
+verifyShowcaseOutput(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -313,5 +420,7 @@ assert.ok(docsOnlyLinks.length > 0);
 assert.ok(docsOnlyLinks.every((link) => link.includes('/rss-docs-only/')));
 assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
+verifyDefaultFeeds(build());
+verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }));
 verifyDefaultFeeds(build());
 verifyCoreFooterOutput(buildCoreFooter());

@@ -40,6 +40,15 @@ function verifyBannerBuild(expected) {
   if (hasBannerMarkup !== expected || hasBannerScript !== expected) {
     throw new Error(`Installed example banner output mismatch (expected ${expected ? 'enabled' : 'disabled'})`);
   }
+  const builtAssets = listFiles(join(temp, 'dist', '_astro')).map((path) => path.split(/[\\/]/u).pop());
+  for (const name of ['workbench', 'proposal-workflow', 'heroes']) {
+    assert.ok(
+      builtAssets.some((file) => file.startsWith(`${name}.`) && file.endsWith('.webp')),
+      `the installed package builds the ${name} showcase image`,
+    );
+  }
+  assert.ok(html.includes('<ms-store-badge') && html.includes('href="https://apps.microsoft.com/detail/9N3PM0N3SVDW"'), 'the installed package renders the Windows download block');
+  assert.equal(countOccurrences(html, 'https://get.microsoft.com/badge/ms-store-badge.bundled.js'), 1);
   assert.equal(countOccurrences(html, `Powered By hagilight-starlight@${starlightManifest.version}`), 1);
   assert.ok(!html.includes('Powered By hagilight@'), 'the Starlight footer does not claim plain-Astro attribution');
   assert.ok(html.includes(`© ${new Date().getFullYear()} HagiCode`));
