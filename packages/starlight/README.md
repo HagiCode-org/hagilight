@@ -31,7 +31,11 @@ The plugin also exposes `@hagicode/hagilight-starlight/schema` for optional SEO 
 
 ### Theme picker
 
-By default the plugin replaces Starlight's light/dark toggle with a theme picker offering nine choices: the default theme plus the Ocean, Sakura, and Forest themes in light and dark, and a "Default" choice that follows the visitor's system color scheme while a randomly assigned theme (stable per visitor, stored in `localStorage`) provides the palette. Disable it to keep Starlight's built-in toggle or compose `@hagicode/hagilight-starlight/ThemeSelect` yourself:
+By default the plugin replaces Starlight's light/dark toggle with a theme picker offering nine choices: the default theme plus the Ocean, Sakura, and Forest themes in light and dark, and a "Default" choice that follows the visitor's system color scheme and renders the Forest theme. First-time visitors, and visitors with an invalid saved choice, therefore see Forest; the other themes appear only after an explicit selection, which is remembered in `localStorage`.
+
+Earlier versions assigned each first-time visitor a random theme and stored it under `hagilight-theme-random`. That value is now ignored: returning visitors who never picked a theme explicitly see Forest after upgrading, while visitors with an explicit choice keep it.
+
+Disable the picker to keep Starlight's built-in toggle or compose `@hagicode/hagilight-starlight/ThemeSelect` yourself:
 
 ```js
 hagilight({ themes: { enabled: false } })
