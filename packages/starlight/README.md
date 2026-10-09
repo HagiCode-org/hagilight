@@ -39,7 +39,7 @@ hagilight({ themes: { enabled: false } })
 
 ### HagiCode showcase
 
-After the body (and any translation notice) of every documentation article, the plugin renders a static HagiCode showcase: a headline and lead, calls to action to the website and the documentation, a Windows download button, a three-image gallery with captions, three pillar cards (Smart, Efficient, Fun), and a selectable, copy-ready share sentence. All text is localized for the ten published locales (`en-US`, `zh-CN`, `zh-Hant`, `ja-JP`, `ko-KR`, `de-DE`, `fr-FR`, `es-ES`, `pt-BR`, `ru-RU`) and falls back to English for any other language. Links come from the same locale-aware catalog as the footer.
+After the body (and any translation notice) of every documentation article, the plugin renders a static HagiCode showcase: a headline, lead, and tagline with calls to action to the website and the documentation, three pillars (Smart, Efficient, Fun), a three-image gallery with captions, and a closing row with the Windows download button beside a selectable, copy-ready share sentence. The layout follows the showcase's own width: one column when narrow, a three-up pillar row, a gallery mosaic, and a two-column closing row from 36rem, and the pillars beside the pitch from 56rem (for example in the wide content mode). All text is localized for the ten published locales (`en-US`, `zh-CN`, `zh-Hant`, `ja-JP`, `ko-KR`, `de-DE`, `fr-FR`, `es-ES`, `pt-BR`, `ru-RU`) and falls back to English for any other language. Links come from the same locale-aware catalog as the footer.
 
 Turn it off for the whole site, or override it per article:
 
@@ -88,7 +88,7 @@ Budgets, enforced by `npm test`: 768 KiB for all showcase images together, 200 K
 The copy and assets mirror `repos/web` and `repos/docs` in the HagiCode monorepo, which this package never edits.
 
 - **Copy:** edit `src/article-promotion-copy/<locale>.ts` (every locale must keep the same fields, feature ids, and gallery ids). Terminology is pinned in `GLOSSARY` in `src/article-promotion-copy/index.ts`, seeded from the product locale files in `repos/web/src/locales/<locale>/`. `HagiCode`, `OpenSpec`, `Hero Dungeon`, `Microsoft Store`, and `Windows` are never translated.
-- **Images:** audit the candidate, crop and convert it to WebP, add or update its `manifest.json` entry, register it in the `galleryImages` map in `ArticlePromotion.astro`, and add a caption and text alternative in every locale. `npm test` checks that the manifest, the files, the component registry, and the copy agree.
+- **Images:** audit the candidate, crop and convert it to WebP, add or update its `manifest.json` entry, register it in the `galleryImages` map in `ArticlePromotion.astro`, and add a caption and text alternative in every locale. The gallery mosaic places the first, second, and third catalog entries as the left top, left bottom, and right tall slot, so keep the gallery at three images or revisit the placement in the component's `@container (min-width: 36rem)` block. `npm test` checks that the manifest, the files, the component registry, and the copy agree.
 - **Badge:** the product id is parsed from the Store URL and the badge language map lives in `src/windows-download.ts`. Re-check both against `repos/docs/src/components/MicrosoftStoreBadge.tsx` and the official site when the Store listing or the supported languages change.
 
 The plugin footer and direct `/Footer` and `/PromotoFooter` components append
