@@ -57,5 +57,5 @@ test('the showcase renders the official badge element with a static fallback lin
   assert.match(badge, /<a\b[\s\S]*?href=\{storeHref\}[\s\S]*?>\{copy\.windowsStoreLabel\}<\/a>/u, 'fallback anchor inside the badge');
   assert.match(component, /resolveMicrosoftStoreProductId\(storeHref\)/u);
   assert.match(component, /resolveMicrosoftStoreBadgeLanguage\(lang\)/u);
-  assert.match(component, /<a class="hagilight-article-promotion__downloads" href=\{downloadsHref\}>/u);
+  assert.match(component, /<a\s+class="hagilight-article-promotion__downloads"\s+href=\{downloadsHref\}/u);
 });

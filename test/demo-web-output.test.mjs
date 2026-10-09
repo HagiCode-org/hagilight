@@ -114,6 +114,49 @@ test('plain-Astro footer includes one exact package-version attribution and pres
   }
 });
 
+test('built footer tags tracked quick and community links and leaves other links untagged', () => {
+  const expected = {
+    downloadClient: ['download', /\/desktop\/?$/],
+    microsoftStore: ['download', /9N3PM0N3SVDW$/],
+    dockerCompose: ['navigation', /docker-compose\/?$/],
+    productDocs: ['navigation', /product-overview\/?$/],
+    blogPosts: ['navigation', /\/blog\/?$/],
+    github: ['community', /github\.com\/HagiCode-org\/site$/],
+    discord: ['community', /discord\.gg\//],
+    issueFeedback: ['community', /\/issues$/],
+  };
+  for (const page of pages) {
+    const html = readFileSync(join(outputDir, page.file), 'utf8');
+    const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+    assert.ok(footer, `${page.file} has a footer`);
+    const anchors = [...footer.matchAll(/<a\b[^>]*>/gu)].map(([anchor]) => anchor);
+    const tagged = anchors.filter((anchor) => anchor.includes('data-ga-label='));
+    const attribute = (anchor, name) => anchor.match(new RegExp(`${name}="([^"]*)"`, 'u'))?.[1];
+
+    assert.deepEqual(
+      tagged.map((anchor) => attribute(anchor, 'data-ga-label')).sort(),
+      Object.keys(expected).sort(),
+      `${page.file} tags exactly the tracked footer links`,
+    );
+    for (const anchor of tagged) {
+      const label = attribute(anchor, 'data-ga-label');
+      const [category, destination] = expected[label];
+      assert.equal(attribute(anchor, 'data-ga-category'), category, `${page.file} ${label} category`);
+      assert.equal(attribute(anchor, 'data-ga-location'), 'footer', `${page.file} ${label} location`);
+      assert.match(attribute(anchor, 'href'), destination, `${page.file} ${label} destination`);
+    }
+    const untagged = anchors.filter((anchor) => !anchor.includes('data-ga-'));
+    for (const fragment of ['beian.miit.gov.cn', 'sitemap-index.xml', 'rss']) {
+      assert.ok(untagged.some((anchor) => anchor.includes(fragment)), `${page.file} leaves ${fragment} untagged`);
+    }
+    assert.ok(
+      untagged.some((anchor) => /target="_blank"/u.test(anchor) && /hagicode\.com|docs\./u.test(anchor)),
+      `${page.file} leaves related-site links untagged`,
+    );
+    assert.doesNotMatch(html, /<script[^>]*analytics-events/u, 'demo pages without Google Analytics load no tracker');
+  }
+});
+
 test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, and favicon', () => {
   for (const page of pages) {
     const html = readFileSync(join(outputDir, page.file), 'utf8');
