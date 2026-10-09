@@ -4,14 +4,13 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import hagilight from '@hagicode/hagilight-starlight';
 import {
-  RANDOM_THEME_IDS,
-  RANDOM_THEME_STORAGE_KEY,
+  DEFAULT_PALETTE_THEME_ID,
+  EXTRA_THEME_IDS,
   STARLIGHT_THEME_STORAGE_KEY,
   THEME_BOOTSTRAP,
   THEME_CHOICES,
   THEME_STORAGE_KEY,
   applyThemeChoice,
-  assignedRandomThemeId,
   getThemePickerLabels,
   parseThemeChoice,
   readStoredThemeChoice,
@@ -24,18 +23,34 @@ const themesCss = readFileSync(
   'utf8',
 );
 
-function withEnvironment(stored, run) {
+/** Key an earlier version used to persist a randomly assigned theme; it must now be ignored and never written. */
+const LEGACY_RANDOM_THEME_KEY = 'hagilight-theme-random';
+
+const unavailableStorage = {
+  getItem: () => {
+    throw new Error('storage unavailable');
+  },
+  setItem: () => {
+    throw new Error('storage unavailable');
+  },
+};
+
+/** Runs `run` with fake storage and document; `Math.random` throws so any random lookup fails the test. */
+function withEnvironment(stored, run, storage) {
   const store = new Map(Object.entries(stored ?? {}));
   const previous = {
     localStorage: globalThis.localStorage,
     document: globalThis.document,
     random: Math.random,
   };
-  globalThis.localStorage = {
+  globalThis.localStorage = storage ?? {
     getItem: (key) => (store.has(key) ? store.get(key) : null),
     setItem: (key, value) => store.set(key, String(value)),
   };
   globalThis.document = { documentElement: { dataset: {} } };
+  Math.random = () => {
+    throw new Error('the theme picker must not consult Math.random');
+  };
   try {
     return run({ store, root: globalThis.document.documentElement });
   } finally {
@@ -45,11 +60,6 @@ function withEnvironment(stored, run) {
     else globalThis.document = previous.document;
     Math.random = previous.random;
   }
-}
-
-function stubRandom(sequence) {
-  let index = 0;
-  Math.random = () => sequence[index % sequence.length] ?? 0;
 }
 
 function configure(options = {}, components = {}) {
@@ -90,31 +100,27 @@ test('splitThemeChoice exposes the theme and the forced mode', () => {
   assert.deepEqual(splitThemeChoice('forest-dark'), { themeId: 'forest', mode: 'dark' });
 });
 
-test('assignedRandomThemeId picks one of the extra themes and keeps it stable per user', () => {
-  withEnvironment({}, () => {
-    stubRandom([0.999]);
-    const first = assignedRandomThemeId();
-    assert.equal(first, 'forest');
-    stubRandom([0]);
-    assert.equal(assignedRandomThemeId(), 'forest', 'must reuse the persisted assignment');
-  });
-
-  withEnvironment({ [RANDOM_THEME_STORAGE_KEY]: 'moon' }, () => {
-    stubRandom([0.5]);
-    assert.equal(assignedRandomThemeId(), 'sakura', 'must replace an invalid assignment');
-  });
+test('the default choice renders the Forest palette', () => {
+  assert.equal(DEFAULT_PALETTE_THEME_ID, 'forest');
+  assert.deepEqual([...EXTRA_THEME_IDS], ['ocean', 'sakura', 'forest']);
 });
 
-test('resolveThemeId maps default choices to the random assignment and others to their theme', () => {
-  withEnvironment({ [RANDOM_THEME_STORAGE_KEY]: 'sakura' }, () => {
-    assert.equal(resolveThemeId('default'), 'sakura');
+test('resolveThemeId maps the default choice to Forest and others to their own theme', () => {
+  withEnvironment({}, () => {
+    assert.equal(resolveThemeId('default'), 'forest');
     assert.equal(resolveThemeId('default-light'), 'default');
     assert.equal(resolveThemeId('ocean-dark'), 'ocean');
+    assert.equal(resolveThemeId('forest-light'), 'forest');
+  });
+
+  withEnvironment({ [LEGACY_RANDOM_THEME_KEY]: 'sakura' }, ({ store }) => {
+    assert.equal(resolveThemeId('default'), 'forest', 'a legacy random assignment must be ignored');
+    assert.equal(store.get(LEGACY_RANDOM_THEME_KEY), 'sakura', 'the legacy value is left untouched');
   });
 });
 
 test('applyThemeChoice persists the choice and keeps Starlight mode storage in sync', () => {
-  withEnvironment({ [RANDOM_THEME_STORAGE_KEY]: 'ocean' }, ({ root, store }) => {
+  withEnvironment({ [LEGACY_RANDOM_THEME_KEY]: 'ocean' }, ({ root, store }) => {
     applyThemeChoice('default-dark', root);
     assert.equal(root.dataset.hagilightTheme, 'default');
     assert.equal(root.dataset.theme, 'dark');
@@ -123,12 +129,12 @@ test('applyThemeChoice persists the choice and keeps Starlight mode storage in s
   });
 
   withEnvironment({}, ({ root, store }) => {
-    stubRandom([0.25]);
     applyThemeChoice('default', root);
-    assert.equal(root.dataset.hagilightTheme, 'ocean', 'default choice renders the assigned random theme');
+    assert.equal(root.dataset.hagilightTheme, 'forest', 'default choice renders Forest');
     assert.equal(root.dataset.theme, undefined, 'default choice leaves mode to system preference');
     assert.equal(store.get(THEME_STORAGE_KEY), 'default');
     assert.equal(store.get(STARLIGHT_THEME_STORAGE_KEY), '');
+    assert.ok(!store.has(LEGACY_RANDOM_THEME_KEY), 'default choice must not write a random assignment');
   });
 });
 
@@ -143,30 +149,67 @@ test('readStoredThemeChoice falls back to default when storage is missing or inv
   });
 });
 
-test('the pre-paint bootstrap script applies stored choices without touching mode', () => {
+test('the pre-paint bootstrap script renders Forest by default and applies stored choices without touching mode', () => {
+  withEnvironment({}, ({ root, store }) => {
+    new Function(THEME_BOOTSTRAP)();
+    assert.equal(root.dataset.hagilightTheme, 'forest', 'first visit renders Forest');
+    assert.equal(root.dataset.theme, undefined, 'bootstrap must not pin a light/dark mode');
+    assert.equal(store.size, 0, 'bootstrap must not write to storage');
+  });
+
   withEnvironment({ [THEME_STORAGE_KEY]: 'forest-light' }, ({ root }) => {
     new Function(THEME_BOOTSTRAP)();
     assert.equal(root.dataset.hagilightTheme, 'forest');
   });
 
-  withEnvironment({}, ({ root, store }) => {
-    stubRandom([0.75]);
+  withEnvironment({ [THEME_STORAGE_KEY]: 'sakura-dark' }, ({ root }) => {
     new Function(THEME_BOOTSTRAP)();
-    assert.equal(root.dataset.hagilightTheme, 'forest');
-    assert.equal(store.get(RANDOM_THEME_STORAGE_KEY), 'forest');
-    assert.equal(root.dataset.theme, undefined, 'bootstrap must not pin a light/dark mode');
+    assert.equal(root.dataset.hagilightTheme, 'sakura', 'an explicit choice keeps its theme');
   });
 
   withEnvironment({ [THEME_STORAGE_KEY]: 'neon-dark' }, ({ root }) => {
-    stubRandom([0]);
     new Function(THEME_BOOTSTRAP)();
-    assert.equal(root.dataset.hagilightTheme, 'ocean', 'invalid choices fall back to the default experience');
+    assert.equal(root.dataset.hagilightTheme, 'forest', 'invalid choices fall back to Forest');
   });
 
-  withEnvironment({ [RANDOM_THEME_STORAGE_KEY]: 'sakura' }, ({ root }) => {
+  withEnvironment({ [LEGACY_RANDOM_THEME_KEY]: 'sakura' }, ({ root }) => {
     new Function(THEME_BOOTSTRAP)();
-    assert.equal(root.dataset.hagilightTheme, 'sakura', 'repeat visits keep the assigned theme');
+    assert.equal(root.dataset.hagilightTheme, 'forest', 'a legacy random assignment is ignored');
   });
+
+  withEnvironment({ [LEGACY_RANDOM_THEME_KEY]: 'sakura', [THEME_STORAGE_KEY]: 'ocean-light' }, ({ root }) => {
+    new Function(THEME_BOOTSTRAP)();
+    assert.equal(root.dataset.hagilightTheme, 'ocean', 'an explicit choice wins over a legacy assignment');
+  });
+});
+
+test('the pre-paint bootstrap script and runtime agree on the first-visit theme', () => {
+  const bootstrapped = withEnvironment({}, ({ root }) => {
+    new Function(THEME_BOOTSTRAP)();
+    return root.dataset.hagilightTheme;
+  });
+  const applied = withEnvironment({}, ({ root }) => {
+    applyThemeChoice(readStoredThemeChoice(), root);
+    return root.dataset.hagilightTheme;
+  });
+  assert.equal(bootstrapped, applied);
+  assert.equal(bootstrapped, DEFAULT_PALETTE_THEME_ID);
+});
+
+test('Forest stays the default when browser storage is unavailable', () => {
+  withEnvironment({}, ({ root }) => {
+    new Function(THEME_BOOTSTRAP)();
+    assert.equal(root.dataset.hagilightTheme, 'forest');
+    assert.equal(resolveThemeId('default'), 'forest');
+    assert.equal(readStoredThemeChoice(), 'default');
+    assert.doesNotThrow(() => applyThemeChoice('default', root));
+    assert.equal(root.dataset.hagilightTheme, 'forest');
+  }, unavailableStorage);
+});
+
+test('the bootstrap script source never consults Math.random or the legacy key', () => {
+  assert.ok(!THEME_BOOTSTRAP.includes('Math.random'));
+  assert.ok(!THEME_BOOTSTRAP.includes(LEGACY_RANDOM_THEME_KEY));
 });
 
 test('picker labels exist for every HagiCode locale and fall back to English', () => {
@@ -191,7 +234,7 @@ test('picker labels exist for every HagiCode locale and fall back to English', (
 });
 
 test('themes.css defines dark and light palettes for every extra theme', () => {
-  for (const theme of RANDOM_THEME_IDS) {
+  for (const theme of EXTRA_THEME_IDS) {
     for (const dark of [true, false]) {
       const scope = dark
         ? `:root[data-hagilight-theme='${theme}']:not([data-theme='light'])`

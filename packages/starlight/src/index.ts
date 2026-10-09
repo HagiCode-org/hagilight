@@ -58,7 +58,8 @@ export interface HagilightThemesOptions {
   /**
    * Replace Starlight's light/dark picker with the Hagilight theme picker: four themes
    * (the default plus Ocean, Sakura, and Forest) in light and dark, plus a "default"
-   * choice that assigns first-visit users one of the extra themes at random.
+   * choice that follows the system color scheme and renders the Forest theme, so
+   * first-visit users see Forest until they pick another theme.
    * Defaults to `true`.
    */
   enabled?: boolean;
@@ -79,7 +80,7 @@ export interface HagilightStarlightOptions {
   seo?: HagilightSeoOptions;
   contentComponents?: HagilightContentComponentsOptions;
   aiDisclosures?: HagilightAIDisclosureOptions;
-  /** Theme picker with three extra light/dark themes plus a randomized first-visit default. */
+  /** Theme picker with three extra light/dark themes and a Forest first-visit default. */
   themes?: HagilightThemesOptions;
   /** End-of-article HagiCode introduction. */
   hagicodePromotion?: HagilightToggleOptions;

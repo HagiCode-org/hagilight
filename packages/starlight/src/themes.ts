@@ -1,7 +1,7 @@
 /**
  * Hagilight theme picker: four themes (the Starlight default plus Ocean, Sakura, and Forest),
- * each with a light and a dark appearance, plus a "default" choice that applies the site
- * default experience. The palette in use is exposed to CSS through the
+ * each with a light and a dark appearance, plus a "default" choice that follows the system
+ * color scheme and renders the Forest palette. The palette in use is exposed to CSS through the
  * `data-hagilight-theme` attribute on `<html>`; light/dark mode keeps using Starlight's
  * `data-theme` attribute and `starlight-theme` storage so Starlight's pre-paint script
  * continues to apply the correct mode.
@@ -22,8 +22,11 @@ export type ThemeChoice =
   | 'forest-light'
   | 'forest-dark';
 
-/** Themes a first-visit user is randomly assigned while the "default" choice is selected. */
-export const RANDOM_THEME_IDS = ['ocean', 'sakura', 'forest'] as const;
+/** Themes beyond the Starlight default; each must have light and dark palettes in `themes.css`. */
+export const EXTRA_THEME_IDS = ['ocean', 'sakura', 'forest'] as const;
+
+/** The palette the "default" choice renders, so first-visit users always see the same theme. */
+export const DEFAULT_PALETTE_THEME_ID: Exclude<ThemeId, 'default'> = 'forest';
 
 export const DEFAULT_THEME_CHOICE: ThemeChoice = 'default';
 
@@ -40,11 +43,9 @@ export const THEME_CHOICES = [
 ] as const satisfies readonly ThemeChoice[];
 
 export const THEME_STORAGE_KEY = 'hagilight-theme';
-export const RANDOM_THEME_STORAGE_KEY = 'hagilight-theme-random';
 /** Starlight's own storage key; kept in sync with the picker so its pre-paint script applies the right mode. */
 export const STARLIGHT_THEME_STORAGE_KEY = 'starlight-theme';
 
-const RANDOM_THEME_ID_SET: ReadonlySet<string> = new Set(RANDOM_THEME_IDS);
 const THEME_CHOICE_SET: ReadonlySet<unknown> = new Set(THEME_CHOICES);
 
 export function parseThemeChoice(value: unknown): ThemeChoice {
@@ -76,20 +77,10 @@ function writeStorage(key: string, value: string): void {
   }
 }
 
-/** The theme randomly assigned to this user, picking and persisting one on the first visit. */
-export function assignedRandomThemeId(): ThemeId {
-  let stored = readStorage(RANDOM_THEME_STORAGE_KEY);
-  if (stored === null || !RANDOM_THEME_ID_SET.has(stored)) {
-    stored = RANDOM_THEME_IDS[Math.floor(Math.random() * RANDOM_THEME_IDS.length)];
-    writeStorage(RANDOM_THEME_STORAGE_KEY, stored);
-  }
-  return stored as ThemeId;
-}
-
-/** The theme id a choice renders as: the theme itself, or the user's random assignment for "default". */
+/** The theme id a choice renders as: the theme itself, or the Forest palette for "default". */
 export function resolveThemeId(choice: ThemeChoice): ThemeId {
   const { themeId, mode } = splitThemeChoice(choice);
-  return mode === undefined ? assignedRandomThemeId() : themeId;
+  return mode === undefined ? DEFAULT_PALETTE_THEME_ID : themeId;
 }
 
 export function readStoredThemeChoice(): ThemeChoice {
@@ -114,36 +105,20 @@ export function applyThemeChoice(
  */
 export const THEME_BOOTSTRAP = `(function () {
   var choices = ${JSON.stringify(THEME_CHOICES)};
-  var randomThemes = ${JSON.stringify(RANDOM_THEME_IDS)};
   var choiceKey = ${JSON.stringify(THEME_STORAGE_KEY)};
-  var randomKey = ${JSON.stringify(RANDOM_THEME_STORAGE_KEY)};
   var choice = 'default';
   try {
     var stored = localStorage.getItem(choiceKey);
     if (choices.includes(stored)) choice = stored;
   } catch (error) {}
-  var themeId;
-  if (choice === 'default') {
-    try {
-      themeId = localStorage.getItem(randomKey);
-      if (!randomThemes.includes(themeId)) themeId = null;
-    } catch (error) {
-      themeId = null;
-    }
-    if (!themeId) {
-      themeId = randomThemes[Math.floor(Math.random() * randomThemes.length)];
-      try {
-        localStorage.setItem(randomKey, themeId);
-      } catch (error) {}
-    }
-  } else {
-    themeId = choice.slice(0, choice.lastIndexOf('-'));
-  }
+  var themeId = choice === 'default'
+    ? ${JSON.stringify(DEFAULT_PALETTE_THEME_ID)}
+    : choice.slice(0, choice.lastIndexOf('-'));
   document.documentElement.dataset.hagilightTheme = themeId;
 })();`;
 
 export interface ThemePickerLabels {
-  /** Label of the "default" choice: site default experience with an automatically assigned theme. */
+  /** Label of the "default" choice: follows the system color scheme and renders the Forest theme. */
   defaultOption: string;
   /** Label of the option group holding the built-in theme's light and dark appearances. */
   defaultThemeGroup: string;
