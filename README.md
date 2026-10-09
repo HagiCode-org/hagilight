@@ -1,5 +1,19 @@
 # HagiLight
 
+[![npm @hagicode/hagilight](https://img.shields.io/npm/v/@hagicode/hagilight?label=@hagicode/hagilight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight)
+[![npm @hagicode/hagilight-core](https://img.shields.io/npm/v/@hagicode/hagilight-core?label=@hagicode/hagilight-core&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-core)
+[![npm @hagicode/hagilight-starlight](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?label=@hagicode/hagilight-starlight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight)
+
+[![CI](https://img.shields.io/github/actions/workflow/status/HagiCode-org/hagilight/ci.yml?branch=main&label=CI)](https://github.com/HagiCode-org/hagilight/actions/workflows/ci.yml)
+[![Publish npm](https://img.shields.io/github/actions/workflow/status/HagiCode-org/hagilight/npm-publish.yml?branch=main&label=publish)](https://github.com/HagiCode-org/hagilight/actions/workflows/npm-publish.yml)
+[![GitHub release](https://img.shields.io/github/v/release/HagiCode-org/hagilight?label=release)](https://github.com/HagiCode-org/hagilight/releases)
+[![Last commit](https://img.shields.io/github/last-commit/HagiCode-org/hagilight)](https://github.com/HagiCode-org/hagilight/commits/main)
+[![TypeScript](https://img.shields.io/badge/TypeScript-ESM-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Astro](https://img.shields.io/badge/Astro-6%20%7C%207-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
+[![npm provenance](https://img.shields.io/badge/npm-provenance-CB3837?logo=npm&logoColor=white)](https://docs.npmjs.com/generating-provenance-statements)
+[![Core demo](https://img.shields.io/badge/demo-core-2ea44f)](https://hagilight.hagicode.com)
+[![Starlight demo](https://img.shields.io/badge/demo-starlight-2ea44f)](https://hagistar.hagicode.com)
+
 Reusable Astro components, integrations, and a Starlight plugin for HagiCode
 sites. This repository publishes three npm packages, all authored in
 TypeScript and shipped as ESM with generated `.d.ts` declarations. Astro
@@ -15,6 +29,12 @@ flowchart LR
 Both feature packages depend on the matching version of the shared core and
 never on each other. Install core directly when your site imports a core entry
 point.
+
+| Package | npm | Downloads |
+| --- | --- | --- |
+| [`@hagicode/hagilight-core`](https://www.npmjs.com/package/@hagicode/hagilight-core) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-core?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-core) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-core)](https://www.npmjs.com/package/@hagicode/hagilight-core) |
+| [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight)](https://www.npmjs.com/package/@hagicode/hagilight) |
+| [`@hagicode/hagilight-starlight`](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-starlight)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) |
 
 ## `@hagicode/hagilight-core`
 
