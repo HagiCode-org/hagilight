@@ -81,8 +81,8 @@ test('pager and dismiss stay a compact icon toolbar that follows the content in 
 test('narrow and short viewports keep the card compact without a separate controls row', async () => {
   const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
 
-  // Portrait phones: dismiss in the corner, pager sharing the call-to-action row.
-  assert.match(component, /@media \(max-width: 45rem\) and \(min-height: 30rem\)/u);
+  // The pager is bottom-anchored on the call-to-action row at every size, never a column of its own.
+  assert.match(component, /@media \(max-width: 36rem\) and \(min-height: 30rem\)/u);
   assert.match(component, /\.hagilight-promoto__controls\s*\{[^}]*position:\s*absolute/u);
   assert.match(component, /\[data-multiple\] \.hagilight-promoto__cta\s*\{[^}]*max-width:/u);
   // Short landscape viewports collapse to a thin strip instead of overflowing.

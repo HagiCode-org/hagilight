@@ -58,16 +58,19 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
 
 <style is:global>
   /*
-   * Layout model: the card leads with the campaign (media, title, description,
-   * call to action). Pager and dismiss are one quiet toolbar and never get their
-   * own row. Wide: a single row with the toolbar at the trailing edge, vertically
-   * centered. Narrow (portrait phones): the dismiss sits in the top corner and the
-   * pager shares the call-to-action row. Short landscape viewports keep the single
-   * row and drop the thumbnail so the card stays a thin strip.
+   * Layout model: the card is content on top, one action row on the bottom.
+   * The call to action sits bottom-left; pager and pause share that row at the
+   * bottom-right, so controls never take a column or a row of their own. Dismiss
+   * is a small corner mark. Wide: media beside the copy. Portrait phones: a small
+   * thumbnail beside the title only. Short landscape viewports: no thumbnail and a
+   * one-line description, so the card stays a thin strip.
    */
   .hagilight-promoto {
     display: block;
     --promoto-control-size: 1.75rem;
+    --promoto-cta-height: 2.25rem;
+    --promoto-pad: 0.875rem;
+    --promoto-pager-width: calc(3 * var(--promoto-control-size) + 2.25rem + 0.375rem);
     --promoto-muted: var(--sl-color-gray-2, #4b5563);
   }
 
@@ -82,10 +85,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     z-index: 40;
     inset-inline: 0;
     bottom: max(1rem, env(safe-area-inset-bottom));
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    width: min(72rem, calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
+    width: min(42rem, calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
     margin-inline: auto;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--sl-color-accent, #2563eb) 24%, var(--sl-color-gray-5, #cbd5e1));
@@ -106,9 +106,6 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
   }
 
   .hagilight-promoto__viewport {
-    grid-column: 1;
-    grid-row: 1;
-    min-width: 0;
     overflow: hidden;
   }
 
@@ -119,21 +116,26 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     transition: transform 0.34s ease;
   }
 
-  /* Slide: [media] [copy] [cta] in one row. */
+  /* Slide: media beside copy and cta, so a tall image never opens a gap above the cta. The pager overlays the end of the cta row. */
   .hagilight-promoto__slide {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: 'media copy cta';
-    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'media copy'
+      'media cta';
+    align-items: start;
     column-gap: 1rem;
+    row-gap: 0.75rem;
     width: 100%;
     min-width: 100%;
-    padding: 0.875rem 1rem 0.875rem 0.875rem;
+    padding: var(--promoto-pad);
   }
 
   .hagilight-promoto__slide:not([data-has-image='true']) {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: 'copy cta';
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'copy'
+      'cta';
     padding-inline-start: 1.25rem;
   }
 
@@ -158,6 +160,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
   }
 
   .hagilight-promoto__title {
+    padding-inline-end: 2rem;
     color: var(--sl-color-text-high, var(--sl-color-gray-1, #111827));
     font-size: var(--sl-text-base, 1rem);
     font-weight: 700;
@@ -198,8 +201,9 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    max-width: 14rem;
-    min-height: 2.25rem;
+    justify-self: start;
+    max-width: min(100%, 16rem);
+    min-height: var(--promoto-cta-height);
     padding: 0.4rem 1rem;
     border: 1px solid color-mix(in srgb, var(--sl-color-accent-high, #1d4ed8) 30%, transparent);
     border-radius: 999px;
@@ -212,17 +216,23 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     text-decoration: none;
   }
 
+  .hagilight-promoto[data-multiple] .hagilight-promoto__cta {
+    max-width: min(16rem, calc(100% - var(--promoto-pager-width)));
+  }
+
   .hagilight-promoto__cta:hover,
   .hagilight-promoto__cta:focus-visible {
     background: var(--sl-color-accent-high, #1d4ed8);
   }
 
-  /* Toolbar: pager then dismiss, small, quiet, trailing edge. */
+  /* Pager + pause: bottom-right, on the same row as the call to action. */
   .hagilight-promoto__controls {
-    grid-column: 2;
-    grid-row: 1;
+    position: absolute;
+    inset-block-end: var(--promoto-pad);
+    inset-inline-end: 0.5rem;
     display: flex;
     align-items: center;
+    height: var(--promoto-cta-height);
     gap: 0.125rem;
   }
 
@@ -252,10 +262,11 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     inset-inline: 0;
   }
 
+  /* Dismiss: a small corner mark, out of the content flow. */
   .hagilight-promoto__dismiss {
-    grid-column: 3;
-    grid-row: 1;
-    margin-inline: 0.25rem 0.625rem;
+    position: absolute;
+    inset-block-start: 0.375rem;
+    inset-inline-end: 0.375rem;
   }
 
   .hagilight-promoto__dismiss::before {
@@ -332,27 +343,24 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     }
   }
 
-  /* Portrait phones and narrow windows: stacked card, pager on the CTA row. */
-  @media (max-width: 45rem) and (min-height: 30rem) {
+  /* Portrait phones: thumbnail beside the title only; the description and the action row use the full width. */
+  @media (max-width: 36rem) and (min-height: 30rem) {
     .hagilight-promoto {
       --promoto-control-size: 2rem;
-      --promoto-pager-width: 8.25rem;
+      --promoto-pad: 0.75rem;
     }
 
     .hagilight-promoto__shell {
-      display: block;
       bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
-      width: min(calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 24rem);
+      width: min(calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 28rem);
       border-radius: 0.875rem;
     }
 
-    .hagilight-promoto__slide,
-    .hagilight-promoto__slide:not([data-has-image='true']) {
+    .hagilight-promoto__slide[data-has-image] {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas: 'title' 'desc' 'cta';
-      align-items: start;
       gap: 0.375rem;
-      padding: 0.75rem;
+      padding: var(--promoto-pad);
     }
 
     .hagilight-promoto__slide[data-has-image='true'] {
@@ -369,7 +377,6 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     .hagilight-promoto__title {
       grid-area: title;
       align-self: center;
-      padding-inline-end: 1.75rem;
       font-size: 0.95rem;
     }
 
@@ -386,32 +393,8 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     }
 
     .hagilight-promoto__cta {
-      justify-self: start;
       margin-block-start: 0.25rem;
-      min-height: 2.25rem;
       padding-inline: 0.875rem;
-    }
-
-    .hagilight-promoto[data-multiple] .hagilight-promoto__cta {
-      max-width: calc(100% - var(--promoto-pager-width));
-    }
-
-    .hagilight-promoto__dismiss {
-      position: absolute;
-      inset-block-start: 0.375rem;
-      inset-inline-end: 0.375rem;
-      margin: 0;
-    }
-
-    .hagilight-promoto__controls {
-      position: absolute;
-      inset-block-end: 0.75rem;
-      inset-inline-end: 0.5rem;
-      gap: 0;
-    }
-
-    .hagilight-promoto__count {
-      min-width: 2.25rem;
     }
   }
 
@@ -429,8 +412,13 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     }
   }
 
-  /* Short landscape viewports: single strip, no thumbnail, one-line description. */
+  /* Short landscape viewports: thin strip, no thumbnail, one-line description. */
   @media (max-height: 30rem) {
+    .hagilight-promoto {
+      --promoto-cta-height: 2rem;
+      --promoto-pad: 0.5rem;
+    }
+
     .hagilight-promoto__shell {
       bottom: max(0.5rem, env(safe-area-inset-bottom));
     }
@@ -439,10 +427,10 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
       display: none;
     }
 
-    .hagilight-promoto__slide,
-    .hagilight-promoto__slide[data-has-image='true'] {
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-areas: 'copy cta';
+    .hagilight-promoto__slide[data-has-image] {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'copy' 'cta';
+      row-gap: 0.375rem;
       padding: 0.5rem 0.75rem 0.5rem 1rem;
     }
 
@@ -450,8 +438,9 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
       -webkit-line-clamp: 1;
     }
 
-    .hagilight-promoto__cta {
-      min-height: 2rem;
+    .hagilight-promoto__dismiss {
+      inset-block-start: 0.25rem;
+      inset-inline-end: 0.25rem;
     }
   }
 
