@@ -4,10 +4,10 @@ Three publishable, TypeScript-authored npm packages that provide shared Astro an
 
 ## Scope and ownership
 
-- `@hagicode/hagilight-core` — shared TypeScript utilities (links, favicon, SEO, RSS, RSS route ownership, promotions), shared `.astro` components (`Copyright`, `PromotoBanner`, `GoogleAnalytics`, `Analytics51LA`), and brand assets. No Starlight dependency.
+- `@hagicode/hagilight-core` — shared TypeScript utilities (links, favicon, SEO, RSS, RSS route ownership, promotions, Google Analytics click-event tags via `@hagicode/hagilight-core/analytics-events`), shared `.astro` components (`Copyright`, `PromotoBanner`, `GoogleAnalytics`, `Analytics51LA`), and brand assets. No Starlight dependency.
 - `@hagicode/hagilight` — plain-Astro integration (`hagilight`, which generates sitemap, robots.txt, and RSS feeds by default, plus the `rss` option for customization), `hagilightFavicon`, `Footer`, `SEOHead`, and generated routes. Depends on core only.
 - `@hagicode/hagilight-starlight` — Starlight plugin (header, footer links, locale chooser, content-width control, theme picker with three extra light/dark themes and a Forest first-visit default, 404 hero, RSS, analytics, AI disclosures). Depends on core only.
-- This repository is **documentation-maintenance scope only** for agent edits: modify `AGENTS.md` as instructed. Treat source, generated, and cache files as read-only unless the user expands scope.
+- By default this repository is **documentation-maintenance scope** for agent edits: modify `AGENTS.md` as instructed and treat source, generated, and cache files as read-only unless the user expands scope. The OpenSpec change `add-ga-events-for-links-and-downloads` (planned in the hagicode-mono root) expands that scope to the Google Analytics click-event work: `packages/core/src/analytics-events.ts`, `GoogleAnalytics.astro`, the Header/Footer/ArticlePromotion/PromotoBanner tags, their tests, and the related docs.
 
 ## Commands
 
@@ -40,11 +40,13 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 - Choose and record a license and confirm `@hagicode` scope permission before first publish.
 - The plugin rejects a site that already overrides `Footer` or `components.Header`; do not silently replace consumer overrides.
 - Default IDs: Google Analytics `G-EN03FMT2Q4`, 51LA `L6b88a5yK4h2Xnci`; both load only on production pages.
+- Google Analytics click events: tracked links are declared in `TRACKED_SITE_LINKS` (`packages/core/src/analytics-events.ts`); the id is the `event_label`, so renaming a link id changes its GA label and fails the inventory snapshot in `test/analytics-events.test.mjs` until the change is deliberate. Every tagged link goes through `gaEventAttributes()` or `siteLinkGaAttributes()` (never hand-written `data-ga-*` in `.astro` files), and related sites, RSS, sitemap, about, contact, filings, and consumer `extraLinks` stay untagged. When the tracked set, vocabulary, or parameters change, update the core README and the mono root Google reference too.
+- Cross-repo Google Analytics rules (initialization, event vocabulary, change checklist, verification) live in `docs/google-analytics-integration-reference.md` in the hagicode-mono root; this repository's core README stays the API reference.
 
 ## Testing
 
 - `npm test` builds the packages, then runs `node --test test/*.test.mjs`.
-- Run tests after any change to link resolution, header/language logic, theme picker logic, promotions, or AI disclosures.
+- Run tests after any change to link resolution, header/language logic, theme picker logic, promotions, AI disclosures, or Google Analytics click events.
 - `npm run build:example` must succeed as a consumer integration check.
 
 ## Deployment / Publishing

@@ -50,6 +50,7 @@ Shared building blocks for plain Astro and Starlight sites. Requires `astro`
 | `@hagicode/hagilight-core/rss` | `generateRssFeed()` and `resolveRssLocales()` |
 | `@hagicode/hagilight-core/rss-ownership` | Coordination that keeps one integration as the RSS route owner |
 | `@hagicode/hagilight-core/promotions` | Typed promotion campaign loader |
+| `@hagicode/hagilight-core/analytics-events` | Google Analytics click-event tags (`gaEventAttributes()`, `siteLinkGaAttributes()`) and the tracked-link table |
 | `@hagicode/hagilight-core/Footer` | Localized footer with generated RSS and sitemap links |
 | `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/Analytics51LA` | Astro components |
 | `@hagicode/hagilight-core/logo.png`, `/favicon.ico` | Brand assets |
@@ -109,6 +110,18 @@ mistyped options fail type-checking in `astro.config.ts` or JSDoc-checked
 configs; the plugin still validates options at runtime. Components such as
 `@hagicode/hagilight-starlight/Header` and `/MarkdownContent` remain importable
 for sites that compose their own Starlight overrides.
+
+## Google Analytics click events
+
+`GoogleAnalytics` (included by the Starlight plugin) reports clicks on key links and download buttons as GA4 events, with no configuration. Events are sent only on production pages where Google Analytics is enabled, never on the 404 page, and are skipped when `gtag` is missing.
+
+- **Event name (action):** `download_click` for the `download` category, `link_click` for `navigation`, `community`, and `promotion`.
+- **Parameters:** `event_category`, `event_label` (the link's stable id, not its localized text), `link_location` (`header`, `footer`, `article_promotion`, `promoto_banner`, or your own value), `link_url`, and `transport_type: 'beacon'`. No link text, form values, or visitor identifiers are sent.
+- **Tracked links:** header `home`, `blog`, `support`; footer `downloadClient` and `microsoftStore` (downloads), `dockerCompose`, `productDocs`, `blogPosts` (navigation), `github`, `discord`, `issueFeedback` (community); the HagiCode showcase calls to action, Microsoft Store badge (and its fallback link), and all-downloads link; and the floating promotion banner call to action, labelled with the promotion id. `TRACKED_SITE_LINKS` in `packages/core/src/analytics-events.ts` is authoritative; renaming a link id changes its GA label. Related sites, RSS, sitemap, about, contact, filings, and `extraLinks` are not tracked.
+- **Your own links:** spread `gaEventAttributes({ category, label, location })` from `@hagicode/hagilight-core/analytics-events` onto an anchor. Unknown categories throw at build time and are ignored at click time.
+- **Reports:** register `event_category`, `event_label`, `link_location`, and `link_url` as GA4 custom dimensions to see them in standard reports.
+
+See the [core package README](packages/core/README.md#google-analytics-click-events) for the full contract.
 
 ## TypeScript usage
 
