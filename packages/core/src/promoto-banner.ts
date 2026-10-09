@@ -294,6 +294,7 @@ export function definePromotoBannerElement(): void {
 
     private updateControls(): void {
       const multiple = this.cards.length > 1;
+      this.toggleAttribute('data-multiple', multiple);
       const controls = this.querySelector<HTMLElement>('[data-promoto-controls]');
       if (controls) controls.hidden = !multiple;
       const pause = this.querySelector<HTMLButtonElement>('[data-promoto-pause]');
@@ -302,7 +303,6 @@ export function definePromotoBannerElement(): void {
         pause.disabled = this.reducedMotion;
         pause.setAttribute('aria-pressed', String(paused));
         pause.setAttribute('aria-label', paused ? 'Resume automatic promotion rotation' : 'Pause automatic promotion rotation');
-        pause.textContent = paused ? 'Resume' : 'Pause';
       }
       this.updateSlides();
     }

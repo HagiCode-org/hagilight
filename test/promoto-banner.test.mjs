@@ -54,3 +54,37 @@ test('every rendered promotion CTA, including rotated slides, is tagged with its
   assert.match(render, /gaEventAttributes\(/);
   assert.match(render, /link\.setAttribute\(name, value\)/);
 });
+
+test('pager and dismiss stay a compact icon toolbar that follows the content in DOM order', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  const script = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+
+  // Content first, then pager, then dismiss, so focus order matches the visual order.
+  const order = ['hagilight-promoto__viewport', 'data-promoto-controls', 'data-promoto-dismiss']
+    .map((marker) => component.indexOf(marker));
+  assert.ok(order.every((index) => index > 0));
+  assert.deepEqual([...order].sort((a, b) => a - b), order);
+
+  // Controls are icon buttons that keep an accessible name; the script must not overwrite
+  // their children with text, or the pause/play icons would disappear.
+  assert.match(component, /data-promoto-pause[\s\S]*?aria-label="Pause automatic promotion rotation"/u);
+  assert.match(component, /hagilight-promoto__icon--pause/u);
+  assert.match(component, /hagilight-promoto__icon--play/u);
+  assert.doesNotMatch(script, /pause\.textContent\s*=/u);
+  assert.match(script, /toggleAttribute\('data-multiple'/u);
+
+  // Visible marks stay small; touch devices get a larger, still compact, target.
+  assert.match(component, /--promoto-control-size:\s*1\.75rem/u);
+  assert.match(component, /@media \(pointer: coarse\)[\s\S]*?--promoto-control-size:\s*2rem/u);
+});
+
+test('narrow and short viewports keep the card compact without a separate controls row', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+
+  // Portrait phones: dismiss in the corner, pager sharing the call-to-action row.
+  assert.match(component, /@media \(max-width: 45rem\) and \(min-height: 30rem\)/u);
+  assert.match(component, /\.hagilight-promoto__controls\s*\{[^}]*position:\s*absolute/u);
+  assert.match(component, /\[data-multiple\] \.hagilight-promoto__cta\s*\{[^}]*max-width:/u);
+  // Short landscape viewports collapse to a thin strip instead of overflowing.
+  assert.match(component, /@media \(max-height: 30rem\)[\s\S]*?\.hagilight-promoto__media\s*\{[^}]*display:\s*none/u);
+});
