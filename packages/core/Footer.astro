@@ -1,5 +1,6 @@
 ---
 import Copyright from './Copyright.astro';
+import { siteLinkGaAttributes } from './dist/analytics-events.js';
 import { resolveSiteLinks, type SiteLinksOptions } from './dist/links.js';
 import { resolveRssFooterLinks } from './dist/rss-footer-context.js';
 
@@ -51,6 +52,7 @@ const resolvedLinks = resolveSiteLinks(locale, {
                 target={link.target}
                 rel={link.rel}
                 aria-label={link.ariaLabel}
+                {...siteLinkGaAttributes(link, 'footer')}
               >{link.label}</a>
             </li>
           ))}
@@ -68,6 +70,7 @@ const resolvedLinks = resolveSiteLinks(locale, {
                 target={link.target}
                 rel={link.rel}
                 aria-label={link.ariaLabel}
+                {...siteLinkGaAttributes(link, 'footer')}
               >{link.label}</a>
             </li>
           ))}

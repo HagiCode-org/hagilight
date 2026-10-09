@@ -46,6 +46,10 @@
       "types": "./dist/promotions.d.ts",
       "default": "./dist/promotions.js"
     },
+    "./analytics-events": {
+      "types": "./dist/analytics-events.d.ts",
+      "default": "./dist/analytics-events.js"
+    },
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",

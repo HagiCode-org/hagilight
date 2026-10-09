@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import {
   getNextPromotionIndex,
@@ -40,4 +41,16 @@ test('supports manual wraparound controls and respects reduced-motion rotation',
   assert.equal(shouldAutoRotate(2, false, true, true, 'ready'), false);
   assert.equal(shouldAutoRotate(2, false, false, true, 'footer-hidden'), false);
   assert.equal(shouldAutoRotate(1, false, false, true, 'ready'), false);
+});
+
+
+test('every rendered promotion CTA, including rotated slides, is tagged with its campaign id', async () => {
+  const source = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+  const render = source.slice(source.indexOf('private renderCards'), source.indexOf('private updateSlides'));
+
+  // renderCards() builds one anchor per card, and is re-run on reload and rotation.
+  assert.match(render, /this\.cards\.forEach\(\(card, index\) => \{/);
+  assert.match(render, /category: 'promotion',\s*label: card\.id,\s*location: 'promoto_banner',/);
+  assert.match(render, /gaEventAttributes\(/);
+  assert.match(render, /link\.setAttribute\(name, value\)/);
 });

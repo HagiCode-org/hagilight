@@ -19,3 +19,9 @@ const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${encodeURICompon
     </script>
   </>
 )}
+
+<script>
+  import { installGaEventTracking } from './dist/analytics-events.js';
+
+  installGaEventTracking();
+</script>

@@ -1,4 +1,13 @@
 // Type fixture for @hagicode/hagilight-core. Each `@ts-expect-error` line must stay an error.
+import {
+  gaEventAttributes,
+  handleGaClick,
+  installGaEventTracking,
+  siteLinkGaAttributes,
+  type GaCategory,
+  type GaEventAttributes,
+  type GaEventParams,
+} from '@hagicode/hagilight-core/analytics-events';
 import { resolveFaviconHeadEntry, getHagilightFaviconDataUri } from '@hagicode/hagilight-core/favicon';
 import { resolveSiteLinks, type SiteLink, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { loadActivePromotions, type PromotionCard } from '@hagicode/hagilight-core/promotions';
@@ -55,9 +64,17 @@ const jsonLd: string = serializeJsonLd([
 ]);
 const frontmatter: SeoFrontmatter = seoSchema.parse({ seo: { title: 'Title' } });
 const promotions: Promise<PromotionCard[]> = loadActivePromotions({ locale: 'en-US' });
+const category: GaCategory = 'download';
+const tagged: GaEventAttributes = gaEventAttributes({ category, label: 'customDownload', location: 'footer' });
+const siteTagged: Partial<GaEventAttributes> = siteLinkGaAttributes(quickLinks[0]!, 'footer');
+const sentParams: GaEventParams[] = [];
+handleGaClick(new Event('click'), (_action, params) => sentParams.push(params));
+const installed: boolean = installGaEventTracking();
 
 // @ts-expect-error Link overrides accept only catalog link keys.
 resolveSiteLinks('en-US', { overrides: { unknownLink: { href: '/' } } });
+// @ts-expect-error Event categories are limited to the documented vocabulary.
+gaEventAttributes({ category: 'purchase', label: 'x', location: 'footer' });
 // @ts-expect-error RSS items require a link.
 generateRssFeed({ site: 'https://example.test', title: 'Feed', description: 'Updates', items: [{ title: 'Post' }] });
 // @ts-expect-error RSS feeds require a description.
@@ -70,6 +87,6 @@ const invalidClaim: RssOwnerClaim = { package: 'core', enabled: true };
 resolveFaviconHeadEntry([], { href: true });
 
 export {
-  claim, composed, faviconDataUri, faviconHref, feed, frontmatter, invalidClaim, jsonLd, locales, owner,
-  promotions, quickLinks, unregister,
+  claim, composed, faviconDataUri, faviconHref, feed, frontmatter, installed, invalidClaim, jsonLd, locales, owner,
+  promotions, quickLinks, sentParams, siteTagged, tagged, unregister,
 };

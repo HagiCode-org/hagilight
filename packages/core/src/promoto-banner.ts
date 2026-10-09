@@ -1,3 +1,4 @@
+import { gaEventAttributes } from './analytics-events.js';
 import { loadActivePromotions, type PromotionCard } from './promotions.js';
 
 const ELEMENT_NAME = 'hagilight-promoto-banner';
@@ -246,6 +247,11 @@ export function definePromotoBannerElement(): void {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = card.ctaLabel;
+        for (const [name, value] of Object.entries(gaEventAttributes({
+          category: 'promotion',
+          label: card.id,
+          location: 'promoto_banner',
+        }))) link.setAttribute(name, value);
         slide.append(copy);
 
         if (card.image) {
