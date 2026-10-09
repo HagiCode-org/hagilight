@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
 import {
@@ -24,6 +25,8 @@ const storeHref = linkHref('microsoftStore', 'https://apps.microsoft.com/detail/
 const downloadsHref = linkHref('downloadClient', 'https://www.hagicode.com/');
 const storeProductId = resolveMicrosoftStoreProductId(storeHref);
 const badgeLanguage = resolveMicrosoftStoreBadgeLanguage(lang);
+const showcaseTag = (category: 'download' | 'navigation', label: string, url?: string) =>
+  gaEventAttributes({ category, label, location: 'article_promotion', url });
 
 // Keyed by the ids in assets/showcase/manifest.json and in the copy catalog's gallery.
 const galleryImages: Record<string, ImageMetadata> = {
@@ -49,10 +52,18 @@ const gallery = copy.gallery.flatMap((item) => {
       <p class="hagilight-article-promotion__lead">{copy.lead}</p>
       <p class="hagilight-article-promotion__tagline">{copy.subheadline}</p>
       <div class="hagilight-article-promotion__actions">
-        <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--primary" href={homeHref}>
+        <a
+          class="hagilight-article-promotion__cta hagilight-article-promotion__cta--primary"
+          href={homeHref}
+          {...showcaseTag('navigation', 'home')}
+        >
           {copy.visitLabel}
         </a>
-        <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary" href={docsHref}>
+        <a
+          class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary"
+          href={docsHref}
+          {...showcaseTag('navigation', 'productDocs')}
+        >
           {copy.docsLabel}
         </a>
       </div>
@@ -111,6 +122,7 @@ const gallery = copy.gallery.flatMap((item) => {
           language={badgeLanguage}
           aria-label={copy.windowsStoreAriaLabel}
           title={copy.windowsStoreAriaLabel}
+          {...showcaseTag('download', 'microsoftStore', storeHref)}
         >
           <a
             class="hagilight-article-promotion__store-fallback"
@@ -119,7 +131,11 @@ const gallery = copy.gallery.flatMap((item) => {
             title={copy.windowsStoreAriaLabel}
           >{copy.windowsStoreLabel}</a>
         </ms-store-badge>
-        <a class="hagilight-article-promotion__downloads" href={downloadsHref}>{copy.allDownloadsLabel}</a>
+        <a
+          class="hagilight-article-promotion__downloads"
+          href={downloadsHref}
+          {...showcaseTag('download', 'downloadClient')}
+        >{copy.allDownloadsLabel}</a>
       </div>
     </div>
 

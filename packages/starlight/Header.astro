@@ -4,6 +4,7 @@ import Search from 'virtual:starlight/components/Search';
 import SiteTitle from 'virtual:starlight/components/SiteTitle';
 import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import LanguageChooser from './LanguageChooser.astro';
 
@@ -29,7 +30,7 @@ const shouldRenderSearch =
   <div class="sl-hidden md:sl-flex print:hidden right-group">
     <nav class="header-links" aria-label="Site navigation">
       {resolvedLinks.header.map((link) => (
-        <a href={link.href} target={link.target} rel={link.rel}>{link.label}</a>
+        <a href={link.href} target={link.target} rel={link.rel} {...siteLinkGaAttributes(link, 'header')}>{link.label}</a>
       ))}
     </nav>
     <div class="sl-flex social-icons">

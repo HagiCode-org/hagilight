@@ -94,3 +94,34 @@ test('publishes Header and its chooser implementation files', async () => {
   assert.match(chooser, /addEventListener\('cancel'/);
   assert.match(chooser, /trigger\.focus\(\)/);
 });
+
+
+test('header, footer, and showcase tag only the tracked links for GA click events', async () => {
+  const [header, footer, promotion, analytics] = await Promise.all([
+    readFile(new URL('../packages/starlight/Header.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/starlight/Footer.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/core/GoogleAnalytics.astro', import.meta.url), 'utf8'),
+  ]);
+
+  assert.equal(header.match(/siteLinkGaAttributes\(link, 'header'\)/g)?.length, 1);
+  assert.equal(footer.match(/siteLinkGaAttributes\(link, 'footer'\)/g)?.length, 2, 'quick and community links');
+  assert.doesNotMatch(footer, /siteLinkGaAttributes\(site\b/, 'related sites stay untagged');
+  const filings = footer.match(/<nav class="hagilight-filings"[\s\S]*?<\/nav>/)?.[0] ?? '';
+  assert.ok(filings.includes('resolvedLinks.filings.map'));
+  assert.doesNotMatch(filings, /GaAttributes/, 'filings stay untagged');
+
+  for (const expected of [
+    /showcaseTag\('navigation', 'home'\)/,
+    /showcaseTag\('navigation', 'productDocs'\)/,
+    /showcaseTag\('download', 'downloadClient'\)/,
+    /showcaseTag\('download', 'microsoftStore', storeHref\)/,
+    /location: 'article_promotion'/,
+  ]) assert.match(promotion, expected);
+  const badge = promotion.match(/<ms-store-badge[\s\S]*?<\/ms-store-badge>/)?.[0] ?? '';
+  const [badgeHost, fallbackLink] = badge.split('<a');
+  assert.match(badgeHost, /showcaseTag\('download', 'microsoftStore', storeHref\)/, 'the host carries the tag');
+  assert.doesNotMatch(fallbackLink, /showcaseTag/, 'the inner fallback link is not tagged twice');
+
+  assert.match(analytics, /<script>\s*import \{ installGaEventTracking \} from '\.\/dist\/analytics-events\.js';\s*installGaEventTracking\(\);/);
+});

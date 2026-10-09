@@ -1,6 +1,7 @@
 ---
 import Copyright from '@hagicode/hagilight-core/Copyright';
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
+import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import manifest from './package.json';
 
@@ -61,7 +62,14 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     <nav aria-label={resolvedLinks.labels.navigation.quickLinks}>
       <ul>
         {resolvedLinks.quick.map((link) => (
-          <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
+          <li>
+            <a
+              href={link.href}
+              target={link.target}
+              rel={link.rel}
+              {...siteLinkGaAttributes(link, 'footer')}
+            >{link.label}</a>
+          </li>
         ))}
       </ul>
     </nav>
@@ -71,7 +79,14 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     <nav aria-label={resolvedLinks.labels.navigation.community}>
       <ul>
         {resolvedLinks.community.map((link) => (
-          <li><a href={link.href} target={link.target} rel={link.rel}>{link.label}</a></li>
+          <li>
+            <a
+              href={link.href}
+              target={link.target}
+              rel={link.rel}
+              {...siteLinkGaAttributes(link, 'footer')}
+            >{link.label}</a>
+          </li>
         ))}
       </ul>
     </nav>
