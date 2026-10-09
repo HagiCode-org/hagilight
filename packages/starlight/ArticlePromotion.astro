@@ -43,43 +43,34 @@ const gallery = copy.gallery.flatMap((item) => {
 ---
 
 <section class="hagilight-article-promotion" aria-labelledby="hagilight-article-promotion-title">
-  <div class="hagilight-article-promotion__intro">
-    <h2 id="hagilight-article-promotion-title">{copy.title}</h2>
-    <p>{copy.lead}</p>
-    <p>{copy.subheadline}</p>
-  </div>
-
-  <div class="hagilight-article-promotion__actions">
-    <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--primary" href={homeHref}>
-      {copy.visitLabel}
-    </a>
-    <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary" href={docsHref}>
-      {copy.docsLabel}
-    </a>
-    <div class="hagilight-article-promotion__windows">
-      <div class="hagilight-article-promotion__windows-header">
-        <span class="hagilight-article-promotion__windows-label">{copy.windowsLabel}</span>
-        <a class="hagilight-article-promotion__downloads" href={downloadsHref}>{copy.allDownloadsLabel}</a>
+  <div class="hagilight-article-promotion__pitch">
+    <div class="hagilight-article-promotion__intro">
+      <h2 id="hagilight-article-promotion-title">{copy.title}</h2>
+      <p class="hagilight-article-promotion__lead">{copy.lead}</p>
+      <p class="hagilight-article-promotion__tagline">{copy.subheadline}</p>
+      <div class="hagilight-article-promotion__actions">
+        <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--primary" href={homeHref}>
+          {copy.visitLabel}
+        </a>
+        <a class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary" href={docsHref}>
+          {copy.docsLabel}
+        </a>
       </div>
-      <ms-store-badge
-        productid={storeProductId}
-        productname="HagiCode"
-        window-mode="direct"
-        theme="auto"
-        size="large"
-        animation="on"
-        language={badgeLanguage}
-        aria-label={copy.windowsStoreAriaLabel}
-        title={copy.windowsStoreAriaLabel}
-      >
-        <a
-          class="hagilight-article-promotion__store-fallback"
-          href={storeHref}
-          aria-label={copy.windowsStoreAriaLabel}
-          title={copy.windowsStoreAriaLabel}
-        >{copy.windowsStoreLabel}</a>
-      </ms-store-badge>
     </div>
+
+    <ul class="hagilight-article-promotion__features" aria-label={copy.title}>
+      {copy.features.map((feature) => (
+        <li>
+          <span
+            class="hagilight-article-promotion__icon"
+            aria-hidden="true"
+            style={`--hagilight-pillar-icon: url(${pillarIcons[feature.id]?.src})`}
+          ></span>
+          <strong>{feature.label}</strong>
+          <span class="hagilight-article-promotion__feature-text">{feature.description}</span>
+        </li>
+      ))}
+    </ul>
   </div>
 
   <div class="hagilight-article-promotion__gallery-block">
@@ -94,7 +85,7 @@ const gallery = copy.gallery.flatMap((item) => {
               width={item.image.width}
               height={item.image.height}
               widths={[480, 800, item.image.width]}
-              sizes="(min-width: 50rem) 720px, 100vw"
+              sizes="(min-width: 50rem) 560px, 100vw"
               loading="lazy"
               decoding="async"
               fetchpriority="low"
@@ -106,33 +97,54 @@ const gallery = copy.gallery.flatMap((item) => {
     </ul>
   </div>
 
-  <ul class="hagilight-article-promotion__features" aria-label={copy.title}>
-    {copy.features.map((feature) => (
-      <li>
-        <span
-          class="hagilight-article-promotion__icon"
-          aria-hidden="true"
-          style={`--hagilight-pillar-icon: url(${pillarIcons[feature.id]?.src})`}
-        ></span>
-        <strong>{feature.label}</strong>
-        <span>{feature.description}</span>
-      </li>
-    ))}
-  </ul>
+  <div class="hagilight-article-promotion__closing">
+    <div class="hagilight-article-promotion__windows">
+      <h3 id="hagilight-article-promotion-windows-title" class="hagilight-article-promotion__windows-label">{copy.windowsLabel}</h3>
+      <div class="hagilight-article-promotion__windows-actions">
+        <ms-store-badge
+          productid={storeProductId}
+          productname="HagiCode"
+          window-mode="direct"
+          theme="auto"
+          size="large"
+          animation="on"
+          language={badgeLanguage}
+          aria-label={copy.windowsStoreAriaLabel}
+          title={copy.windowsStoreAriaLabel}
+        >
+          <a
+            class="hagilight-article-promotion__store-fallback"
+            href={storeHref}
+            aria-label={copy.windowsStoreAriaLabel}
+            title={copy.windowsStoreAriaLabel}
+          >{copy.windowsStoreLabel}</a>
+        </ms-store-badge>
+        <a class="hagilight-article-promotion__downloads" href={downloadsHref}>{copy.allDownloadsLabel}</a>
+      </div>
+    </div>
 
-  <div class="hagilight-article-promotion__share">
-    <h3 id="hagilight-article-promotion-share-title">{copy.shareLabel}</h3>
-    <p class="hagilight-article-promotion__share-text">{copy.shareText}</p>
+    <div class="hagilight-article-promotion__share">
+      <h3 id="hagilight-article-promotion-share-title">{copy.shareLabel}</h3>
+      <p class="hagilight-article-promotion__share-text">{copy.shareText}</p>
+    </div>
   </div>
 </section>
 <script type="module" src="https://get.microsoft.com/badge/ms-store-badge.bundled.js" is:inline></script>
 
 <style>
+  /*
+   * Zones, top to bottom: pitch (what it is, where to go, the three pillars), gallery (proof),
+   * closing (get it, share it). Zones are separated by space and hairlines rather than nested
+   * boxes. The topology follows the section's own width, so the wide-content toggle and the
+   * sidebar layouts reflow it, not just the viewport. Mobile-first: the base rules are the
+   * single-column layout, which is also what a browser without container queries renders.
+   */
   .hagilight-article-promotion {
+    container-type: inline-size;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-    margin: 2rem auto;
+    gap: 2rem;
+    margin: 3rem auto 2rem;
     padding: clamp(1rem, 3vw, 1.75rem);
     border: 1px solid var(--sl-color-gray-5);
     border-radius: var(--sl-radius-lg, 0.75rem);
@@ -147,12 +159,16 @@ const gallery = copy.gallery.flatMap((item) => {
     line-height: 1.25;
   }
 
+  .hagilight-article-promotion h2 {
+    font-size: var(--sl-text-2xl, 1.5rem);
+  }
+
   .hagilight-article-promotion h3 {
     font-size: var(--sl-text-lg, 1.125rem);
   }
 
   .hagilight-article-promotion p {
-    margin: 0.5rem 0;
+    margin: 0;
     line-height: 1.6;
   }
 
@@ -167,11 +183,35 @@ const gallery = copy.gallery.flatMap((item) => {
     outline-offset: 3px;
   }
 
+  /* Pitch: headline, definition, promise, then the way in. */
+  .hagilight-article-promotion__pitch {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .hagilight-article-promotion__intro {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0.75rem;
+  }
+
+  .hagilight-article-promotion__lead,
+  .hagilight-article-promotion__tagline {
+    max-inline-size: 68ch;
+  }
+
+  .hagilight-article-promotion__tagline {
+    color: var(--sl-color-white);
+    font-weight: 600;
+  }
+
   .hagilight-article-promotion__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem 1rem;
+    gap: 0.75rem;
+    margin-block-start: 0.5rem;
   }
 
   .hagilight-article-promotion__cta {
@@ -200,61 +240,56 @@ const gallery = copy.gallery.flatMap((item) => {
     filter: brightness(1.08);
   }
 
-  .hagilight-article-promotion__windows {
+  /* Pillars: one hairline-topped row each, icon and word on a line, description under it. */
+  .hagilight-article-promotion__features {
     display: grid;
-    gap: 0.25rem;
-    width: 100%;
-    padding: 0.25rem 0.75rem 0.75rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--sl-radius-md, 0.5rem);
-    background: var(--sl-color-gray-6);
+    gap: 1rem 1.5rem;
   }
 
-  .hagilight-article-promotion__windows-header {
-    display: flex;
-    flex-wrap: wrap;
+  .hagilight-article-promotion__features li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-content: start;
     align-items: center;
-    justify-content: space-between;
-    gap: 0 1rem;
+    gap: 0.5rem 0.625rem;
+    min-width: 0;
+    padding-block-start: 0.875rem;
+    border-block-start: 1px solid var(--sl-color-gray-5);
   }
 
-  .hagilight-article-promotion__windows-label {
-    font-weight: 600;
-  }
-
-  /* Reserve the large badge's height (104px) so it replaces the fallback link without a layout jump. */
-  .hagilight-article-promotion__windows ms-store-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-self: start;
-    max-width: 100%;
-    min-height: 6.5rem;
-  }
-
-  /* Keep the badge's fixed height and shrink it to the slot on narrow screens without distortion. */
-  .hagilight-article-promotion__windows ms-store-badge::part(img) {
-    max-width: 100%;
-    object-fit: contain;
-    object-position: left center;
-  }
-
-  .hagilight-article-promotion__store-fallback,
-  .hagilight-article-promotion__downloads {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
+  .hagilight-article-promotion__features strong {
     color: var(--sl-color-text-accent);
-    font-weight: 600;
+    font-size: var(--sl-text-lg, 1.125rem);
+    line-height: 1.25;
   }
 
+  .hagilight-article-promotion__feature-text {
+    grid-column: 1 / -1;
+    font-size: var(--sl-text-sm, 0.875rem);
+    line-height: 1.55;
+  }
+
+  .hagilight-article-promotion__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--sl-color-text-accent);
+    mask: var(--hagilight-pillar-icon) center / contain no-repeat;
+    -webkit-mask: var(--hagilight-pillar-icon) center / contain no-repeat;
+  }
+
+  /* Gallery: three audited screenshots, kept in the catalog's narrative order. */
   .hagilight-article-promotion__gallery-block {
     display: grid;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .hagilight-article-promotion__gallery {
     display: grid;
-    gap: 1.25rem;
+    gap: 1.25rem 1rem;
+  }
+
+  .hagilight-article-promotion__gallery li {
+    min-width: 0;
   }
 
   .hagilight-article-promotion figure {
@@ -277,41 +312,57 @@ const gallery = copy.gallery.flatMap((item) => {
     line-height: 1.5;
   }
 
-  .hagilight-article-promotion__features {
+  /* Closing: the practical next steps, as two parallel headed blocks. */
+  .hagilight-article-promotion__closing {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 1.5rem;
+    padding-block-start: 1.5rem;
+    border-block-start: 1px solid var(--sl-color-gray-5);
   }
 
-  .hagilight-article-promotion__features li {
-    display: grid;
-    align-content: start;
-    gap: 0.5rem;
-    min-width: 0;
-    padding: 0.75rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--sl-radius-md, 0.5rem);
-  }
-
-  .hagilight-article-promotion__features strong {
-    color: var(--sl-color-text-accent);
-  }
-
-  .hagilight-article-promotion__icon {
-    width: 2rem;
-    height: 2rem;
-    background: var(--sl-color-text-accent);
-    mask: var(--hagilight-pillar-icon) center / contain no-repeat;
-    -webkit-mask: var(--hagilight-pillar-icon) center / contain no-repeat;
-  }
-
+  .hagilight-article-promotion__windows,
   .hagilight-article-promotion__share {
     display: grid;
+    align-content: start;
+    justify-items: start;
     gap: 0.5rem;
+    min-width: 0;
+  }
+
+  /* Reserve the large badge's height (104px) so it replaces the fallback link without a layout jump. */
+  .hagilight-article-promotion__windows-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 1.25rem;
+    max-width: 100%;
+  }
+
+  .hagilight-article-promotion__windows ms-store-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-height: 6.5rem;
+  }
+
+  /* Keep the badge's fixed height and shrink it to the slot on narrow screens without distortion. */
+  .hagilight-article-promotion__windows ms-store-badge::part(img) {
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .hagilight-article-promotion__store-fallback,
+  .hagilight-article-promotion__downloads {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
   }
 
   .hagilight-article-promotion__share-text {
-    margin: 0;
+    justify-self: stretch;
     padding: 0.75rem 1rem;
     border: 1px dashed var(--sl-color-gray-4);
     border-radius: var(--sl-radius-md, 0.5rem);
@@ -320,15 +371,63 @@ const gallery = copy.gallery.flatMap((item) => {
     user-select: all;
   }
 
-  @media (max-width: 30rem) {
+  /* Medium: pillars become a three-up row, the gallery a mosaic, the closing two columns. */
+  @container (min-width: 36rem) {
     .hagilight-article-promotion__features {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    /*
+     * Mosaic in reading order: the workbench and the proposal strip stack in the left column
+     * beside the tall Hero Dungeon panel. The 1.1fr split lands the image bottoms of both columns within
+     * a caption's height of each other for the current screenshots; the placement assumes exactly
+     * three gallery images.
+     */
+    .hagilight-article-promotion__gallery {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .hagilight-article-promotion__gallery li:nth-child(1) {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .hagilight-article-promotion__gallery li:nth-child(2) {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .hagilight-article-promotion__gallery li:nth-child(3) {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    .hagilight-article-promotion__closing {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem;
+    }
+  }
+
+  /* Wide: the pitch takes the left column and the pillars stack beside it. */
+  @container (min-width: 56rem) {
+    .hagilight-article-promotion__pitch {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .hagilight-article-promotion__features {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 30rem) {
     .hagilight-article-promotion__actions {
       flex-direction: column;
       flex-wrap: nowrap;
       align-items: stretch;
+      justify-self: stretch;
     }
   }
 </style>

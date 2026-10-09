@@ -229,6 +229,27 @@ test('article promotion renders a themed, accessible showcase after the article 
   assert.doesNotMatch(component.match(/<style>[\s\S]*<\/style>/u)[0], /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/iu, 'no hard-coded colors');
   assert.match(component, /min-height: 2\.75rem/);
   assert.match(component, /@media \(max-width: 30rem\)/);
+  assert.match(component, /container-type: inline-size/);
+  assert.match(component, /@container \(min-width: 36rem\)/);
+  assert.match(component, /@container \(min-width: 56rem\)/);
+
+  // Structure and reading order: pitch (intro, calls to action, pillars), gallery, then download and share.
+  const markup = component.slice(component.indexOf('<section class="hagilight-article-promotion"'), component.indexOf('</section>'));
+  const order = [
+    'id="hagilight-article-promotion-title"',
+    'hagilight-article-promotion__lead',
+    'hagilight-article-promotion__tagline',
+    'hagilight-article-promotion__actions',
+    'hagilight-article-promotion__features',
+    'hagilight-article-promotion-gallery-title',
+    'hagilight-article-promotion__closing',
+    'hagilight-article-promotion-windows-title',
+    'hagilight-article-promotion__downloads',
+    'hagilight-article-promotion-share-title',
+  ].map((marker) => markup.indexOf(marker));
+  assert.ok(order.every((position) => position >= 0), 'every zone is rendered');
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), 'zones render in reading order');
+  assert.equal(markup.match(/<section\b/gu).length, 1, 'zones are divs, so the build check can slice the section');
   assert.match(component, /user-select: all/);
 
   // Placement and script policy.
