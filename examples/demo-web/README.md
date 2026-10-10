@@ -62,3 +62,9 @@ update **Settings > Pages** from the former `gh-pages` source. The separate
 Starlight example is published to `demo-starlight-web`, which requires a
 separate hosting consumer because this repository can select only one GitHub
 Pages branch.
+
+Both branches are overwritten with one latest commit on every publish
+(`force_orphan: true`); the commit keeps `CNAME` and `.nojekyll` in the branch
+root. Their history is therefore not a rollback source. To roll back a bad
+demo, revert the offending source commit on `main` so the workflow publishes
+again; do not revert or reset a demo branch.
