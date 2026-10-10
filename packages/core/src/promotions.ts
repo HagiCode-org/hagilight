@@ -2,6 +2,7 @@ const INDEX_ORIGIN = 'https://index.hagicode.com';
 const CATALOG_URL = `${INDEX_ORIGIN}/index-catalog.json`;
 const FLAGS_URL = `${INDEX_ORIGIN}/promote.json`;
 const CONTENT_URL = `${INDEX_ORIGIN}/promote_content.json`;
+const DISPLAY_PLATFORM = 'web';
 
 type JsonRecord = Record<string, unknown>;
 type FetchLike = typeof fetch;
@@ -28,6 +29,7 @@ interface PromotionFlag {
   on: boolean;
   startTime?: string;
   endTime?: string;
+  platforms: string[];
 }
 
 interface PromotionContent {
@@ -107,6 +109,10 @@ function isSafeLink(value: string): boolean {
   }
 }
 
+function parsePlatforms(value: unknown): string[] {
+  return Array.isArray(value) && value.every((platform) => typeof platform === 'string') ? value : [];
+}
+
 export function parsePromotionFlags(payload: unknown): PromotionFlag[] {
   if (!isRecord(payload) || !Array.isArray(payload.promotes)) return [];
   return payload.promotes.flatMap((item): PromotionFlag[] => {
@@ -116,6 +122,7 @@ export function parsePromotionFlags(payload: unknown): PromotionFlag[] {
       on: item.on,
       startTime: nonEmptyString(item.startTime) ? item.startTime.trim() : undefined,
       endTime: nonEmptyString(item.endTime) ? item.endTime.trim() : undefined,
+      platforms: parsePlatforms(item.platforms),
     }];
   });
 }
@@ -189,7 +196,7 @@ export function normalizeActivePromotions(
   const contentById = new Map(content.map((item) => [item.id, item]));
   return flags.flatMap((flag): PromotionCard[] => {
     const item = contentById.get(flag.id);
-    if (!isActive(flag, now) || !item) return [];
+    if (!isActive(flag, now) || !flag.platforms?.includes(DISPLAY_PLATFORM) || !item) return [];
     const title = localized(item.title, locale);
     const description = localized(item.description, locale);
     if (!title || !description) return [];
