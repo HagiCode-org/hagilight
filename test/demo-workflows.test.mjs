@@ -36,6 +36,8 @@ for (const { file, build, output, branch, environment, url, domain, concurrency,
     assert.ok(source.includes(`- run: ${build}`));
     assert.ok(source.includes(`publish_dir: ${output}`));
     assert.ok(source.includes(`publish_branch: ${branch}`));
+    assert.ok(source.includes('force_orphan: true'));
+    assert.ok(source.includes('enable_jekyll: false'));
     assert.ok(source.includes(`cname: ${domain}`));
     assert.ok(source.includes(`group: ${concurrency}`));
     assert.doesNotMatch(source, /publish_branch:\s*gh-pages\b/u);

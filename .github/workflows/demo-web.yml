@@ -32,5 +32,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./examples/demo-web/dist
           publish_branch: demo-web
+          force_orphan: true
           enable_jekyll: false
           cname: hagilight.hagicode.com
