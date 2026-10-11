@@ -21,10 +21,12 @@ const routes = [
   { site: 'starlight', path: '/zh-Hant/', kind: 'starlight' },
 ];
 const mimeTypes = {
+  '.avif': 'image/avif',
   '.css': 'text/css; charset=utf-8',
   '.gif': 'image/gif',
   '.html': 'text/html; charset=utf-8',
   '.ico': 'image/x-icon',
+  '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
@@ -32,6 +34,7 @@ const mimeTypes = {
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.webmanifest': 'application/manifest+json',
+  '.webp': 'image/webp',
   '.xml': 'application/xml; charset=utf-8',
 };
 const failures = [];
@@ -361,6 +364,49 @@ async function assertStarlightPage(page, route, viewport) {
   await page.locator('.dialog-close').click();
 }
 
+const galleryImage = '.hagilight-article-promotion__gallery picture img';
+
+async function expectGalleryTier(page, route, viewport, extension) {
+  const count = await page.locator(galleryImage).count();
+  check(count > 0, route, viewport, 'showcase image tiers', 'no gallery images rendered');
+  for (let index = 0; index < count; index++) {
+    const image = page.locator(galleryImage).nth(index);
+    await image.scrollIntoViewIfNeeded();
+    const selected = await image.evaluate(async (img, wanted) => {
+      const deadline = performance.now() + 15000;
+      while (performance.now() < deadline) {
+        if (img.complete && img.naturalWidth > 0 && img.currentSrc.endsWith(`.${wanted}`)) break;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      return { currentSrc: img.currentSrc, naturalWidth: img.naturalWidth };
+    }, extension);
+    check(
+      selected.currentSrc.endsWith(`.${extension}`) && selected.naturalWidth > 0,
+      route,
+      viewport,
+      'showcase image tiers',
+      `gallery image ${index + 1} selected ${selected.currentSrc || 'no source'} (natural width ${selected.naturalWidth}); expected .${extension}`,
+    );
+  }
+}
+
+async function dropTierSource(page, type) {
+  await page.evaluate((selector) => {
+    for (const source of document.querySelectorAll(selector)) source.remove();
+    for (const img of document.querySelectorAll('.hagilight-article-promotion__gallery picture img')) {
+      if (img.hasAttribute('sizes')) img.setAttribute('sizes', img.getAttribute('sizes'));
+    }
+  }, `.hagilight-article-promotion__gallery picture source[type="${type}"]`);
+}
+
+async function assertShowcaseImageTiers(page, route, viewport) {
+  await expectGalleryTier(page, route, viewport, 'avif');
+  await dropTierSource(page, 'image/avif');
+  await expectGalleryTier(page, route, viewport, 'webp');
+  await dropTierSource(page, 'image/webp');
+  await expectGalleryTier(page, route, viewport, 'jpeg');
+}
+
 async function runCase(browser, origins, route, viewport) {
   const label = `${route.site}${route.path}`;
   const viewportLabel = `${viewport.width}x${viewport.height}`;
@@ -404,6 +450,7 @@ async function runCase(browser, origins, route, viewport) {
     await assertFooter(page, label, viewport, route.kind);
     await page.setViewportSize({ width: 375, height: 812 });
     await assertFooter(page, label, { width: 375, height: 812 }, route.kind);
+    if (route.kind === 'starlight') await assertShowcaseImageTiers(page, label, { width: 375, height: 812 });
 
     check(
       localErrors.length === 0,

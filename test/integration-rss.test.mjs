@@ -151,7 +151,7 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
     updateConfig() {},
   });
   assert.equal(starlightRoutes.length, 2);
-  starlightOnly.hooks['astro:config:done']();
+  starlightOnly.hooks['astro:config:done']({ config: {}, logger: { warn() {} } });
 
   const coreOnly = makeSetup();
   assert.deepEqual(

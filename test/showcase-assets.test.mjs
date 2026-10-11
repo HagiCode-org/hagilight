@@ -64,7 +64,7 @@ test('every manifest entry carries the provenance its kind requires', () => {
   }
 });
 
-test('showcase images meet the format, size, and traffic budgets', () => {
+test('shipped showcase source images meet the format, size, and traffic budgets', () => {
   const { totalKiB, rasterKiB, svgKiB } = manifest.budgets;
   assert.deepEqual([totalKiB, rasterKiB, svgKiB], [768, 200, 8]);
   let total = 0;

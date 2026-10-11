@@ -505,6 +505,51 @@ test('auto-injects the bundled HagiCode favicon as a data URI and respects a con
   assert.equal(injected, undefined, 'a consumer-provided favicon must suppress the auto-injected one');
 });
 
+function runConfigDone(integration, config) {
+  const warnings = [];
+  integration.hooks['astro:config:done']({
+    config,
+    logger: { warn: (message) => warnings.push(message) },
+  });
+  return warnings;
+}
+
+test('warns once for the passthrough image service without touching the config', () => {
+  const { integrations } = configure({
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  });
+  const config = { image: { service: { entrypoint: 'astro/assets/services/noop', config: {} } } };
+  const before = structuredClone(config);
+
+  const warnings = runConfigDone(integrations[0], config);
+
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /@hagicode\/hagilight-starlight/);
+  assert.deepEqual(config, before);
+});
+
+test('stays silent for the default sharp service, custom services, and a missing image block', () => {
+  const { integrations } = configure();
+  for (const config of [
+    {},
+    { image: {} },
+    { image: { service: { entrypoint: 'astro/assets/services/sharp', config: {} } } },
+    { image: { service: { entrypoint: './src/image-service.ts', config: {} } } },
+  ]) {
+    assert.deepEqual(runConfigDone(integrations[0], config), []);
+  }
+});
+
+test('withdraws the Starlight RSS claim when the project is configured', () => {
+  const { integrations } = configure();
+  const claims = globalThis[Symbol.for('@hagicode/hagilight-core/rss-owner-registry')];
+  const pending = claims.size;
+
+  runConfigDone(integrations[0], {});
+
+  assert.equal(claims.size, pending - 1);
+});
+
 function integrationVitePlugins(integration, routes = []) {
   let config;
   integration.hooks['astro:config:setup']({

@@ -211,7 +211,11 @@ test('article promotion renders a themed, accessible showcase after the article 
   }
   assert.match(component, /alt=\{item\.alt\}/);
   assert.match(component, /<figcaption[^>]*>\{item\.caption\}<\/figcaption>/);
-  assert.match(component, /import \{ Image \} from 'astro:assets'/);
+  assert.match(component, /import \{ Picture \} from 'astro:assets'/);
+  assert.doesNotMatch(component, /<Image\b/);
+  assert.match(component, /formats=\{\['avif', 'webp'\]\}/);
+  assert.match(component, /fallbackFormat="jpeg"/);
+  assert.doesNotMatch(component, /\bquality=/u);
   assert.match(component, /width=\{item\.image\.width\}/);
   assert.match(component, /height=\{item\.image\.height\}/);
   assert.match(component, /widths=\{\[480, 800, item\.image\.width\]\}/);
