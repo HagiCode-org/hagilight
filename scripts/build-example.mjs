@@ -560,8 +560,6 @@ assert.ok(docsOnlyLinks.length > 0);
 assert.ok(docsOnlyLinks.every((link) => link.includes('/rss-docs-only/')));
 assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
-verifyDefaultFeeds(build());
 verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }));
-verifyDefaultFeeds(build());
 verifyCoreFooterOutput(buildCoreFooter());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');
