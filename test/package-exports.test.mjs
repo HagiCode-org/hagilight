@@ -19,6 +19,15 @@ const expectedExports = {
   '@hagicode/hagilight-core/rss': ['generateRssFeed', 'resolveRssLocales'],
   '@hagicode/hagilight-core/rss-ownership': ['RSS_OWNER', 'registerStarlightRssOwner', 'resolvePlainAstroRssOwner'],
   '@hagicode/hagilight-core/promotions': ['loadActivePromotions'],
+  '@hagicode/hagilight-core/promoto-banner': [
+    'definePromotoBannerElement',
+    'getNextPromotionIndex',
+    'getPromotionImageSources',
+    'getPromotionSetSignature',
+    'getPromotionVisibility',
+    'selectPromotionCards',
+    'shouldAutoRotate',
+  ],
   '@hagicode/hagilight-core/analytics-events': [
     'GA_CATEGORIES',
     'GA_CATEGORY_ACTIONS',
