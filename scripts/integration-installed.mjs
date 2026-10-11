@@ -339,6 +339,8 @@ const { resolveSiteLinks } = await import('${CORE_PACKAGE}/links');
 if (!resolveSiteLinks('en-US').quick.some(({ id }) => id === 'sitemap')) throw new Error('core links are incomplete');
 const { resolveFaviconHeadEntry } = await import('${CORE_PACKAGE}/favicon');
 if (!resolveFaviconHeadEntry([])?.attrs.href.startsWith('data:image/x-icon;base64,')) throw new Error('core favicon is missing');
+const { CONTENT_IMAGE_CLASS, rehypeContentImages } = await import('${CORE_PACKAGE}/content-images');
+if (CONTENT_IMAGE_CLASS !== 'hagilight-content-image' || typeof rehypeContentImages !== 'function') throw new Error('core content images are incomplete');
 const { generateRssFeed } = await import('${CORE_PACKAGE}/rss');
 const feed = await (await generateRssFeed({ site: 'https://example.test', title: 'Feed', description: 'Updates', items: [{ title: 'Post', link: '/post/' }] })).text();
 if (!feed.includes('https://example.test/post/')) throw new Error('core RSS output is incomplete');

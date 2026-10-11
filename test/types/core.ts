@@ -8,6 +8,13 @@ import {
   type GaEventAttributes,
   type GaEventParams,
 } from '@hagicode/hagilight-core/analytics-events';
+import {
+  rehypeContentImages,
+  satteriContentImages,
+  type ContentImageNode,
+  type ContentImageOptions,
+  type SatteriContentImagePlugin,
+} from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, getHagilightFaviconDataUri } from '@hagicode/hagilight-core/favicon';
 import { resolveSiteLinks, type SiteLink, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { loadActivePromotions, type PromotionCard } from '@hagicode/hagilight-core/promotions';
@@ -70,6 +77,9 @@ const siteTagged: Partial<GaEventAttributes> = siteLinkGaAttributes(quickLinks[0
 const sentParams: GaEventParams[] = [];
 handleGaClick(new Event('click'), (_action, params) => sentParams.push(params));
 const installed: boolean = installGaEventTracking();
+const contentImageOptions: ContentImageOptions = { loading: 'eager', decoding: 'auto', className: 'figure-image' };
+const contentImagePlugin: (tree: ContentImageNode) => void = rehypeContentImages(contentImageOptions);
+const satteriPlugin: SatteriContentImagePlugin = satteriContentImages();
 
 // @ts-expect-error Link overrides accept only catalog link keys.
 resolveSiteLinks('en-US', { overrides: { unknownLink: { href: '/' } } });
@@ -85,8 +95,14 @@ registerStarlightRssOwner('yes');
 const invalidClaim: RssOwnerClaim = { package: 'core', enabled: true };
 // @ts-expect-error Favicon overrides are URLs, not booleans.
 resolveFaviconHeadEntry([], { href: true });
+// @ts-expect-error Content-image loading is "lazy" or "eager".
+rehypeContentImages({ loading: 'fast' });
+// @ts-expect-error Content-image decoding is "async", "sync", or "auto".
+rehypeContentImages({ decoding: 'defer' });
+// @ts-expect-error Unknown content-image options are rejected.
+satteriContentImages({ marker: 'x' });
 
 export {
-  claim, composed, faviconDataUri, faviconHref, feed, frontmatter, installed, invalidClaim, jsonLd, locales, owner,
-  promotions, quickLinks, sentParams, siteTagged, tagged, unregister,
+  claim, composed, contentImageOptions, contentImagePlugin, faviconDataUri, faviconHref, feed, frontmatter, installed,
+  invalidClaim, jsonLd, locales, owner, promotions, quickLinks, satteriPlugin, sentParams, siteTagged, tagged, unregister,
 };

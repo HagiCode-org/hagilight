@@ -29,6 +29,13 @@ const expectedExports = {
     'installGaEventTracking',
     'siteLinkGaAttributes',
   ],
+  '@hagicode/hagilight-core/content-images': [
+    'CONTENT_IMAGE_CLASS',
+    'checkContentImageRegistration',
+    'rehypeContentImages',
+    'registerContentImages',
+    'satteriContentImages',
+  ],
   '@hagicode/hagilight/integration': ['hagilight', 'hagilightFavicon'],
   '@hagicode/hagilight-starlight': ['default'],
   '@hagicode/hagilight-starlight/locales': ['locales'],
