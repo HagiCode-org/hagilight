@@ -10,6 +10,7 @@ export const CORE_PACKAGE = '@hagicode/hagilight-core';
 /** Publishable workspaces in dependency (and therefore publication) order: shared core first. */
 export const PACKAGES = [
   { name: CORE_PACKAGE, directory: 'packages/core' },
+  { name: '@hagicode/hagilight-docusaurus', directory: 'packages/docusaurus' },
   { name: '@hagicode/hagilight', directory: 'packages/astro' },
   { name: '@hagicode/hagilight-starlight', directory: 'packages/starlight' },
 ];

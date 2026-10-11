@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/astro" },
-    { "path": "./packages/starlight" }
+    { "path": "./packages/starlight" },
+    { "path": "./packages/docusaurus" }
   ]
 }

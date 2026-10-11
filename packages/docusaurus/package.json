@@ -1,0 +1,63 @@
+{
+  "name": "@hagicode/hagilight-docusaurus",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Docusaurus plugin for HagiCode site features: footer, analytics, promote card, locales, SEO, sitemap, robots.txt, and RSS",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git",
+    "directory": "packages/docusaurus"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "prepack": "tsc -b"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./locales": {
+      "types": "./dist/locales.d.ts",
+      "default": "./dist/locales.js"
+    }
+  },
+  "files": [
+    "README.md",
+    "styles.css",
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "dependencies": {
+    "@hagicode/hagilight-core": "0.1.0"
+  },
+  "peerDependencies": {
+    "@docusaurus/core": "^3.9.2",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@docusaurus/core": "^3.9.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-helmet-async": "^3.0.0"
+  },
+  "keywords": [
+    "docusaurus",
+    "docusaurus-plugin",
+    "multilingual-documentation",
+    "hreflang",
+    "structured-data",
+    "rss",
+    "sitemap"
+  ]
+}

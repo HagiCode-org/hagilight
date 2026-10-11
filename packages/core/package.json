@@ -46,6 +46,10 @@
       "types": "./dist/promotions.d.ts",
       "default": "./dist/promotions.js"
     },
+    "./promoto-banner": {
+      "types": "./dist/promoto-banner.d.ts",
+      "default": "./dist/promoto-banner.js"
+    },
     "./analytics-events": {
       "types": "./dist/analytics-events.d.ts",
       "default": "./dist/analytics-events.js"
@@ -72,6 +76,11 @@
   ],
   "peerDependencies": {
     "astro": "^6.0.7 || ^7.3.5"
+  },
+  "peerDependenciesMeta": {
+    "astro": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "astro": "^7.3.5"
