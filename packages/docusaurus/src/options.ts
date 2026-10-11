@@ -130,6 +130,14 @@ function resolveProvider(
   return id;
 }
 
+function absoluteHttpUrlOption(value: unknown, path: string): string {
+  try {
+    return resolveAbsoluteHttpUrl(value, path).href;
+  } catch {
+    throw invalid(path, 'must be an absolute HTTP(S) URL');
+  }
+}
+
 function resolveSeo(value: unknown): ResolvedSeoOptions {
   const group = value === undefined ? {} : objectOption(value, 'seo');
   const enabled = booleanOption(group.enabled, 'seo.enabled') ?? true;
@@ -144,16 +152,9 @@ function resolveSeo(value: unknown): ResolvedSeoOptions {
     const org = objectOption(group.organization, 'seo.organization');
     const name = nonEmptyStringOption(org.name, 'seo.organization.name');
     if (name !== undefined) organization.name = name;
-    if (org.url !== undefined) {
-      try {
-        resolveAbsoluteHttpUrl(org.url, 'seo.organization.url');
-      } catch {
-        throw invalid('seo.organization.url', 'must be an absolute HTTP(S) URL');
-      }
-      organization.url = org.url as string;
-    }
+    if (org.url !== undefined) organization.url = absoluteHttpUrlOption(org.url, 'seo.organization.url');
     const logo = nonEmptyStringOption(org.logo, 'seo.organization.logo');
-    if (logo !== undefined) organization.logo = logo;
+    if (logo !== undefined) organization.logo = absoluteHttpUrlOption(logo, 'seo.organization.logo');
   }
 
   return { enabled, image, organization };

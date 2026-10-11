@@ -1,0 +1,396 @@
+/*
+ * Promote card on Infima tokens. Layout: content on top, one action row below.
+ * The call to action sits bottom-left; pager and pause share that row at the
+ * bottom-right. Dismiss is a corner mark. Portrait phones keep only a thumbnail
+ * beside the title; short landscape viewports drop the thumbnail for a thin strip.
+ */
+
+.hagilight-promoto {
+  --hagilight-promoto-cta-text: var(--ifm-color-white);
+  --promoto-control-size: 1.75rem;
+  --promoto-cta-height: 2.25rem;
+  --promoto-pad: 0.875rem;
+  --promoto-pager-width: calc(3 * var(--promoto-control-size) + 2.25rem + 0.375rem);
+  --promoto-muted: var(--ifm-color-emphasis-700);
+  display: block;
+}
+
+.hagilight-promoto[hidden],
+.hagilight-promoto__shell[hidden],
+.hagilight-promoto__controls[hidden] {
+  display: none !important;
+}
+
+.hagilight-promoto__shell {
+  position: fixed;
+  z-index: 40;
+  inset-inline: 0;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  width: min(42rem, calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ifm-color-primary) 24%, var(--ifm-color-emphasis-300));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--ifm-background-color) 96%, var(--ifm-color-primary) 4%);
+  box-shadow: 0 12px 32px color-mix(in srgb, #000 14%, transparent);
+  color: var(--ifm-font-color-base);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.24s ease, visibility 0s linear;
+}
+
+.hagilight-promoto[data-state='footer-hidden'] .hagilight-promoto__shell {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.24s ease, visibility 0s linear 0.24s;
+}
+
+.hagilight-promoto__viewport {
+  overflow: hidden;
+}
+
+.hagilight-promoto__track {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  transition: transform 0.34s ease;
+}
+
+.hagilight-promoto__slide {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'media copy'
+    'media cta';
+  align-items: start;
+  column-gap: 1rem;
+  row-gap: 0.75rem;
+  width: 100%;
+  min-width: 100%;
+  padding: var(--promoto-pad);
+}
+
+.hagilight-promoto__slide:not([data-has-image='true']) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'copy'
+    'cta';
+  padding-inline-start: 1.25rem;
+}
+
+.hagilight-promoto__slide[aria-hidden='true'] {
+  pointer-events: none;
+}
+
+.hagilight-promoto__copy {
+  grid-area: copy;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.hagilight-promoto__title,
+.hagilight-promoto__description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.hagilight-promoto__title {
+  padding-inline-end: 2rem;
+  color: var(--ifm-heading-color);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.hagilight-promoto__description {
+  color: var(--promoto-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.hagilight-promoto__media {
+  grid-area: media;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  min-width: 4.5rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ifm-color-primary-dark) 18%, var(--ifm-color-emphasis-300));
+  border-radius: 0.75rem;
+  background: var(--ifm-color-emphasis-100);
+}
+
+.hagilight-promoto__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hagilight-promoto__media picture {
+  display: contents;
+}
+
+.hagilight-promoto__cta {
+  grid-area: cta;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  max-width: min(100%, 16rem);
+  min-height: var(--promoto-cta-height);
+  padding: 0.4rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--ifm-color-primary-dark) 30%, transparent);
+  border-radius: 999px;
+  background: var(--ifm-color-primary);
+  color: var(--hagilight-promoto-cta-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+.hagilight-promoto[data-multiple] .hagilight-promoto__cta {
+  max-width: min(16rem, calc(100% - var(--promoto-pager-width)));
+}
+
+.hagilight-promoto__cta:hover,
+.hagilight-promoto__cta:focus-visible {
+  background: var(--ifm-color-primary-dark);
+}
+
+/* Pager and pause sit on the call-to-action row, bottom-right. */
+.hagilight-promoto__controls {
+  position: absolute;
+  inset-block-end: var(--promoto-pad);
+  inset-inline-end: 0.5rem;
+  display: flex;
+  align-items: center;
+  height: var(--promoto-cta-height);
+  gap: 0.125rem;
+}
+
+.hagilight-promoto__dismiss,
+.hagilight-promoto__control {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--promoto-control-size);
+  height: var(--promoto-control-size);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--promoto-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Keep the tap target larger than the visible mark. */
+.hagilight-promoto__dismiss::before,
+.hagilight-promoto__control::before {
+  content: '';
+  position: absolute;
+  inset-block: -0.375rem;
+  inset-inline: 0;
+}
+
+.hagilight-promoto__dismiss {
+  position: absolute;
+  inset-block-start: 0.375rem;
+  inset-inline-end: 0.375rem;
+}
+
+.hagilight-promoto__dismiss::before {
+  inset-inline: -0.25rem;
+}
+
+.hagilight-promoto__icon {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.hagilight-promoto__icon--play {
+  display: none;
+  fill: currentColor;
+}
+
+.hagilight-promoto__control[aria-pressed='true'] .hagilight-promoto__icon--pause {
+  display: none;
+}
+
+.hagilight-promoto__control[aria-pressed='true'] .hagilight-promoto__icon--play {
+  display: block;
+}
+
+.hagilight-promoto__count {
+  min-width: 2.25rem;
+  color: var(--promoto-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.hagilight-promoto__control:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.hagilight-promoto__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .hagilight-promoto__dismiss:hover,
+  .hagilight-promoto__control:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ifm-color-primary) 12%, transparent);
+    color: var(--ifm-heading-color);
+  }
+}
+
+.hagilight-promoto__dismiss:focus-visible,
+.hagilight-promoto__control:focus-visible,
+.hagilight-promoto__cta:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .hagilight-promoto {
+    --promoto-control-size: 2rem;
+  }
+}
+
+/* Portrait phones: thumbnail beside the title only; description and action row take the full width. */
+@media (max-width: 36rem) and (min-height: 30rem) {
+  .hagilight-promoto {
+    --promoto-control-size: 2rem;
+    --promoto-pad: 0.75rem;
+  }
+
+  .hagilight-promoto__shell {
+    bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+    width: min(calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 28rem);
+    border-radius: 0.875rem;
+  }
+
+  .hagilight-promoto__slide[data-has-image] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'title' 'desc' 'cta';
+    gap: 0.375rem;
+    padding: var(--promoto-pad);
+  }
+
+  .hagilight-promoto__slide[data-has-image='true'] {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    grid-template-areas: 'media title' 'desc desc' 'cta cta';
+    column-gap: 0.625rem;
+  }
+
+  /* Flatten copy so the thumbnail sits beside the title only. */
+  .hagilight-promoto__copy {
+    display: contents;
+  }
+
+  .hagilight-promoto__title {
+    grid-area: title;
+    align-self: center;
+    font-size: 0.95rem;
+  }
+
+  .hagilight-promoto__description {
+    grid-area: desc;
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .hagilight-promoto__media {
+    width: 3rem;
+    min-width: 3rem;
+    border-radius: 0.625rem;
+  }
+
+  .hagilight-promoto__cta {
+    margin-block-start: 0.25rem;
+    padding-inline: 0.875rem;
+  }
+}
+
+@media (max-width: 22.5rem) and (min-height: 30rem) {
+  .hagilight-promoto {
+    --promoto-pager-width: 6rem;
+  }
+
+  .hagilight-promoto__count {
+    display: none;
+  }
+
+  .hagilight-promoto__cta {
+    padding-inline: 0.625rem;
+  }
+}
+
+/* Short landscape viewports: thin strip, no thumbnail, one-line description. */
+@media (max-height: 30rem) {
+  .hagilight-promoto {
+    --promoto-cta-height: 2rem;
+    --promoto-pad: 0.5rem;
+  }
+
+  .hagilight-promoto__shell {
+    bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .hagilight-promoto__media {
+    display: none;
+  }
+
+  .hagilight-promoto__slide[data-has-image] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'copy' 'cta';
+    row-gap: 0.375rem;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+  }
+
+  .hagilight-promoto__description {
+    -webkit-line-clamp: 1;
+  }
+
+  .hagilight-promoto__dismiss {
+    inset-block-start: 0.25rem;
+    inset-inline-end: 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hagilight-promoto__shell,
+  .hagilight-promoto__track,
+  .hagilight-promoto__dismiss,
+  .hagilight-promoto__control {
+    transition: none;
+  }
+}

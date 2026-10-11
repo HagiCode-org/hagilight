@@ -1,10 +1,16 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import type { RssFeedItem } from '@hagicode/hagilight-core/rss';
 import type { HtmlTagObject, LoadContext, Plugin, PluginModule } from '@docusaurus/types';
 import { fiftyOneLaHeadTags, googleAnalyticsHeadTags } from './analytics.js';
+import { collectFeedItems, feedHeadTags, writeDiscoveryOutputs, type DiscoverySite } from './discovery.js';
+import { PLUGIN_NAME, type HagilightGlobalData } from './global-data.js';
 import { resolveOptions, type HagilightDocusaurusOptions, type ResolvedHagilightOptions } from './options.js';
+import { seoHeadTags } from './seo.js';
 import { findConfigurationWarnings } from './warnings.js';
 
+export { PLUGIN_NAME };
+export type { HagilightGlobalData };
 export type {
   AnalyticsOptions,
   FeatureToggle,
@@ -16,14 +22,6 @@ export type {
   SeoOptions,
   SeoOrganizationOptions,
 } from './options.js';
-
-export const PLUGIN_NAME = '@hagicode/hagilight-docusaurus';
-
-export interface HagilightGlobalData {
-  version: string;
-  options: ResolvedHagilightOptions;
-  i18n: LoadContext['i18n'];
-}
 
 const PACKAGE_VERSION = (
   JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
@@ -43,7 +41,11 @@ function analyticsHeadTags(options: ResolvedHagilightOptions): HtmlTagObject[] {
 
 function clientModules(options: ResolvedHagilightOptions): string[] {
   const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined;
-  return analyticsEnabled ? [packageFile('./client/analytics.js')] : [];
+  return [
+    ...(analyticsEnabled ? [packageFile('./client/analytics.js')] : []),
+    ...(options.promoto ? [packageFile('./client/promoto.js'), packageFile('../promoto.css')] : []),
+    ...(options.footer ? [packageFile('../styles.css')] : []),
+  ];
 }
 
 function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): Plugin {
@@ -56,7 +58,20 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     options,
     i18n: context.i18n,
   };
-  const themeEnabled = options.footer;
+  const themeEnabled = options.footer || options.seo.enabled;
+  const site: DiscoverySite = {
+    title: context.siteConfig.title,
+    tagline: context.siteConfig.tagline,
+    url: context.siteConfig.url,
+    baseUrl: context.siteConfig.baseUrl,
+    siteDir: context.siteDir,
+    i18n: context.i18n,
+  };
+  const report = {
+    warn: (message: string) => console.warn(`[${PLUGIN_NAME}] ${message}`),
+    info: (message: string) => console.info(`[${PLUGIN_NAME}] ${message}`),
+  };
+  let feedItems: RssFeedItem[] = [];
 
   return {
     name: PLUGIN_NAME,
@@ -65,8 +80,30 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     contentLoaded({ actions }) {
       actions.setGlobalData(globalData);
     },
+    allContentLoaded({ allContent }) {
+      feedItems = collectFeedItems(allContent, site, options.rss, report);
+    },
+    async postBuild(props) {
+      await writeDiscoveryOutputs({
+        options,
+        site,
+        outDir: props.outDir,
+        production: process.env.NODE_ENV === 'production',
+        plugins: props.plugins,
+        routesPaths: props.routesPaths,
+        routesBuildMetadata: props.routesBuildMetadata,
+        feedItems,
+        report,
+      });
+    },
     injectHtmlTags() {
-      return { headTags: analyticsHeadTags(options) };
+      return {
+        headTags: [
+          ...analyticsHeadTags(options),
+          ...seoHeadTags(options.seo, site),
+          ...feedHeadTags(site, options.rss, feedItems.length),
+        ],
+      };
     },
   };
 }
