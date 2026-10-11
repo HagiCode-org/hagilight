@@ -23,6 +23,16 @@ const workflows = [
     domain: 'hagilight.hagicode.com',
     concurrency: 'deploy-demo-web',
   },
+  {
+    file: 'demo-docusaurus-web.yml',
+    build: 'npm run build:docusaurus-example',
+    output: './examples/demo-docusaurus-web/build',
+    branch: 'demo-docusaurus-web',
+    environment: 'demo-docusaurus-web',
+    url: 'https://docusaurus.hagicode.com/',
+    domain: 'docusaurus.hagicode.com',
+    concurrency: 'deploy-demo-docusaurus-web',
+  },
 ].map((configuration) => ({
   ...configuration,
   source: readFileSync(new URL(`../.github/workflows/${configuration.file}`, import.meta.url), 'utf8'),
@@ -48,8 +58,9 @@ for (const { file, build, output, branch, environment, url, domain, concurrency,
 }
 
 test('demo workflows use independent concurrency groups and target branches', () => {
-  assert.notEqual(workflows[0].concurrency, workflows[1].concurrency);
-  assert.notEqual(workflows[0].branch, workflows[1].branch);
-  assert.notEqual(workflows[0].environment, workflows[1].environment);
+  for (const key of ['concurrency', 'branch', 'environment']) {
+    const values = workflows.map((workflow) => workflow[key]);
+    assert.equal(new Set(values).size, values.length, `${key} values are distinct`);
+  }
   assert.equal(existsSync(new URL('../.github/workflows/demo-gh-pages.yml', import.meta.url)), false);
 });

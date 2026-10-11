@@ -27,7 +27,12 @@ function makeSite({ files = [], siteConfig = {} } = {}) {
   }
   return {
     siteDir,
-    siteConfig: { title: 'HagiCode', url: 'https://example.com', themeConfig: {}, ...siteConfig },
+    siteConfig: {
+      title: 'HagiCode',
+      url: 'https://example.com',
+      ...siteConfig,
+      themeConfig: { image: 'img/social.png', ...siteConfig.themeConfig },
+    },
     i18n,
     baseUrl: '/',
   };
@@ -42,6 +47,10 @@ function capturedGlobalData(plugin) {
   plugin.contentLoaded({ content: undefined, actions: { setGlobalData: (data) => { captured = data; } } });
   return captured;
 }
+
+const fileName = (path) => path.split(/[\\/]/u).pop();
+const nonSeoHeadTags = (plugin) =>
+  plugin.injectHtmlTags({ content: undefined }).headTags.filter((tag) => tag.attributes?.type !== 'application/ld+json');
 
 let warnings;
 const originalWarn = console.warn;
@@ -67,7 +76,7 @@ test('registering with no options enables every standard feature', () => {
   const plugin = createPlugin();
   assert.equal(plugin.name, '@hagicode/hagilight-docusaurus');
   assert.ok(plugin.getThemePath, 'theme path is exposed while footer is enabled');
-  assert.equal(plugin.getClientModules().length, 1);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css']);
 
   const { options, version } = capturedGlobalData(plugin);
   assert.match(version, /^\d+\.\d+\.\d+/u);
@@ -222,7 +231,7 @@ test('analytics head tags appear only in production builds', () => {
   const plugin = createPlugin();
 
   process.env.NODE_ENV = 'development';
-  assert.deepEqual(plugin.injectHtmlTags({ content: undefined }).headTags, []);
+  assert.deepEqual(nonSeoHeadTags(plugin), []);
 
   process.env.NODE_ENV = 'production';
   const { headTags } = plugin.injectHtmlTags({ content: undefined });
@@ -234,11 +243,36 @@ test('analytics head tags appear only in production builds', () => {
 test('a disabled provider leaves no head tags behind', () => {
   process.env.NODE_ENV = 'production';
   const plugin = createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } } });
-  assert.deepEqual(plugin.injectHtmlTags({ content: undefined }).headTags, []);
-  assert.deepEqual(plugin.getClientModules(), []);
+  assert.deepEqual(nonSeoHeadTags(plugin), []);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css']);
 });
 
-test('the theme path is omitted when the footer is disabled', () => {
-  const plugin = createPlugin({ footer: { enabled: false } });
+test('a disabled promote card ships neither its client module nor its stylesheet', () => {
+  const plugin = createPlugin({ promoto: { enabled: false } });
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'styles.css']);
+});
+
+test('a sharing image is required by default and the warning is silent when either source sets one', () => {
+  createPlugin(undefined, { siteConfig: { themeConfig: { image: undefined } } });
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /seo\.image/u);
+
+  warnings.length = 0;
+  createPlugin({ seo: { image: '/img/og.png' } }, { siteConfig: { themeConfig: { image: undefined } } });
+  assert.deepEqual(warnings, []);
+});
+
+test('the sharing-image warning is silent when SEO is disabled', () => {
+  createPlugin({ seo: { enabled: false } }, { siteConfig: { themeConfig: { image: undefined } } });
+  assert.deepEqual(warnings, []);
+});
+
+test('the theme path is omitted when the footer and SEO are both disabled', () => {
+  const plugin = createPlugin({ footer: { enabled: false }, seo: { enabled: false } });
   assert.equal(plugin.getThemePath, undefined);
+});
+
+test('the theme path stays while only the footer is disabled, for the SEO sharing wrapper', () => {
+  const plugin = createPlugin({ footer: { enabled: false } });
+  assert.ok(plugin.getThemePath, 'theme path is exposed while SEO is enabled');
 });
