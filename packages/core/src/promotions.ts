@@ -190,7 +190,7 @@ function localeCandidates(locale: string | null | undefined): string[] {
     candidates.push('zh-cn', 'zh-hant', 'zh');
   }
   candidates.push('en-us', 'en');
-  return [...new Set(candidates)];
+  return Array.from(new Set(candidates));
 }
 
 function localized(value: Record<string, string>, locale: string | null | undefined): string | null {
