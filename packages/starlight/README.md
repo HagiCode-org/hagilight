@@ -41,6 +41,16 @@ Disable the picker to keep Starlight's built-in toggle or compose `@hagicode/hag
 hagilight({ themes: { enabled: false } })
 ```
 
+### Body images
+
+`hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images` for the whole site. Every Markdown or MDX body image outside a `<picture>` element gets `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`. Values the author set are kept, and logos and showcase images are not changed.
+
+Turn it off for the site:
+
+```js
+hagilight({ contentImages: { enabled: false } })
+```
+
 ### HagiCode showcase
 
 After the body (and any translation notice) of every documentation article, the plugin renders a static HagiCode showcase: a headline, lead, and tagline with calls to action to the website and the documentation, three pillars (Smart, Efficient, Fun), a three-image gallery with captions, and a closing row with the Windows download button beside a selectable, copy-ready share sentence. The layout follows the showcase's own width: one column when narrow, a three-up pillar row, a gallery mosaic, and a two-column closing row from 36rem, and the pillars beside the pitch from 56rem (for example in the wide content mode). All text is localized for the ten published locales (`en-US`, `zh-CN`, `zh-Hant`, `ja-JP`, `ko-KR`, `de-DE`, `fr-FR`, `es-ES`, `pt-BR`, `ru-RU`) and falls back to English for any other language. Links come from the same locale-aware catalog as the footer.

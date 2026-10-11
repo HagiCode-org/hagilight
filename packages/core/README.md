@@ -35,6 +35,36 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 const links = resolveSiteLinks('en-US');
 ```
 
+## Content images
+
+`@hagicode/hagilight-core/content-images` normalizes the `<img>` elements in Markdown and MDX body content at build time. A body image gets the marker class `hagilight-content-image`, `loading="lazy"`, and `decoding="async"`. Values the author already set are kept, existing classes are kept, and the marker is added once.
+
+| Option | Default | Accepted values |
+| --- | --- | --- |
+| `loading` | `lazy` | `lazy` or `eager`, applied only when the image has no `loading` |
+| `decoding` | `async` | `async`, `sync`, or `auto`, applied only when the image has no `decoding` |
+| `className` | `hagilight-content-image` | A class name without whitespace |
+
+Images inside a `<picture>` element are skipped. An MDX `class={expression}` gets no marker because its value is not known at build time. Raw HTML `<img>` tags inside a `.md` file are not normalized; use Markdown image syntax or MDX for body images.
+
+`hagilight()` from `@hagicode/hagilight-starlight` and `hagilight()` from `@hagicode/hagilight/integration` register the plugin automatically, for the whole site and regardless of integration order. Each one opts out through its `contentImages` option; see those packages' READMEs.
+
+To use the plugin without a feature package, add it to the Markdown processor. With the default Sätteri processor:
+
+```js
+import { defineConfig } from 'astro/config';
+import { satteri } from '@astrojs/markdown-satteri';
+import { satteriContentImages } from '@hagicode/hagilight-core/content-images';
+
+export default defineConfig({
+  markdown: {
+    processor: satteri({ hastPlugins: [satteriContentImages()] }),
+  },
+});
+```
+
+With the unified processor, pass `rehypeContentImages()` in `rehypePlugins` instead, from `@astrojs/markdown-remark`'s `unified()`. Integrations that wrap Astro can call `registerContentImages({ config, logger, enabled })` in `astro:config:setup` and `checkContentImageRegistration({ config, logger, enabled })` in `astro:config:done`, both exported from the same entry point.
+
 ## Promotion platforms
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.

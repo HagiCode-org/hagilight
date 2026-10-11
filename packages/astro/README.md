@@ -34,4 +34,17 @@ time from this package's own manifest, not from Astro. Existing
 feature-package attribution; switch that import to `@hagicode/hagilight/Footer`
 to opt in while keeping the same `locale` and `links` props.
 
+## Body images
+
+`hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.
+
+To opt out, pass either form:
+
+```js
+hagilight({ contentImages: false });
+hagilight({ contentImages: { enabled: false } });
+```
+
+Sites that do not use this integration can import the plugin from `@hagicode/hagilight-core` directly; its README describes the options and processor setup.
+
 See the [repository documentation](https://github.com/HagiCode-org/hagilight#readme) for RSS configuration, feed callback types, and integration behavior.
