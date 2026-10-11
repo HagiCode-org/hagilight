@@ -36,7 +36,7 @@ const sections = [
         id: 'promotion',
         title: '推广横幅',
         kind: '实时组件 · 远程推广为可选',
-        summary: 'PromotoBanner 优先展示符合条件的远程推广；没有可用推广时使用本地化后备内容。@hagicode/hagilight-core/promotions 提供带类型的推广加载器。',
+        summary: 'PromotoBanner 优先展示符合条件的远程推广；没有可用推广时使用本地化后备内容。@hagicode/hagilight-core/promotions 提供带类型的推广加载器，@hagicode/hagilight-core/promoto-banner 提供与框架无关的自定义元素，Docusaurus 包会挂载它。',
         evidence: '本页挂载了该组件；后备按钮会跳转到页脚，组件进入页脚区域时会隐藏。',
         example: "import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';\n\n<PromotoBanner locale=\"zh-CN\" fallback={fallbackCard} />",
       },
