@@ -1,0 +1,37 @@
+name: Deploy Hagilight Docusaurus demo
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-demo-docusaurus-web
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: demo-docusaurus-web
+      url: https://docusaurus.hagicode.com/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run build:docusaurus-example
+      - name: Publish Docusaurus demo
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./examples/demo-docusaurus-web/build
+          publish_branch: demo-docusaurus-web
+          force_orphan: true
+          enable_jekyll: false
+          cname: docusaurus.hagicode.com
