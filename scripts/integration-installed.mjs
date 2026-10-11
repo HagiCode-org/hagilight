@@ -42,10 +42,12 @@ function verifyBannerBuild(expected) {
   }
   const builtAssets = listFiles(join(temp, 'dist', '_astro')).map((path) => path.split(/[\\/]/u).pop());
   for (const name of ['workbench', 'proposal-workflow', 'heroes']) {
-    assert.ok(
-      builtAssets.some((file) => file.startsWith(`${name}.`) && file.endsWith('.webp')),
-      `the installed package builds the ${name} showcase image`,
-    );
+    for (const extension of ['avif', 'webp', 'jpeg']) {
+      assert.ok(
+        builtAssets.some((file) => file.startsWith(`${name}.`) && file.endsWith(`.${extension}`)),
+        `the installed package builds the ${name} showcase image as ${extension}`,
+      );
+    }
   }
   assert.ok(html.includes('<ms-store-badge') && html.includes('href="https://apps.microsoft.com/detail/9N3PM0N3SVDW"'), 'the installed package renders the Windows download block');
   assert.equal(countOccurrences(html, 'https://get.microsoft.com/badge/ms-store-badge.bundled.js'), 1);
@@ -534,6 +536,11 @@ try {
   verifyAstroFooter(tarballs, example.dependencies.astro);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
+  assert.doesNotMatch(
+    enabledConfig,
+    /\bimage\s*:\s*\{|passthroughImageService|imageService|astro\/assets\/services/u,
+    'the installed consumer config sets no Astro image option, so the tier checks prove zero configuration',
+  );
   writeFileSync(configPath, enabledConfig);
   cpSync('examples/demo-starlight-web/src', join(temp, 'src'), { recursive: true });
   cpSync('examples/demo-starlight-web/public', join(temp, 'public'), { recursive: true });

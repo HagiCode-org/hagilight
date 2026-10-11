@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
+
+const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -292,6 +295,11 @@ const SHOWCASE_PAGES = {
 };
 const BADGE_LOADER = 'https://get.microsoft.com/badge/ms-store-badge.bundled.js';
 const KIB = 1024;
+const SHOWCASE_FILE = /^(?:workbench|proposal-workflow|heroes|pillar-)/u;
+const SHOWCASE_FORMATS = ['avif', 'webp', 'jpeg'];
+const SHOWCASE_ASSETS = join(root, 'packages/starlight/assets/showcase');
+const DEMO_DIST = join(root, 'examples/demo-starlight-web/dist');
+const CORE_DIST = join(root, 'examples/demo-web/dist');
 
 function escapeHtml(value) {
   return value.replace(/&/gu, '&amp;').replace(/</gu, '&lt;').replace(/>/gu, '&gt;')
@@ -308,9 +316,79 @@ function showcaseSection(html, filename) {
   return html.slice(start, html.indexOf('</section>', start));
 }
 
-function verifyShowcaseOutput(read) {
-  const outputDir = join(root, 'examples/demo-starlight-web/dist');
-  const astroDir = join(outputDir, '_astro');
+function attributeOf(tag, name) {
+  return tag.match(new RegExp(`\\b${name}="([^"]*)"`, 'u'))?.[1];
+}
+
+function srcsetCandidates(srcset, filename) {
+  return srcset.split(',').map((entry) => {
+    const [url, descriptor] = entry.trim().split(/\s+/u);
+    assert.match(descriptor ?? '', /^\d+w$/u, `${filename} srcset entry ${url} declares a pixel width`);
+    return { url, width: Number(descriptor.slice(0, -1)) };
+  });
+}
+
+function sniffImageFormat(bytes) {
+  if (bytes.toString('ascii', 4, 8) === 'ftyp' && ['avif', 'avis'].includes(bytes.toString('ascii', 8, 12))) return 'avif';
+  if (bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP') return 'webp';
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'jpeg';
+  return 'unknown';
+}
+
+function showcaseFilesIn(dist) {
+  const astroDir = join(dist, '_astro');
+  return existsSync(astroDir) ? readdirSync(astroDir).filter((file) => SHOWCASE_FILE.test(file)) : [];
+}
+
+const variantCache = new Map();
+async function inspectVariant(url, format) {
+  if (!variantCache.has(url)) {
+    assert.match(url, /^\/_astro\/[^/]+\.[\w-]{6,}\.(?:avif|webp|jpeg)$/u, `${url} is content-hashed under /_astro/`);
+    assert.ok(url.endsWith(`.${format}`), `${url} is listed as ${format}`);
+    const path = join(DEMO_DIST, url);
+    assert.ok(existsSync(path), `${url} exists in the build output`);
+    const bytes = readFileSync(path);
+    assert.equal(sniffImageFormat(bytes), format, `${url} is declared ${format} but its bytes are ${sniffImageFormat(bytes)}`);
+    const { width, height } = await sharp(path).metadata();
+    variantCache.set(url, { width, height, bytes: bytes.length });
+  }
+  return variantCache.get(url);
+}
+
+const sourceCache = new Map();
+async function shippedSource(name) {
+  if (!sourceCache.has(name)) {
+    const path = join(SHOWCASE_ASSETS, `${name}.webp`);
+    assert.ok(existsSync(path), `${name} has a shipped WebP source`);
+    const { width, height } = await sharp(path).metadata();
+    sourceCache.set(name, { width, height });
+  }
+  return sourceCache.get(name);
+}
+
+function peakSnr(reference, candidate) {
+  let squared = 0;
+  for (let i = 0; i < reference.length; i++) squared += (reference[i] - candidate[i]) ** 2;
+  const mse = squared / reference.length;
+  return mse === 0 ? Infinity : 10 * Math.log10((255 ** 2) / mse);
+}
+
+const fidelityCache = new Map();
+async function verifyNativeFidelity(name, format, url) {
+  if (!fidelityCache.has(url)) {
+    const reference = await sharp(join(SHOWCASE_ASSETS, `${name}.webp`)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    const candidate = await sharp(join(DEMO_DIST, url)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.deepEqual([candidate.info.width, candidate.info.height], [reference.info.width, reference.info.height], `${url} is the shipped source's native size`);
+    const value = peakSnr(reference.data, candidate.data);
+    console.log(`showcase ${name} ${format} native PSNR ${value.toFixed(2)} dB`);
+    fidelityCache.set(url, value);
+  }
+  const value = fidelityCache.get(url);
+  assert.ok(value >= 36, `${name} ${format} native variant measures ${value.toFixed(2)} dB against the shipped WebP, under the 36 dB floor`);
+}
+
+async function verifyShowcaseOutput(read) {
+  const astroDir = join(DEMO_DIST, '_astro');
   const hrefsOf = (links, ids) => ids.map((id) => links.find((link) => link.id === id).href);
   for (const [locale, filename] of Object.entries(SHOWCASE_PAGES)) {
     const html = read(filename);
@@ -343,32 +421,89 @@ function verifyShowcaseOutput(read) {
     assert.equal(html.split(BADGE_LOADER).length - 1, 1, `${filename} loads the badge script once`);
     assert.ok(html.includes(`<script type="module" src="${BADGE_LOADER}">`), `${filename} badge loader is a module script`);
 
-    const images = [...section.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
-    assert.equal(images.length, copy.gallery.length, `${filename} gallery image count`);
-    images.forEach((tag, index) => {
-      const alt = tag.match(/\balt="([^"]+)"/u)?.[1];
+    const pictures = [...section.matchAll(/<picture\b[^>]*>([\s\S]*?)<\/picture>/gu)].map(([, inner]) => inner);
+    assert.equal(pictures.length, copy.gallery.length, `${filename} gallery picture count`);
+    for (const [index, inner] of pictures.entries()) {
+      const parts = inner.match(/^\s*<source\b([^>]*)>\s*<source\b([^>]*)>\s*<img\b([^>]*)>\s*$/u);
+      assert.ok(parts, `${filename} image ${index} lists AVIF, then WebP, then the JPEG img`);
+      const [, avif, webp, img] = parts;
+      assert.match(avif, /\btype="image\/avif"/u, `${filename} image ${index} leads with AVIF`);
+      assert.match(webp, /\btype="image\/webp"/u, `${filename} image ${index} follows with WebP`);
+      assert.doesNotMatch(`${avif}${webp}`, /\b(?:loading|decoding|fetchpriority)=/u, `${filename} image ${index} keeps lazy attributes on the img`);
+
+      const alt = attributeOf(img, 'alt');
       assert.ok(alt, `${filename} image ${index} has alt text`);
       assert.ok([copy.gallery[index].alt, escapeHtml(copy.gallery[index].alt)].includes(alt), `${filename} image ${index} localized alt`);
-      assert.match(tag, /\bloading="lazy"/u);
-      assert.match(tag, /\bdecoding="async"/u);
-      assert.match(tag, /\bwidth="\d+"/u);
-      assert.match(tag, /\bheight="\d+"/u);
-      for (const [, url] of tag.matchAll(/(\/_astro\/[^\s",]+\.webp)/gu)) {
-        assert.match(url, /\.[\w-]{6,}\.webp$/u, `${url} is content-hashed`);
-        assert.ok(statSync(join(outputDir, url)).size <= 200 * KIB, `${url} stays within the 200 KiB raster budget`);
+      assert.match(img, /\bloading="lazy"/u);
+      assert.match(img, /\bdecoding="async"/u);
+      assert.match(img, /\bfetchpriority="low"/u);
+      assert.match(img, /\bwidth="\d+"/u);
+      assert.match(img, /\bheight="\d+"/u);
+
+      const sizes = attributeOf(img, 'sizes');
+      assert.ok(sizes, `${filename} image ${index} has a size hint`);
+      assert.equal(attributeOf(avif, 'sizes'), sizes, `${filename} image ${index} AVIF size hint`);
+      assert.equal(attributeOf(webp, 'sizes'), sizes, `${filename} image ${index} WebP size hint`);
+
+      const tiers = {
+        avif: srcsetCandidates(attributeOf(avif, 'srcset'), filename),
+        webp: srcsetCandidates(attributeOf(webp, 'srcset'), filename),
+        jpeg: srcsetCandidates(attributeOf(img, 'srcset'), filename),
+      };
+      const widths = tiers.jpeg.map((candidate) => candidate.width);
+      for (const format of SHOWCASE_FORMATS) {
+        assert.deepEqual(tiers[format].map((candidate) => candidate.width), widths, `${filename} image ${index} ${format} offers the same widths`);
       }
-    });
+      const native = Number(attributeOf(img, 'width'));
+      assert.equal(attributeOf(img, 'src'), tiers.jpeg.find((candidate) => candidate.width === native)?.url, `${filename} image ${index} src is the native JPEG`);
+      const name = tiers.jpeg[0].url.split('/').pop().split('.')[0];
+      const source = await shippedSource(name);
+      assert.deepEqual([source.width, source.height], [native, Number(attributeOf(img, 'height'))], `${filename} image ${index} declares the shipped source size`);
+
+      for (const { width } of tiers.jpeg) {
+        const variants = {};
+        for (const format of SHOWCASE_FORMATS) {
+          const { url } = tiers[format].find((candidate) => candidate.width === width);
+          variants[format] = { url, ...(await inspectVariant(url, format)) };
+          assert.equal(variants[format].width, width, `${url} is ${width} px wide`);
+        }
+        const pixelSizes = new Set(SHOWCASE_FORMATS.map((format) => `${variants[format].width}x${variants[format].height}`));
+        assert.equal(pixelSizes.size, 1, `${name} at ${width} px: tiers differ in pixel size`);
+        assert.ok(
+          variants.avif.bytes < variants.webp.bytes,
+          `${name} at ${width} px: AVIF ${variants.avif.bytes} bytes is not smaller than WebP ${variants.webp.bytes} bytes`,
+        );
+        if (width === native) {
+          for (const format of SHOWCASE_FORMATS) {
+            assert.deepEqual([variants[format].width, variants[format].height], [source.width, source.height], `${name} ${format} native size matches the shipped source`);
+            await verifyNativeFidelity(name, format, variants[format].url);
+          }
+        }
+      }
+    }
+
     for (const [, url] of section.matchAll(/url\((\/_astro\/pillar-[^)]+)\)/gu)) {
       assert.match(url, /\.svg$/u);
-      assert.ok(statSync(join(outputDir, url)).size <= 8 * KIB, `${url} stays within the 8 KiB SVG budget`);
+      assert.ok(statSync(join(DEMO_DIST, url)).size <= 8 * KIB, `${url} stays within the 8 KiB SVG budget`);
     }
   }
 
-  const showcaseFiles = readdirSync(astroDir).filter((file) => /^(?:workbench|proposal-workflow|heroes|pillar-)/u.test(file));
-  assert.ok(showcaseFiles.some((file) => file.endsWith('.webp')) && showcaseFiles.some((file) => file.endsWith('.svg')));
-  assert.ok(showcaseFiles.every((file) => /\.(?:webp|svg)$/u.test(file)), 'showcase images are WebP or SVG');
-  const total = showcaseFiles.reduce((sum, file) => sum + statSync(join(astroDir, file)).size, 0);
-  assert.ok(total <= 768 * KIB, `built showcase images total ${total} bytes, over the 768 KiB budget`);
+  const showcaseFiles = readdirSync(astroDir).filter((file) => SHOWCASE_FILE.test(file));
+  for (const format of [...SHOWCASE_FORMATS, 'svg']) {
+    assert.ok(showcaseFiles.some((file) => file.endsWith(`.${format}`)), `a built ${format} showcase file exists`);
+  }
+  assert.ok(showcaseFiles.every((file) => /\.(?:avif|webp|jpeg|svg)$/u.test(file)), 'showcase files are AVIF, WebP, JPEG, or SVG');
+  const sizeOf = (file) => statSync(join(astroDir, file)).size;
+  for (const file of showcaseFiles.filter((name) => name.endsWith('.svg'))) {
+    assert.ok(sizeOf(file) <= 8 * KIB, `${file} is ${sizeOf(file)} bytes, over the 8 KiB SVG budget`);
+  }
+  for (const file of showcaseFiles.filter((name) => !name.endsWith('.svg'))) {
+    assert.ok(sizeOf(file) <= 200 * KIB, `${file} is ${sizeOf(file)} bytes, over the 200 KiB raster budget`);
+  }
+  for (const format of SHOWCASE_FORMATS) {
+    const total = showcaseFiles.filter((file) => file.endsWith(`.${format}`)).reduce((sum, file) => sum + sizeOf(file), 0);
+    assert.ok(total <= 768 * KIB, `built ${format} showcase variants total ${total} bytes, over the 768 KiB per-format budget`);
+  }
 }
 
 function verifyShowcaseDisabled(read) {
@@ -378,12 +513,14 @@ function verifyShowcaseDisabled(read) {
       assert.ok(!html.includes(marker), `${filename} (${locale}) renders no showcase markup when disabled: ${marker}`);
     }
   }
+  const derivedTiers = showcaseFilesIn(DEMO_DIST).filter((file) => /\.(?:avif|jpeg)$/u.test(file));
+  assert.deepEqual(derivedTiers, [], 'a disabled showcase emits no AVIF or JPEG tier');
 }
 
 const defaultFeeds = build();
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
-verifyShowcaseOutput(defaultFeeds);
+await verifyShowcaseOutput(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -424,3 +561,4 @@ verifyDefaultFeeds(build());
 verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }));
 verifyDefaultFeeds(build());
 verifyCoreFooterOutput(buildCoreFooter());
+assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');
