@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { PACKAGES } from '../scripts/packages.mjs';
+import { PACKAGES, assertPackageGraph, readManifest } from '../scripts/packages.mjs';
 import { compareVersions, dependencyStamps, nextBaseVersion, stableVersion } from '../scripts/release.mjs';
 
 test('accepts only stable release tags', () => {
@@ -23,15 +23,16 @@ test('selects the newest unreleased draft after the latest stable release', () =
   assert.ok(compareVersions('1.10.0', '1.9.0') > 0);
 });
 
-test('publishes shared core first and stamps it into both dependent packages and examples', () => {
+test('publishes shared core first and stamps it into every dependent package and examples', () => {
   assert.deepEqual(PACKAGES.map(({ name }) => name), [
     '@hagicode/hagilight-core',
+    '@hagicode/hagilight-docusaurus',
     '@hagicode/hagilight',
     '@hagicode/hagilight-starlight',
   ]);
   const stamps = Object.fromEntries(dependencyStamps('1.2.3').map(({ workspace, values }) => [workspace, values]));
   assert.deepEqual(stamps['@hagicode/hagilight-core'], ['version=1.2.3']);
-  for (const name of ['@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
+  for (const name of ['@hagicode/hagilight-docusaurus', '@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
     assert.deepEqual(stamps[name], ['version=1.2.3', 'dependencies.@hagicode/hagilight-core=1.2.3']);
   }
   assert.deepEqual(stamps['hagilight-core-footer-example'], [
@@ -40,4 +41,15 @@ test('publishes shared core first and stamps it into both dependent packages and
   ]);
   assert.ok(stamps['hagilight-example'].includes('dependencies.@hagicode/hagilight-starlight=1.2.3'));
   assert.ok(stamps['hagilight-example'].includes('dependencies.@hagicode/hagilight-core=1.2.3'));
+});
+
+test('rejects a Docusaurus dependency on either Astro-based feature package', () => {
+  for (const name of ['@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
+    const manifests = PACKAGES.map(({ directory }) => readManifest(directory));
+    const docusaurus = manifests.find((manifest) => manifest.name === '@hagicode/hagilight-docusaurus');
+    docusaurus.dependencies = { ...docusaurus.dependencies, [name]: docusaurus.version };
+    assert.throws(() => assertPackageGraph(manifests), {
+      message: `@hagicode/hagilight-docusaurus must not depend on ${name} (dependencies)`,
+    });
+  }
 });
