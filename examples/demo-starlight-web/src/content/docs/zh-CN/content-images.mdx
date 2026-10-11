@@ -5,13 +5,24 @@ lastUpdated: 2026-10-11
 rss: false
 ---
 
+import { Picture } from 'astro:assets';
+import localImage from '../../../assets/content-image-local.png';
+
 本页展示 `@hagicode/hagilight-starlight` 自动应用的正文图片基线。
 
 位于 `<picture>` 元素之外的 Markdown 与 MDX 图片会获得 `loading="lazy"`、`decoding="async"` 和 `hagilight-content-image` 类名。作者已经设置的值会保留，类名只会添加一次。
 
 ## 相对路径的本地图片
 
-![青绿到青柠色渐变背景上带有一个奶油色圆形的相对路径本地图片](../../../assets/content-image-local.png)
+下方图片使用 `<Picture formats={['avif', 'webp']}>` 渲染，支持 AVIF 的浏览器会优先获取它，其次是 WebP，最后回退到 PNG。该图片已位于 `<picture>` 元素中，因此上述处理不适用于它。
+
+<Picture
+  src={localImage}
+  formats={['avif', 'webp']}
+  alt="青绿到青柠色渐变背景上带有一个奶油色圆形的相对路径本地图片"
+  loading="lazy"
+  decoding="async"
+/>
 
 ## 站点根路径图片
 

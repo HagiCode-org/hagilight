@@ -5,13 +5,24 @@ lastUpdated: 2026-10-11
 rss: false
 ---
 
+import { Picture } from 'astro:assets';
+import localImage from '../../assets/content-image-local.png';
+
 This page shows the body-image baseline that `@hagicode/hagilight-starlight` applies automatically.
 
 Markdown and MDX images outside a `<picture>` element get `loading="lazy"`, `decoding="async"`, and the `hagilight-content-image` class. Values the author already set are kept, and the class is added once.
 
 ## Relative local image
 
-![A teal and lime gradient with a cream circle, used as a relative local image](../../assets/content-image-local.png)
+The image below is rendered with `<Picture formats={['avif', 'webp']}>`, so browsers that support AVIF receive it first, then WebP, then the PNG fallback. It already sits in a `<picture>` element, so the handling above does not apply to it.
+
+<Picture
+  src={localImage}
+  formats={['avif', 'webp']}
+  alt="A teal and lime gradient with a cream circle, used as a relative local image"
+  loading="lazy"
+  decoding="async"
+/>
 
 ## Site-root image
 

@@ -525,7 +525,7 @@ function verifyShowcaseDisabled(read, dist) {
 
 const CONTENT_IMAGE_MARKER = 'hagilight-content-image';
 const CONTENT_IMAGE_FILES = ['content-images/index.html', 'zh-CN/content-images/index.html'];
-const CONTENT_BODY_SRC = /^(?:\/_astro\/content-image-local\.[^"]+\.webp|\/content-images\/root-sample\.png)$/u;
+const CONTENT_BODY_SRC = /^(?:\/_astro\/content-image-local\.[^"]+\.png|\/content-images\/root-sample\.png)$/u;
 
 function imageTags(html) {
   return [...html.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
@@ -537,9 +537,14 @@ function markerCount(tag) {
 
 function verifyBodyImages(read) {
   for (const filename of CONTENT_IMAGE_FILES) {
-    const tags = imageTags(read(filename));
+    const html = read(filename);
+    const tags = imageTags(html);
+    const [picture] = html.match(/<picture\b[\s\S]*?<\/picture>/u) ?? [];
+    assert.ok(picture, `${filename} wraps the Picture image in a picture element`);
+    assert.match(picture, /<source\b[^>]*type="image\/avif"/u, `${filename} offers an AVIF source`);
+    assert.match(picture, /<source\b[^>]*type="image\/webp"/u, `${filename} offers a WebP source`);
     const body = tags.filter((tag) => CONTENT_BODY_SRC.test(attributeOf(tag, 'src') ?? ''));
-    assert.equal(body.length, 3, `${filename} renders the three Markdown body images`);
+    assert.equal(body.length, 3, `${filename} renders the three body images`);
     assert.deepEqual(
       body.map((tag) => attributeOf(tag, 'loading')).sort(),
       ['eager', 'lazy', 'lazy'],
@@ -549,7 +554,12 @@ function verifyBodyImages(read) {
       const src = attributeOf(tag, 'src');
       assert.match(src, /^\/(?!\/)/u, `${filename} serves ${src} from its own origin`);
       assert.equal(attributeOf(tag, 'decoding'), 'async', `${filename} ${src} decodes asynchronously`);
-      assert.equal(markerCount(tag), 1, `${filename} ${src} carries the content-image marker exactly once`);
+      const inPicture = picture.includes(tag);
+      assert.equal(
+        markerCount(tag),
+        inPicture ? 0 : 1,
+        `${filename} ${src} ${inPicture ? 'skips' : 'carries'} the content-image marker`,
+      );
     }
     for (const tag of tags.filter((image) => !body.includes(image))) {
       assert.equal(markerCount(tag), 0, `${filename} leaves ${attributeOf(tag, 'src')} unmarked`);
