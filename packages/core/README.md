@@ -39,6 +39,8 @@ const links = resolveSiteLinks('en-US');
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.
 
+A promotion's `image` may also carry `sources`, the alternative image files that Index publishes in the order AVIF, WebP, then the original. The banner renders them as a `<picture>` in that order, with the original as its `<img>`, and skips any entry whose `type` is not an `image/*` media type or whose URL is unsafe. Each `src` is resolved against `https://index.hagicode.com` when the promotion documents load. If the browser fails to load a tier, the banner removes it and the next tier is used. A card without `sources` renders the plain `<img>` as before, and `sources` never affect the dismissal signature, so a dismissed banner stays dismissed when only its image chain changes.
+
 ## Google Analytics click events
 
 `GoogleAnalytics` also reports clicks on the key links and download buttons that the shared components render. There is nothing to configure: events follow the same rules as page views, so they are sent only on production pages where Google Analytics is enabled, never on the Starlight 404 page, and silently skipped when `gtag` is missing (development builds, blocked scripts).
