@@ -22,5 +22,21 @@
     "@types/node": "^24.19.0",
     "playwright": "^1.63.0",
     "typescript": "^6.0.3"
-  }
+  },
+  "version": "1.0.0",
+  "description": "[![npm @hagicode/hagilight](https://img.shields.io/npm/v/@hagicode/hagilight?label=@hagicode/hagilight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight) [![npm @hagicode/hagilight-core](https://img.shields.io/npm/v/@hagicode/hagilight-core?label=@hagicode/hagilight-core&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-core) [![npm @hagicode/hagilight-starlight](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?label=@hagicode/hagilight-starlight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight)",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/HagiCode-org/hagilight/issues"
+  },
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme"
 }
