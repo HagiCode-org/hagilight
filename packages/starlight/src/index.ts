@@ -163,6 +163,8 @@ function optionalBoolean(
   return value;
 }
 
+const NOOP_IMAGE_SERVICE = 'astro/assets/services/noop';
+const NOOP_IMAGE_SERVICE_WARNING = '@hagicode/hagilight-starlight: the Astro image service is the passthrough no-op, so the showcase AVIF and JPEG tiers will serve the original bytes. Use the default sharp service or another transforming image service.';
 const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
 const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';
@@ -468,8 +470,11 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
         }
         updateConfig({ vite: { plugins: [vitePlugin] } });
       },
-      'astro:config:done'() {
+      'astro:config:done'({ config, logger }) {
         unregisterRssOwner();
+        if (config.image?.service?.entrypoint === NOOP_IMAGE_SERVICE) {
+          logger.warn(NOOP_IMAGE_SERVICE_WARNING);
+        }
       },
     },
   };

@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
@@ -90,11 +90,13 @@ const gallery = copy.gallery.flatMap((item) => {
       {gallery.map((item) => (
         <li>
           <figure>
-            <Image
+            <Picture
               src={item.image}
               alt={item.alt}
               width={item.image.width}
               height={item.image.height}
+              formats={['avif', 'webp']}
+              fallbackFormat="jpeg"
               widths={[480, 800, item.image.width]}
               sizes="(min-width: 50rem) 560px, 100vw"
               loading="lazy"
@@ -312,6 +314,10 @@ const gallery = copy.gallery.flatMap((item) => {
     display: grid;
     gap: 0.5rem;
     margin: 0;
+  }
+
+  .hagilight-article-promotion picture {
+    display: block;
   }
 
   .hagilight-article-promotion img {
