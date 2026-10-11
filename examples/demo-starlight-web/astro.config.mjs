@@ -8,16 +8,27 @@ const rssOption = (name) => {
   const key = name.replace(/[A-Z]/gu, (letter) => `_${letter}`).toUpperCase();
   return process.env[`HAGILIGHT_RSS_${key}`] !== 'false';
 };
+const markdown = process.env.HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR === 'unified'
+  ? { markdown: { processor: (await import('@astrojs/markdown-remark')).unified() } }
+  : {};
+const discovery = process.env.HAGILIGHT_EXAMPLE_DISCOVERY === 'true'
+  ? [(await import('@hagicode/hagilight/integration')).hagilight()]
+  : [];
+const contentImages = process.env.HAGILIGHT_EXAMPLE_CONTENT_IMAGES === 'off'
+  ? { contentImages: { enabled: false } }
+  : {};
 
 export default defineConfig({
   site: 'https://hagistar.hagicode.com',
   base,
+  ...markdown,
   integrations: [
     starlight({
       title: 'Hagilight example',
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
       locales,
       plugins: [hagilight({
+        ...contentImages,
         seo: {
           enabled: true,
           image: '/share-card.svg',
@@ -46,5 +57,6 @@ export default defineConfig({
         },
       })],
     }),
+    ...discovery,
   ],
 });

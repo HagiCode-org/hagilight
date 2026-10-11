@@ -35,6 +35,7 @@ interface Props {
   feedNavLabel: string;
   fallbackNotice: string;
   sections: FeatureSection[];
+  markdownSampleTitle: string;
   fallback: {
     id: string;
     title: string;
@@ -58,6 +59,7 @@ const {
   feedNavLabel,
   fallbackNotice,
   sections,
+  markdownSampleTitle,
   fallback,
 } = Astro.props;
 const isChinese = locale === 'zh-CN';
@@ -163,6 +165,13 @@ const structuredData = [
           </div>
         </section>
       ))}
+
+      <section id="markdown-sample" class="feature-section markdown-sample" aria-labelledby="markdown-sample-title">
+        <div class="section-heading">
+          <h2 id="markdown-sample-title">{markdownSampleTitle}</h2>
+        </div>
+        <slot name="markdown-sample" />
+      </section>
 
       <section id="live-footer-example" class="live-examples" aria-labelledby="live-footer-title">
         <div class="section-heading">
@@ -443,6 +452,18 @@ const structuredData = [
 
   .live-examples {
     margin-top: 1rem;
+  }
+
+  .markdown-sample {
+    max-width: 48rem;
+  }
+
+  .markdown-sample img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-block: 1rem;
+    border-radius: 0.25rem;
   }
 
   .resolver-example {

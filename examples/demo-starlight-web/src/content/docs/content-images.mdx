@@ -1,0 +1,24 @@
+---
+title: Content images
+description: Body images on this page are normalized by Hagilight at build time.
+lastUpdated: 2026-10-11
+rss: false
+---
+
+This page shows the body-image baseline that `@hagicode/hagilight-starlight` applies automatically.
+
+Markdown and MDX images outside a `<picture>` element get `loading="lazy"`, `decoding="async"`, and the `hagilight-content-image` class. Values the author already set are kept, and the class is added once.
+
+## Relative local image
+
+![A teal and lime gradient with a cream circle, used as a relative local image](../../assets/content-image-local.png)
+
+## Site-root image
+
+![A warm gradient stored in the public folder and referenced from the site root](/content-images/root-sample.png)
+
+## Author-set loading
+
+<img src="/content-images/root-sample.png" alt="A warm gradient that the author asked to load eagerly" loading="eager" />
+
+To turn this handling off for the whole site, set `contentImages: { enabled: false }` on the Starlight plugin.

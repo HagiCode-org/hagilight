@@ -1,0 +1,24 @@
+---
+title: 内容图片
+description: 本页的正文图片会在构建时由 Hagilight 统一处理。
+lastUpdated: 2026-10-11
+rss: false
+---
+
+本页展示 `@hagicode/hagilight-starlight` 自动应用的正文图片基线。
+
+位于 `<picture>` 元素之外的 Markdown 与 MDX 图片会获得 `loading="lazy"`、`decoding="async"` 和 `hagilight-content-image` 类名。作者已经设置的值会保留，类名只会添加一次。
+
+## 相对路径的本地图片
+
+![青绿到青柠色渐变背景上带有一个奶油色圆形的相对路径本地图片](../../../assets/content-image-local.png)
+
+## 站点根路径图片
+
+![存放在 public 目录中并通过站点根路径引用的暖色渐变图片](/content-images/root-sample.png)
+
+## 作者指定的加载方式
+
+<img src="/content-images/root-sample.png" alt="作者要求立即加载的暖色渐变图片" loading="eager" />
+
+如需在整个站点关闭此处理，请在 Starlight 插件上设置 `contentImages: { enabled: false }`。

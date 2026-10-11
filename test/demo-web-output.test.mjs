@@ -54,6 +54,7 @@ test('both locale pages cover every plain-Astro and shared-core export with loca
     'favicon',
     'rss',
     'analytics',
+    'content-images',
   ];
 
   for (const page of pages) {
@@ -238,6 +239,31 @@ test('showcase stays free of analytics scripts and retains responsive accessible
   assert.match(css, /(?:max-width:\s*42rem|width<=42rem)/u);
   assert.match(css, /prefers-reduced-motion:\s*reduce/u);
   assert.match(css, /overflow-x:\s*auto/u);
+});
+
+test('built body images are normalized while logos and the plain-Astro config stay unchanged', () => {
+  assert.doesNotMatch(config, /contentImages/u);
+  const attribute = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`, 'u'))?.[1];
+
+  for (const page of pages) {
+    const html = readFileSync(join(outputDir, page.file), 'utf8');
+    const images = [...html.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
+    const local = images.find((tag) => /\ssrc="\/_astro\/content-image-local\.[^"]+\.webp"/u.test(tag));
+    const siteRoot = images.find((tag) => attribute(tag, 'src') === '/content-images/root-sample.png');
+    assert.ok(local, `${page.file} renders the optimized local body image`);
+    assert.ok(siteRoot, `${page.file} renders the site-root body image`);
+
+    for (const tag of [local, siteRoot]) {
+      assert.equal(attribute(tag, 'loading'), 'lazy', `${page.file} lazy-loads ${attribute(tag, 'src')}`);
+      assert.equal(attribute(tag, 'decoding'), 'async', `${page.file} decodes ${attribute(tag, 'src')} asynchronously`);
+      assert.equal(attribute(tag, 'class'), 'hagilight-content-image', `${page.file} marks ${attribute(tag, 'src')}`);
+    }
+
+    const logo = images.find((tag) => /\ssrc="\/_astro\/logo\./u.test(tag));
+    assert.ok(logo, `${page.file} renders the header logo`);
+    assert.doesNotMatch(logo, /hagilight-content-image|loading=/u, `${page.file} leaves the logo unchanged`);
+    assert.ok(html.includes('@hagicode/hagilight-core/content-images'), `${page.file} documents the content-images export`);
+  }
 });
 
 test('sitemap and robots output use the configured base path', () => {

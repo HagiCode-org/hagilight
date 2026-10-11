@@ -523,10 +523,66 @@ function verifyShowcaseDisabled(read, dist) {
   assert.deepEqual(derivedTiers, [], 'a disabled showcase emits no AVIF or JPEG tier');
 }
 
+const CONTENT_IMAGE_MARKER = 'hagilight-content-image';
+const CONTENT_IMAGE_FILES = ['content-images/index.html', 'zh-CN/content-images/index.html'];
+const CONTENT_BODY_SRC = /^(?:\/_astro\/content-image-local\.[^"]+\.webp|\/content-images\/root-sample\.png)$/u;
+
+function imageTags(html) {
+  return [...html.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
+}
+
+function markerCount(tag) {
+  return (attributeOf(tag, 'class') ?? '').split(/\s+/u).filter((name) => name === CONTENT_IMAGE_MARKER).length;
+}
+
+function verifyBodyImages(read) {
+  for (const filename of CONTENT_IMAGE_FILES) {
+    const tags = imageTags(read(filename));
+    const body = tags.filter((tag) => CONTENT_BODY_SRC.test(attributeOf(tag, 'src') ?? ''));
+    assert.equal(body.length, 3, `${filename} renders the three Markdown body images`);
+    assert.deepEqual(
+      body.map((tag) => attributeOf(tag, 'loading')).sort(),
+      ['eager', 'lazy', 'lazy'],
+      `${filename} keeps the author's eager loading and lazy-loads the others`,
+    );
+    for (const tag of body) {
+      const src = attributeOf(tag, 'src');
+      assert.match(src, /^\/(?!\/)/u, `${filename} serves ${src} from its own origin`);
+      assert.equal(attributeOf(tag, 'decoding'), 'async', `${filename} ${src} decodes asynchronously`);
+      assert.equal(markerCount(tag), 1, `${filename} ${src} carries the content-image marker exactly once`);
+    }
+    for (const tag of tags.filter((image) => !body.includes(image))) {
+      assert.equal(markerCount(tag), 0, `${filename} leaves ${attributeOf(tag, 'src')} unmarked`);
+    }
+  }
+  for (const filename of ['index.html', 'zh-CN/index.html']) {
+    for (const tag of imageTags(read(filename))) {
+      assert.equal(markerCount(tag), 0, `${filename} leaves logo and showcase ${attributeOf(tag, 'src')} unmarked`);
+    }
+  }
+  for (const feed of ['rss.xml', 'rss.zh-CN.xml']) {
+    assert.ok(!read(feed).includes('/content-images/'), `${feed} omits the content-images demo page`);
+  }
+}
+
+function verifyContentImagesDisabled(read) {
+  for (const filename of CONTENT_IMAGE_FILES) {
+    const tags = imageTags(read(filename));
+    assert.ok(tags.every((tag) => markerCount(tag) === 0), `${filename} renders no content-image marker when disabled`);
+    const [plain, eager] = tags.filter((tag) => attributeOf(tag, 'src') === '/content-images/root-sample.png');
+    assert.ok(plain && eager, `${filename} renders both root-sample images`);
+    assert.equal(attributeOf(plain, 'loading'), undefined, `${filename} leaves the plain image without loading`);
+    assert.equal(attributeOf(plain, 'decoding'), undefined, `${filename} leaves the plain image without decoding`);
+    assert.equal(attributeOf(eager, 'loading'), 'eager', `${filename} keeps the author's eager loading`);
+    assert.equal(attributeOf(eager, 'decoding'), undefined, `${filename} adds no decoding to the eager image`);
+  }
+}
+
 const defaultFeeds = build({}, DEMO_DIST);
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
 await verifyShowcaseOutput(defaultFeeds);
+verifyBodyImages(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -565,5 +621,8 @@ assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
 const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'showcase-disabled');
 verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }, disabledDist), disabledDist);
+verifyBodyImages(build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join(EXAMPLE_OUTPUT_ROOT, 'unified')));
+verifyBodyImages(build({ HAGILIGHT_EXAMPLE_DISCOVERY: 'true' }, join(EXAMPLE_OUTPUT_ROOT, 'discovery')));
+verifyContentImagesDisabled(build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off')));
 verifyCoreFooterOutput(buildCoreFooter());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

@@ -1,5 +1,6 @@
 ---
 import DemoLayout from '../layouts/DemoLayout.astro';
+import Content from '../snippets/content-images.en-US.md';
 
 const sections = [
   {
@@ -89,6 +90,21 @@ const sections = [
     ],
   },
   {
+    id: 'body-content',
+    title: 'Body content',
+    description: 'Markdown images are normalized while the site builds; the page adds no runtime script for them.',
+    features: [
+      {
+        id: 'content-images',
+        title: 'Content images',
+        kind: 'Build-time Markdown plugin · automatic with hagilight()',
+        summary: 'Markdown and MDX body images outside picture elements get lazy and async loading defaults plus the hagilight-content-image class. Author-set loading and decoding values are kept.',
+        evidence: 'The sample below comes from a Markdown file with a relative local image and a site-root image; their img elements carry the marker class.',
+        example: "import { rehypeContentImages } from '@hagicode/hagilight-core/content-images';\n\n// Automatic with hagilight(); opt out with hagilight({ contentImages: false })",
+      },
+    ],
+  },
+  {
     id: 'optional-integrations',
     title: 'Optional integrations',
     description: 'The imports below are examples only; this showcase does not load analytics or send visitor data.',
@@ -128,5 +144,8 @@ const fallback = {
   feedNavLabel="Consumer-owned RSS feed"
   fallbackNotice="Promotion example: eligible remote campaigns may replace this local fallback. It links to the footer to demonstrate the component’s visibility behavior."
   sections={sections}
+  markdownSampleTitle="Markdown body images"
   fallback={fallback}
-/>
+>
+  <Content slot="markdown-sample" />
+</DemoLayout>

@@ -1,5 +1,6 @@
 ---
 import DemoLayout from '../../layouts/DemoLayout.astro';
+import Content from '../../snippets/content-images.zh-CN.md';
 
 const sections = [
   {
@@ -89,6 +90,21 @@ const sections = [
     ],
   },
   {
+    id: 'body-content',
+    title: '正文内容',
+    description: 'Markdown 图片在站点构建时统一处理，页面不会为它们添加运行时脚本。',
+    features: [
+      {
+        id: 'content-images',
+        title: '正文图片',
+        kind: '构建时 Markdown 插件 · 使用 hagilight() 时自动启用',
+        summary: '位于 picture 元素之外的 Markdown 与 MDX 正文图片会获得惰性与异步加载的默认值，以及 hagilight-content-image 类名；作者已设置的 loading 与 decoding 值会保留。',
+        evidence: '下方示例来自一个 Markdown 文件，包含相对路径本地图片和站点根路径图片；它们的 img 元素都带有标记类名。',
+        example: "import { rehypeContentImages } from '@hagicode/hagilight-core/content-images';\n\n// 使用 hagilight() 时自动启用；如需关闭，请传入 hagilight({ contentImages: false })",
+      },
+    ],
+  },
+  {
     id: 'optional-integrations',
     title: '可选集成',
     description: '以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。',
@@ -128,5 +144,8 @@ const fallback = {
   feedNavLabel="由示例站点维护的 RSS feed"
   fallbackNotice="推广示例：符合条件的远程推广可能替代此本地后备内容。后备链接会跳转到页脚，以演示组件的可见性行为。"
   sections={sections}
+  markdownSampleTitle="Markdown 正文图片"
   fallback={fallback}
-/>
+>
+  <Content slot="markdown-sample" />
+</DemoLayout>
