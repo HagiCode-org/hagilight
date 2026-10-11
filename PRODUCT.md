@@ -34,7 +34,7 @@ The HagiCode brand layer for Astro and Starlight: a shared link catalog and rela
 - Ten locales: en-US, zh-CN, zh-Hant, fr-FR, de-DE, es-ES, ja-JP, ko-KR, pt-BR, ru-RU. All UI copy lives in per-locale catalogs.
 - Must never silently replace a consumer's `Footer` or `components.Header` override; the plugin rejects the conflict instead.
 - Tracked link ids are GA `event_label`s. Tagged links go through `gaEventAttributes()` or `siteLinkGaAttributes()`, never hand-written `data-ga-*`; renaming an id is a deliberate analytics change. Related sites, RSS, sitemap, about, contact, filings, and consumer `extraLinks` stay untagged.
-- Showcase images are audited local WebP/SVG within a 768 KiB total budget and are never hot-linked; the Microsoft Store badge loader from `get.microsoft.com` is the only script.
+- Showcase images are audited local WebP/SVG sources within a 768 KiB total budget and are never hot-linked; sites deliver them as AVIF, then WebP, then JPEG, derived at their own build from those sources; the Microsoft Store badge loader from `get.microsoft.com` is the only script.
 - Showcase copy, images, and the Store product id stay in sync with `repos/web` and `repos/docs`.
 - Undecided: license, and `@hagicode` npm scope permission before first publish.
 

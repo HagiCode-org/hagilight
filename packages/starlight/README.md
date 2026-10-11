@@ -85,14 +85,26 @@ The gallery images and pillar icons live in `assets/showcase/`, with a provenanc
 
 Every asset passes the same audit before it is committed: the current `HagiCode` brand, no Steam or other retired-channel content, no third-party promotion, no credentials, private repository names, or personal data, and rasters at least 1200 px wide. A removable offending region may be cropped out, and the crop is recorded. Pick images in this order to keep traffic low: an audited existing image converted to WebP, then a hand-authored SVG, then a newly generated raster only when neither fits. Generated art is an illustration, never a replica of the product UI, contains no text or logos, is captioned as an illustration, is reviewed by a person, and records its prompt and parameters (never credentials). Generation is an authoring step; the package never calls a generator.
 
-Budgets, enforced by `npm test`: 768 KiB for all showcase images together, 200 KiB per raster (WebP only), and 8 KiB per SVG. Images are served through Astro's image pipeline as responsive, content-hashed files, load lazily with low priority, and sit after the article body, so a reader who does not reach the end downloads none of them.
+Budgets for the shipped sources, enforced by `npm test`: 768 KiB for all showcase sources together, 200 KiB per raster source (WebP only), and 8 KiB per SVG. `npm run build:example` also checks the built output: each delivered raster variant at most 200 KiB, the variants of one format at most 768 KiB together, and each AVIF variant smaller than the WebP variant of the same width.
+
+Each gallery image renders as a `<picture>` with an AVIF source, a WebP source, and a JPEG `<img>` fallback, at widths 480, 800, and the native width. The tiers are derived at the consumer's build from the shipped WebP, with the `sharp` service that Astro already bundles, so no conversion runs outside the site's own build and no external service is involved. The chain needs a transforming image service: with the passthrough `astro/assets/services/noop` service the tiers serve the original bytes, and the plugin logs one warning. Opaque images use the JPEG tier. The JPEG tier cannot carry transparency, so an image that needs alpha needs a PNG tier, which the component does not offer yet, and a budget review before it is added.
+
+Images are served through Astro's image pipeline as responsive, content-hashed files, load lazily with low priority, and sit after the article body, so a reader who does not reach the end downloads none of them.
+
+Measured on `examples/demo-starlight-web` with one warm build each: the nine AVIF variants total 139.0 KiB (largest 41.4 KiB) and the nine JPEG variants total 387.4 KiB (largest 118.2 KiB). The shipped WebP sources are unchanged. The build took 21.6 s without the tiers and 20.4 s with them, a difference within run-to-run noise. A browser that supports AVIF downloads one variant per image, the AVIF one.
+
+#### Adopting and verifying
+
+Upgrading `@hagicode/hagilight`, `@hagicode/hagilight-starlight`, and `@hagicode/hagilight-core` together is the whole change. It needs no configuration, dependency, script, or CI step: the consumer's existing build derives the tiers. If the build logs the passthrough image service warning, remove the `image` service override or use the default `sharp` service.
+
+To check a deployed site, run `curl -sI https://<site>/_astro/<file>.avif` with a real file name from the built `dist/_astro`; it should report `Content-Type: image/avif`. `docs` also previews on Azure Static Web Apps, so check that preview as well. Any host header fix belongs to the owning repository, not to this package.
 
 #### Keep it in sync
 
 The copy and assets mirror `repos/web` and `repos/docs` in the HagiCode monorepo, which this package never edits.
 
 - **Copy:** edit `src/article-promotion-copy/<locale>.ts` (every locale must keep the same fields, feature ids, and gallery ids). Terminology is pinned in `GLOSSARY` in `src/article-promotion-copy/index.ts`, seeded from the product locale files in `repos/web/src/locales/<locale>/`. `HagiCode`, `OpenSpec`, `Hero Dungeon`, `Microsoft Store`, and `Windows` are never translated.
-- **Images:** audit the candidate, crop and convert it to WebP, add or update its `manifest.json` entry, register it in the `galleryImages` map in `ArticlePromotion.astro`, and add a caption and text alternative in every locale. The gallery mosaic places the first, second, and third catalog entries as the left top, left bottom, and right tall slot, so keep the gallery at three images or revisit the placement in the component's `@container (min-width: 36rem)` block. `npm test` checks that the manifest, the files, the component registry, and the copy agree.
+- **Images:** audit the candidate, crop and convert it to WebP (the AVIF and JPEG tiers are derived at build time, so an opaque image needs no extra file), add or update its `manifest.json` entry, register it in the `galleryImages` map in `ArticlePromotion.astro`, and add a caption and text alternative in every locale. The gallery mosaic places the first, second, and third catalog entries as the left top, left bottom, and right tall slot, so keep the gallery at three images or revisit the placement in the component's `@container (min-width: 36rem)` block. `npm test` checks that the manifest, the files, the component registry, and the copy agree.
 - **Badge:** the product id is parsed from the Store URL and the badge language map lives in `src/windows-download.ts`. Re-check both against `repos/docs/src/components/MicrosoftStoreBadge.tsx` and the official site when the Store listing or the supported languages change.
 
 The plugin footer and direct `/Footer` and `/PromotoFooter` components append
