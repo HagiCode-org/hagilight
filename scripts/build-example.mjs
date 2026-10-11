@@ -13,6 +13,8 @@ const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const EXAMPLE_IMAGE_CACHE = join(root, 'examples/demo-starlight-web/node_modules/.astro/assets');
+// Inside the project so Astro can rename assets into outDir; a tmpdir can sit on another device (EXDEV).
+const EXAMPLE_OUTPUT_ROOT = join(root, 'examples/demo-starlight-web/node_modules/.hagilight-variants');
 
 execFileSync(npm, ['run', 'build'], {
   cwd: root,
@@ -20,10 +22,12 @@ execFileSync(npm, ['run', 'build'], {
   shell: process.platform === 'win32',
 });
 
-function build(env = {}) {
+function build(env, outputDir) {
   // A warm image cache makes Astro copy files into dist, which fails intermittently on Windows runners.
   rmSync(EXAMPLE_IMAGE_CACHE, { recursive: true, force: true });
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
+  // Astro's cleanup silently skips files Windows will not delete, so each variant gets a fresh outDir.
+  rmSync(outputDir, { recursive: true, force: true });
+  execFileSync(npm, ['run', 'build', '-w', 'hagilight-example', '--', '--outDir', outputDir], {
     cwd: root,
     env: { ...process.env, ...env },
     stdio: 'inherit',
@@ -31,7 +35,6 @@ function build(env = {}) {
     // cannot execute directly; route it through the shell like the sibling scripts.
     shell: process.platform === 'win32',
   });
-  const outputDir = join(root, 'examples/demo-starlight-web/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
 }
 
@@ -509,18 +512,18 @@ async function verifyShowcaseOutput(read) {
   }
 }
 
-function verifyShowcaseDisabled(read) {
+function verifyShowcaseDisabled(read, dist) {
   for (const [locale, filename] of Object.entries(SHOWCASE_PAGES)) {
     const html = read(filename);
     for (const marker of ['hagilight-article-promotion', 'ms-store-badge', 'get.microsoft.com']) {
       assert.ok(!html.includes(marker), `${filename} (${locale}) renders no showcase markup when disabled: ${marker}`);
     }
   }
-  const derivedTiers = showcaseFilesIn(DEMO_DIST).filter((file) => /\.(?:avif|jpeg)$/u.test(file));
+  const derivedTiers = showcaseFilesIn(dist).filter((file) => /\.(?:avif|jpeg)$/u.test(file));
   assert.deepEqual(derivedTiers, [], 'a disabled showcase emits no AVIF or JPEG tier');
 }
 
-const defaultFeeds = build();
+const defaultFeeds = build({}, DEMO_DIST);
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
 await verifyShowcaseOutput(defaultFeeds);
@@ -545,7 +548,7 @@ assert.ok(!readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'
 const blogOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-blog-only/',
   HAGILIGHT_RSS_INCLUDE_DOCS: 'false',
-});
+}, join(EXAMPLE_OUTPUT_ROOT, 'blog-only'));
 verifySeoOutput(blogOnly, '/rss-blog-only/');
 const blogOnlyLinks = itemLinks(blogOnly('rss.xml'));
 assert.ok(blogOnlyLinks.length > 0);
@@ -554,12 +557,13 @@ assert.ok(blogOnlyLinks.every((link) => /\/rss-blog-only\/blog\//u.test(link)));
 const docsOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-docs-only/',
   HAGILIGHT_RSS_INCLUDE_BLOG: 'false',
-});
+}, join(EXAMPLE_OUTPUT_ROOT, 'docs-only'));
 const docsOnlyLinks = itemLinks(docsOnly('rss.xml'));
 assert.ok(docsOnlyLinks.length > 0);
 assert.ok(docsOnlyLinks.every((link) => link.includes('/rss-docs-only/')));
 assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
-verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }));
+const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'showcase-disabled');
+verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }, disabledDist), disabledDist);
 verifyCoreFooterOutput(buildCoreFooter());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');
