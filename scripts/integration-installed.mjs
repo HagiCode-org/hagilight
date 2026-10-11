@@ -298,6 +298,8 @@ function setInstalledVersion(directory, packageName, version) {
 }
 
 function buildAstro(directory, astro) {
+  // A warm image cache makes Astro copy files into dist, which fails intermittently on Windows runners.
+  rmSync(join(directory, 'node_modules/.astro/assets'), { recursive: true, force: true });
   execFileSync(process.execPath, [astro, 'build'], { cwd: directory, stdio: 'inherit' });
 }
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const EXAMPLE_IMAGE_CACHE = join(root, 'examples/demo-starlight-web/node_modules/.astro/assets');
 
 execFileSync(npm, ['run', 'build'], {
   cwd: root,
@@ -20,6 +21,8 @@ execFileSync(npm, ['run', 'build'], {
 });
 
 function build(env = {}) {
+  // A warm image cache makes Astro copy files into dist, which fails intermittently on Windows runners.
+  rmSync(EXAMPLE_IMAGE_CACHE, { recursive: true, force: true });
   execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
     cwd: root,
     env: { ...process.env, ...env },
