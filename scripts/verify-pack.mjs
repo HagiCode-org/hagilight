@@ -22,6 +22,23 @@ const REQUIRED_FILES = {
     'dist/related-sites.json',
     'dist/promoto-banner.js',
   ],
+  '@hagicode/hagilight-docusaurus': [
+    'styles.css',
+    'promoto.css',
+    'dist/index.js',
+    'dist/index.d.ts',
+    'dist/locales.js',
+    'dist/locales.d.ts',
+    'dist/analytics.js',
+    'dist/discovery.js',
+    'dist/footer.js',
+    'dist/seo.js',
+    'dist/client/analytics.js',
+    'dist/client/promoto.js',
+    'dist/client/promoto-markup.js',
+    'dist/theme/Footer/index.js',
+    'dist/theme/SiteMetadata/index.js',
+  ],
   '@hagicode/hagilight': [
     'Footer.astro',
     'SEOHead.astro',
@@ -63,6 +80,10 @@ const REQUIRED_FILES = {
     'dist/windows-download.js',
     'dist/article-promotion-copy/index.js',
   ],
+};
+
+const EXPECTED_EXPORTS = {
+  '@hagicode/hagilight-docusaurus': ['.', './locales'],
 };
 
 const FORBIDDEN_FILES = {
@@ -119,6 +140,9 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   for (const file of FORBIDDEN_FILES[name] ?? []) {
     if (files.has(file)) throw new Error(`${name} must not ship the retired ${file}`);
   }
+  if (EXPECTED_EXPORTS[name] && JSON.stringify(Object.keys(manifest.exports)) !== JSON.stringify(EXPECTED_EXPORTS[name])) {
+    throw new Error(`${name} must export exactly ${EXPECTED_EXPORTS[name].join(', ')}`);
+  }
   for (const { subpath, runtime, types } of exportTargets(manifest.exports)) {
     for (const target of [runtime, types].filter(Boolean)) {
       if (!files.has(target.replace(/^\.\//u, ''))) {
@@ -139,7 +163,12 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   }
   assertRelativeImportsShipped(name, files, (file) => readFileSync(posix.join(root, directory, file), 'utf8'));
 
-  if (manifest.peerDependencies?.astro === undefined) {
+  if (name === '@hagicode/hagilight-docusaurus') {
+    const peers = manifest.peerDependencies ?? {};
+    if (peers['@docusaurus/core'] !== '^3.9.2' || peers['@docusaurus/theme-classic'] !== '^3.9.2') {
+      throw new Error(`${name} must declare the tested Docusaurus 3.9 core and theme-classic peer ranges`);
+    }
+  } else if (manifest.peerDependencies?.astro === undefined) {
     throw new Error(`${name} must declare an Astro peer dependency`);
   }
   if (name === '@hagicode/hagilight-core' || name === '@hagicode/hagilight') {

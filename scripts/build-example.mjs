@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
+import { defaultLocale, locales } from '../packages/docusaurus/dist/locales.js';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -46,6 +47,18 @@ function buildCoreFooter() {
   });
   const outputDir = join(root, 'examples/demo-web/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
+}
+
+const DOCUSAURUS_DIST = join(root, 'examples/demo-docusaurus-web/node_modules/.hagilight-variants/docusaurus');
+
+function buildDocusaurus() {
+  rmSync(DOCUSAURUS_DIST, { recursive: true, force: true });
+  execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example', '--', '--out-dir', DOCUSAURUS_DIST], {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+  return (filename) => readFileSync(join(DOCUSAURUS_DIST, filename), 'utf8');
 }
 
 function feedItems(xml) {
@@ -284,6 +297,34 @@ function verifyCoreFooterOutput(read) {
   ]);
   assert.ok(!english.includes('探索 Hagilight core'));
   assert.ok(!chinese.includes('Explore Hagilight core'));
+}
+
+function verifyDocusaurusOutput(read) {
+  for (const locale of locales) {
+    const dir = locale === defaultLocale ? '' : `${locale}/`;
+    const { html } = pageHead(read, `${dir}index.html`);
+    assert.ok(html.includes('hagilight-footer__attribution'), `${locale} home has the Hagilight footer`);
+  }
+
+  const english = pageHead(read, 'index.html');
+  assert.ok(english.html.includes('https://www.googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'), 'the home page loads the Google Analytics tag');
+  assert.ok(english.html.includes('https://sdk.51.la/js-sdk-pro.min.js'), 'the home page loads the 51LA SDK');
+  assert.ok(english.html.includes('L6b88a5yK4h2Xnci'), 'the home page configures the 51LA id');
+
+  const clientBundles = readdirSync(join(DOCUSAURUS_DIST, 'assets/js')).filter((name) => name.endsWith('.js'));
+  assert.ok(
+    clientBundles.some((name) => read(`assets/js/${name}`).includes('hagilight-promoto-banner')),
+    'the client bundle mounts the promote banner',
+  );
+
+  assert.deepEqual(
+    headAttributeValues(english.head, 'link', 'hreflang', 'rel="alternate"').sort(),
+    [...locales, 'x-default'].sort(),
+    'the home page lists every locale and x-default',
+  );
+  assert.deepEqual(headAttributeValues(english.head, 'link', 'href', 'rel="canonical"'), ['https://docusaurus.hagicode.com/']);
+  const chinese = pageHead(read, 'zh-CN/index.html');
+  assert.deepEqual(headAttributeValues(chinese.head, 'link', 'href', 'rel="canonical"'), ['https://docusaurus.hagicode.com/zh-CN/']);
 }
 
 
@@ -635,4 +676,5 @@ verifyBodyImages(build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join
 verifyBodyImages(build({ HAGILIGHT_EXAMPLE_DISCOVERY: 'true' }, join(EXAMPLE_OUTPUT_ROOT, 'discovery')));
 verifyContentImagesDisabled(build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off')));
 verifyCoreFooterOutput(buildCoreFooter());
+verifyDocusaurusOutput(buildDocusaurus());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

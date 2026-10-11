@@ -20,6 +20,8 @@ const temp = mkdtempSync(join(tmpdir(), 'hagilight-integration-'));
 const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
 const ASTRO_PACKAGE = '@hagicode/hagilight';
 const STARLIGHT_PACKAGE = '@hagicode/hagilight-starlight';
+const DOCUSAURUS_PACKAGE = '@hagicode/hagilight-docusaurus';
+const DOCUSAURUS_SITE_URL = 'https://consumer.example.test';
 function listFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -256,9 +258,9 @@ async function fetchDevelopmentPage(astro) {
 
 // Astro only compiles installed component packages that the consumer manifest
 // declares, so each consumer lists its tarballs and registry packages explicitly.
-function installConsumer(directory, dependencies, name = 'hagilight-installed-consumer') {
+function installConsumer(directory, dependencies, name = 'hagilight-installed-consumer', { esm = true } = {}) {
   mkdirSync(directory, { recursive: true });
-  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, private: true, type: 'module', dependencies }));
+  writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, private: true, ...(esm ? { type: 'module' } : {}), dependencies }));
   execFileSync(npm, ['install', '--prefix', directory, '--no-audit', '--no-fund'], {
     stdio: 'inherit',
     shell: process.platform === 'win32',
@@ -491,6 +493,76 @@ function verifyAstroFooter(tarballs, astroVersion) {
   writeFileSync(packageManifestPath, JSON.stringify(installedManifest, null, 2));
 }
 
+function verifyDocusaurusConsumer(tarballs) {
+  const docusaurusExample = JSON.parse(readFileSync('examples/demo-docusaurus-web/package.json', 'utf8'));
+  const siteTemp = join(temp, 'docusaurus-consumer');
+  mkdirSync(join(siteTemp, 'blog'), { recursive: true });
+  mkdirSync(join(siteTemp, 'src', 'pages'), { recursive: true });
+  writeFileSync(join(siteTemp, 'docusaurus.config.mjs'), `import hagilightDocusaurus from '${DOCUSAURUS_PACKAGE}';
+
+export default {
+  title: 'Installed Docusaurus consumer',
+  tagline: 'Installed package fixture',
+  url: '${DOCUSAURUS_SITE_URL}',
+  baseUrl: '/',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
+  presets: [
+    ['classic', {
+      docs: false,
+      blog: {},
+      sitemap: false,
+    }],
+  ],
+  plugins: [hagilightDocusaurus()],
+};
+`);
+  writeFileSync(join(siteTemp, 'src', 'pages', 'index.md'), `---
+title: Home
+---
+
+Installed consumer home page.
+`);
+  writeFileSync(join(siteTemp, 'blog', '2026-10-11-welcome.md'), `---
+slug: welcome
+title: Welcome
+date: 2026-10-11
+---
+
+Installed consumer welcome post.
+
+<!-- truncate -->
+`);
+  const nodeModules = installConsumer(siteTemp, {
+    '@docusaurus/core': docusaurusExample.dependencies['@docusaurus/core'],
+    '@docusaurus/preset-classic': docusaurusExample.dependencies['@docusaurus/preset-classic'],
+    react: docusaurusExample.dependencies.react,
+    'react-dom': docusaurusExample.dependencies['react-dom'],
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    [DOCUSAURUS_PACKAGE]: tarballSpec(tarballs[DOCUSAURUS_PACKAGE]),
+  // Docusaurus's generated registry.js needs webpack's require.resolveWeak rewrite, which an ESM-typed package skips.
+  }, 'hagilight-docusaurus-consumer', { esm: false });
+  assertInstalled(nodeModules, {
+    present: [CORE_PACKAGE, DOCUSAURUS_PACKAGE, '@docusaurus/core', '@docusaurus/theme-classic'],
+    absent: [ASTRO_PACKAGE, STARLIGHT_PACKAGE, '@astrojs/starlight'],
+  });
+  execFileSync(process.execPath, [join(nodeModules, '@docusaurus', 'core', 'bin', 'docusaurus.mjs'), 'build'], {
+    cwd: siteTemp,
+    env: { ...process.env, NODE_ENV: 'production' },
+    stdio: 'inherit',
+  });
+
+  const outDir = join(siteTemp, 'build');
+  const sitemap = readFileSync(join(outDir, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /<urlset\b/u);
+  assert.ok(sitemap.includes(`${DOCUSAURUS_SITE_URL}/blog/welcome`), 'sitemap.xml lists the blog post');
+  const robots = readFileSync(join(outDir, 'robots.txt'), 'utf8');
+  assert.ok(robots.includes(`Sitemap: ${DOCUSAURUS_SITE_URL}/sitemap.xml`), 'robots.txt points at the sitemap');
+  const feed = readFileSync(join(outDir, 'rss.xml'), 'utf8');
+  assert.match(feed, /<rss\b/u);
+  assert.ok(feed.includes(`${DOCUSAURUS_SITE_URL}/blog/welcome`), 'rss.xml lists the blog post');
+}
+
 function addDirectStarlightFooterPage(directory) {
   const docsDirectory = join(directory, 'src', 'content', 'docs');
   mkdirSync(docsDirectory, { recursive: true });
@@ -538,6 +610,7 @@ try {
   verifyCoreOnly(tarballs, example.dependencies.astro);
   verifyCoreFooter(tarballs, example.dependencies.astro);
   verifyAstroFooter(tarballs, example.dependencies.astro);
+  verifyDocusaurusConsumer(tarballs);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
   assert.doesNotMatch(

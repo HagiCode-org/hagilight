@@ -15,6 +15,8 @@
     "prebuild:example": "npm run build",
     "build:example": "node scripts/build-example.mjs",
     "build:core-footer-example": "npm run build && npm run build --workspace=hagilight-core-footer-example",
+    "prebuild:docusaurus-example": "npm run build",
+    "build:docusaurus-example": "npm run build --workspace=hagilight-docusaurus-example",
     "pack:check": "node scripts/verify-pack.mjs",
     "integration:installed": "node scripts/integration-installed.mjs"
   },

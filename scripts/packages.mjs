@@ -19,6 +19,7 @@ export const PACKAGES = [
 export const EXAMPLES = [
   { name: 'hagilight-core-footer-example', directory: 'examples/demo-web' },
   { name: 'hagilight-example', directory: 'examples/demo-starlight-web' },
+  { name: 'hagilight-docusaurus-example', directory: 'examples/demo-docusaurus-web' },
 ];
 
 export function readManifest(directory) {
