@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import type { HookParameters, StarlightPlugin } from '@astrojs/starlight/types';
 import { resolveFaviconHeadEntry } from '@hagicode/hagilight-core/favicon';
+import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
 import {
@@ -86,6 +87,8 @@ export interface HagilightStarlightOptions {
   hagicodePromotion?: HagilightToggleOptions;
   /** Floating promotion banner rendered after the footer. */
   promoto?: HagilightToggleOptions;
+  /** Body-image baseline (`loading`, `decoding`, marker class) for Markdown and MDX. Defaults to enabled. */
+  contentImages?: HagilightToggleOptions;
   /** Header and footer link customization passed to `resolveSiteLinks`. */
   links?: SiteLinksOptions;
 }
@@ -352,6 +355,7 @@ function createConfiguredIntegration(
   getConfiguredRssFeed: () => string | undefined,
   generateRss: boolean,
   unregisterRssOwner: () => void,
+  contentImagesEnabled: boolean,
 ): AstroIntegration & { readonly [RSS_OWNER]: RssOwnerClaim } {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const rssConfigId = 'virtual:hagilight-starlight/rss-config';
@@ -455,7 +459,8 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
     name: `@hagicode/hagilight-starlight:${instanceId}`,
     [RSS_OWNER]: { package: 'starlight', enabled: generateRss },
     hooks: {
-      'astro:config:setup'({ injectRoute, updateConfig }) {
+      'astro:config:setup'({ config, injectRoute, updateConfig, logger }) {
+        registerContentImages({ config, logger, enabled: contentImagesEnabled });
         if (generateRss) {
           injectRoute({
             pattern: '/rss.xml',
@@ -472,6 +477,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
       },
       'astro:config:done'({ config, logger }) {
         unregisterRssOwner();
+        checkContentImageRegistration({ config, logger, enabled: contentImagesEnabled });
         if (config.image?.service?.entrypoint === NOOP_IMAGE_SERVICE) {
           logger.warn(NOOP_IMAGE_SERVICE_WARNING);
         }
@@ -520,6 +526,8 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
   });
   const promoto = optionalRecord(input.promoto, 'promoto');
   const promotoEnabled = optionalBoolean(promoto, 'enabled', 'promoto enabled') !== false;
+  const contentImages = optionalRecord(input.contentImages, 'contentImages');
+  const contentImagesEnabled = optionalBoolean(contentImages, 'enabled', 'contentImages enabled') !== false;
   const instanceId = randomUUID();
   const componentIds: ComponentIds = {
     header: headerEnabled
@@ -640,6 +648,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
           () => getRssFeedUrl(config) ?? rssFeedUrl,
           generateRss,
           unregisterRssOwner,
+          contentImagesEnabled,
         ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),

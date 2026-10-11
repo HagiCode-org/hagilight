@@ -15,6 +15,8 @@ const integrations: AstroIntegration[] = [
   hagilight({ enabled: false }),
   hagilight({ rss: false }),
   hagilight({ rss: rssOptions }),
+  hagilight({ contentImages: false }),
+  hagilight({ contentImages: { enabled: false } }),
   hagilightFavicon(),
   hagilightFavicon({ href: '/favicon.svg' }),
 ];
@@ -32,5 +34,9 @@ hagilight({ rss: { getFeed } });
 hagilight({ rss: { locales: 'en' } });
 // @ts-expect-error Feed callbacks must return a description.
 const missingDescription: RssFeedCallback = () => ({ title: 'Feed', items: [] });
+// @ts-expect-error Content-image toggles are a boolean or an options object.
+hagilight({ contentImages: 'yes' });
+// @ts-expect-error The content-image enabled switch is a boolean.
+hagilight({ contentImages: { enabled: 'yes' } });
 
 export { integrations, missingDescription };

@@ -19,6 +19,8 @@ function configure(options = {}, components = {}) {
 function getVitePlugin(integration) {
   let config;
   integration.hooks['astro:config:setup']({
+    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    logger: { warn() {} },
     injectRoute: () => {},
     updateConfig: (value) => { config = value; },
   });

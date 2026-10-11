@@ -553,6 +553,8 @@ test('withdraws the Starlight RSS claim when the project is configured', () => {
 function integrationVitePlugins(integration, routes = []) {
   let config;
   integration.hooks['astro:config:setup']({
+    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    logger: { warn() {} },
     injectRoute: (route) => routes.push(route),
     updateConfig: (value) => { config = value; },
   });

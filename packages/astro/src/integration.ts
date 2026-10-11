@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { extname, isAbsolute, resolve, win32 } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
@@ -27,6 +28,17 @@ export interface HagilightOptions {
    *   `RssFeedCallback`. A built-in empty feed is used when omitted.
    */
   rss?: boolean | HagilightRssOptions;
+  /**
+   * Apply the body-image baseline (`loading`, `decoding`, marker class) to Markdown
+   * and MDX images. Defaults to `true`; `false` or `{ enabled: false }` opts out.
+   * Independent of `enabled`, which controls only sitemap and robots.
+   */
+  contentImages?: boolean | HagilightContentImagesOptions;
+}
+
+export interface HagilightContentImagesOptions {
+  /** Defaults to `true`. */
+  enabled?: boolean;
 }
 
 export interface HagilightRssOptions {
@@ -86,10 +98,17 @@ const BUILTIN_RSS_FEED_SOURCE = BUILTIN_RSS_FEED.toString();
  * owns sitemap generation, a consumer-owned robots page or public file takes
  * precedence, and an enabled Starlight Hagilight integration owns RSS feeds.
  */
-export function hagilight({ enabled = true, rss }: HagilightOptions = {}): AstroIntegration {
+export function hagilight({ enabled = true, rss, contentImages }: HagilightOptions = {}): AstroIntegration {
   if (typeof enabled !== 'boolean') {
     throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
   }
+  if (contentImages !== undefined && typeof contentImages !== 'boolean' && !isRecord(contentImages)) {
+    throw new TypeError('Hagilight content images option must be a boolean or an options object.');
+  }
+  if (isRecord(contentImages) && contentImages.enabled !== undefined && typeof contentImages.enabled !== 'boolean') {
+    throw new TypeError('Hagilight content images enabled option must be a boolean.');
+  }
+  const contentImagesEnabled = typeof contentImages === 'boolean' ? contentImages : contentImages?.enabled !== false;
   if (rss !== undefined && typeof rss !== 'boolean' && !isRecord(rss)) {
     throw new TypeError('Hagilight RSS option must be a boolean or an options object.');
   }
@@ -104,7 +123,8 @@ export function hagilight({ enabled = true, rss }: HagilightOptions = {}): Astro
   return {
     name: '@hagicode/hagilight:discovery',
     hooks: {
-      'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig }) {
+      'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig, logger }) {
+        registerContentImages({ config, logger, enabled: contentImagesEnabled });
         if (!enabled) return;
         resolveDiscoverySite(config.site);
 
@@ -159,6 +179,9 @@ export function hagilight({ enabled = true, rss }: HagilightOptions = {}): Astro
             plugins: [createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUrl, localeFeedUrls })],
           },
         });
+      },
+      'astro:config:done'({ config, logger }) {
+        checkContentImageRegistration({ config, logger, enabled: contentImagesEnabled });
       },
     },
   };

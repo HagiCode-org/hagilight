@@ -36,7 +36,9 @@ function makeSetup({
       site,
       base,
       integrations: integrations ?? [integration],
+      markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } },
     },
+    logger: { warn() {} },
     injectRoute: (route) => routes.push(route),
     addMiddleware: (middleware) => middlewares.push(middleware),
     updateConfig: (config) => updated.push(config),
@@ -131,6 +133,8 @@ test('plain-Astro and Starlight integrations coordinate a single RSS owner indep
     const starlightRoutes = [];
     const starlightUpdated = [];
     starlightIntegration.hooks['astro:config:setup']({
+      config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+      logger: { warn() {} },
       injectRoute: (route) => starlightRoutes.push(route),
       updateConfig: (config) => starlightUpdated.push(config),
     });
@@ -147,6 +151,8 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
   const starlightOnly = createStarlightRssIntegration();
   const starlightRoutes = [];
   starlightOnly.hooks['astro:config:setup']({
+    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    logger: { warn() {} },
     injectRoute: (route) => starlightRoutes.push(route),
     updateConfig() {},
   });

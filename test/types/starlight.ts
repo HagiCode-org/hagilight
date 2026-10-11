@@ -24,6 +24,7 @@ const options: HagilightStarlightOptions = {
   aiDisclosures: { isAITranslation: true, sourceLocale: 'root' },
   hagicodePromotion: { enabled: false },
   promoto: { enabled: true },
+  contentImages: { enabled: false },
   links: { siteId: 'example', siteUrl: 'https://example.test/' },
 };
 const english: LocaleDefinition = locales.root;
@@ -45,5 +46,9 @@ hagilight({ analytics: { googleAnalytics: { measurementId: 'UA-1234' } } });
 hagilight({ rss: { includeBlog: 'no' } });
 // @ts-expect-error SEO organizations require a URL.
 hagilight({ seo: { organization: { name: 'Example' } } });
+// @ts-expect-error The body-image toggle is an options object, not a boolean.
+hagilight({ contentImages: false });
+// @ts-expect-error The body-image enabled switch is a boolean.
+hagilight({ contentImages: { enabled: 'yes' } });
 
 export { english, frontmatter, integration, shapes };
