@@ -184,3 +184,80 @@ test('returns no promotions when every active entry is for a non-web platform', 
 
   assert.deepEqual(await loadActivePromotions({ fetchImpl, locale: 'en' }), []);
 });
+
+test('resolves every published image tier against the Index origin, in order', () => {
+  const [content] = parsePromotionContent({ contents: [{
+    id: 'chain',
+    title: { en: 'Chain' },
+    description: { en: 'Chain description' },
+    link: 'https://example.com/chain',
+    image: {
+      src: '/_astro/card.png',
+      width: 1232,
+      height: 706,
+      sources: [
+        { type: 'image/avif', src: '/_astro/card.avif' },
+        { type: 'image/webp', src: '/_astro/card.webp' },
+      ],
+    },
+  }] });
+  assert.deepEqual(content.image.sources, [
+    { type: 'image/avif', src: 'https://index.hagicode.com/_astro/card.avif' },
+    { type: 'image/webp', src: 'https://index.hagicode.com/_astro/card.webp' },
+  ]);
+  assert.equal(content.image.src, 'https://index.hagicode.com/_astro/card.png');
+});
+
+test('drops image tiers with a non-image type, an unsafe scheme or an empty src without affecting siblings', () => {
+  const [content] = parsePromotionContent({ contents: [{
+    id: 'mixed',
+    title: { en: 'Mixed' },
+    description: { en: 'Mixed tiers' },
+    link: 'https://example.com/mixed',
+    image: {
+      src: '/_astro/mixed.png',
+      sources: [
+        { type: 'text/html', src: '/_astro/mixed.html' },
+        { type: 'image/avif', src: 'javascript:alert(1)' },
+        { type: 'image/webp', src: '' },
+        { src: '/_astro/no-type.avif' },
+        'not-a-tier',
+        { type: 'image/webp', src: '/_astro/mixed.webp' },
+      ],
+    },
+  }] });
+  assert.equal(content.id, 'mixed');
+  assert.equal(content.image.src, 'https://index.hagicode.com/_astro/mixed.png');
+  assert.deepEqual(content.image.sources, [
+    { type: 'image/webp', src: 'https://index.hagicode.com/_astro/mixed.webp' },
+  ]);
+});
+
+test('omits the sources key when no tier survives or none is published', () => {
+  const [allDropped, malformed, plain] = parsePromotionContent({ contents: [
+    {
+      id: 'all-dropped',
+      title: { en: 'Dropped' },
+      description: { en: 'Dropped tiers' },
+      link: 'https://example.com/dropped',
+      image: { src: '/_astro/dropped.png', sources: [{ type: 'text/plain', src: '/dropped.txt' }] },
+    },
+    {
+      id: 'malformed',
+      title: { en: 'Malformed' },
+      description: { en: 'Malformed tiers' },
+      link: 'https://example.com/malformed',
+      image: { src: '/_astro/malformed.png', sources: 'not-a-list' },
+    },
+    {
+      id: 'plain',
+      title: { en: 'Plain' },
+      description: { en: 'Plain image' },
+      link: 'https://example.com/plain',
+      image: { src: '/_astro/plain.png' },
+    },
+  ] });
+  assert.equal('sources' in allDropped.image, false);
+  assert.equal('sources' in malformed.image, false);
+  assert.equal('sources' in plain.image, false);
+});

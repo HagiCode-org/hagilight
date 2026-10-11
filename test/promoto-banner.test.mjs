@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import {
   getNextPromotionIndex,
+  getPromotionImageSources,
   getPromotionSetSignature,
   getPromotionVisibility,
   selectPromotionCards,
@@ -87,4 +88,69 @@ test('narrow and short viewports keep the card compact without a separate contro
   assert.match(component, /\[data-multiple\] \.hagilight-promoto__cta\s*\{[^}]*max-width:/u);
   // Short landscape viewports collapse to a thin strip instead of overflowing.
   assert.match(component, /@media \(max-height: 30rem\)[\s\S]*?\.hagilight-promoto__media\s*\{[^}]*display:\s*none/u);
+});
+
+test('lists the published image tiers in order and leaves out the original', () => {
+  const image = {
+    src: 'https://index.hagicode.com/_astro/card.png',
+    alt: 'Card',
+    sources: [
+      { type: 'image/avif', src: 'https://index.hagicode.com/_astro/card.avif' },
+      { type: 'image/webp', src: 'https://index.hagicode.com/_astro/card.webp' },
+      { type: 'image/png', src: 'https://index.hagicode.com/_astro/card.png' },
+    ],
+  };
+  assert.deepEqual(getPromotionImageSources(image).map((source) => source.type), ['image/avif', 'image/webp']);
+});
+
+test('drops tiers with an unsafe URL or a non-image type and lists nothing without a chain', () => {
+  const image = {
+    src: 'https://index.hagicode.com/_astro/card.png',
+    alt: 'Card',
+    sources: [
+      { type: 'text/html', src: 'https://index.hagicode.com/_astro/card.html' },
+      { type: 'image/avif', src: 'javascript:alert(1)' },
+      { type: 'image/webp', src: 'https://index.hagicode.com/_astro/card.webp' },
+    ],
+  };
+  assert.deepEqual(getPromotionImageSources(image), [
+    { type: 'image/webp', src: 'https://index.hagicode.com/_astro/card.webp' },
+  ]);
+  assert.deepEqual(getPromotionImageSources({ src: '/card.png', alt: 'Card' }), []);
+  assert.deepEqual(getPromotionImageSources({ src: '/card.png', alt: 'Card', sources: 'not-a-list' }), []);
+  assert.deepEqual(getPromotionImageSources(undefined), []);
+});
+
+test('dismissal signature ignores the published image chain', () => {
+  const card = {
+    ...fallback,
+    image: { src: 'https://index.hagicode.com/_astro/card.png', alt: 'Card', width: 1232, height: 706 },
+  };
+  const withChain = {
+    ...card,
+    image: { ...card.image, sources: [{ type: 'image/webp', src: 'https://index.hagicode.com/_astro/card.webp' }] },
+  };
+  assert.ok(getPromotionSetSignature([card]));
+  assert.equal(getPromotionSetSignature([withChain]), getPromotionSetSignature([card]));
+});
+
+test('renders the tiers as a picture before the original and advances past a failed tier', async () => {
+  const script = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+  const render = script.slice(script.indexOf('private renderCards'), script.indexOf('private updateSlides'));
+
+  assert.match(render, /getPromotionImageSources\(card\.image\)/u);
+  assert.match(render, /document\.createElement\('picture'\)/u);
+  assert.match(render, /element\.srcset = source\.src;/u);
+  assert.match(render, /picture\.append\(image\);/u);
+  assert.match(render, /else \{\s*media\.append\(image\);/u);
+  assert.match(render, /image\.addEventListener\('error', \(\) => advancePromotionImageSource\(image\)\)/u);
+  assert.match(render, /image\.src = card\.image\.src;/u);
+
+  assert.match(script, /function advancePromotionImageSource[\s\S]*?failed\.remove\(\)/u);
+  assert.match(script, /sourceUrl\(source\) === image\.currentSrc/u);
+});
+
+test('the picture wrapper is laid out transparently inside the media frame', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  assert.match(component, /\.hagilight-promoto__media picture\s*\{[^}]*display:\s*contents/u);
 });

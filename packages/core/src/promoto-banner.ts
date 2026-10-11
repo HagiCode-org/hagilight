@@ -1,5 +1,10 @@
 import { gaEventAttributes } from './analytics-events.js';
-import { loadActivePromotions, type PromotionCard } from './promotions.js';
+import {
+  loadActivePromotions,
+  type PromotionCard,
+  type PromotionImage,
+  type PromotionImageSource,
+} from './promotions.js';
 
 const ELEMENT_NAME = 'hagilight-promoto-banner';
 const DISMISSED_SIGNATURE_KEY = 'hagilight:promoto-banner:dismissed-signature';
@@ -45,6 +50,28 @@ export function selectPromotionCards(
   const eligibleRemote = remote.filter(isUsableCard);
   if (eligibleRemote.length) return eligibleRemote;
   return fallback && isUsableCard(fallback) ? [fallback] : [];
+}
+
+export function getPromotionImageSources(image: PromotionImage | undefined): PromotionImageSource[] {
+  if (!image || !Array.isArray(image.sources)) return [];
+  return image.sources.filter((source) => source.type.toLowerCase().startsWith('image/')
+    && isSafeUrl(source.src)
+    && source.src !== image.src);
+}
+
+function sourceUrl(source: HTMLSourceElement): string {
+  return new URL(source.srcset, document.baseURI).href;
+}
+
+function advancePromotionImageSource(image: HTMLImageElement): void {
+  const picture = image.parentElement;
+  if (!(picture instanceof HTMLPictureElement)) return;
+  const failed = Array.from(picture.querySelectorAll('source'))
+    .find((source) => sourceUrl(source) === image.currentSrc);
+  if (!failed) return;
+  failed.remove();
+  // Re-assigning src makes the browser re-run source selection over the remaining tiers.
+  image.src = image.src;
 }
 
 export function getPromotionSetSignature(cards: PromotionCard[]): string | null {
@@ -259,13 +286,28 @@ export function definePromotoBannerElement(): void {
           media.className = 'hagilight-promoto__media';
           const image = document.createElement('img');
           image.className = 'hagilight-promoto__image';
-          image.src = card.image.src;
           image.alt = card.image.alt || card.title;
           image.loading = index === this.currentIndex ? 'eager' : 'lazy';
           image.decoding = 'async';
           if (card.image.width) image.width = card.image.width;
           if (card.image.height) image.height = card.image.height;
-          media.append(image);
+          const sources = getPromotionImageSources(card.image);
+          if (sources.length) {
+            const picture = document.createElement('picture');
+            picture.className = 'hagilight-promoto__picture';
+            for (const source of sources) {
+              const element = document.createElement('source');
+              element.type = source.type;
+              element.srcset = source.src;
+              picture.append(element);
+            }
+            picture.append(image);
+            image.addEventListener('error', () => advancePromotionImageSource(image));
+            media.append(picture);
+          } else {
+            media.append(image);
+          }
+          image.src = card.image.src;
           slide.append(media);
         }
         slide.append(link);

@@ -7,12 +7,18 @@ const DISPLAY_PLATFORM = 'web';
 type JsonRecord = Record<string, unknown>;
 type FetchLike = typeof fetch;
 
+export interface PromotionImageSource {
+  type: string;
+  src: string;
+}
+
 export interface PromotionImage {
   src: string;
   alt: string;
   variant?: string;
   width?: number;
   height?: number;
+  sources?: PromotionImageSource[];
 }
 
 export interface PromotionCard {
@@ -57,6 +63,22 @@ function parseLocalizedMap(value: unknown): Record<string, string> | null {
   return entries.length ? Object.fromEntries(entries.map(([key, text]) => [key.trim(), text.trim()])) : null;
 }
 
+function parseImageSources(value: unknown): PromotionImageSource[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): PromotionImageSource[] => {
+    if (!isRecord(item) || !nonEmptyString(item.type) || !nonEmptyString(item.src)) return [];
+    const type = item.type.trim().toLowerCase();
+    if (!type.startsWith('image/')) return [];
+    try {
+      const url = new URL(item.src.trim(), INDEX_ORIGIN);
+      if (!['http:', 'https:'].includes(url.protocol)) return [];
+      return [{ type, src: url.toString() }];
+    } catch {
+      return [];
+    }
+  });
+}
+
 function parseImage(value: unknown, record: JsonRecord): PromotionImage | undefined {
   const image = isRecord(value) ? value : {};
   const src = nonEmptyString(value)
@@ -88,6 +110,7 @@ function parseImage(value: unknown, record: JsonRecord): PromotionImage | undefi
     return undefined;
   }
 
+  const sources = parseImageSources(image.sources);
   return {
     src: normalizedSrc,
     alt: nonEmptyString(image.alt)
@@ -98,6 +121,7 @@ function parseImage(value: unknown, record: JsonRecord): PromotionImage | undefi
     variant: nonEmptyString(image.variant) ? image.variant.trim() : undefined,
     width,
     height,
+    ...(sources.length ? { sources } : {}),
   };
 }
 
