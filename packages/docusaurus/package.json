@@ -36,6 +36,7 @@
     "dist/**/*.d.ts"
   ],
   "dependencies": {
+    "@docusaurus/types": "^3.9.2",
     "@hagicode/hagilight-core": "0.1.0"
   },
   "peerDependencies": {
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "@docusaurus/core": "^3.9.2",
+    "@docusaurus/module-type-aliases": "^3.9.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "react": "^19.0.0",
