@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
+const { scripts } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+
 const workflows = [
   {
     file: 'demo-starlight-web.yml',
-    build: 'npm run build:example',
+    build: 'npm run build:starlight-example',
     output: './examples/demo-starlight-web/dist',
     branch: 'demo-starlight-web',
     environment: 'demo-starlight-web',
@@ -44,6 +46,7 @@ for (const { file, build, output, branch, environment, url, domain, concurrency,
     assert.equal(trigger, '  push:\n    branches: [main]');
     assert.ok(source.includes(`    environment:\n      name: ${environment}\n      url: ${url}`));
     assert.ok(source.includes(`- run: ${build}`));
+    assert.ok(build.replace('npm run ', '') in scripts, `${build} is a root package script`);
     assert.ok(source.includes(`publish_dir: ${output}`));
     assert.ok(source.includes(`publish_branch: ${branch}`));
     assert.ok(source.includes('force_orphan: true'));
