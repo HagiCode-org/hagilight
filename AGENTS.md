@@ -18,6 +18,7 @@ npm run build              # tsc -b: compile packages/*/src to packages/*/dist (
 npm run typecheck          # build + check Astro route files and test/types fixtures
 npm test                   # build, then run node --test on test/*.test.mjs
 npm run build:example      # build packages and all three example workspaces, then verify their output
+npm run build:starlight-example  # build only the default Starlight demo (what demo-starlight-web.yml deploys)
 npm run build:docusaurus-example  # build the Docusaurus demo alone
 npm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
 npm run integration:installed  # validate an installed tarball (scripts/integration-installed.mjs)
@@ -56,6 +57,7 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 
 ## Deployment / Publishing
 
+- The `demo-*.yml` deploy workflows only build and publish their own demo (`build:starlight-example`, `build:core-footer-example`, `build:docusaurus-example`); the multi-variant verification in `build:example` runs in CI, not on deploy.
 - CI (`.github/workflows/ci.yml`) builds and type-checks all four packages, then runs tests, the example builds (`build:example`, which includes the Docusaurus demo), pack checks, and isolated installed-tarball consumers on Linux, Windows, and macOS.
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes all four packages to `latest` (core first; existing versions are skipped).
