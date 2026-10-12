@@ -172,8 +172,8 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
     throw new Error(`${name} must declare an Astro peer dependency`);
   }
   if (name === '@hagicode/hagilight-core' || name === '@hagicode/hagilight') {
-    if (manifest.peerDependencies.astro !== '^6.0.7 || ^7.3.5') {
-      throw new Error(`${name} must declare the tested Astro 6 and 7 peer ranges`);
+    if (manifest.peerDependencies.astro !== '>=7') {
+      throw new Error(`${name} must declare the Astro >=7 peer range`);
     }
   }
   if (name === '@hagicode/hagilight-core' && manifest.dependencies?.['@astrojs/rss'] !== '^4.0.19') {
