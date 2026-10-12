@@ -116,6 +116,11 @@ test('shared markup declares every data-promoto hook that core queries', () => {
   assert.deepEqual(missing, []);
 });
 
+test('promote card background is opaque, not the page background that Infima sets to transparent in light mode', () => {
+  assert.match(PROMOTO_CSS, /background: color-mix\(in srgb, var\(--ifm-background-surface-color, var\(--ifm-color-white\)\) 96%, var\(--ifm-color-primary\) 4%\);/u);
+  assert.doesNotMatch(PROMOTO_CSS, /var\(--ifm-background-color\)/u);
+});
+
 test('promote styles use Infima tokens and no Starlight tokens or hard-coded white', () => {
   assert.doesNotMatch(PROMOTO_CSS, /--sl-/u);
   assert.doesNotMatch(PROMOTO_CSS, /#fff\b/iu);

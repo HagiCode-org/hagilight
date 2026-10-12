@@ -31,7 +31,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ifm-color-primary) 24%, var(--ifm-color-emphasis-300));
   border-radius: 1rem;
-  background: color-mix(in srgb, var(--ifm-background-color) 96%, var(--ifm-color-primary) 4%);
+  background: color-mix(in srgb, var(--ifm-background-surface-color, var(--ifm-color-white)) 96%, var(--ifm-color-primary) 4%);
   box-shadow: 0 12px 32px color-mix(in srgb, #000 14%, transparent);
   color: var(--ifm-font-color-base);
   opacity: 1;
