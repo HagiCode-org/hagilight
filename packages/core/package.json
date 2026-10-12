@@ -75,7 +75,7 @@
     "favicon.ico"
   ],
   "peerDependencies": {
-    "astro": "^6.0.7 || ^7.3.5"
+    "astro": ">=7"
   },
   "peerDependenciesMeta": {
     "astro": {

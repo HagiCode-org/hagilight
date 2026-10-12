@@ -33,7 +33,7 @@
     "rss*.xml.ts"
   ],
   "peerDependencies": {
-    "astro": "^6.0.7 || ^7.3.5"
+    "astro": ">=7"
   },
   "devDependencies": {
     "astro": "^7.3.5"
