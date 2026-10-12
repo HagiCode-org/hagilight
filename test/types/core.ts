@@ -13,6 +13,7 @@ import {
   satteriContentImages,
   type ContentImageNode,
   type ContentImageOptions,
+  type PictureStep,
   type SatteriContentImagePlugin,
 } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, getHagilightFaviconDataUri } from '@hagicode/hagilight-core/favicon';
@@ -80,6 +81,10 @@ const installed: boolean = installGaEventTracking();
 const contentImageOptions: ContentImageOptions = { loading: 'eager', decoding: 'auto', className: 'figure-image' };
 const contentImagePlugin: (tree: ContentImageNode) => void = rehypeContentImages(contentImageOptions);
 const satteriPlugin: SatteriContentImagePlugin = satteriContentImages();
+const picture: PictureStep = { enabled: true, publicDir: '/site/public' };
+const pictureWithoutDir: PictureStep = { enabled: false };
+const pictureAwareSatteri: SatteriContentImagePlugin = satteriContentImages({}, picture);
+const pictureAwareUnified: (tree: ContentImageNode) => void = rehypeContentImages({}, pictureWithoutDir);
 
 // @ts-expect-error Link overrides accept only catalog link keys.
 resolveSiteLinks('en-US', { overrides: { unknownLink: { href: '/' } } });
@@ -101,8 +106,11 @@ rehypeContentImages({ loading: 'fast' });
 rehypeContentImages({ decoding: 'defer' });
 // @ts-expect-error Unknown content-image options are rejected.
 satteriContentImages({ marker: 'x' });
+// @ts-expect-error The public directory is a filesystem path string, not a number.
+const invalidPicture: PictureStep = { enabled: true, publicDir: 3 };
 
 export {
   claim, composed, contentImageOptions, contentImagePlugin, faviconDataUri, faviconHref, feed, frontmatter, installed,
-  invalidClaim, jsonLd, locales, owner, promotions, quickLinks, satteriPlugin, sentParams, siteTagged, tagged, unregister,
+  invalidClaim, invalidPicture, jsonLd, locales, owner, pictureAwareSatteri, pictureAwareUnified, picture, pictureWithoutDir,
+  promotions, quickLinks, satteriPlugin, sentParams, siteTagged, tagged, unregister,
 };

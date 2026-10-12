@@ -13,4 +13,4 @@ The next image is stored in `src/assets` and referenced by a relative path from 
 
 ![A warm gradient, stored in src/assets and referenced by a relative path](../../assets/relative-sample.png)
 
-Local images in `.md` files get AVIF and WebP `<source>` elements, and the `<img>` keeps the baseline loading, decoding, and marker class. MDX and site-root images are not wrapped.
+Local images in `.md` files get AVIF and WebP `<source>` elements, and the `<img>` keeps the baseline loading, decoding, and marker class. Site-root images are not wrapped.

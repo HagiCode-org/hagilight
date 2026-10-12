@@ -1,0 +1,22 @@
+---
+title: Content images in MDX
+description: An MDX page whose local Markdown-syntax body images are wrapped in picture elements with AVIF and WebP sources.
+lastUpdated: 2026-10-12
+rss: false
+---
+
+This page is an `.mdx` file, so Hagilight wraps its local Markdown-syntax body images in `<picture>` elements. The page does not import or use `Picture` itself.
+
+![A teal and lime gradient with a cream circle, used as an MDX local image](../../assets/content-image-local.png)
+
+The next image is stored in `src/assets` and referenced by a relative path from this page's folder:
+
+![A warm gradient, stored in src/assets and referenced by a relative path](../../assets/relative-sample.png)
+
+A Markdown image that points at the public folder by a site-root path keeps its markup:
+
+![Sample image served from the public folder](/content-images/root-sample.png)
+
+A raw HTML image is left as written:
+
+<img src="/content-images/root-sample.png" alt="Raw HTML image served from the public folder" />

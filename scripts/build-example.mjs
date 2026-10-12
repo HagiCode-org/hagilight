@@ -36,7 +36,9 @@ function build(env, outputDir) {
     // cannot execute directly; route it through the shell like the sibling scripts.
     shell: process.platform === 'win32',
   });
-  return (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  read.bytes = (filename) => readFileSync(join(outputDir, filename));
+  return read;
 }
 
 function buildCoreFooter() {
@@ -662,12 +664,65 @@ function verifyMarkdownPage(read, enabled = true) {
   verifyMarkdownPicture(pictures[0], MARKDOWN_PAGE);
 }
 
+const MDX_PAGE = 'content-images-mdx/index.html';
+const MDX_LOCAL_SRC = /\/_astro\/(?:content-image-local|relative-sample)\./u;
+const MDX_ROOT_SRC = '/content-images/root-sample.png';
+
+function sourceSrcset(picture, type) {
+  const source = [...picture.matchAll(/<source\b[^>]*>/gu)].map(([tag]) => tag).find((tag) => attributeOf(tag, 'type') === type);
+  assert.ok(source, `${MDX_PAGE} offers a ${type} source`);
+  return attributeOf(source, 'srcset');
+}
+
+function verifyMdxPicture(picture, read) {
+  assert.deepEqual(
+    [...picture.matchAll(/<source\b[^>]*\btype="([^"]+)"/gu)].map(([, type]) => type),
+    ['image/avif', 'image/webp'],
+    `${MDX_PAGE} lists the AVIF source first, the WebP source second, and no other source`,
+  );
+  const avif = sourceSrcset(picture, 'image/avif');
+  const webp = sourceSrcset(picture, 'image/webp');
+  assert.match(avif, /\.avif$/u, `${MDX_PAGE} AVIF source points at an .avif file`);
+  assert.match(webp, /\.webp$/u, `${MDX_PAGE} WebP source points at a .webp file`);
+  assert.equal(sniffImageFormat(read.bytes(avif)), 'avif', `${avif} is an AVIF file`);
+  assert.equal(sniffImageFormat(read.bytes(webp)), 'webp', `${webp} is a WebP file`);
+  const [img] = picture.match(/<img\b[^>]*>/u) ?? [];
+  assert.ok(img, `${MDX_PAGE} keeps an img inside the picture`);
+  assert.equal(attributeOf(img, 'src'), webp, `${MDX_PAGE} falls back to the WebP file`);
+  assert.equal(attributeOf(img, 'loading'), 'lazy', `${MDX_PAGE} lazy-loads the picture img`);
+  assert.equal(attributeOf(img, 'decoding'), 'async', `${MDX_PAGE} decodes the picture img asynchronously`);
+  assert.equal(markerCount(img), 1, `${MDX_PAGE} marks the picture img`);
+  assert.ok(attributeOf(img, 'alt')?.trim(), `${MDX_PAGE} gives the picture img a non-empty alt`);
+}
+
+function verifyMdxPage(read, enabled = true) {
+  const html = read(MDX_PAGE);
+  const allPictures = html.match(/<picture\b[\s\S]*?<\/picture>/gu) ?? [];
+  const pictures = allPictures.filter((picture) => MDX_LOCAL_SRC.test(picture));
+  if (!enabled) {
+    assert.equal(pictures.length, 0, `${MDX_PAGE} renders no picture element when disabled`);
+    assert.ok(imageTags(html).every((tag) => markerCount(tag) === 0), `${MDX_PAGE} renders no content-image marker when disabled`);
+    return;
+  }
+  assert.equal(pictures.length, 2, `${MDX_PAGE} wraps both local Markdown-syntax images`);
+  for (const picture of pictures) verifyMdxPicture(picture, read);
+  const rootImages = imageTags(html).filter((tag) => attributeOf(tag, 'src') === MDX_ROOT_SRC);
+  assert.equal(rootImages.length, 2, `${MDX_PAGE} renders the Markdown and raw site-root images`);
+  for (const tag of rootImages) {
+    assert.ok(allPictures.every((picture) => !picture.includes(tag)), `${MDX_PAGE} keeps the site-root image outside picture`);
+    assert.equal(attributeOf(tag, 'loading'), 'lazy', `${MDX_PAGE} lazy-loads the site-root ${attributeOf(tag, 'alt')}`);
+    assert.equal(attributeOf(tag, 'decoding'), 'async', `${MDX_PAGE} decodes the site-root image asynchronously`);
+    assert.equal(markerCount(tag), 1, `${MDX_PAGE} carries the content-image marker on the site-root image`);
+  }
+}
+
 const defaultFeeds = build({}, DEMO_DIST);
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
 await verifyShowcaseOutput(defaultFeeds);
 verifyBodyImages(defaultFeeds);
 verifyMarkdownPage(defaultFeeds);
+verifyMdxPage(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -709,10 +764,12 @@ verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }, disabledD
 const unifiedFeeds = build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join(EXAMPLE_OUTPUT_ROOT, 'unified'));
 verifyBodyImages(unifiedFeeds);
 verifyMarkdownPage(unifiedFeeds);
+verifyMdxPage(unifiedFeeds);
 verifyBodyImages(build({ HAGILIGHT_EXAMPLE_DISCOVERY: 'true' }, join(EXAMPLE_OUTPUT_ROOT, 'discovery')));
 const contentImagesOffFeeds = build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off'));
 verifyContentImagesDisabled(contentImagesOffFeeds);
 verifyMarkdownPage(contentImagesOffFeeds, false);
+verifyMdxPage(contentImagesOffFeeds, false);
 const coreFooterFeeds = buildCoreFooter();
 verifyCoreFooterOutput(coreFooterFeeds);
 verifyMarkdownPictures(coreFooterFeeds);

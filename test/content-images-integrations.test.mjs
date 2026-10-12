@@ -126,3 +126,47 @@ test('starlight opt-out wins over hagilight() default, in either hook order', ()
     assert.equal(log.warnings.length, 0, order);
   }
 });
+
+function visitMdxImage(plugin, src, fileURL) {
+  let replaced;
+  const node = { type: 'element', tagName: 'img', properties: { src, alt: 'A' }, children: [] };
+  plugin.element.visit(node, {
+    sourceFormat: 'mdx',
+    fileURL,
+    data: { astro: { localImagePaths: new Set([src]) } },
+    parent: () => undefined,
+    setProperty() {},
+    prependChild() {},
+    replaceNode(_original, newNode) {
+      replaced = newNode;
+    },
+  });
+  return replaced;
+}
+
+test('registration records publicDir: an image in public/ keeps its markup and one under src is wrapped', () => {
+  const processor = { name: 'satteri', options: { [SATTERI_LIST]: [] } };
+  runPlainSetup(astroConfig(processor), { rss: false }, logger());
+  const [plugin] = processor.options[SATTERI_LIST];
+  const page = pathToFileURL('/nonexistent-hagilight/src/content/docs/page.mdx');
+  assert.equal(visitMdxImage(plugin, '../../../public/a.png', page), undefined);
+  assert.equal(visitMdxImage(plugin, '../../assets/a.png', page)?.name, 'HagilightContentPicture');
+});
+
+test('registration adds one content-image adapter per processor, however often setup runs', () => {
+  const processor = { name: 'satteri', options: { [SATTERI_LIST]: [] } };
+  const config = astroConfig(processor);
+  runPlainSetup(config, { rss: false }, logger());
+  runPlainSetup(config, { rss: false }, logger());
+  assert.equal(processor.options[SATTERI_LIST].length, 1);
+});
+
+test('an unsupported Markdown processor logs one content-image warning across repeated setup', () => {
+  const processor = { name: 'remark-like', options: {} };
+  const log = logger();
+  runPlainSetup(astroConfig(processor), { rss: false }, log);
+  runPlainSetup(astroConfig(processor), { rss: false }, log);
+  const imageWarnings = log.warnings.filter((message) => /content images/u.test(message));
+  assert.equal(imageWarnings.length, 1);
+  assert.match(imageWarnings[0], /"remark-like" Markdown processor/u);
+});
