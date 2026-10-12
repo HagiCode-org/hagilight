@@ -47,6 +47,8 @@ const links = resolveSiteLinks('en-US');
 
 Images inside a `<picture>` element are skipped. An MDX `class={expression}` gets no marker because its value is not known at build time. Raw HTML `<img>` tags inside a `.md` file are not normalized; use Markdown image syntax or MDX for body images.
 
+Local Markdown (`.md`) body images that Astro resolves are also wrapped in a `<picture>` element, with an AVIF `<source>` and a WebP `<source>` ahead of the `<img>`. Astro generates the source URLs through its image service, so AVIF needs a service that can encode it. The default sharp service does. The passthrough no-op service (`astro/assets/services/noop`) does not, so the Astro integrations skip the wrapper there and log one warning. A plugin added by hand does not check the service, and its sources then point at the original bytes. Site-root, remote, raw HTML, and MDX images are not wrapped. Encoding adds build time, which Astro caches. Each `<source>` also carries `src`, `loading`, `decoding`, `width`, and `height` copied from Astro's output. Browsers ignore these on `source`, but they are not valid HTML there.
+
 `hagilight()` from `@hagicode/hagilight-starlight` and `hagilight()` from `@hagicode/hagilight/integration` register the plugin automatically, for the whole site and regardless of integration order. Each one opts out through its `contentImages` option; see those packages' READMEs.
 
 To use the plugin without a feature package, add it to the Markdown processor. With the default Sätteri processor:

@@ -38,6 +38,8 @@ to opt in while keeping the same `locale` and `links` props.
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.
 
+Local Markdown (`.md`) body images are also wrapped in a `<picture>` element with AVIF and WebP sources. This needs an image service that can encode AVIF: the default sharp service does, and the passthrough no-op service skips the wrapper with one warning. MDX, site-root, and remote images are not wrapped. Encoding adds build time, which Astro caches. Each `<source>` also carries `src`, `loading`, `decoding`, `width`, and `height` from Astro's output; browsers ignore these on `source`, but they are not valid HTML there. The opt-out below turns this step off too.
+
 To opt out, pass either form:
 
 ```js
