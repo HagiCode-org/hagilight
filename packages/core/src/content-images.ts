@@ -227,7 +227,7 @@ function wrapUnifiedPictures(
   });
 }
 
-/** Unified rehype plugin: `unified` processors and Astro 6 `markdown.rehypePlugins`. */
+/** Unified rehype plugin for sites whose `markdown.processor` is `unified()`. */
 export function rehypeContentImages(
   options: ContentImageOptions = {},
   picture: PictureStep = { enabled: true },
