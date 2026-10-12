@@ -8,7 +8,7 @@ Astro integrations and components for HagiCode sites without Starlight. Provides
 npm install @hagicode/hagilight astro
 ```
 
-Use a supported Astro version (`^6.0.7 || ^7.3.5`). The matching `@hagicode/hagilight-core` version is installed as a dependency.
+Use a supported Astro version (`>=7`). The matching `@hagicode/hagilight-core` version is installed as a dependency.
 
 ## Use
 

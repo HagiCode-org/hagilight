@@ -43,7 +43,7 @@ point.
 ## `@hagicode/hagilight-core`
 
 Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Astro components require `astro`
-`^6.0.7 || ^7.3.5`; it has no Starlight dependency.
+`>=7`; it has no Starlight dependency.
 
 | Import | Provides |
 | --- | --- |
@@ -62,7 +62,7 @@ Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Ast
 
 ## `@hagicode/hagilight`
 
-Plain Astro integrations and components (`astro` `^6.0.7 || ^7.3.5`):
+Plain Astro integrations and components (`astro` `>=7`):
 
 | Import | Provides |
 | --- | --- |

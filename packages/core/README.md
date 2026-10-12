@@ -8,7 +8,7 @@ Shared Astro components, TypeScript utilities, and brand assets for HagiCode sit
 npm install @hagicode/hagilight-core astro
 ```
 
-Use a supported Astro version (`^6.0.7 || ^7.3.5`). The other Hagilight packages install core automatically; install it directly if your site imports core entry points.
+Use a supported Astro version (`>=7`). The other Hagilight packages install core automatically; install it directly if your site imports core entry points.
 
 ## Use
 
