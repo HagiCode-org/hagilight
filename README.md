@@ -3,6 +3,7 @@
 [![npm @hagicode/hagilight](https://img.shields.io/npm/v/@hagicode/hagilight?label=@hagicode/hagilight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight)
 [![npm @hagicode/hagilight-core](https://img.shields.io/npm/v/@hagicode/hagilight-core?label=@hagicode/hagilight-core&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-core)
 [![npm @hagicode/hagilight-starlight](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?label=@hagicode/hagilight-starlight&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight)
+[![npm @hagicode/hagilight-docusaurus](https://img.shields.io/npm/v/@hagicode/hagilight-docusaurus?label=@hagicode/hagilight-docusaurus&logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus)
 
 [![CI](https://img.shields.io/github/actions/workflow/status/HagiCode-org/hagilight/ci.yml?branch=main&label=CI)](https://github.com/HagiCode-org/hagilight/actions/workflows/ci.yml)
 [![Publish npm](https://img.shields.io/github/actions/workflow/status/HagiCode-org/hagilight/npm-publish.yml?branch=main&label=publish)](https://github.com/HagiCode-org/hagilight/actions/workflows/npm-publish.yml)
@@ -13,9 +14,10 @@
 [![npm provenance](https://img.shields.io/badge/npm-provenance-CB3837?logo=npm&logoColor=white)](https://docs.npmjs.com/generating-provenance-statements)
 [![Core demo](https://img.shields.io/badge/demo-core-2ea44f)](https://hagilight.hagicode.com)
 [![Starlight demo](https://img.shields.io/badge/demo-starlight-2ea44f)](https://hagistar.hagicode.com)
+[![Docusaurus demo](https://img.shields.io/badge/demo-docusaurus-2ea44f)](https://docusaurus.hagicode.com)
 
-Reusable Astro components, integrations, and a Starlight plugin for HagiCode
-sites. This repository publishes three npm packages, all authored in
+Reusable Astro components, integrations, a Starlight plugin, and a Docusaurus
+plugin for HagiCode sites. This repository publishes four npm packages, all authored in
 TypeScript and shipped as ESM with generated `.d.ts` declarations. Astro
 components, Astro route entry points, styles, JSON, and images are shipped in
 their native formats.
@@ -24,10 +26,11 @@ their native formats.
 flowchart LR
   A["@hagicode/hagilight"] --> C["@hagicode/hagilight-core"]
   S["@hagicode/hagilight-starlight"] --> C
+  D["@hagicode/hagilight-docusaurus"] --> C
 ```
 
-Both feature packages depend on the matching version of the shared core and
-never on each other. Install core directly when your site imports a core entry
+Every feature package depends on the matching version of the shared core and
+never on another feature package. Install core directly when your site imports a core entry
 point.
 
 | Package | npm | Downloads |
@@ -35,10 +38,11 @@ point.
 | [`@hagicode/hagilight-core`](https://www.npmjs.com/package/@hagicode/hagilight-core) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-core?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-core) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-core)](https://www.npmjs.com/package/@hagicode/hagilight-core) |
 | [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight)](https://www.npmjs.com/package/@hagicode/hagilight) |
 | [`@hagicode/hagilight-starlight`](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-starlight)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) |
+| [`@hagicode/hagilight-docusaurus`](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-docusaurus?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-docusaurus)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) |
 
 ## `@hagicode/hagilight-core`
 
-Shared building blocks for plain Astro and Starlight sites. Requires `astro`
+Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Astro components require `astro`
 `^6.0.7 || ^7.3.5`; it has no Starlight dependency.
 
 | Import | Provides |
@@ -50,6 +54,7 @@ Shared building blocks for plain Astro and Starlight sites. Requires `astro`
 | `@hagicode/hagilight-core/rss` | `generateRssFeed()` and `resolveRssLocales()` |
 | `@hagicode/hagilight-core/rss-ownership` | Coordination that keeps one integration as the RSS route owner |
 | `@hagicode/hagilight-core/promotions` | Typed promotion campaign loader |
+| `@hagicode/hagilight-core/promoto-banner` | `definePromotoBannerElement()`, the promotion banner custom element used by the Docusaurus package |
 | `@hagicode/hagilight-core/analytics-events` | Google Analytics click-event tags (`gaEventAttributes()`, `siteLinkGaAttributes()`) and the tracked-link table |
 | `@hagicode/hagilight-core/Footer` | Localized footer with generated RSS and sitemap links |
 | `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/Analytics51LA` | Astro components |
@@ -111,6 +116,36 @@ configs; the plugin still validates options at runtime. Components such as
 `@hagicode/hagilight-starlight/Header` and `/MarkdownContent` remain importable
 for sites that compose their own Starlight overrides.
 
+## `@hagicode/hagilight-docusaurus`
+
+A Docusaurus 3 plugin that adds the Hagilight footer, promotion banner, analytics, SEO metadata, and discovery files (`sitemap.xml`, `robots.txt`, `rss.xml`) to a Docusaurus site. It peers on `@docusaurus/core` and `@docusaurus/theme-classic` `^3.9.2`, depends only on the shared core, and exports the locale catalog from `@hagicode/hagilight-docusaurus/locales`.
+
+```js
+// docusaurus.config.mjs
+import { hagilightDocusaurus } from '@hagicode/hagilight-docusaurus';
+import { i18n } from '@hagicode/hagilight-docusaurus/locales';
+
+export default {
+  title: 'My docs',
+  url: 'https://docs.example.com',
+  baseUrl: '/',
+  i18n,
+  plugins: [
+    hagilightDocusaurus({
+      analytics: {
+        googleAnalytics: { measurementId: 'G-XXXXXXXXXX' },
+        fiftyOneLa: { enabled: false },
+      },
+    }),
+  ],
+  themeConfig: {
+    navbar: { items: [{ type: 'localeDropdown' }] },
+  },
+};
+```
+
+The built-in analytics IDs belong to HagiCode, so set your own IDs or disable each provider. Every option, its default, and the sitemap, `robots.txt`, and RSS rules are in the [package README](packages/docusaurus/README.md). The demo in `examples/demo-docusaurus-web` is published at https://docusaurus.hagicode.com/.
+
 ## Google Analytics click events
 
 `GoogleAnalytics` (included by the Starlight plugin) reports clicks on key links and download buttons as GA4 events, with no configuration. Events are sent only on production pages where Google Analytics is enabled, never on the 404 page, and are skipped when `gtag` is missing.
@@ -148,21 +183,21 @@ Run commands from the repository root:
 
 ```sh
 npm install
-npm run build              # tsc -b: core, then @hagicode/hagilight and the Starlight package
+npm run build              # tsc -b: core, then the Docusaurus, plain Astro, and Starlight packages
 npm run typecheck          # build, check Astro route entry points, and check test/types fixtures
 npm test                   # builds first, then runs node --test
-npm run build:example      # builds packages and both examples, then verifies their output
-npm run pack:check         # verifies all three tarballs, exports, and version alignment
-npm run integration:installed  # installs tarballs into isolated core, Astro, and Starlight consumers
+npm run build:example      # builds packages and all three examples, then verifies their output
+npm run pack:check         # verifies all four tarballs, exports, and version alignment
+npm run integration:installed  # installs tarballs into isolated core, Docusaurus, Astro, and Starlight consumers
 ```
 
 Sources live in `packages/*/src/*.ts` and compile to the ignored
 `packages/*/dist/` directories; `.astro` components and route files import the
 built `dist/*.js` modules, so build before running examples from a clean
-checkout. The release workflow stamps one version into all three packages and
-the core dependency of both feature packages (`scripts/release.mjs stamp`), then
-`scripts/publish.mjs` publishes core first, followed by the plain-Astro and
-Starlight packages.
+checkout. The release workflow stamps one version into all four packages and the core
+dependency of every feature package (`scripts/release.mjs stamp`), then
+`scripts/publish.mjs` publishes core first, followed by the Docusaurus,
+plain-Astro, and Starlight packages.
 
 ## Sitemap and robots.txt for plain Astro
 
