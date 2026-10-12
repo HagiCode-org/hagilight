@@ -630,7 +630,7 @@ function verifyContentImagesDisabled(read) {
 }
 
 const MARKDOWN_PAGE = 'content-images-markdown/index.html';
-const MARKDOWN_IMAGE_SRC = /\/_astro\/(?:content-image-local|root-sample)\./u;
+const MARKDOWN_IMAGE_SRC = /\/_astro\/(?:content-image-local|relative-sample|root-sample)\./u;
 
 function markdownPictures(html) {
   return (html.match(/<picture\b[\s\S]*?<\/picture>/gu) ?? []).filter((picture) => MARKDOWN_IMAGE_SRC.test(picture));
@@ -658,7 +658,7 @@ function verifyMarkdownPage(read, enabled = true) {
     assert.equal(pictures.length, 0, `${MARKDOWN_PAGE} renders no picture element when disabled`);
     return;
   }
-  assert.equal(pictures.length, 1, `${MARKDOWN_PAGE} wraps its one local Markdown image`);
+  assert.equal(pictures.length, 2, `${MARKDOWN_PAGE} wraps both local Markdown images`);
   verifyMarkdownPicture(pictures[0], MARKDOWN_PAGE);
 }
 
