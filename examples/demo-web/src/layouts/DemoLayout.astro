@@ -2,6 +2,7 @@
 import Footer from '@hagicode/hagilight/Footer';
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
+import { Picture } from 'astro:assets';
 import logo from '@hagicode/hagilight-core/logo.png';
 import favicon from '@hagicode/hagilight-core/favicon.ico';
 
@@ -112,7 +113,7 @@ const structuredData = [
   <body>
     <header class="site-header">
       <a class="brand" href={isChinese ? `${basePath}zh-CN/` : basePath} aria-label="Hagilight">
-        <img src={logo.src} alt="" width="34" height="34" />
+        <Picture src={logo} formats={['avif', 'webp']} alt="" width={34} height={34} loading="eager" />
         <span>Hagilight</span>
         <span class="package-name">@hagicode/hagilight</span>
       </a>

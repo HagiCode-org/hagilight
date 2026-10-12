@@ -249,11 +249,11 @@ test('built body images are normalized while logos and the plain-Astro config st
     const html = readFileSync(join(outputDir, page.file), 'utf8');
     const images = [...html.matchAll(/<img\b[^>]*>/gu)].map(([tag]) => tag);
     const local = images.find((tag) => /\ssrc="\/_astro\/content-image-local\.[^"]+\.webp"/u.test(tag));
-    const siteRoot = images.find((tag) => attribute(tag, 'src') === '/content-images/root-sample.png');
+    const rootSample = images.find((tag) => /\ssrc="\/_astro\/root-sample\.[^"]+\.webp"/u.test(tag));
     assert.ok(local, `${page.file} renders the optimized local body image`);
-    assert.ok(siteRoot, `${page.file} renders the site-root body image`);
+    assert.ok(rootSample, `${page.file} renders the second local body image`);
 
-    for (const tag of [local, siteRoot]) {
+    for (const tag of [local, rootSample]) {
       assert.equal(attribute(tag, 'loading'), 'lazy', `${page.file} lazy-loads ${attribute(tag, 'src')}`);
       assert.equal(attribute(tag, 'decoding'), 'async', `${page.file} decodes ${attribute(tag, 'src')} asynchronously`);
       assert.equal(attribute(tag, 'class'), 'hagilight-content-image', `${page.file} marks ${attribute(tag, 'src')}`);
@@ -261,7 +261,8 @@ test('built body images are normalized while logos and the plain-Astro config st
 
     const logo = images.find((tag) => /\ssrc="\/_astro\/logo\./u.test(tag));
     assert.ok(logo, `${page.file} renders the header logo`);
-    assert.doesNotMatch(logo, /hagilight-content-image|loading=/u, `${page.file} leaves the logo unchanged`);
+    assert.doesNotMatch(logo, /hagilight-content-image/u, `${page.file} leaves the logo unmarked`);
+    assert.equal(attribute(logo, 'loading'), 'eager', `${page.file} keeps the header logo eager`);
     assert.ok(html.includes('@hagicode/hagilight-core/content-images'), `${page.file} documents the content-images export`);
   }
 });
