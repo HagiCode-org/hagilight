@@ -629,11 +629,45 @@ function verifyContentImagesDisabled(read) {
   }
 }
 
+const MARKDOWN_PAGE = 'content-images-markdown/index.html';
+const MARKDOWN_IMAGE_SRC = /\/_astro\/(?:content-image-local|root-sample)\./u;
+
+function markdownPictures(html) {
+  return (html.match(/<picture\b[\s\S]*?<\/picture>/gu) ?? []).filter((picture) => MARKDOWN_IMAGE_SRC.test(picture));
+}
+
+function verifyMarkdownPicture(picture, filename) {
+  assert.match(picture, /<source\b[^>]*type="image\/avif"/u, `${filename} offers an AVIF source`);
+  assert.match(picture, /<source\b[^>]*type="image\/webp"/u, `${filename} offers a WebP source`);
+  const [img] = picture.match(/<img\b[^>]*>/u) ?? [];
+  assert.ok(img, `${filename} keeps an img inside the picture`);
+  assert.equal(markerCount(img), 1, `${filename} marks the img inside the picture`);
+}
+
+function verifyMarkdownPictures(read) {
+  for (const filename of ['index.html', 'zh-CN/index.html']) {
+    const pictures = markdownPictures(read(filename));
+    assert.equal(pictures.length, 2, `${filename} wraps both Markdown snippet images`);
+    for (const picture of pictures) verifyMarkdownPicture(picture, filename);
+  }
+}
+
+function verifyMarkdownPage(read, enabled = true) {
+  const pictures = markdownPictures(read(MARKDOWN_PAGE));
+  if (!enabled) {
+    assert.equal(pictures.length, 0, `${MARKDOWN_PAGE} renders no picture element when disabled`);
+    return;
+  }
+  assert.equal(pictures.length, 1, `${MARKDOWN_PAGE} wraps its one local Markdown image`);
+  verifyMarkdownPicture(pictures[0], MARKDOWN_PAGE);
+}
+
 const defaultFeeds = build({}, DEMO_DIST);
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
 await verifyShowcaseOutput(defaultFeeds);
 verifyBodyImages(defaultFeeds);
+verifyMarkdownPage(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
@@ -672,9 +706,15 @@ assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
 
 const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'showcase-disabled');
 verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }, disabledDist), disabledDist);
-verifyBodyImages(build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join(EXAMPLE_OUTPUT_ROOT, 'unified')));
+const unifiedFeeds = build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join(EXAMPLE_OUTPUT_ROOT, 'unified'));
+verifyBodyImages(unifiedFeeds);
+verifyMarkdownPage(unifiedFeeds);
 verifyBodyImages(build({ HAGILIGHT_EXAMPLE_DISCOVERY: 'true' }, join(EXAMPLE_OUTPUT_ROOT, 'discovery')));
-verifyContentImagesDisabled(build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off')));
-verifyCoreFooterOutput(buildCoreFooter());
+const contentImagesOffFeeds = build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off'));
+verifyContentImagesDisabled(contentImagesOffFeeds);
+verifyMarkdownPage(contentImagesOffFeeds, false);
+const coreFooterFeeds = buildCoreFooter();
+verifyCoreFooterOutput(coreFooterFeeds);
+verifyMarkdownPictures(coreFooterFeeds);
 verifyDocusaurusOutput(buildDocusaurus());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

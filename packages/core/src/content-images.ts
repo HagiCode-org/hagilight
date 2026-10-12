@@ -45,9 +45,16 @@ export interface ContentImageNode {
   children?: ContentImageNode[];
 }
 
+export interface LocalImageData {
+  astro?: { localImagePaths?: Set<string> | readonly string[] };
+}
+
 export interface SatteriContentImageContext {
+  readonly sourceFormat: string;
+  readonly data: LocalImageData;
   parent(node: unknown): unknown;
   setProperty(node: unknown, key: string, value: unknown): void;
+  replaceNode(node: unknown, newNode: ContentImageNode): void;
 }
 
 export interface SatteriContentImageVisitor {
@@ -62,8 +69,12 @@ export interface SatteriContentImagePlugin {
   mdxJsxTextElement: SatteriContentImageVisitor;
 }
 
+export interface PictureStep {
+  enabled: boolean;
+}
+
 export interface ContentImageRegistrationInput {
-  config: { markdown?: { processor?: unknown } };
+  config: { markdown?: { processor?: unknown }; image?: { service?: { entrypoint?: unknown } } };
   logger: { warn(message: string): void };
   enabled: boolean;
 }
@@ -191,11 +202,43 @@ function applyUnifiedTree(node: ContentImageNode, options: ResolvedContentImageO
   for (const child of node.children ?? []) applyUnifiedTree(child, options, childrenInPicture);
 }
 
+export interface UnifiedFileLike {
+  path?: unknown;
+  data?: LocalImageData;
+}
+
+function wrapUnifiedPictures(
+  node: ContentImageNode,
+  inPicture: boolean,
+  srcOf: (img: ContentImageNode) => string | undefined,
+  nextIndex: () => number,
+): void {
+  const children = node.children;
+  if (!children) return;
+  children.forEach((child, index) => {
+    if (!inPicture && child.type === 'element' && child.tagName === 'img') {
+      const src = srcOf(child);
+      if (src !== undefined) {
+        children[index] = pictureElement(child, src, nextIndex());
+        return;
+      }
+    }
+    wrapUnifiedPictures(child, inPicture || isPicture(child), srcOf, nextIndex);
+  });
+}
+
 /** Unified rehype plugin: `unified` processors and Astro 6 `markdown.rehypePlugins`. */
-export function rehypeContentImages(options: ContentImageOptions = {}): (tree: ContentImageNode) => void {
+export function rehypeContentImages(
+  options: ContentImageOptions = {},
+  picture: PictureStep = { enabled: true },
+): (tree: ContentImageNode, file?: UnifiedFileLike) => void {
   const resolved = resolveContentImageOptions(options);
-  return (tree) => {
+  let pictureCount = 0;
+  return (tree, file) => {
     applyUnifiedTree(tree, resolved, false);
+    if (!picture.enabled || !String(file?.path ?? '').endsWith('.md')) return;
+    const astro = file?.data?.astro;
+    wrapUnifiedPictures(tree, false, (img) => localImageSrc(img.properties?.src, astro), () => ++pictureCount);
   };
 }
 
@@ -210,9 +253,42 @@ function isInsidePicture(node: ContentImageNode, ctx: SatteriContentImageContext
   return false;
 }
 
+const PICTURE_FORMATS = ['avif', 'webp'] as const;
+const NOOP_IMAGE_SERVICE = 'astro/assets/services/noop';
+
+function localImageSrc(value: unknown, astro: LocalImageData['astro']): string | undefined {
+  const localPaths = astro?.localImagePaths;
+  if (typeof value !== 'string' || localPaths === undefined) return undefined;
+  const src = decodeURI(value);
+  const isLocal = localPaths instanceof Set ? localPaths.has(src) : localPaths.includes(src);
+  return isLocal ? src : undefined;
+}
+
+function pictureElement(img: ContentImageNode, src: string, index: number): ContentImageNode {
+  const sources = PICTURE_FORMATS.map((format): ContentImageNode => ({
+    type: 'element',
+    tagName: 'source',
+    properties: {
+      __ASTRO_IMAGE_: JSON.stringify({
+        src,
+        format,
+        type: `image/${format}`,
+        densities: [1],
+        index: `picture-${format}-${index}`,
+      }),
+    },
+    children: [],
+  }));
+  return { type: 'element', tagName: 'picture', properties: {}, children: [...sources, img] };
+}
+
 /** Sätteri hast plugin: Astro's default Markdown processor, through `hastPlugins`. */
-export function satteriContentImages(options: ContentImageOptions = {}): SatteriContentImagePlugin {
+export function satteriContentImages(
+  options: ContentImageOptions = {},
+  picture: PictureStep = { enabled: true },
+): SatteriContentImagePlugin {
   const resolved = resolveContentImageOptions(options);
+  let pictureCount = 0;
   const mdxVisitor: SatteriContentImageVisitor = {
     filter: ['img'],
     visit(node, ctx) {
@@ -233,6 +309,10 @@ export function satteriContentImages(options: ContentImageOptions = {}): Satteri
         if (patch.loading !== undefined) ctx.setProperty(node, 'loading', patch.loading);
         if (patch.decoding !== undefined) ctx.setProperty(node, 'decoding', patch.decoding);
         if (patch.classNames !== undefined) ctx.setProperty(node, 'className', patch.classNames);
+        if (picture.enabled && ctx.sourceFormat === 'markdown') {
+          const src = localImageSrc(node.properties?.src, ctx.data.astro);
+          if (src !== undefined) ctx.replaceNode(node, pictureElement(node, src, ++pictureCount));
+        }
       },
     },
     mdxJsxFlowElement: mdxVisitor,
@@ -246,6 +326,7 @@ interface ContentImageRecord {
   optedOut: boolean;
   entry?: unknown;
   list?: unknown[];
+  picture?: PictureStep;
   warned: Set<string>;
 }
 
@@ -296,6 +377,7 @@ export function registerContentImages({ config, logger, enabled }: ContentImageR
     }
     record.entry = undefined;
     record.list = undefined;
+    record.picture = undefined;
     return;
   }
   if (record.optedOut || record.entry !== undefined) return;
@@ -304,10 +386,14 @@ export function registerContentImages({ config, logger, enabled }: ContentImageR
     warnOnce(record, 'unsupported', logger, `Hagilight content images cannot run on the "${String(processor.name)}" Markdown processor. Body images are left unchanged.`);
     return;
   }
-  const plugin = processor.name === 'satteri' ? satteriContentImages() : rehypeContentImages;
+  const picture: PictureStep = { enabled: true };
+  const plugin = processor.name === 'satteri'
+    ? satteriContentImages({}, picture)
+    : (options?: ContentImageOptions) => rehypeContentImages(options, picture);
   list.push(plugin);
   record.entry = plugin;
   record.list = list;
+  record.picture = picture;
 }
 
 /** `astro:config:done` re-check: warns once if an enabled site's adapter is missing from the final processor. */
@@ -317,6 +403,12 @@ export function checkContentImageRegistration({ config, logger, enabled }: Conte
   if (!processor) return;
   const record = recordOf(processor);
   if (record.optedOut || record.warned.has('unsupported')) return;
-  if (record.entry !== undefined && pluginListOf(processor)?.includes(record.entry)) return;
-  warnOnce(record, 'lost', logger, `Hagilight content images were not found in the final "${String(processor.name)}" Markdown processor. Body images are left unchanged.`);
+  if (record.entry === undefined || !pluginListOf(processor)?.includes(record.entry)) {
+    warnOnce(record, 'lost', logger, `Hagilight content images were not found in the final "${String(processor.name)}" Markdown processor. Body images are left unchanged.`);
+    return;
+  }
+  if (record.picture?.enabled && config.image?.service?.entrypoint === NOOP_IMAGE_SERVICE) {
+    record.picture.enabled = false;
+    warnOnce(record, 'picture', logger, 'Hagilight content images skip the <picture> wrapper because the Astro image service is the passthrough no-op, which cannot encode AVIF. Body images keep the baseline output. Use the default sharp service to get AVIF and WebP sources.');
+  }
 }
