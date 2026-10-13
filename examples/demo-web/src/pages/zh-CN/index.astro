@@ -25,6 +25,14 @@ const sections = [
         example: "import Copyright from '@hagicode/hagilight-core/Copyright';\n\n<Copyright name=\"HagiCode\" />",
       },
       {
+        id: 'build-info',
+        title: '构建信息',
+        kind: '页脚内实时呈现 · 构建时解析',
+        summary: '页脚末尾显示分支、提交和构建时间。@hagicode/hagilight-core/build-info 在浏览器中格式化这些信息，@hagicode/hagilight-core/build-info-resolver 在构建时读取 Git 以及 HAGILIGHT_BUILD_BRANCH、HAGILIGHT_BUILD_COMMIT 覆盖值。',
+        evidence: '页脚版权行显示本示例的分支、七位提交号以及 UTC 构建时间。',
+        example: "import { buildInfoItems } from '@hagicode/hagilight-core/build-info';\nimport { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';\n\nconst items = buildInfoItems(resolveBuildInfo({ root: process.cwd() }));",
+      },
+      {
         id: 'site-links',
         title: '共享站点链接',
         kind: '实时组合',

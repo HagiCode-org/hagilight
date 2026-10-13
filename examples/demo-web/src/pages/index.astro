@@ -25,6 +25,14 @@ const sections = [
         example: "import Copyright from '@hagicode/hagilight-core/Copyright';\n\n<Copyright name=\"HagiCode\" />",
       },
       {
+        id: 'build-info',
+        title: 'Build line',
+        kind: 'Live in footer · build-time resolver',
+        summary: 'The footer ends with Branch, Commit, and Built. @hagicode/hagilight-core/build-info formats them in the browser, while @hagicode/hagilight-core/build-info-resolver reads Git and the HAGILIGHT_BUILD_BRANCH and HAGILIGHT_BUILD_COMMIT overrides at build time.',
+        evidence: 'The footer copyright line shows this demo’s branch, its seven-character commit, and the UTC build time.',
+        example: "import { buildInfoItems } from '@hagicode/hagilight-core/build-info';\nimport { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';\n\nconst items = buildInfoItems(resolveBuildInfo({ root: process.cwd() }));",
+      },
+      {
         id: 'site-links',
         title: 'Shared site links',
         kind: 'Live composition',

@@ -8,6 +8,7 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 import { defaultLocale, locales } from '../packages/docusaurus/dist/locales.js';
+import { verifyBuildInfo } from './build-info-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -306,6 +307,7 @@ function verifyDocusaurusOutput(read) {
     const dir = locale === defaultLocale ? '' : `${locale}/`;
     const { html } = pageHead(read, `${dir}index.html`);
     assert.ok(html.includes('hagilight-footer__attribution'), `${locale} home has the Hagilight footer`);
+    verifyBuildInfo(html, `${locale} Docusaurus home`);
   }
 
   const english = pageHead(read, 'index.html');
@@ -719,6 +721,7 @@ function verifyMdxPage(read, enabled = true) {
 const defaultFeeds = build({}, DEMO_DIST);
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
+for (const page of ['index.html', 'zh-CN/index.html']) verifyBuildInfo(defaultFeeds(page), `Starlight ${page}`);
 await verifyShowcaseOutput(defaultFeeds);
 verifyBodyImages(defaultFeeds);
 verifyMarkdownPage(defaultFeeds);
@@ -772,6 +775,7 @@ verifyMarkdownPage(contentImagesOffFeeds, false);
 verifyMdxPage(contentImagesOffFeeds, false);
 const coreFooterFeeds = buildCoreFooter();
 verifyCoreFooterOutput(coreFooterFeeds);
+for (const page of ['index.html', 'zh-CN/index.html']) verifyBuildInfo(coreFooterFeeds(page), `core footer ${page}`);
 verifyMarkdownPictures(coreFooterFeeds);
 verifyDocusaurusOutput(buildDocusaurus());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

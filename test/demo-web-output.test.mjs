@@ -115,6 +115,28 @@ test('plain-Astro footer includes one exact package-version attribution and pres
   }
 });
 
+test('every plain-Astro footer shows one branch, commit, and build-time span after the attribution, and all pages share one build time', () => {
+  const builtAt = new Set();
+  for (const page of pages) {
+    const html = readFileSync(join(outputDir, page.file), 'utf8');
+    const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+    assert.ok(footer, `${page.file} has a footer`);
+    for (const field of ['branch', 'commit', 'builtAt']) {
+      assert.equal(footer.split(`data-build-field="${field}"`).length - 1, 1, `${page.file} has one ${field} span`);
+    }
+    assert.ok(
+      footer.indexOf('hagilight-footer__attribution') < footer.indexOf('data-build-field="branch"'),
+      `${page.file} shows the build spans after the attribution`,
+    );
+    assert.match(footer, /data-build-field="branch"[^>]*>Branch: [^<]+<\/span>/u, `${page.file} labels the branch`);
+    assert.match(footer, /data-build-field="commit"[^>]*>Commit: (?:unknown|[0-9a-f]{7})<\/span>/u, `${page.file} labels the commit`);
+    const time = footer.match(/<time\b[^>]*datetime="([^"]+)"/u)?.[1];
+    assert.match(time ?? '', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u, `${page.file} has a UTC build time`);
+    builtAt.add(time);
+  }
+  assert.equal(builtAt.size, 1, 'every page of one build shares one build time');
+});
+
 test('built footer tags tracked quick and community links and leaves other links untagged', () => {
   const expected = {
     downloadClient: ['download', /\/desktop\/?$/],

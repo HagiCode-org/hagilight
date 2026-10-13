@@ -15,6 +15,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CORE_PACKAGE, PACKAGES, assertPackageGraph, buildPackages, npm, root } from './packages.mjs';
+import { verifyBuildInfo } from './build-info-assertions.mjs';
 
 const temp = mkdtempSync(join(tmpdir(), 'hagilight-integration-'));
 const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
@@ -22,6 +23,17 @@ const ASTRO_PACKAGE = '@hagicode/hagilight';
 const STARLIGHT_PACKAGE = '@hagicode/hagilight-starlight';
 const DOCUSAURUS_PACKAGE = '@hagicode/hagilight-docusaurus';
 const DOCUSAURUS_SITE_URL = 'https://consumer.example.test';
+const BUILD_INFO_VARIABLES = ['HAGILIGHT_BUILD_BRANCH', 'HAGILIGHT_BUILD_COMMIT'];
+const BUILD_INFO_OVERRIDE = {
+  HAGILIGHT_BUILD_BRANCH: 'feature/footer-build',
+  HAGILIGHT_BUILD_COMMIT: 'ABCDEF0123456789ABCDEF0123456789ABCDEF01',
+};
+// Unless overridden, strip the build-info variables so the unknown fallback does not depend on the caller's shell.
+function buildEnv(overrides = {}) {
+  const env = { ...process.env, ...overrides };
+  for (const name of BUILD_INFO_VARIABLES) if (!(name in overrides)) delete env[name];
+  return env;
+}
 function listFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
@@ -299,10 +311,10 @@ function setInstalledVersion(directory, packageName, version) {
   return manifest;
 }
 
-function buildAstro(directory, astro) {
+function buildAstro(directory, astro, env = buildEnv()) {
   // A warm image cache makes Astro copy files into dist, which fails intermittently on Windows runners.
   rmSync(join(directory, 'node_modules/.astro/assets'), { recursive: true, force: true });
-  execFileSync(process.execPath, [astro, 'build'], { cwd: directory, stdio: 'inherit' });
+  execFileSync(process.execPath, [astro, 'build'], { cwd: directory, env, stdio: 'inherit' });
 }
 
 function captureAstroBuildFailure(directory, astro) {
@@ -382,6 +394,7 @@ function verifyCoreFooter(tarballs, astroVersion) {
     assert.equal([...html.matchAll(/application\/rss\+xml/gu)].length, 1);
     assert.ok(!html.includes('Powered By hagilight@'), `${locale} core Footer has no plain-Astro attribution`);
     assert.ok(!html.includes('Powered By hagilight-starlight@'), `${locale} core Footer has no Starlight attribution`);
+    assert.ok(!html.includes('data-build-field='), `${locale} core Footer without the integration shows no build info`);
   }
   assert.match(coreFeed, /<rss\b/u);
   assert.match(coreFeed, /<language>en-US<\/language>/u);
@@ -493,6 +506,43 @@ function verifyAstroFooter(tarballs, astroVersion) {
   writeFileSync(packageManifestPath, JSON.stringify(installedManifest, null, 2));
 }
 
+function verifyBuildInfoConsumer(tarballs, astroVersion) {
+  const buildInfoTemp = join(temp, 'astro-build-info');
+  mkdirSync(join(buildInfoTemp, 'src', 'pages'), { recursive: true });
+  writeFileSync(join(buildInfoTemp, 'astro.config.mjs'), `import { defineConfig } from 'astro/config';
+import { hagilight } from '@hagicode/hagilight/integration';
+
+export default defineConfig({ site: 'https://build-info.example.test', integrations: [hagilight()] });
+`);
+  writeFileSync(join(buildInfoTemp, 'src', 'pages', 'index.astro'), `---
+import Footer from '@hagicode/hagilight-core/Footer';
+---
+<html lang="en-US">
+  <head><meta charset="utf-8" /><title>Build info</title></head>
+  <body><Footer locale="en-US" /></body>
+</html>
+`);
+  const nodeModules = installConsumer(buildInfoTemp, {
+    [CORE_PACKAGE]: tarballSpec(tarballs[CORE_PACKAGE]),
+    [ASTRO_PACKAGE]: tarballSpec(tarballs[ASTRO_PACKAGE]),
+    astro: astroVersion,
+  }, 'hagilight-build-info-consumer');
+  assertInstalled(nodeModules, { present: [CORE_PACKAGE, ASTRO_PACKAGE] });
+  const astro = join(nodeModules, 'astro', 'bin', 'astro.mjs');
+  const homePage = join(buildInfoTemp, 'dist', 'index.html');
+
+  buildAstro(buildInfoTemp, astro);
+  const outside = verifyBuildInfo(readFileSync(homePage, 'utf8'), 'outside-repository consumer');
+  assert.equal(outside.branch.text, 'Branch: unknown');
+  assert.equal(outside.commit.text, 'Commit: unknown');
+
+  buildAstro(buildInfoTemp, astro, buildEnv(BUILD_INFO_OVERRIDE));
+  const overridden = verifyBuildInfo(readFileSync(homePage, 'utf8'), 'explicit-override consumer');
+  assert.equal(overridden.branch.text, 'Branch: feature/footer-build');
+  assert.equal(overridden.commit.text, 'Commit: abcdef0');
+  assert.equal(overridden.commit.title, BUILD_INFO_OVERRIDE.HAGILIGHT_BUILD_COMMIT.toLowerCase());
+}
+
 function verifyDocusaurusConsumer(tarballs) {
   const docusaurusExample = JSON.parse(readFileSync('examples/demo-docusaurus-web/package.json', 'utf8'));
   const siteTemp = join(temp, 'docusaurus-consumer');
@@ -548,7 +598,7 @@ Installed consumer welcome post.
   });
   execFileSync(process.execPath, [join(nodeModules, '@docusaurus', 'core', 'bin', 'docusaurus.mjs'), 'build'], {
     cwd: siteTemp,
-    env: { ...process.env, NODE_ENV: 'production' },
+    env: buildEnv({ NODE_ENV: 'production' }),
     stdio: 'inherit',
   });
 
@@ -561,6 +611,9 @@ Installed consumer welcome post.
   const feed = readFileSync(join(outDir, 'rss.xml'), 'utf8');
   assert.match(feed, /<rss\b/u);
   assert.ok(feed.includes(`${DOCUSAURUS_SITE_URL}/blog/welcome`), 'rss.xml lists the blog post');
+  const home = verifyBuildInfo(readFileSync(join(outDir, 'index.html'), 'utf8'), 'installed Docusaurus home');
+  assert.equal(home.branch.text, 'Branch: unknown', 'a Docusaurus consumer built outside a repository reports an unknown branch');
+  assert.equal(home.commit.text, 'Commit: unknown', 'a Docusaurus consumer built outside a repository reports an unknown commit');
 }
 
 function addDirectStarlightFooterPage(directory) {
@@ -590,6 +643,11 @@ function verifyDirectStarlightFooters(directory, version, expectedBannerCount) {
     assert.ok(!copyright.includes('Powered By hagilight@'));
     assert.ok(copyright.includes(`© ${new Date().getFullYear()} HagiCode`));
   }
+  assert.equal(
+    copyrights.filter((copyright) => copyright.includes('hagilight-copyright__build')).length,
+    1,
+    'only the plugin footer shows build info; the direct Footer and PromotoFooter mounts show none',
+  );
   assert.equal(countOccurrences(html, '编辑此页'), 3, 'all three Starlight footer paths retain built-in edit links');
   assert.equal(countOccurrences(html, '<hagilight-promoto-banner'), expectedBannerCount);
 }
@@ -610,6 +668,7 @@ try {
   verifyCoreOnly(tarballs, example.dependencies.astro);
   verifyCoreFooter(tarballs, example.dependencies.astro);
   verifyAstroFooter(tarballs, example.dependencies.astro);
+  verifyBuildInfoConsumer(tarballs, example.dependencies.astro);
   verifyDocusaurusConsumer(tarballs);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
@@ -648,6 +707,9 @@ try {
   const astro = join(temp, 'node_modules', 'astro', 'bin', 'astro.mjs');
   buildAstro(temp, astro);
   verifyBannerBuild(true);
+  const starlightHome = verifyBuildInfo(readFileSync(join(temp, 'dist', 'index.html'), 'utf8'), 'installed Starlight home');
+  assert.equal(starlightHome.branch.text, 'Branch: unknown', 'a Starlight consumer built outside a repository reports an unknown branch');
+  assert.equal(starlightHome.commit.text, 'Commit: unknown', 'a Starlight consumer built outside a repository reports an unknown commit');
   verifyDefaultLinksAndAnalytics();
   verifyContentFeatures();
   verifySeoIntegration();

@@ -20,6 +20,7 @@ const routes = [
   { site: 'starlight', path: '/zh-CN/', kind: 'starlight' },
   { site: 'starlight', path: '/zh-Hant/', kind: 'starlight' },
 ];
+const LONG_BRANCH = `feature/${'0123456789'.repeat(9)}ab`;
 const mimeTypes = {
   '.avif': 'image/avif',
   '.css': 'text/css; charset=utf-8',
@@ -47,13 +48,14 @@ const artifactDir = resolve(
 function buildExamples() {
   execFileSync(npm, ['run', 'build'], {
     cwd: root,
+    env: { ...process.env, HAGILIGHT_BUILD_BRANCH: LONG_BRANCH },
     shell: process.platform === 'win32',
     stdio: 'inherit',
   });
   for (const workspace of ['hagilight-core-footer-example', 'hagilight-example']) {
     execFileSync(npm, ['run', 'build', `--workspace=${workspace}`], {
       cwd: root,
-      env: { ...process.env, HAGILIGHT_VIEWPORT_TEST: 'true' },
+      env: { ...process.env, HAGILIGHT_VIEWPORT_TEST: 'true', HAGILIGHT_BUILD_BRANCH: LONG_BRANCH },
       shell: process.platform === 'win32',
       stdio: 'inherit',
     });
@@ -205,6 +207,85 @@ async function assertFooter(page, route, viewport, kind) {
   await firstLink.focus();
   await page.keyboard.press('Tab');
   check(await page.locator(':focus-visible').count() === 1, route, viewport, 'footer links', 'keyboard focus is not visible');
+}
+
+function buildTextContrastRatio(element) {
+  const context = document.createElement('canvas').getContext('2d');
+  const rgba = (value) => {
+    context.clearRect(0, 0, 1, 1);
+    context.fillStyle = value;
+    context.fillRect(0, 0, 1, 1);
+    return [...context.getImageData(0, 0, 1, 1).data];
+  };
+  const luminance = ([r, g, b]) => {
+    const [red, green, blue] = [r, g, b].map((channel) => {
+      const value = channel / 255;
+      return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  };
+  let background = [255, 255, 255, 255];
+  for (let node = element; node; node = node.parentElement) {
+    const color = rgba(getComputedStyle(node).backgroundColor);
+    if (color[3] > 0) {
+      background = color;
+      break;
+    }
+  }
+  const foreground = luminance(rgba(getComputedStyle(element).color));
+  const backdrop = luminance(background);
+  return (Math.max(foreground, backdrop) + 0.05) / (Math.min(foreground, backdrop) + 0.05);
+}
+
+async function assertLongBuildBranch(page, route, viewport, kind) {
+  const buildSelector = kind === 'core' ? '.hagilight-footer__build' : '.hagilight-copyright__build';
+  const copyrightSelector = kind === 'core' ? '.hagilight-footer__copyright' : '.hagilight-copyright';
+  const builds = page.locator(buildSelector);
+  const buildCount = await builds.count();
+  check(buildCount === 3, route, viewport, 'build line', `expected three build spans, found ${buildCount}`);
+  const branch = builds.first();
+  check(
+    (await branch.textContent()).includes(LONG_BRANCH),
+    route,
+    viewport,
+    'build line',
+    'the 100-character branch is missing from the built footer',
+  );
+  const copyright = await bounds(page, copyrightSelector, route, viewport, 'build line copyright');
+  for (let index = 0; index < buildCount; index += 1) {
+    const box = await builds.nth(index).boundingBox();
+    check(Boolean(box), route, viewport, 'build line', `could not measure build span ${index + 1}`);
+    await assertInside(copyright, box, route, viewport, `build span ${index + 1}`);
+  }
+  check(
+    await branch.evaluate((element) => element.getClientRects().length > 1),
+    route,
+    viewport,
+    'build line',
+    'the 100-character branch did not wrap onto multiple lines',
+  );
+  await assertNoPageOverflow(page, route, viewport, 'long build branch');
+
+  if (kind === 'starlight') {
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((value) => {
+        document.documentElement.dataset.theme = value;
+      }, theme);
+      for (let index = 0; index < buildCount; index += 1) {
+        const ratio = await builds.nth(index).evaluate(buildTextContrastRatio);
+        check(
+          ratio >= 4.5,
+          route,
+          viewport,
+          `build line ${theme} theme`,
+          `build span ${index + 1} contrast is ${ratio.toFixed(2)}:1; expected at least 4.5:1`,
+        );
+      }
+    }
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'light';
+    });
+  }
 }
 
 async function assertCorePage(page, route, viewport) {
@@ -451,6 +532,9 @@ async function runCase(browser, origins, route, viewport) {
     await page.setViewportSize({ width: 375, height: 812 });
     await assertFooter(page, label, { width: 375, height: 812 }, route.kind);
     if (route.kind === 'starlight') await assertShowcaseImageTiers(page, label, { width: 375, height: 812 });
+    region = 'build line';
+    await page.setViewportSize({ width: 360, height: 740 });
+    await assertLongBuildBranch(page, label, { width: 360, height: 740 }, route.kind);
 
     check(
       localErrors.length === 0,
