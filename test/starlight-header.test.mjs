@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import hagilight from '@hagicode/hagilight-starlight';
 
 function configure(options = {}, components = {}) {
@@ -19,7 +20,7 @@ function configure(options = {}, components = {}) {
 function getVitePlugin(integration) {
   let config;
   integration.hooks['astro:config:setup']({
-    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    config: { root: pathToFileURL('/nonexistent-hagilight/'), markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
     logger: { warn() {} },
     injectRoute: () => {},
     updateConfig: (value) => { config = value; },

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import hagilight from '@hagicode/hagilight-starlight';
 import {
   getNotFoundHomeHref,
@@ -553,7 +553,7 @@ test('withdraws the Starlight RSS claim when the project is configured', () => {
 function integrationVitePlugins(integration, routes = []) {
   let config;
   integration.hooks['astro:config:setup']({
-    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    config: { root: pathToFileURL('/nonexistent-hagilight/'), markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
     logger: { warn() {} },
     injectRoute: (route) => routes.push(route),
     updateConfig: (value) => { config = value; },

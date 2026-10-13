@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import type { HookParameters, StarlightPlugin } from '@astrojs/starlight/types';
 import { resolveFaviconHeadEntry } from '@hagicode/hagilight-core/favicon';
+import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
+import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
@@ -395,6 +397,7 @@ import options from '${optionsId}';
   links={options.links}
   rssFeedUrl={options.rssFeedUrl}
   rssLocaleFeedUrls={options.rssLocaleFeedUrls}
+  buildInfo={options.buildInfo}
 />
 ${promotionRender}
 ${analyticsRender}
@@ -435,6 +438,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
     ...(componentIds.markdownContent ? [[componentIds.markdownContent, markdownContentSource] as const] : []),
     ...(componentIds.head ? [[componentIds.head, headSource] as const] : []),
   ]);
+  let buildInfo: BuildInfo | undefined;
   const vitePlugin = {
     name: `@hagicode/hagilight-starlight:${instanceId}`,
     resolveId(id: string): string | null {
@@ -448,6 +452,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
           ...serializedOptions,
           rssFeedUrl: getConfiguredRssFeed(),
           rssLocaleFeedUrls,
+          buildInfo,
         })};`;
       }
       if (moduleId === rssConfigId) return `export default ${JSON.stringify(rssConfig)};`;
@@ -461,6 +466,7 @@ const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
     hooks: {
       'astro:config:setup'({ config, injectRoute, updateConfig, logger }) {
         registerContentImages({ config, logger, enabled: contentImagesEnabled });
+        buildInfo = resolveBuildInfo({ root: fileURLToPath(config.root) });
         if (generateRss) {
           injectRoute({
             pattern: '/rss.xml',

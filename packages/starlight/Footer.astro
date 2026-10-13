@@ -3,6 +3,7 @@ import Copyright from '@hagicode/hagilight-core/Copyright';
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-info';
 import manifest from './package.json';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   links?: SiteLinksOptions;
   rssFeedUrl?: string;
   rssLocaleFeedUrls?: Readonly<Record<string, string>>;
+  buildInfo?: BuildInfo;
 }
 
 const {
@@ -17,7 +19,9 @@ const {
   links,
   rssFeedUrl,
   rssLocaleFeedUrls,
+  buildInfo,
 } = Astro.props;
+const buildItems = buildInfoItems(buildInfo);
 if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
   throw new Error('@hagicode/hagilight-starlight requires a nonempty string version in its package.json.');
 }
@@ -106,6 +110,17 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   <Copyright name="HagiCode" />
   {' | '}
   <span class="hagilight-copyright__attribution">Powered By hagilight-starlight@{manifest.version}</span>
+  {buildItems.map((item) => (
+    <>
+      {' | '}
+      <span
+        class="hagilight-copyright__build"
+        data-build-field={item.field}
+        title={item.title}
+        data-build-commit={item.title}
+      >{item.label}: {item.datetime ? <time datetime={item.datetime}>{item.text}</time> : item.text}</span>
+    </>
+  ))}
 </p>
 
 <style>
@@ -164,6 +179,10 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   }
 
   .hagilight-copyright__attribution {
+    overflow-wrap: anywhere;
+  }
+
+  .hagilight-copyright__build {
     overflow-wrap: anywhere;
   }
 </style>
