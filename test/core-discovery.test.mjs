@@ -21,6 +21,7 @@ function runSetup({ site, integrations = [], enabled = true, rss, consumerPolicy
   const middlewares = [];
   hagilight({ enabled, rss }).hooks['astro:config:setup']({
     config: {
+      root: pathToFileURL(`${root}/`),
       site,
       integrations,
       srcDir: pathToFileURL(`${srcDir}/`),
@@ -40,16 +41,20 @@ const rssRoutes = (routes) => routes
   .map(({ pattern }) => pattern)
   .sort();
 
+const rssMiddlewares = (middlewares) => middlewares
+  .filter(({ entrypoint }) => entrypoint.endsWith('rss-middleware.js'));
+
 test('registers sitemap, robots, and RSS feeds by default', (t) => {
   const result = runSetup({ site: new URL('https://example.test') });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
   assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
-  assert.equal(result.updated[0].integrations[0].name, '@astrojs/sitemap');
+  assert.equal(result.updated.find((entry) => entry.integrations).integrations[0].name, '@astrojs/sitemap');
   assert.ok(result.routes.some((route) => route.pattern === '/robots.txt' && route.prerender));
   assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
-  assert.equal(result.middlewares.length, 1);
-  assert.equal(result.middlewares[0].order, 'pre');
+  const rssMiddleware = rssMiddlewares(result.middlewares);
+  assert.equal(rssMiddleware.length, 1);
+  assert.equal(rssMiddleware[0].order, 'pre');
 });
 
 test('requires an absolute HTTP(S) Astro site when discovery is enabled', (t) => {
@@ -63,6 +68,7 @@ test('requires an absolute HTTP(S) Astro site when discovery is enabled', (t) =>
 
     assert.throws(() => hagilight().hooks['astro:config:setup']({
       config: {
+        root: pathToFileURL(`${root}/`),
         site,
         srcDir: pathToFileURL(`${srcDir}/`),
         publicDir: pathToFileURL(`${publicDir}/`),
@@ -80,9 +86,9 @@ test('disables both generated outputs without requiring a site', (t) => {
   const result = runSetup({ enabled: false });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-  assert.deepEqual(result.updated, []);
+  assert.ok(!result.updated.some((entry) => entry.integrations));
   assert.deepEqual(result.routes, []);
-  assert.deepEqual(result.middlewares, []);
+  assert.deepEqual(rssMiddlewares(result.middlewares), []);
 });
 
 test('leaves sitemap generation to existing sitemap and Starlight integrations while still generating RSS', (t) => {
@@ -120,5 +126,5 @@ test('disables RSS when rss: false', (t) => {
   assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
   assert.ok(result.routes.some((route) => route.pattern === '/robots.txt'));
   assert.deepEqual(rssRoutes(result.routes), []);
-  assert.deepEqual(result.middlewares, []);
+  assert.deepEqual(rssMiddlewares(result.middlewares), []);
 });

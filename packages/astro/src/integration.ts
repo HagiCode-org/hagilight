@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import { extname, isAbsolute, resolve, win32 } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
+import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
@@ -52,6 +54,8 @@ export type HagilightFaviconOptions = FaviconOptions;
 
 const VIRTUAL_RSS_CONFIG = 'virtual:hagilight/rss-config';
 const VIRTUAL_RSS_CONFIG_RESOLVED = `\0${VIRTUAL_RSS_CONFIG}`;
+const VIRTUAL_BUILD_INFO = 'virtual:hagilight/build-info';
+const VIRTUAL_BUILD_INFO_RESOLVED = `\0${VIRTUAL_BUILD_INFO}`;
 const PAGE_SOURCE_EXTENSIONS = new Set(['.astro', '.html', '.js', '.jsx', '.md', '.mdx', '.ts', '.tsx']);
 const packageRoot = new URL('../', import.meta.url);
 const routeEntrypoint = (name: string): string => fileURLToPath(new URL(name, packageRoot));
@@ -125,6 +129,9 @@ export function hagilight({ enabled = true, rss, contentImages }: HagilightOptio
     hooks: {
       'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig, logger }) {
         registerContentImages({ config, logger, enabled: contentImagesEnabled });
+        const buildInfo = resolveBuildInfo({ root: fileURLToPath(config.root) });
+        updateConfig({ vite: { plugins: [createBuildInfoPlugin(buildInfo)] } });
+        addMiddleware({ entrypoint: fileURLToPath(new URL('./build-info-middleware.js', import.meta.url)), order: 'pre' });
         if (!enabled) return;
         resolveDiscoverySite(config.site);
 
@@ -309,6 +316,19 @@ function createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUr
         '};',
         'export default config;',
       ].join('\n');
+    },
+  };
+}
+
+function createBuildInfoPlugin(buildInfo: BuildInfo) {
+  return {
+    name: '@hagicode/hagilight:build-info',
+    resolveId(id: string): string | null {
+      return id === VIRTUAL_BUILD_INFO ? VIRTUAL_BUILD_INFO_RESOLVED : null;
+    },
+    load(id: string): string | null {
+      if (id !== VIRTUAL_BUILD_INFO_RESOLVED) return null;
+      return `export default ${JSON.stringify(buildInfo)};`;
     },
   };
 }

@@ -46,9 +46,18 @@ function makeSetup({
   return { routes, middlewares, updated };
 }
 
+function rssVirtualPlugins(updated) {
+  return updated
+    .flatMap((entry) => entry.vite?.plugins ?? [])
+    .filter((plugin) => plugin.resolveId?.('virtual:hagilight/rss-config'));
+}
+
+function rssMiddlewares(middlewares) {
+  return middlewares.filter(({ entrypoint }) => entrypoint.endsWith('rss-middleware.js'));
+}
+
 function rssVirtualPlugin(updated) {
-  const viteUpdate = updated.find((entry) => entry.vite);
-  return viteUpdate.vite.plugins[0];
+  return rssVirtualPlugins(updated)[0];
 }
 
 function createStarlightRssIntegration(enabled = true) {
@@ -92,8 +101,9 @@ test('integration injects localized static routes and base-aware footer URLs', (
       ['/rss.[language].xml', true],
     ],
   );
-  assert.equal(middlewares.length, 1);
-  assert.equal(middlewares[0].order, 'pre');
+  const rssMiddleware = rssMiddlewares(middlewares);
+  assert.equal(rssMiddleware.length, 1);
+  assert.equal(rssMiddleware[0].order, 'pre');
   const plugin = rssVirtualPlugin(updated);
   const virtualId = plugin.resolveId('virtual:hagilight/rss-config');
   const moduleSource = plugin.load(virtualId);
@@ -127,13 +137,13 @@ test('plain-Astro and Starlight integrations coordinate a single RSS owner indep
     // The plain-Astro hagilight() must defer to Starlight for RSS routes.
     const core = makeSetup({ integrations: [starlightIntegration] });
     assert.equal(core.routes.filter(({ pattern }) => pattern.startsWith('/rss')).length, 0);
-    assert.equal(core.middlewares.length, 0);
-    assert.ok(core.updated.every((entry) => entry.vite === undefined));
+    assert.equal(rssMiddlewares(core.middlewares).length, 0);
+    assert.equal(rssVirtualPlugins(core.updated).length, 0);
 
     const starlightRoutes = [];
     const starlightUpdated = [];
     starlightIntegration.hooks['astro:config:setup']({
-      config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+      config: { root: fixtureRoot, markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
       logger: { warn() {} },
       injectRoute: (route) => starlightRoutes.push(route),
       updateConfig: (config) => starlightUpdated.push(config),
@@ -151,7 +161,7 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
   const starlightOnly = createStarlightRssIntegration();
   const starlightRoutes = [];
   starlightOnly.hooks['astro:config:setup']({
-    config: { markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
+    config: { root: fixtureRoot, markdown: { processor: { name: 'satteri', options: { hastPlugins: [] } } } },
     logger: { warn() {} },
     injectRoute: (route) => starlightRoutes.push(route),
     updateConfig() {},
@@ -164,7 +174,7 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
     coreOnly.routes.filter(({ pattern }) => pattern.startsWith('/rss')).map(({ pattern }) => pattern),
     ['/rss.xml', '/rss.[language].xml'],
   );
-  assert.equal(coreOnly.middlewares.length, 1);
+  assert.equal(rssMiddlewares(coreOnly.middlewares).length, 1);
 
   const disabledStarlight = createStarlightRssIntegration(false);
   const core = makeSetup({ integrations: [disabledStarlight] });
@@ -172,7 +182,7 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
     core.routes.filter(({ pattern }) => pattern.startsWith('/rss')).map(({ pattern }) => pattern),
     ['/rss.xml', '/rss.[language].xml'],
   );
-  assert.equal(core.middlewares.length, 1);
+  assert.equal(rssMiddlewares(core.middlewares).length, 1);
   assert.ok(core.updated.some((entry) => entry.vite));
 });
 
