@@ -8,7 +8,7 @@ import { FooterView } from './FooterView.js';
 
 export default function Footer(): ReactElement {
   const { i18n, siteConfig } = useDocusaurusContext();
-  const { version, options } = usePluginData(PLUGIN_NAME) as HagilightGlobalData;
+  const { version, options, buildInfo } = usePluginData(PLUGIN_NAME) as HagilightGlobalData;
   if (!options.footer) return <FooterDefaults />;
   const links = resolveFooterLinks({
     locale: i18n.currentLocale,
@@ -16,5 +16,7 @@ export default function Footer(): ReactElement {
     links: options.links,
     rssEnabled: options.rss.enabled,
   });
-  return <FooterView links={links} version={version} year={new Date().getFullYear()} />;
+  return (
+    <FooterView links={links} version={version} year={new Date().getFullYear()} buildInfo={buildInfo} />
+  );
 }

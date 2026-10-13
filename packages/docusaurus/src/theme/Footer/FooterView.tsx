@@ -1,5 +1,6 @@
-import type { ReactElement } from 'react';
+import { Fragment, type ReactElement } from 'react';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
+import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-info';
 import type { SiteLink } from '@hagicode/hagilight-core/links';
 import type { FooterLinks } from '../../footer.js';
 
@@ -7,6 +8,7 @@ export interface FooterViewProps {
   links: FooterLinks;
   version: string;
   year: number;
+  buildInfo?: BuildInfo;
 }
 
 interface LinkSectionProps {
@@ -41,8 +43,9 @@ function LinkSection({ heading, navLabel, links, tagged }: LinkSectionProps): Re
   );
 }
 
-export function FooterView({ links, version, year }: FooterViewProps): ReactElement {
+export function FooterView({ links, version, year, buildInfo }: FooterViewProps): ReactElement {
   const { labels } = links;
+  const buildItems = buildInfoItems(buildInfo);
   return (
     <footer className="hagilight-footer">
       <div className="hagilight-footer__sections">
@@ -86,6 +89,19 @@ export function FooterView({ links, version, year }: FooterViewProps): ReactElem
         <span>© {year} HagiCode</span>
         {' | '}
         <span className="hagilight-footer__attribution">Powered By hagilight-docusaurus@{version}</span>
+        {buildItems.map((item) => (
+          <Fragment key={item.field}>
+            {' | '}
+            <span
+              className="hagilight-footer__build"
+              data-build-field={item.field}
+              title={item.title}
+              data-build-commit={item.title}
+            >
+              {item.label}: {item.datetime ? <time dateTime={item.datetime}>{item.text}</time> : item.text}
+            </span>
+          </Fragment>
+        ))}
       </p>
     </footer>
   );

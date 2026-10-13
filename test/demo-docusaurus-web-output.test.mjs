@@ -153,3 +153,27 @@ test('blog post has exactly one og:image and it is the blog card', () => {
   assert.equal(twitterImages.length, 1, 'one twitter:image');
   assert.ok(twitterImages[0].includes(`${siteUrl}/img/blog-card.png`), 'the twitter:image is the blog card');
 });
+
+test('every locale home, docs page, and blog post shows one branch, commit, and build-time span after the attribution, and each locale build shares one time', () => {
+  for (const locale of locales) {
+    const pages = [`${dirOf(locale)}index.html`, `${dirOf(locale)}docs/features/index.html`];
+    if (locale === defaultLocale) pages.push('blog/introducing-hagilight-docusaurus/index.html');
+    const builtAt = new Set();
+    for (const page of pages) {
+      const html = read(enabledDist, page);
+      const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
+      assert.ok(footer, `${page} renders a footer`);
+      for (const field of ['branch', 'commit', 'builtAt']) {
+        assert.equal(footer.split(`data-build-field="${field}"`).length - 1, 1, `${page} has one ${field} span`);
+      }
+      assert.ok(
+        footer.indexOf('hagilight-footer__attribution') < footer.indexOf('data-build-field="branch"'),
+        `${page} shows the build spans after the attribution`,
+      );
+      const time = footer.match(/<time\b[^>]*datetime="([^"]+)"/iu)?.[1];
+      assert.match(time ?? '', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u, `${page} has a UTC build time`);
+      builtAt.add(time);
+    }
+    assert.equal(builtAt.size, 1, `${locale} pages share one build time`);
+  }
+});

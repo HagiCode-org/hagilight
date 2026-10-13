@@ -18,9 +18,16 @@ const i18n = {
   localeConfigs: { 'en-US': { label: 'English', htmlLang: 'en-US', direction: 'ltr' } },
 };
 
-function render({ locale = 'en-US', baseUrl = '/', links = {}, rssEnabled = true } = {}) {
+function render({ locale = 'en-US', baseUrl = '/', links = {}, rssEnabled = true, buildInfo } = {}) {
   const resolved = resolveFooterLinks({ locale, baseUrl, links, rssEnabled });
-  return renderToStaticMarkup(createElement(FooterView, { links: resolved, version: VERSION, year: 2026 }));
+  return renderToStaticMarkup(createElement(FooterView, { links: resolved, version: VERSION, year: 2026, buildInfo }));
+}
+
+const COMMIT = '0123456789abcdef0123456789abcdef01234567';
+const BUILD_INFO = { branch: 'release/1.2', commit: COMMIT, builtAt: '2026-10-13T08:12:34Z' };
+
+function buildSpan(html, field) {
+  return html.match(new RegExp(`<span class="hagilight-footer__build"[^>]*data-build-field="${field}"[^>]*>[\\s\\S]*?</span>`, 'u'))?.[0];
 }
 
 function escapeRegExp(text) {
@@ -73,6 +80,54 @@ test('an explicit rssFeedUrl overrides the default RSS link', () => {
 test('attribution names the package version', () => {
   const html = render();
   assert.ok(html.includes(`Powered By hagilight-docusaurus@${VERSION}`));
+});
+
+test('the build line shows the branch, short commit, and UTC build time from the given values', () => {
+  const html = render({ buildInfo: BUILD_INFO });
+  assert.equal(
+    buildSpan(html, 'branch'),
+    '<span class="hagilight-footer__build" data-build-field="branch">Branch: release/1.2</span>',
+  );
+  assert.equal(
+    buildSpan(html, 'commit'),
+    `<span class="hagilight-footer__build" data-build-field="commit" title="${COMMIT}" data-build-commit="${COMMIT}">Commit: 0123456</span>`,
+  );
+  assert.equal(
+    buildSpan(html, 'builtAt'),
+    '<span class="hagilight-footer__build" data-build-field="builtAt">Built: <time dateTime="2026-10-13T08:12:34Z">2026-10-13T08:12:34Z</time></span>',
+  );
+});
+
+test('unknown values render as unknown without a title or a time element', () => {
+  const html = render({ buildInfo: { branch: 'unknown', commit: 'unknown', builtAt: 'unknown' } });
+  assert.equal(
+    buildSpan(html, 'branch'),
+    '<span class="hagilight-footer__build" data-build-field="branch">Branch: unknown</span>',
+  );
+  assert.equal(
+    buildSpan(html, 'commit'),
+    '<span class="hagilight-footer__build" data-build-field="commit">Commit: unknown</span>',
+  );
+  assert.equal(
+    buildSpan(html, 'builtAt'),
+    '<span class="hagilight-footer__build" data-build-field="builtAt">Built: unknown</span>',
+  );
+  assert.doesNotMatch(html, /<time\b/u);
+  assert.doesNotMatch(html, /title=/u);
+});
+
+test('no build text appears when no build info is given', () => {
+  const html = render();
+  assert.doesNotMatch(html, /hagilight-footer__build/u);
+  assert.doesNotMatch(html, /Branch:|Commit:|Built:/u);
+});
+
+test('the attribution appears exactly once and precedes the build line inside the copyright paragraph', () => {
+  const html = render({ buildInfo: BUILD_INFO });
+  assert.equal(html.split(`Powered By hagilight-docusaurus@${VERSION}`).length - 1, 1);
+  const copyright = html.match(/<p class="hagilight-footer__copyright">[\s\S]*?<\/p>/u)[0];
+  assert.ok(copyright.indexOf('hagilight-footer__attribution') < copyright.indexOf('hagilight-footer__build'));
+  assert.equal(copyright.split('hagilight-footer__build').length - 1, 3);
 });
 
 test('tracked quick and community links carry GA attributes; other links do not', () => {

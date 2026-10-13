@@ -70,6 +70,10 @@
   overflow-wrap: anywhere;
 }
 
+.hagilight-footer__build {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 40rem) {
   .hagilight-footer__sections {
     grid-template-columns: 1fr;

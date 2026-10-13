@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import type { RssFeedItem } from '@hagicode/hagilight-core/rss';
 import type { HtmlTagObject, LoadContext, Plugin, PluginModule } from '@docusaurus/types';
 import { fiftyOneLaHeadTags, googleAnalyticsHeadTags } from './analytics.js';
@@ -57,6 +58,7 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     version: PACKAGE_VERSION,
     options,
     i18n: context.i18n,
+    buildInfo: resolveBuildInfo({ root: context.siteDir }),
   };
   const themeEnabled = options.footer || options.seo.enabled;
   const site: DiscoverySite = {
