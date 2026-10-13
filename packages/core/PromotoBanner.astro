@@ -98,7 +98,8 @@ const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
     transition: opacity 0.24s ease, visibility 0s linear;
   }
 
-  .hagilight-promoto[data-state='footer-hidden'] .hagilight-promoto__shell {
+  .hagilight-promoto[data-state='footer-hidden'] .hagilight-promoto__shell,
+  .hagilight-promoto[data-state='top-hidden'] .hagilight-promoto__shell {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;

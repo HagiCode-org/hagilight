@@ -6,6 +6,10 @@ import {
   getPromotionImageSources,
   getPromotionSetSignature,
   getPromotionVisibility,
+  getVisitCountKey,
+  isPageTopRuleActive,
+  isScrolledToTop,
+  parseVisitCount,
   selectPromotionCards,
   shouldAutoRotate,
 } from '../packages/core/dist/promoto-banner.js';
@@ -153,4 +157,184 @@ test('renders the tiers as a picture before the original and advances past a fai
 test('the picture wrapper is laid out transparently inside the media frame', async () => {
   const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
   assert.match(component, /\.hagilight-promoto__media picture\s*\{[^}]*display:\s*contents/u);
+});
+
+test('the page-top state applies only through the fifth argument and keeps the four-argument states', () => {
+  const signature = getPromotionSetSignature([fallback]);
+  assert.equal(getPromotionVisibility([fallback], signature, null, false, true), 'top-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, false, false), 'ready');
+  assert.equal(getPromotionVisibility([fallback], signature, null, false), 'ready');
+  assert.equal(getPromotionVisibility([fallback], signature, null, true, false), 'footer-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, signature, false, false), 'dismissed');
+  assert.equal(getPromotionVisibility([], null, null, false, false), 'hidden');
+});
+
+test('dismissal, an empty set and the footer each take precedence over the page top', () => {
+  const signature = getPromotionSetSignature([fallback]);
+  assert.equal(getPromotionVisibility([fallback], signature, signature, false, true), 'dismissed');
+  assert.equal(getPromotionVisibility([], null, null, false, true), 'hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, true, true), 'footer-hidden');
+});
+
+test('a card hidden at the top does not rotate', () => {
+  assert.equal(shouldAutoRotate(2, false, false, true, 'top-hidden'), false);
+});
+
+test('the top-of-page boundary includes scroll offsets of 1 px or less', () => {
+  assert.equal(isScrolledToTop(0), true);
+  assert.equal(isScrolledToTop(1), true);
+  assert.equal(isScrolledToTop(1.5), false);
+  assert.equal(isScrolledToTop(240), false);
+});
+
+test('the page-top rule applies to visits 1 through 30 only', () => {
+  assert.equal(isPageTopRuleActive(0), true);
+  assert.equal(isPageTopRuleActive(1), true);
+  assert.equal(isPageTopRuleActive(30), true);
+  assert.equal(isPageTopRuleActive(31), false);
+  assert.equal(isPageTopRuleActive(1000), false);
+});
+
+test('parseVisitCount accepts only plain non-negative integers and reads anything else as 0', () => {
+  for (const raw of [null, '', 'abc', '-1', '3.5', '1e3', ' 12', '9007199254740993']) {
+    assert.equal(parseVisitCount(raw), 0, `raw ${JSON.stringify(raw)}`);
+  }
+  assert.equal(parseVisitCount('0'), 0);
+  assert.equal(parseVisitCount('12'), 12);
+  assert.equal(parseVisitCount('31'), 31);
+});
+
+test('the visit counter key is scoped to the hostname', () => {
+  assert.notEqual(getVisitCountKey('docs.example.com'), getVisitCountKey('www.example.com'));
+  assert.equal(getVisitCountKey('docs.example.com'), getVisitCountKey('docs.example.com'));
+  assert.equal(getVisitCountKey('localhost'), 'hagilight:promoto-banner:visit-count:localhost');
+});
+
+const VISIT_EVENT = 'hagilight:promoto-visit';
+const modulePath = new URL('../packages/core/dist/promoto-banner.js', import.meta.url).href;
+let freshModuleCount = 0;
+
+// Each import is a new module instance, so its per-document page memory starts empty.
+async function loadFreshModule() {
+  freshModuleCount += 1;
+  return import(`${modulePath}?fresh=${freshModuleCount}`);
+}
+
+function createStorage(initial = {}) {
+  const values = new Map(Object.entries(initial));
+  return {
+    values,
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => { values.set(key, String(value)); },
+  };
+}
+
+function withBrowser({ hostname = 'docs.example.com', pathname = '/', storage = createStorage() } = {}, run) {
+  const events = [];
+  const location = { hostname, pathname, search: '', hash: '' };
+  globalThis.window = { location, localStorage: storage };
+  globalThis.document = { dispatchEvent: (event) => { events.push(event.type); return true; } };
+  try {
+    return run({ location, events, storage });
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+}
+
+test('recordSiteVisit counts each page once per document and dispatches the visit event', async () => {
+  const firstDocument = await loadFreshModule();
+  const reloadedDocument = await loadFreshModule();
+  const key = getVisitCountKey('docs.example.com');
+  const storage = createStorage();
+  withBrowser({ storage }, ({ location, events }) => {
+    assert.equal(firstDocument.recordSiteVisit(), 1);
+    assert.equal(storage.values.get(key), '1');
+    assert.equal(firstDocument.recordSiteVisit(), 1, 'the same page in the same document is not counted again');
+    location.hash = '#pricing';
+    assert.equal(firstDocument.recordSiteVisit(), 1, 'a hash change is not a visit');
+    assert.deepEqual(events, [VISIT_EVENT]);
+    location.pathname = '/guide';
+    assert.equal(firstDocument.recordSiteVisit(), 2, 'a navigation to another page is a visit');
+    assert.equal(reloadedDocument.recordSiteVisit(), 3, 'a reload of that page is one more visit');
+    assert.equal(storage.values.get(key), '3');
+  });
+});
+
+test('the stored count stops at 31 and later visits leave it unchanged', async () => {
+  const key = getVisitCountKey('docs.example.com');
+  const storage = createStorage({ [key]: '30' });
+  const thirtyFirst = await loadFreshModule();
+  const later = await loadFreshModule();
+  withBrowser({ storage }, ({ location }) => {
+    assert.equal(thirtyFirst.recordSiteVisit(), 31);
+    location.pathname = '/later';
+    assert.equal(thirtyFirst.recordSiteVisit(), 31);
+    assert.equal(later.recordSiteVisit(), 31);
+    assert.equal(storage.values.get(key), '31');
+  });
+});
+
+test('each hostname keeps its own counter', async () => {
+  const storage = createStorage();
+  const localhost = await loadFreshModule();
+  const loopback = await loadFreshModule();
+  const localhostAgain = await loadFreshModule();
+  withBrowser({ storage, hostname: 'localhost' }, () => assert.equal(localhost.recordSiteVisit(), 1));
+  withBrowser({ storage, hostname: '127.0.0.1' }, () => assert.equal(loopback.recordSiteVisit(), 1));
+  withBrowser({ storage, hostname: 'localhost', pathname: '/next' }, () => assert.equal(localhostAgain.recordSiteVisit(), 2));
+  assert.equal(storage.values.get(getVisitCountKey('localhost')), '2');
+  assert.equal(storage.values.get(getVisitCountKey('127.0.0.1')), '1');
+});
+
+test('a blocked or failing localStorage never throws, and a failed write keeps the stored count', async () => {
+  const throwing = () => { throw new Error('storage blocked'); };
+  const readBlocked = await loadFreshModule();
+  withBrowser({ storage: { getItem: throwing, setItem: throwing } }, () => {
+    assert.equal(readBlocked.recordSiteVisit(), 0);
+    assert.equal(isPageTopRuleActive(0), true);
+  });
+
+  const writeBlocked = await loadFreshModule();
+  withBrowser({ storage: { getItem: () => '5', setItem: throwing } }, () => {
+    assert.equal(writeBlocked.recordSiteVisit(), 5);
+  });
+});
+
+test('recordSiteVisit does nothing when reading the localStorage property itself throws', async () => {
+  const { recordSiteVisit } = await loadFreshModule();
+  globalThis.window = {
+    location: { hostname: 'docs.example.com', pathname: '/', search: '', hash: '' },
+    get localStorage() { throw new Error('access denied'); },
+  };
+  try {
+    assert.equal(recordSiteVisit(), 0);
+  } finally {
+    delete globalThis.window;
+  }
+});
+
+test('recordSiteVisit is a no-op without a window', async () => {
+  const { recordSiteVisit } = await loadFreshModule();
+  delete globalThis.window;
+  assert.equal(recordSiteVisit(), 0);
+});
+
+test('updateVisibility feeds the page-top rule and inerts every state except ready', async () => {
+  const source = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+  const update = source.slice(source.indexOf('private updateVisibility'), source.indexOf('private isFooterVisible'));
+  assert.match(update, /isScrolledToTop\(window\.scrollY \?\? document\.documentElement\.scrollTop\)\s*&&\s*isPageTopRuleActive\(siteVisitCount\)/u);
+  assert.match(update, /shell\.inert = state !== 'ready';/u);
+});
+
+test('visits are recorded on connect and on each Astro page load', async () => {
+  const source = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+  const connected = source.slice(source.indexOf('connectedCallback(): void {'), source.indexOf('disconnectedCallback(): void {'));
+  assert.ok(connected.indexOf('recordSiteVisit();') < connected.indexOf('void this.reload();'));
+  assert.match(source, /private readonly onPageLoad = \(\) => \{\s*recordSiteVisit\(\);/u);
+});
+
+test('the Astro component styles hide the shell in the top-hidden state', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  assert.match(component, /\.hagilight-promoto\[data-state='top-hidden'\] \.hagilight-promoto__shell\s*\{[^}]*visibility:\s*hidden/u);
 });

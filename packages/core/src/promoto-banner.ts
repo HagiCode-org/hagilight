@@ -8,10 +8,16 @@ import {
 
 const ELEMENT_NAME = 'hagilight-promoto-banner';
 const DISMISSED_SIGNATURE_KEY = 'hagilight:promoto-banner:dismissed-signature';
+const VISIT_COUNT_KEY_PREFIX = 'hagilight:promoto-banner:visit-count:';
+const VISIT_EVENT = 'hagilight:promoto-visit';
+const PAGE_TOP_VISIT_LIMIT = 30;
 const ROTATION_INTERVAL_MS = 8000;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
-export type PromotionVisibility = 'dismissed' | 'footer-hidden' | 'hidden' | 'ready';
+export type PromotionVisibility = 'dismissed' | 'footer-hidden' | 'hidden' | 'ready' | 'top-hidden';
+
+let lastCountedPage: string | null = null;
+let siteVisitCount = 0;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -82,15 +88,35 @@ export function getPromotionSetSignature(cards: PromotionCard[]): string | null 
   ]));
 }
 
+export function isScrolledToTop(scrollY: number): boolean {
+  return scrollY <= 1;
+}
+
+export function isPageTopRuleActive(visitCount: number): boolean {
+  return visitCount <= PAGE_TOP_VISIT_LIMIT;
+}
+
+export function getVisitCountKey(hostname: string): string {
+  return `${VISIT_COUNT_KEY_PREFIX}${hostname}`;
+}
+
+export function parseVisitCount(raw: string | null): number {
+  if (raw === null || !/^\d+$/u.test(raw)) return 0;
+  const count = Number(raw);
+  return Number.isSafeInteger(count) ? count : 0;
+}
+
 export function getPromotionVisibility(
   cards: PromotionCard[],
   signature: string | null,
   dismissedSignature: string | null,
   footerVisible: boolean,
+  atPageTop = false,
 ): PromotionVisibility {
   if (!cards.length) return 'hidden';
   if (signature && signature === dismissedSignature) return 'dismissed';
-  return footerVisible ? 'footer-hidden' : 'ready';
+  if (footerVisible) return 'footer-hidden';
+  return atPageTop ? 'top-hidden' : 'ready';
 }
 
 export function getNextPromotionIndex(index: number, count: number, direction: -1 | 1): number {
@@ -121,6 +147,44 @@ function saveDismissedSignature(signature: string): void {
   } catch (error) {
     console.warn('Unable to save the dismissed promotion preference.', error);
   }
+}
+
+function getLocalStorage(): Storage | null {
+  try {
+    return window.localStorage || null;
+  } catch {
+    return null;
+  }
+}
+
+function countVisit(storage: Storage, key: string): number {
+  let count: number;
+  try {
+    count = parseVisitCount(storage.getItem(key));
+  } catch {
+    return 0;
+  }
+  if (!isPageTopRuleActive(count)) return count;
+  try {
+    storage.setItem(key, String(count + 1));
+    return count + 1;
+  } catch {
+    return count;
+  }
+}
+
+export function recordSiteVisit(): number {
+  if (typeof window === 'undefined' || !window.location) return siteVisitCount;
+  const page = `${window.location.pathname}${window.location.search}`;
+  if (page === lastCountedPage) return siteVisitCount;
+  const storage = getLocalStorage();
+  if (!storage) return siteVisitCount;
+  lastCountedPage = page;
+  siteVisitCount = countVisit(storage, getVisitCountKey(window.location.hostname));
+  if (typeof document !== 'undefined' && typeof document.dispatchEvent === 'function') {
+    document.dispatchEvent(new Event(VISIT_EVENT));
+  }
+  return siteVisitCount;
 }
 
 export function definePromotoBannerElement(): void {
@@ -176,6 +240,7 @@ export function definePromotoBannerElement(): void {
       this.syncRotation();
     };
     private readonly onPageLoad = () => {
+      recordSiteVisit();
       // Re-fetch in the current page locale after a Starlight view-transition
       // navigation. The element may persist across a soft language switch, so
       // its previously loaded locale can differ from the new page's data-locale.
@@ -183,6 +248,7 @@ export function definePromotoBannerElement(): void {
     };
 
     connectedCallback(): void {
+      recordSiteVisit();
       this.footer = document.querySelector('footer');
       this.motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)');
       this.reducedMotion = this.motionQuery?.matches ?? false;
@@ -195,6 +261,7 @@ export function definePromotoBannerElement(): void {
       document.addEventListener('visibilitychange', this.onVisibilityChange);
       this.motionQuery?.addEventListener('change', this.onMotionChange);
       document.addEventListener('astro:page-load', this.onPageLoad);
+      document.addEventListener(VISIT_EVENT, this.onLayoutChange);
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeObserver = new ResizeObserver(this.onLayoutChange);
         if (this.footer) this.resizeObserver.observe(this.footer);
@@ -215,6 +282,7 @@ export function definePromotoBannerElement(): void {
       document.removeEventListener('visibilitychange', this.onVisibilityChange);
       this.motionQuery?.removeEventListener('change', this.onMotionChange);
       document.removeEventListener('astro:page-load', this.onPageLoad);
+      document.removeEventListener(VISIT_EVENT, this.onLayoutChange);
       this.resizeObserver?.disconnect();
       this.stopRotation();
       this.stopRefresh();
@@ -358,18 +426,21 @@ export function definePromotoBannerElement(): void {
 
     private updateVisibility(): void {
       const signature = getPromotionSetSignature(this.cards);
+      const atPageTop = isScrolledToTop(window.scrollY ?? document.documentElement.scrollTop)
+        && isPageTopRuleActive(siteVisitCount);
       const state = getPromotionVisibility(
         this.cards,
         signature,
         this.dismissedSignature,
         this.isFooterVisible(),
+        atPageTop,
       );
       const hidden = state === 'hidden' || state === 'dismissed';
       const shell = this.querySelector<HTMLElement>('[data-promoto-shell]');
       this.hidden = hidden;
       if (shell) {
         shell.hidden = hidden;
-        shell.inert = hidden || state === 'footer-hidden';
+        shell.inert = state !== 'ready';
       }
       this.dataset.state = state;
     }
@@ -383,7 +454,7 @@ export function definePromotoBannerElement(): void {
     private syncRotation(): void {
       this.stopRotation();
       const state = this.dataset.state;
-      if (state !== 'ready' && state !== 'footer-hidden' && state !== 'hidden' && state !== 'dismissed') return;
+      if (state !== 'ready' && state !== 'footer-hidden' && state !== 'top-hidden' && state !== 'hidden' && state !== 'dismissed') return;
       if (!shouldAutoRotate(
         this.cards.length,
         this.paused,
