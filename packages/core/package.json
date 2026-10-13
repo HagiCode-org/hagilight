@@ -58,6 +58,14 @@
       "types": "./dist/content-images.d.ts",
       "default": "./dist/content-images.js"
     },
+    "./build-info": {
+      "types": "./dist/build-info.d.ts",
+      "default": "./dist/build-info.js"
+    },
+    "./build-info-resolver": {
+      "types": "./dist/build-info-resolver.d.ts",
+      "default": "./dist/build-info-resolver.js"
+    },
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
