@@ -35,6 +35,22 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 const links = resolveSiteLinks('en-US');
 ```
 
+## Build info
+
+`@hagicode/hagilight-core/build-info` is browser-safe. It exports the `BuildInfo` type, `normalizeBuildInfo`, `shortCommit`, and `buildInfoItems`, which turn a resolved value into the footer's Branch, Commit, and Built items. `@hagicode/hagilight-core/build-info-resolver` is Node-only: `resolveBuildInfo({ root, env, now })` reads the value for one project. Keep Node-only code out of any module that a browser bundle imports.
+
+Each field resolves on its own, in this order:
+
+| Field | Order | Fallback |
+| --- | --- | --- |
+| Branch | `HAGILIGHT_BUILD_BRANCH`, then `git symbolic-ref --short -q HEAD` | `unknown` |
+| Commit | `HAGILIGHT_BUILD_COMMIT`, then `git rev-parse HEAD` | `unknown` |
+| Built | `now`, in UTC, truncated to whole seconds | none; always set |
+
+After trimming, `HAGILIGHT_BUILD_BRANCH` must be nonblank and free of control characters. `HAGILIGHT_BUILD_COMMIT` must be 7 to 64 hexadecimal characters and is stored lowercased. An invalid explicit value falls through to Git. Git runs with a 5-second timeout and its stderr is discarded. A detached HEAD, an unborn branch, a missing `git`, a directory outside any repository, or a timeout yields `unknown` for that field only. The resolver never throws.
+
+The footer shows the commit as its first seven characters, with the full hash in the `title` attribute. The core `Footer` renders this line only when it receives a `buildInfo` prop or the `hagilight()` integration from `@hagicode/hagilight/integration` is registered; otherwise it renders no build text.
+
 ## Content images
 
 `@hagicode/hagilight-core/content-images` normalizes the `<img>` elements in Markdown and MDX body content at build time. A body image gets the marker class `hagilight-content-image`, `loading="lazy"`, and `decoding="async"`. Values the author already set are kept, existing classes are kept, and the marker is added once.
@@ -70,6 +86,8 @@ With the unified processor, pass `rehypeContentImages()` in `rehypePlugins` inst
 ## Promotion platforms
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.
+
+The banner stays hidden while the page is at the top during a domain's first 30 visits, and while the Footer is in view. Every page load, refresh, and page-to-page navigation counts as a visit; scrolling and hash changes do not. The per-domain counter is stored in the visitor's browser under `hagilight:promoto-banner:visit-count:<hostname>` and is never sent anywhere.
 
 A promotion's `image` may also carry `sources`, the alternative image files that Index publishes in the order AVIF, WebP, then the original. The banner renders them as a `<picture>` in that order, with the original as its `<img>`, and skips any entry whose `type` is not an `image/*` media type or whose URL is unsafe. Each `src` is resolved against `https://index.hagicode.com` when the promotion documents load. If the browser fails to load a tier, the banner removes it and the next tier is used. A card without `sources` renders the plain `<img>` as before, and `sources` never affect the dismissal signature, so a dismissed banner stays dismissed when only its image chain changes.
 

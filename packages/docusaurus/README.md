@@ -71,6 +71,12 @@ An analytics object enables its provider when it contains an ID. Set `enabled` e
 - `seo.organization.url` and `seo.organization.logo` must be absolute HTTP(S) URLs.
 - The Organization and WebSite JSON-LD is still emitted when a site replaces `SiteMetadata`.
 
+## Build line
+
+The Hagilight footer shows `Branch:`, `Commit:`, and `Built:` after the attribution. The values are resolved from the site directory: `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then Git, then `unknown`; the core README gives the order. The line belongs to the Hagilight footer, so it is absent when `footer` is disabled. For a detached-HEAD CI checkout, set `HAGILIGHT_BUILD_BRANCH` in the build step as shown in the Astro README.
+
+Docusaurus evaluates the plugin again for each locale it builds, so each locale resolves its own `Built:` time. Pages within one locale share that time, but two locales built in the same run can differ by a few seconds.
+
 ## Locale catalog
 
 `@hagicode/hagilight-docusaurus/locales` exports the locale table used by the plugin:

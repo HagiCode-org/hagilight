@@ -34,6 +34,21 @@ time from this package's own manifest, not from Astro. Existing
 feature-package attribution; switch that import to `@hagicode/hagilight/Footer`
 to opt in while keeping the same `locale` and `links` props.
 
+## Build line
+
+`hagilight()` adds a build line to the footer's copyright text, after the attribution: `Branch:`, `Commit:` (seven characters, with the full hash in the `title` attribute), and `Built:` (UTC time to the second). The line appears even with `hagilight({ enabled: false })`. Without this integration, `@hagicode/hagilight-core/Footer` renders no build text.
+
+The values come from `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then Git, then `unknown`; the core README gives the full order. CI systems often check out a detached HEAD, which reports `Branch: unknown`. Pass the branch in the build step:
+
+```yaml
+- name: Build site
+  env:
+    HAGILIGHT_BUILD_BRANCH: ${{ github.head_ref || github.ref_name }}
+  run: npm run build
+```
+
+`github.head_ref` is set on pull requests and `github.ref_name` on pushes. A shallow clone still reports its commit, because `git rev-parse HEAD` reads the checkout.
+
 ## Body images
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.

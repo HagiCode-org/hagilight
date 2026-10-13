@@ -41,6 +41,10 @@ Disable the picker to keep Starlight's built-in toggle or compose `@hagicode/hag
 hagilight({ themes: { enabled: false } })
 ```
 
+### Build line
+
+The plugin footer shows the same build line as the Astro package: `Branch:`, `Commit:`, and `Built:` after the attribution. It is always on and has no option of its own. The values come from `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then Git, then `unknown`; the core README gives the order. Detached-HEAD CI checkouts report `Branch: unknown` unless the build step sets `HAGILIGHT_BUILD_BRANCH`, as shown in the Astro README. Footer components mounted directly in a page (`@hagicode/hagilight-starlight/Footer` and `PromotoFooter`) render no build text.
+
 ### Body images
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images` for the whole site. Every Markdown or MDX body image outside a `<picture>` element gets `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`. Values the author set are kept, and logos and showcase images are not changed.
