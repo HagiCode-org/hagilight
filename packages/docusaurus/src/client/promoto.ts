@@ -1,4 +1,4 @@
-import { definePromotoBannerElement } from '@hagicode/hagilight-core/promoto-banner';
+import { definePromotoBannerElement, recordSiteVisit } from '@hagicode/hagilight-core/promoto-banner';
 import { PROMOTO_SHELL_MARKUP } from './promoto-markup.js';
 
 const ELEMENT_NAME = 'hagilight-promoto-banner';
@@ -30,4 +30,5 @@ export function mountPromotoBanner(doc: Document, locale: string): void {
 export function onRouteDidUpdate(): void {
   definePromotoBannerElement();
   mountPromotoBanner(document, document.documentElement.lang || DEFAULT_LOCALE);
+  recordSiteVisit();
 }

@@ -11,6 +11,7 @@ const { mountPromotoBanner, onRouteDidUpdate } = await import(
 
 const CORE_ELEMENT_SOURCE = readFileSync(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
 const PROMOTO_CSS = readFileSync(new URL('../packages/docusaurus/promoto.css', import.meta.url), 'utf8');
+const DOCUSAURUS_CLIENT_SOURCE = readFileSync(new URL('../packages/docusaurus/src/client/promoto.ts', import.meta.url), 'utf8');
 
 function fakeDocument({ footer = null, lang = 'en-US' } = {}) {
   const nodes = [];
@@ -109,6 +110,12 @@ test('the route hook uses the document language and falls back to en-US', () => 
   }
 });
 
+test('the route hook records the visit after mounting the banner', () => {
+  assert.match(DOCUSAURUS_CLIENT_SOURCE, /import \{ definePromotoBannerElement, recordSiteVisit \} from '@hagicode\/hagilight-core\/promoto-banner';/u);
+  const hook = DOCUSAURUS_CLIENT_SOURCE.slice(DOCUSAURUS_CLIENT_SOURCE.indexOf('export function onRouteDidUpdate'));
+  assert.ok(hook.indexOf('mountPromotoBanner(') < hook.indexOf('recordSiteVisit();'));
+});
+
 test('shared markup declares every data-promoto hook that core queries', () => {
   const queried = new Set(CORE_ELEMENT_SOURCE.match(/data-promoto-[a-z]+/gu));
   assert.ok(queried.size > 0, 'core source queries promote hooks');
@@ -126,5 +133,6 @@ test('promote styles use Infima tokens and no Starlight tokens or hard-coded whi
   assert.doesNotMatch(PROMOTO_CSS, /#fff\b/iu);
   assert.match(PROMOTO_CSS, /--hagilight-promoto-cta-text: var\(--ifm-color-white\)/u);
   assert.match(PROMOTO_CSS, /data-state='footer-hidden'/u);
+  assert.match(PROMOTO_CSS, /\[data-state='top-hidden'\] \.hagilight-promoto__shell/u);
   assert.match(PROMOTO_CSS, /prefers-reduced-motion: reduce/u);
 });
