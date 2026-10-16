@@ -17,7 +17,7 @@ npm install                 # install all workspaces
 npm run build              # tsc -b: compile packages/*/src to packages/*/dist (core first)
 npm run typecheck          # build + check Astro route files and test/types fixtures
 npm test                   # build, then run node --test on test/*.test.mjs
-npm run build:example      # build packages and all three example workspaces, then verify their output
+npm run build:example      # build packages, the core-footer demo, and the Starlight demo variants, then verify their output (the Docusaurus demo is built and checked by `npm test`)
 npm run build:starlight-example  # build only the default Starlight demo (what demo-starlight-web.yml deploys)
 npm run build:docusaurus-example  # build the Docusaurus demo alone
 npm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
@@ -54,12 +54,12 @@ npm run integration:installed  # validate an installed tarball (scripts/integrat
 
 - `npm test` builds the packages, then runs `node --test test/*.test.mjs`.
 - Run tests after any change to link resolution, header/language logic, theme picker logic, promotions, AI disclosures, Google Analytics click events, or body-image handling.
-- `npm run build:example` must succeed as a consumer integration check. It also checks the body images of the default Starlight build and of the unified-processor, `hagilight()` discovery, and `contentImages` opt-out variants.
+- `npm run build:example` must succeed as a consumer integration check. It builds four Starlight configurations (default; blog-only with a base path; unified processor plus `hagilight()` discovery; promotion off plus `contentImages` opt-out) and checks the body images of each. The RSS include filters are unit-tested, not built.
 
 ## Deployment / Publishing
 
 - The `demo-*.yml` deploy workflows only build and publish their own demo (`build:starlight-example`, `build:core-footer-example`, `build:docusaurus-example`); the multi-variant verification in `build:example` runs in CI, not on deploy.
-- CI (`.github/workflows/ci.yml`) builds and type-checks all four packages, then runs tests, the example builds (`build:example`, which includes the Docusaurus demo), pack checks, and isolated installed-tarball consumers on Linux, Windows, and macOS.
+- CI (`.github/workflows/ci.yml`) type-checks all four packages and runs `npm test` (which includes real Astro and Docusaurus demo builds) on Linux, Windows, and macOS; the OS-independent `build:example`, pack checks, installed-tarball consumers, and viewport regression run on Linux only. `npm-publish.yml` repeats only type-check and test, then packs and installs the stamped tarballs.
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes all four packages to `latest` (core first; existing versions are skipped).
 - `.github/workflows/demo-web.yml` publishes `examples/demo-web/` to the `demo-web` branch and creates the `demo-web` GitHub deployment with `https://hagilight.hagicode.com/`; select `demo-web` root as this repository's GitHub Pages source instead of `gh-pages`. The branch is force-pushed as one latest commit (`force_orphan: true`, with `CNAME` and `.nojekyll` kept) on every publish, so it is not a rollback source; roll back by reverting the offending source commit on `main`.

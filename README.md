@@ -186,7 +186,7 @@ npm install
 npm run build              # tsc -b: core, then the Docusaurus, plain Astro, and Starlight packages
 npm run typecheck          # build, check Astro route entry points, and check test/types fixtures
 npm test                   # builds first, then runs node --test
-npm run build:example      # builds packages and all three examples, then verifies their output
+npm run build:example      # builds packages, the core-footer demo, and the Starlight demo variants, then verifies their output (the Docusaurus demo is built and checked by npm test)
 npm run build:starlight-example  # builds only the default Starlight demo, without the verification variants
 npm run pack:check         # verifies all four tarballs, exports, and version alignment
 npm run integration:installed  # installs tarballs into isolated core, Docusaurus, Astro, and Starlight consumers
