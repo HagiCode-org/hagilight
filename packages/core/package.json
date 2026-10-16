@@ -66,6 +66,15 @@
       "types": "./dist/build-info-resolver.d.ts",
       "default": "./dist/build-info-resolver.js"
     },
+    "./comparison-articles": {
+      "types": "./dist/comparison-articles.d.ts",
+      "default": "./dist/comparison-articles.js"
+    },
+    "./comparison-articles-source": {
+      "types": "./dist/comparison-articles-source.d.ts",
+      "default": "./dist/comparison-articles-source.js"
+    },
+    "./comparison-articles-data/*.json": "./data/comparison-articles/*.json",
     "./Copyright": "./Copyright.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
@@ -78,6 +87,7 @@
     "dist/**/*.js",
     "dist/**/*.d.ts",
     "dist/**/*.json",
+    "data/**/*.json",
     "*.astro",
     "logo.png",
     "favicon.ico"

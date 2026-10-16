@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { posix } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, posix } from 'node:path';
 import {
   PACKAGES,
   assertPackageGraph,
@@ -9,6 +9,20 @@ import {
   readManifest,
   root,
 } from './packages.mjs';
+
+const COMPARISON_ARTICLE_DATA_DIR = 'data/comparison-articles';
+
+// Every <locale>/<slug>.json in the source data must ship, so the list is read from the source tree.
+function comparisonArticleDataFiles() {
+  const dir = join(root, 'packages', 'core', COMPARISON_ARTICLE_DATA_DIR);
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((locale) =>
+      readdirSync(join(dir, locale.name), { withFileTypes: true })
+        .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+        .map((entry) => posix.join(COMPARISON_ARTICLE_DATA_DIR, locale.name, entry.name)),
+    );
+}
 
 const REQUIRED_FILES = {
   '@hagicode/hagilight-core': [
@@ -21,6 +35,11 @@ const REQUIRED_FILES = {
     'favicon.ico',
     'dist/related-sites.json',
     'dist/promoto-banner.js',
+    'dist/comparison-articles.js',
+    'dist/comparison-articles.d.ts',
+    'dist/comparison-articles-source.js',
+    'dist/comparison-articles-source.d.ts',
+    ...comparisonArticleDataFiles(),
   ],
   '@hagicode/hagilight-docusaurus': [
     'styles.css',
@@ -145,6 +164,8 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   }
   for (const { subpath, runtime, types } of exportTargets(manifest.exports)) {
     for (const target of [runtime, types].filter(Boolean)) {
+      // Pattern exports (raw JSON) are covered by the explicit file list above, not by a literal path.
+      if (target.includes('*')) continue;
       if (!files.has(target.replace(/^\.\//u, ''))) {
         throw new Error(`${name} export ${subpath} target ${target} is missing from its tarball`);
       }

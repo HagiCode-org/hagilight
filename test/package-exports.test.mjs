@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -55,6 +55,24 @@ const expectedExports = {
     'shortCommit',
   ],
   '@hagicode/hagilight-core/build-info-resolver': ['resolveBuildInfo'],
+  '@hagicode/hagilight-core/comparison-articles': [
+    'STRUCTURED_ARTICLE_CATEGORY',
+    'STRUCTURED_ARTICLE_SCHEMA_VERSION',
+    'buildStructuredArticleDetailPath',
+    'buildStructuredArticleLocaleManifestFromDetails',
+    'buildStructuredArticleLocaleManifestPath',
+    'buildStructuredArticleRootManifestFromLocaleManifests',
+    'validateStructuredArticleDetail',
+  ],
+  '@hagicode/hagilight-core/comparison-articles-source': [
+    'STRUCTURED_ARTICLE_SOURCE_ROOT',
+    'buildStructuredArticleLocaleManifest',
+    'buildStructuredArticleRootManifest',
+    'listStructuredArticleLocales',
+    'listStructuredArticleSlugs',
+    'loadStructuredArticleDetail',
+    'loadStructuredArticleLocaleDetails',
+  ],
   '@hagicode/hagilight/integration': ['hagilight', 'hagilightFavicon'],
   '@hagicode/hagilight-starlight': ['default'],
   '@hagicode/hagilight-starlight/locales': ['locales'],
@@ -66,6 +84,12 @@ test('every JavaScript export resolves to built ESM with a sibling declaration f
   const seen = new Set();
   for (const { directory, manifest } of packages) {
     for (const [subpath, target] of Object.entries(manifest.exports)) {
+      if (subpath.includes('*')) {
+        // Pattern exports map to packaged data files, not to modules; checked in the raw JSON test below.
+        assert.equal(typeof target, 'string', `${manifest.name} ${subpath} must be a plain pattern target`);
+        assert.match(target, /\*\.json$/u, `${manifest.name} ${subpath} must map JSON files only`);
+        continue;
+      }
       if (typeof target === 'string') {
         assert.doesNotMatch(target, /\.(?:m?js|ts)$/u, `${manifest.name} ${subpath} must use a types/default condition`);
         assert.ok(existsSync(join(root, 'packages', directory, target)), `${manifest.name} ${subpath} exists`);
@@ -83,6 +107,22 @@ test('every JavaScript export resolves to built ESM with a sibling declaration f
     }
   }
   assert.deepEqual([...seen].sort(), Object.keys(expectedExports).sort());
+});
+
+test('the comparison article raw JSON pattern export resolves every packaged article file', () => {
+  const core = packages[0].manifest;
+  const pattern = core.exports['./comparison-articles-data/*.json'];
+  assert.equal(pattern, './data/comparison-articles/*.json');
+  const locales = readdirSync(join(root, 'packages', 'core', 'data', 'comparison-articles'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory());
+  assert.equal(locales.length, 10);
+  let articles = 0;
+  for (const locale of locales) {
+    articles += readdirSync(join(root, 'packages', 'core', 'data', 'comparison-articles', locale.name))
+      .filter((file) => file.endsWith('.json')).length;
+  }
+  assert.equal(articles, 136);
+  assert.ok(core.files.includes('data/**/*.json'), 'core ships the comparison article data');
 });
 
 test('feature packages depend on the matching shared core and not on each other', () => {
