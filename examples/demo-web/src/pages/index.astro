@@ -113,6 +113,21 @@ const sections = [
     ],
   },
   {
+    id: 'shared-data',
+    title: 'Shared data',
+    description: 'Packaged data and contracts that other sites can read without keeping their own copy.',
+    features: [
+      {
+        id: 'comparison-articles',
+        title: 'Comparison article data',
+        kind: 'Packaged data · browser-safe contract, Node loaders and raw JSON',
+        summary: 'The comparison articles ship inside the package. @hagicode/hagilight-core/comparison-articles holds the browser-safe contract, @hagicode/hagilight-core/comparison-articles-source loads the packaged files in Node, and @hagicode/hagilight-core/comparison-articles-data/*.json imports one article as raw JSON.',
+        evidence: 'The data is not rendered on this page; the example shows how a consumer reads it.',
+        example: "import { buildStructuredArticleRootManifest } from '@hagicode/hagilight-core/comparison-articles-source';\nimport { validateStructuredArticleDetail } from '@hagicode/hagilight-core/comparison-articles';\nimport claude from '@hagicode/hagilight-core/comparison-articles-data/en-US/claude-vs-hagicode.json' with { type: 'json' };\n\nconst manifest = await buildStructuredArticleRootManifest();\nconst article = validateStructuredArticleDetail(claude);",
+      },
+    ],
+  },
+  {
     id: 'optional-integrations',
     title: 'Optional integrations',
     description: 'The imports below are examples only; this showcase does not load analytics or send visitor data.',

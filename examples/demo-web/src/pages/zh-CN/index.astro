@@ -113,6 +113,21 @@ const sections = [
     ],
   },
   {
+    id: 'shared-data',
+    title: '共享数据',
+    description: '打包在包内的数据与契约，其他站点无需保留自己的副本即可读取。',
+    features: [
+      {
+        id: 'comparison-articles',
+        title: '对比文章数据',
+        kind: '打包数据 · 浏览器安全契约、Node 加载器与原始 JSON',
+        summary: '对比文章随包一同发布。@hagicode/hagilight-core/comparison-articles 提供浏览器安全的契约，@hagicode/hagilight-core/comparison-articles-source 在 Node 中读取打包文件，@hagicode/hagilight-core/comparison-articles-data/*.json 则可把单篇文章作为原始 JSON 导入。',
+        evidence: '本页不渲染这些数据；下方示例展示使用方如何读取它们。',
+        example: "import { buildStructuredArticleRootManifest } from '@hagicode/hagilight-core/comparison-articles-source';\nimport { validateStructuredArticleDetail } from '@hagicode/hagilight-core/comparison-articles';\nimport claude from '@hagicode/hagilight-core/comparison-articles-data/en-US/claude-vs-hagicode.json' with { type: 'json' };\n\nconst manifest = await buildStructuredArticleRootManifest();\nconst article = validateStructuredArticleDetail(claude);",
+      },
+    ],
+  },
+  {
     id: 'optional-integrations',
     title: '可选集成',
     description: '以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。',
