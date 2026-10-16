@@ -116,8 +116,8 @@ A click on a tagged link calls `gtag('event', <action>, …)` once:
 
 | Field | Value |
 | --- | --- |
-| Event name (action) | `download_click` for the `download` category, `link_click` for every other category |
-| `event_category` | `download`, `navigation`, `community`, or `promotion` |
+| Event name (action) | `download_click` for the `download` category, `store_visit` for the `store` category, `link_click` for every other category |
+| `event_category` | `download`, `store`, `navigation`, `community`, or `promotion` |
 | `event_label` | The link's stable id (for example `downloadClient`), never its localized text |
 | `link_location` | Where the link sits: `header`, `footer`, `article_promotion`, `promoto_banner`, or your own value |
 | `link_url` | The destination at click time |
@@ -129,12 +129,15 @@ Reporting never delays, cancels, or changes navigation, and carries no link text
 
 The shared components tag exactly these links. The authoritative list is `TRACKED_SITE_LINKS` in `src/analytics-events.ts`; renaming a link id changes its GA label.
 
+Use `store` for links to a store listing page (Microsoft Store, Steam), which reports `store_visit`. Use `download` for installers and download-hub entry points, which report `download_click`. A single click reports under one category only.
+
 | `event_label` | `event_category` | Reported from |
 | --- | --- | --- |
 | `home`, `blog`, `support` | `navigation` | header (`home` also in the HagiCode showcase) |
 | `dockerCompose`, `blogPosts` | `navigation` | footer quick links |
 | `productDocs` | `navigation` | footer quick links, HagiCode showcase |
-| `downloadClient`, `microsoftStore` | `download` | footer quick links, HagiCode showcase (the Microsoft Store badge and its fallback link report `microsoftStore`) |
+| `downloadClient` | `download` | footer quick links, HagiCode showcase (all-downloads link) |
+| `microsoftStore` | `store` | footer quick links, HagiCode showcase (the Microsoft Store badge and its fallback link report `microsoftStore`) |
 | `github`, `discord`, `issueFeedback` | `community` | footer community links |
 | the promotion's id | `promotion` | floating promotion banner call to action, including rotated slides |
 
@@ -153,7 +156,7 @@ import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
 >Download</a>
 ```
 
-`gaEventAttributes()` returns the `data-ga-category`, `data-ga-label`, `data-ga-location`, and optional `data-ga-url` attributes (pass `url` when the tagged element has no `href` of its own). It throws a `TypeError` for an unknown category or an empty label or location. A hand-written `data-ga-*` tag with an invalid category is ignored at click time. The page must render `GoogleAnalytics` for the click to be reported. `siteLinkGaAttributes(link, location)` tags a resolved site link and returns `{}` for ids outside the tracked list.
+`gaEventAttributes()` returns the `data-ga-category`, `data-ga-label`, `data-ga-location`, and optional `data-ga-url` attributes (pass `url` when the tagged element has no `href` of its own). It throws a `TypeError` for an unknown category or an empty label or location. The category must be one of `download`, `store`, `navigation`, `community`, or `promotion`; action names such as `store_visit` are not categories. For a store listing, use `category: 'store'`, for example `gaEventAttributes({ category: 'store', label: 'openSteamStore', location: 'pricing' })`. A hand-written `data-ga-*` tag with an invalid category is ignored at click time. The page must render `GoogleAnalytics` for the click to be reported. `siteLinkGaAttributes(link, location)` tags a resolved site link and returns `{}` for ids outside the tracked list.
 
 ### Reports
 
