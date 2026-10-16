@@ -108,6 +108,51 @@ The banner stays hidden while the page is at the top during a domain's first 30 
 
 A promotion's `image` may also carry `sources`, the alternative image files that Index publishes in the order AVIF, WebP, then the original. The banner renders them as a `<picture>` in that order, with the original as its `<img>`, and skips any entry whose `type` is not an `image/*` media type or whose URL is unsafe. Each `src` is resolved against `https://index.hagicode.com` when the promotion documents load. If the browser fails to load a tier, the banner removes it and the next tier is used. A card without `sources` renders the plain `<img>` as before, and `sources` never affect the dismissal signature, so a dismissed banner stays dismissed when only its image chain changes.
 
+## First-party links and campaign tags
+
+Shared link resolution classifies every destination from its parsed URL, never from substring matching, and chooses the relation attribute by that class.
+
+| Class | Destinations | `rel` on a new-tab link |
+| --- | --- | --- |
+| `same-origin` | Relative URLs, or the site's own origin when `siteUrl` is set | `noopener` |
+| `first-party` | Host `hagicode.com` or a subdomain of it (case-insensitive); `github.com` under the `HagiCode-org` organization | `noopener` |
+| `third-party` | Every other `http:`/`https:` destination, and any other protocol | `noopener noreferrer` |
+
+Look-alikes are third-party: `hagicode.com.evil.example`, `nothagicode.com`, `github.com/HagiCode-org-fake/site`, and `example.com/hagicode.com`. Same-tab links get no policy `rel`. The site-wide `Referrer-Policy` is unchanged, so a first-party link sends only the origin, and no site should declare `unsafe-url`.
+
+The helpers are exported from `@hagicode/hagilight-core/links`: `classifyLink(href, { origin? })`, `getLinkRel(class)`, and `withCampaignUtm(href, { siteId, medium, origin? })`. `SiteLink.rel` is typed `'noopener' | 'noopener noreferrer'`.
+
+### Campaign tags
+
+Set `siteId` to the identifier of the hosting site, and first-party `hagicode.com` destinations in the footer get campaign parameters:
+
+```js
+resolveSiteLinks('en-US', { siteId: 'docs' });
+// quick → downloadClient: https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=footer
+```
+
+- Footer `quick`, `community` and related-site entries are tagged with `utm_medium=footer`. The banner call to action is tagged with `utm_medium=promoto`. Header and filing links are not tagged.
+- Only `https:` destinations on `hagicode.com` hosts are tagged. GitHub, `mailto:`, `tel:`, third-party, same-origin and relative destinations are left unchanged, and so is every destination when `siteId` is absent or blank.
+- Existing `utm_source` or `utm_medium` values win. Other query parameters and the fragment are kept.
+- Tags are added after deduplication, so a tagged and a clean destination still collapse into one entry. `normalizeUrl` is unchanged. Canonical URLs, `og:url` and sitemap entries are built from page URLs and never contain `utm_*`.
+- Footer clicks report the tagged `href` as `link_url` in the GA click event. The `link_url` dimension therefore includes `utm_source` and `utm_medium` for first-party footer clicks. No new event parameter is added.
+
+### Options
+
+- `links.siteId` (Starlight, Docusaurus, and the `Footer`/`Header` components) enables footer tags. The Starlight and Docusaurus promotion banners read this same value.
+- `PromotoBanner` accepts an optional `siteId` prop, written to `data-site-id`. Without it the banner keeps the class-based `rel` and leaves destinations unchanged.
+- Each slide is classified and tagged on its own when it renders, so a rotation from a third-party campaign to a first-party one gets the first-party `rel` and tags.
+
+### Google Analytics cross-domain linker
+
+Decision, recorded 2026-10-15 under the `first-party-link-policy-and-attribution` change: **no linker domain list is configured.**
+
+- Every first-party host that runs HagiCode's shared `gtag` is a subdomain of `hagicode.com` (`www`, `docs`, `cost`, `design`, `index`, `soul`, `omniroute`, `openspec`, `impeccable`, `builder`, `newbe`, `awesome`, `tasks`, `trait`, `status`, `api`, and the download hosts `dl-server`, `server.dl`, `desktop.dl`, `dl-desktop`). They share the measurement ID `G-EN03FMT2Q4`, and GA4 sets its cookie on the registrable domain `hagicode.com`, so `_ga` and the session already follow a visitor between these subdomains. A linker would add nothing for them.
+- One first-party destination sits on another registrable domain: `github.com/HagiCode-org/*`. It runs no HagiCode `gtag` and cannot read a `_gl` parameter, so a linker would only append `_gl` to GitHub links and make them longer. No linker is needed for it.
+- Other hosts that appear in the sites, such as `hagicode-org.github.io` and Azure blob storage, are third-party under this policy and are outside the decision.
+- Constraints that any future linker must respect: one `gtag('config', id)` call per page, so a `linker` setting is added to that single call in `GoogleAnalytics.astro`; the sites with their own inline `gtag` copies would each need the same change; and `_gl` must never reach canonical or sitemap URLs.
+- Revisit this decision when a HagiCode-owned site runs the shared `gtag` on a registrable domain other than `hagicode.com`, or when a first-party destination on another domain also runs HagiCode's `gtag` and needs session continuity. Then list the host, add it to the linker in the single `config` call, and update the GA reference document, which lives in the monorepo root and needs its owner's follow-up edit.
+
 ## Google Analytics click events
 
 `GoogleAnalytics` also reports clicks on the key links and download buttons that the shared components render. There is nothing to configure: events follow the same rules as page views, so they are sent only on production pages where Google Analytics is enabled, never on the Starlight 404 page, and silently skipped when `gtag` is missing (development builds, blocked scripts).

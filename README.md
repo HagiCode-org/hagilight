@@ -146,6 +146,10 @@ export default {
 
 The built-in analytics IDs belong to HagiCode, so set your own IDs or disable each provider. Every option, its default, and the sitemap, `robots.txt`, and RSS rules are in the [package README](packages/docusaurus/README.md). The demo in `examples/demo-docusaurus-web` is published at https://docusaurus.hagicode.com/.
 
+## First-party links and campaign tags
+
+Shared links classify each destination as same-origin, first-party (`hagicode.com` and its subdomains, plus `github.com/HagiCode-org`), or third-party. First-party and same-origin new-tab links use `rel="noopener"`; third-party links keep `rel="noopener noreferrer"`. Setting `links.siteId` adds `utm_source=<siteId>&utm_medium=footer` (or `promoto` for the banner) to first-party `hagicode.com` footer and banner destinations, after deduplication and never on GitHub, third-party, or same-origin links. The Google Analytics cross-domain linker is not configured, because every first-party host that runs the shared `gtag` shares the `hagicode.com` cookie domain. The full rules, options and the linker decision are in the [core package README](packages/core/README.md#first-party-links-and-campaign-tags).
+
 ## Google Analytics click events
 
 `GoogleAnalytics` (included by the Starlight plugin) reports clicks on key links and download buttons as GA4 events, with no configuration. Events are sent only on production pages where Google Analytics is enabled, never on the 404 page, and are skipped when `gtag` is missing.
