@@ -60,6 +60,13 @@ Core ships the 136 `*-vs-hagicode` comparison articles (10 locales) as JSON unde
 
 Loading fails with an error that names the file when an article's `locale` or `slug` does not match its directory or file name.
 
+The schema has two optional parts for real comparisons, both backward compatible with the earlier files:
+
+- Block type `comparison-table`: `{ id, type, caption?, headers, rows }`. `headers` has at least two entries (the first labels the row-label column); each row is `{ id, cells }` with exactly one cell per header and the row label first. The consuming site renders it as an HTML `<table>`.
+- Top-level `faq`: a non-empty list of `{ question, answer }`. The consuming site renders it visibly and emits the same text as `FAQPage` structured data, so keep answers self-contained.
+
+Only `en-US` and `zh-CN` carry the rewritten comparison structure (short answer, comparison table, what the agent does well, when to choose which, co-use guide, shared HagiCode section, bottom line, FAQ). The other eight locales still hold the earlier template and get rewritten only after the English page shows search impressions for comparison queries; do not add new template articles to them. `test/comparison-article-content.test.mjs` enforces both generations.
+
 For one article without the loaders, import the raw JSON through the pattern export:
 
 ```ts
