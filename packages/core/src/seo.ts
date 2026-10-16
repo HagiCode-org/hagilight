@@ -94,7 +94,14 @@ export function extractSeoDescription(body: unknown): string | undefined {
   if (typeof body !== 'string' || !body.trim()) return undefined;
   const text = body
     .replace(/^```[\s\S]*?^```/gmu, ' ')
+    // A table of contents is navigation, not a summary: drop the heading and its link list.
+    .replace(/^#{1,6}\s*(?:table of contents|contents|toc|目录|目錄)\s*$(?:\n\s*(?:[-*+]|\d+\.)\s.*$|\n\s*$)*/gimu, ' ')
     .replace(/^import\s.+;?\s*$/gmu, ' ')
+    // Document furniture is not a summary: metadata lines (Last updated, Version, Status, ...),
+    // horizontal rules and table rows.
+    .replace(/^\s*(?:>\s*)*(?:[-*]\s+)?[_*]{0,2}(?:last updated|updated|version|status|date|audience|refs?|source of truth|owner|authors?)(?::[_*]{0,2}|[_*]{0,2}:)[^\n]*$/gimu, ' ')
+    .replace(/^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/gmu, ' ')
+    .replace(/^\s*\|.*\|\s*$/gmu, ' ')
     .replace(/!\[([^\]]*)\]\([^)]*\)/gu, '$1')
     .replace(/\[([^\]]+)\]\([^)]*\)/gu, '$1')
     .replace(/<[^>]*>/gu, ' ')
@@ -202,6 +209,9 @@ export function composeSeoHead(
 ): HeadEntry[] {
   const explicit = explicitMetaKeys(explicitHead);
   const values: [string, string | undefined][] = [
+    // Starlight emits `<meta name="description">` from the site-wide description for pages without
+    // their own, while og/twitter carry the page excerpt. Keep all three in step.
+    ['name:description', metadata.description],
     ['property:og:title', metadata.title],
     ['property:og:description', metadata.description],
     ['property:og:image', metadata.image],
@@ -214,6 +224,8 @@ export function composeSeoHead(
   const result = head.filter((entry) => {
     const key = metaKey(entry);
     if (!key || !generatedKeys.has(key)) return true;
+    // Never drop an existing description when there is nothing to replace it with.
+    if (key === 'name:description' && metadata.description === undefined) return true;
     if (explicit.has(key)) {
       if (seen.has(key)) return false;
       seen.add(key);

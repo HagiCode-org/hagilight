@@ -252,6 +252,63 @@ npm install
   assert.equal(frontmatter.description, 'Frontmatter summary');
 });
 
+test('skips a table of contents when extracting the body excerpt', () => {
+  const body = `> Complete Docker deployment reference.
+
+## Table of Contents
+
+- [Quick Run](#quick-run)
+- [Docker Compose](#docker-compose)
+
+## Quick Run
+
+Run the container.
+`;
+  assert.equal(extractSeoDescription(body), 'Complete Docker deployment reference. Quick Run Run the container.');
+});
+
+test('skips metadata lines, rules and tables when extracting the body excerpt', () => {
+  const body = `# Architecture
+
+Last updated: 2026-06-28
+Version: v3.8.51
+**Status:** proposal
+_Last updated: 2026-06-30_
+> **Audience:** Engineers
+> **Source of truth:** src/a.ts
+
+---
+
+| Key | Value |
+| --- | --- |
+| a | b |
+
+OmniRoute is a local AI routing gateway.
+`;
+  assert.equal(extractSeoDescription(body), 'Architecture OmniRoute is a local AI routing gateway.');
+  assert.equal(
+    extractSeoDescription('Version control is covered below. Status updates follow.'),
+    'Version control is covered below. Status updates follow.',
+    'prose that merely starts with a keyword stays',
+  );
+});
+
+test('replaces the generic meta description with the page description', () => {
+  const generic = { tag: 'meta', attrs: { name: 'description', content: 'Generic site description' } };
+  const output = composeSeoHead([generic], { title: 'T', description: 'Page excerpt' });
+  const tags = output.filter(({ attrs }) => attrs?.name === 'description');
+  assert.equal(tags.length, 1);
+  assert.equal(tags[0].attrs.content, 'Page excerpt');
+
+  const untouched = composeSeoHead([generic], { title: 'T' });
+  assert.equal(untouched.find(({ attrs }) => attrs?.name === 'description'), generic);
+
+  const explicit = { tag: 'meta', attrs: { name: 'description', content: 'Frontmatter head description' } };
+  const kept = composeSeoHead([explicit], { title: 'T', description: 'Page excerpt' }, [[explicit]]);
+  assert.equal(kept.filter(({ attrs }) => attrs?.name === 'description').length, 1);
+  assert.equal(kept.find(({ attrs }) => attrs?.name === 'description'), explicit);
+});
+
 test('composes unique share metadata while preserving explicit head and RSS entries', () => {
   const explicit = { tag: 'meta', attrs: { property: 'og:title', content: 'Consumer title' } };
   const rss = { tag: 'link', attrs: { rel: 'alternate', type: 'application/rss+xml', href: '/rss.xml' } };
