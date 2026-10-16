@@ -150,11 +150,19 @@ function verifyDefaultLinksAndAnalytics() {
   assert.ok(!html.includes('hagilight-site-description'));
   assert.match(
     html,
-    /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
+    /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*target="_blank"[^>]*rel="noopener"/u,
+  );
+  assert.doesNotMatch(
+    html,
+    /href="https:\/\/github\.com\/HagiCode-org\/site"[^>]*rel="[^"]*noreferrer/u,
   );
   assert.match(
     html,
-    /href="https:\/\/tasks\.hagicode\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
+    /href="https:\/\/tasks\.hagicode\.com\/[^"]*"[^>]*target="_blank"[^>]*rel="noopener"/u,
+  );
+  assert.match(
+    html,
+    /href="https:\/\/discord\.gg\/qY662sJK"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
   );
   assert.ok(html.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'));
   assert.ok(html.includes("window.gtag('config', \"G-EN03FMT2Q4\")"));
