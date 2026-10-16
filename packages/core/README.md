@@ -107,6 +107,10 @@ export default defineConfig({
 
 With the unified processor, pass `rehypeContentImages()` in `rehypePlugins` instead, from `@astrojs/markdown-remark`'s `unified()`. Integrations that wrap Astro can call `registerContentImages({ config, logger, enabled })` in `astro:config:setup` and `checkContentImageRegistration({ config, logger, enabled })` in `astro:config:done`, both exported from the same entry point.
 
+## Banner placement
+
+The banner is a fixed card at most `42rem` wide, centered between two insets: `--hagilight-promoto-inset-start` and `--hagilight-promoto-inset-end` (both default to `0px`). A layout with a sidebar or a table of contents sets them on `:root` so the card sits in the content column instead of over those rails. `@hagicode/hagilight-starlight` derives them from Starlight's own layout tokens, and `@hagicode/hagilight-docusaurus` measures the doc content column at runtime. A plain Astro site needs nothing.
+
 ## Promotion platforms
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.
