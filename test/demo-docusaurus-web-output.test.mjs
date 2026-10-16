@@ -5,6 +5,7 @@ import { join, relative } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defaultLocale, locales } from '../packages/docusaurus/dist/locales.js';
+import { verifyBuildInfo } from '../scripts/build-info-assertions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const variants = join(root, 'examples/demo-docusaurus-web/node_modules/.hagilight-variants');
@@ -41,6 +42,20 @@ function filesUnder(dir) {
 function metaTags(html, attribute) {
   return [...html.matchAll(new RegExp(`<meta\\b[^>]*${attribute}[^>]*>`, 'gu'))].map(([tag]) => tag);
 }
+
+test('every locale home shows build info and the home pages carry canonical and hreflang metadata', () => {
+  const linkValues = (head, attribute, rel) => [...head.matchAll(new RegExp(`<link\\b([^>]*\\brel="${rel}"[^>]*)>`, 'gu'))]
+    .map(([, attrs]) => attrs.match(new RegExp(`\\b${attribute}="([^"]*)"`, 'u'))?.[1])
+    .filter(Boolean);
+  for (const locale of locales) verifyBuildInfo(read(enabledDist, `${dirOf(locale)}index.html`), `${locale} Docusaurus home`);
+  const english = headOf(read(enabledDist, 'index.html'));
+  assert.deepEqual(linkValues(english, 'hreflang', 'alternate').sort(), [...locales, 'x-default'].sort());
+  assert.deepEqual(linkValues(english, 'href', 'canonical'), ['https://docusaurus.hagicode.com/']);
+  assert.deepEqual(
+    linkValues(headOf(read(enabledDist, 'zh-CN/index.html')), 'href', 'canonical'),
+    ['https://docusaurus.hagicode.com/zh-CN/'],
+  );
+});
 
 test('every locale home renders the footer with attribution for this plugin version', () => {
   for (const locale of locales) {

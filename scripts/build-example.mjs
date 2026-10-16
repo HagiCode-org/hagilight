@@ -7,7 +7,6 @@ import { fileURLToPath } from 'node:url';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
-import { defaultLocale, locales } from '../packages/docusaurus/dist/locales.js';
 import { verifyBuildInfo } from './build-info-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
@@ -50,18 +49,6 @@ function buildCoreFooter() {
   });
   const outputDir = join(root, 'examples/demo-web/dist');
   return (filename) => readFileSync(join(outputDir, filename), 'utf8');
-}
-
-const DOCUSAURUS_DIST = join(root, 'examples/demo-docusaurus-web/node_modules/.hagilight-variants/docusaurus');
-
-function buildDocusaurus() {
-  rmSync(DOCUSAURUS_DIST, { recursive: true, force: true });
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example', '--', '--out-dir', DOCUSAURUS_DIST], {
-    cwd: root,
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  });
-  return (filename) => readFileSync(join(DOCUSAURUS_DIST, filename), 'utf8');
 }
 
 function feedItems(xml) {
@@ -301,36 +288,6 @@ function verifyCoreFooterOutput(read) {
   assert.ok(!english.includes('探索 Hagilight core'));
   assert.ok(!chinese.includes('Explore Hagilight core'));
 }
-
-function verifyDocusaurusOutput(read) {
-  for (const locale of locales) {
-    const dir = locale === defaultLocale ? '' : `${locale}/`;
-    const { html } = pageHead(read, `${dir}index.html`);
-    assert.ok(html.includes('hagilight-footer__attribution'), `${locale} home has the Hagilight footer`);
-    verifyBuildInfo(html, `${locale} Docusaurus home`);
-  }
-
-  const english = pageHead(read, 'index.html');
-  assert.ok(english.html.includes('https://www.googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'), 'the home page loads the Google Analytics tag');
-  assert.ok(english.html.includes('https://sdk.51.la/js-sdk-pro.min.js'), 'the home page loads the 51LA SDK');
-  assert.ok(english.html.includes('L6b88a5yK4h2Xnci'), 'the home page configures the 51LA id');
-
-  const clientBundles = readdirSync(join(DOCUSAURUS_DIST, 'assets/js')).filter((name) => name.endsWith('.js'));
-  assert.ok(
-    clientBundles.some((name) => read(`assets/js/${name}`).includes('hagilight-promoto-banner')),
-    'the client bundle mounts the promote banner',
-  );
-
-  assert.deepEqual(
-    headAttributeValues(english.head, 'link', 'hreflang', 'rel="alternate"').sort(),
-    [...locales, 'x-default'].sort(),
-    'the home page lists every locale and x-default',
-  );
-  assert.deepEqual(headAttributeValues(english.head, 'link', 'href', 'rel="canonical"'), ['https://docusaurus.hagicode.com/']);
-  const chinese = pageHead(read, 'zh-CN/index.html');
-  assert.deepEqual(headAttributeValues(chinese.head, 'link', 'href', 'rel="canonical"'), ['https://docusaurus.hagicode.com/zh-CN/']);
-}
-
 
 const SHOWCASE_PAGES = {
   'en-US': 'index.html',
@@ -744,6 +701,8 @@ assert.ok(traditionalChineseHome.includes('本頁示範了覆寫'));
 assert.ok(!readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8')
   .includes('https://hagistar.hagicode.com/rss.en.xml'));
 
+// One build per distinct configuration; independent toggles share a build. The RSS include
+// filters are unit-tested in test/starlight-rss.test.mjs, so only the base-path case is built.
 const blogOnly = build({
   HAGILIGHT_EXAMPLE_BASE: '/rss-blog-only/',
   HAGILIGHT_RSS_INCLUDE_DOCS: 'false',
@@ -753,29 +712,25 @@ const blogOnlyLinks = itemLinks(blogOnly('rss.xml'));
 assert.ok(blogOnlyLinks.length > 0);
 assert.ok(blogOnlyLinks.every((link) => /\/rss-blog-only\/blog\//u.test(link)));
 
-const docsOnly = build({
-  HAGILIGHT_EXAMPLE_BASE: '/rss-docs-only/',
-  HAGILIGHT_RSS_INCLUDE_BLOG: 'false',
-}, join(EXAMPLE_OUTPUT_ROOT, 'docs-only'));
-const docsOnlyLinks = itemLinks(docsOnly('rss.xml'));
-assert.ok(docsOnlyLinks.length > 0);
-assert.ok(docsOnlyLinks.every((link) => link.includes('/rss-docs-only/')));
-assert.ok(docsOnlyLinks.every((link) => !link.includes('/blog/')));
+const unifiedDiscoveryFeeds = build({
+  HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified',
+  HAGILIGHT_EXAMPLE_DISCOVERY: 'true',
+}, join(EXAMPLE_OUTPUT_ROOT, 'unified-discovery'));
+verifyBodyImages(unifiedDiscoveryFeeds);
+verifyMarkdownPage(unifiedDiscoveryFeeds);
+verifyMdxPage(unifiedDiscoveryFeeds);
 
-const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'showcase-disabled');
-verifyShowcaseDisabled(build({ HAGILIGHT_EXAMPLE_PROMOTION: 'false' }, disabledDist), disabledDist);
-const unifiedFeeds = build({ HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR: 'unified' }, join(EXAMPLE_OUTPUT_ROOT, 'unified'));
-verifyBodyImages(unifiedFeeds);
-verifyMarkdownPage(unifiedFeeds);
-verifyMdxPage(unifiedFeeds);
-verifyBodyImages(build({ HAGILIGHT_EXAMPLE_DISCOVERY: 'true' }, join(EXAMPLE_OUTPUT_ROOT, 'discovery')));
-const contentImagesOffFeeds = build({ HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off' }, join(EXAMPLE_OUTPUT_ROOT, 'content-images-off'));
-verifyContentImagesDisabled(contentImagesOffFeeds);
-verifyMarkdownPage(contentImagesOffFeeds, false);
-verifyMdxPage(contentImagesOffFeeds, false);
+const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'disabled');
+const disabledFeeds = build({
+  HAGILIGHT_EXAMPLE_PROMOTION: 'false',
+  HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off',
+}, disabledDist);
+verifyShowcaseDisabled(disabledFeeds, disabledDist);
+verifyContentImagesDisabled(disabledFeeds);
+verifyMarkdownPage(disabledFeeds, false);
+verifyMdxPage(disabledFeeds, false);
 const coreFooterFeeds = buildCoreFooter();
 verifyCoreFooterOutput(coreFooterFeeds);
 for (const page of ['index.html', 'zh-CN/index.html']) verifyBuildInfo(coreFooterFeeds(page), `core footer ${page}`);
 verifyMarkdownPictures(coreFooterFeeds);
-verifyDocusaurusOutput(buildDocusaurus());
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');
