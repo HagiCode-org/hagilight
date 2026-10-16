@@ -167,7 +167,8 @@ test('loaders read the packaged data from a different working directory', async 
 
     assert.equal(result.locales, expected.localeIndexes.length);
     assert.equal(result.en, (await buildStructuredArticleLocaleManifest('en-US')).articles.length);
-    assert.equal(result.cwd, await realpath(cwd));
+    // Windows may report 8.3 short names (RUNNER~1) for one side; compare resolved paths.
+    assert.equal(await realpath(result.cwd), await realpath(cwd));
   } finally {
     await rm(cwd, { recursive: true, force: true });
   }
