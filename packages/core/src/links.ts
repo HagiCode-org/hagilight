@@ -1,4 +1,15 @@
 import docsRelatedSites from './related-sites.json' with { type: 'json' };
+import { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
+import type { LinkRel } from './link-policy.js';
+
+export { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
+export type {
+  CampaignMedium,
+  CampaignTagOptions,
+  ClassifyLinkOptions,
+  LinkClass,
+  LinkRel,
+} from './link-policy.js';
 
 export type SiteLinkKey =
   | 'home'
@@ -32,7 +43,7 @@ export interface SiteLink {
   href: string;
   ariaLabel?: string;
   target?: '_blank';
-  rel?: 'noopener noreferrer';
+  rel?: LinkRel;
 }
 
 export interface SiteLinkOverride {
@@ -318,11 +329,22 @@ function normalizeUrl(value: string): string {
   return url.origin === 'https://hagilight.invalid' ? url.pathname : url.toString();
 }
 
+function siteOriginOf(siteUrl?: string): string | undefined {
+  if (!siteUrl) return undefined;
+  try {
+    const { protocol, origin } = new URL(siteUrl);
+    return protocol === 'http:' || protocol === 'https:' ? origin : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function resolveLink(
   key: SiteLinkKey | string,
   locale: string,
   definition: LinkDefinition,
   override?: SiteLinkOverride,
+  origin?: string,
 ): SiteLink {
   const defaultHref = typeof definition.href === 'function' ? definition.href(locale) : definition.href;
   const href = override?.href === undefined ? defaultHref : resolveLocalized(override.href, locale, defaultHref);
@@ -338,12 +360,13 @@ function resolveLink(
     ...(definition.ariaLabel
       ? { ariaLabel: resolveLocalized(definition.ariaLabel, locale, label) }
       : {}),
-    ...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+    ...(external ? { target: '_blank', rel: getLinkRel(classifyLink(href, { origin })) } : {}),
   };
 }
 
 export function resolveSiteLinks(localeInput?: string | null, options: SiteLinksOptions = {}) {
   const locale = normalizeLocale(localeInput);
+  const origin = siteOriginOf(options.siteUrl);
   if (options.rssFeedUrl !== undefined && typeof options.rssFeedUrl !== 'string') {
     throw new TypeError('RSS feed URL must be a string.');
   }
@@ -369,7 +392,7 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
           : key === 'rssLocale'
             ? { ...defaultLinks[key], href: options.rssLocaleFeedUrl ?? '' }
             : defaultLinks[key];
-        return resolveLink(key, locale, definition, override);
+        return resolveLink(key, locale, definition, override, origin);
       });
       const extraLinks = (options.extraLinks?.[group] ?? []).map((entry, index) => {
         const definition: LinkDefinition = {
@@ -381,7 +404,7 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
         if (typeof id !== 'string' || !id.trim()) {
           throw new TypeError('Extra link IDs must be non-empty strings.');
         }
-        return resolveLink(id, locale, definition);
+        return resolveLink(id, locale, definition, undefined, origin);
       });
       const links = [...catalogLinks, ...extraLinks].filter((link): link is SiteLink => link !== undefined);
       if (group !== 'quick' && group !== 'community') return [group, links];
@@ -430,9 +453,15 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
           : undefined,
         href,
         target: '_blank' as const,
-        rel: 'noopener noreferrer' as const,
+        rel: getLinkRel(classifyLink(href, { origin })),
       }];
     });
+
+  // Campaign tags are added after deduplication and never reach the
+  // dedup sets above, so a tagged and a clean destination still collapse.
+  const tag = <T extends { href: string }>(link: T): T => (options.siteId
+    ? { ...link, href: withCampaignUtm(link.href, { siteId: options.siteId, medium: 'footer', origin }) }
+    : link);
 
   return {
     locale,
@@ -487,9 +516,9 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
       },
     },
     header: resolvedGroups.header,
-    quick: resolvedGroups.quick,
-    community: resolvedGroups.community,
+    quick: resolvedGroups.quick.map(tag),
+    community: resolvedGroups.community.map(tag),
     filings: resolvedGroups.filings,
-    relatedSites,
+    relatedSites: relatedSites.map(tag),
   };
 }

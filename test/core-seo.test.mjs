@@ -96,6 +96,23 @@ test('uses page metadata over site defaults and preserves consumer-owned head en
   assert.equal(head.includes(unrelated), true);
 });
 
+test('canonical SEO URLs never carry campaign parameters from tagged footer links', () => {
+  const taggedPage = 'https://docs.example.test/manual/page/?utm_source=docs&utm_medium=footer#section';
+  assert.equal(resolveCanonicalUrl(taggedPage, { site: 'https://docs.example.test' }),
+    'https://docs.example.test/manual/page/');
+
+  const metadata = resolveSeoMetadata({
+    pageSeo: { title: 'Page title', description: 'Page description' },
+    site: 'https://docs.example.test',
+  });
+  const head = composeCanonicalSeoHead([], { ...metadata, site: 'https://docs.example.test' }, {
+    canonicalUrl: taggedPage,
+  });
+  const canonical = head.find(({ tag, attrs }) => tag === 'link' && attrs.rel === 'canonical');
+  assert.equal(canonical.attrs.href, 'https://docs.example.test/manual/page/');
+  assert.equal(JSON.stringify(head).includes('utm_'), false);
+});
+
 test('structured-data builders include only supplied facts and safely serialize JSON-LD', () => {
   const sparseArticle = buildArticleStructuredData({
     url: 'https://docs.example.test/article/',

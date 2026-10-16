@@ -13,6 +13,7 @@ import {
   selectPromotionCards,
   shouldAutoRotate,
 } from '../packages/core/dist/promoto-banner.js';
+import { classifyLink, getLinkRel, withCampaignUtm } from '../packages/core/dist/link-policy.js';
 
 const fallback = {
   id: 'site-fallback',
@@ -58,6 +59,57 @@ test('every rendered promotion CTA, including rotated slides, is tagged with its
   assert.match(render, /category: 'promotion',\s*label: card\.id,\s*location: 'promoto_banner',/);
   assert.match(render, /gaEventAttributes\(/);
   assert.match(render, /link\.setAttribute\(name, value\)/);
+});
+
+// The banner tags and classifies each slide's call to action with the same helpers,
+// applied to that slide's own link, so rotation never reuses a previous decision.
+const ctaFor = (link, siteId) => ({
+  href: withCampaignUtm(link, { siteId, medium: 'promoto' }),
+  rel: getLinkRel(classifyLink(link)),
+});
+
+test('a first-party campaign call to action is tagged and opener-only', () => {
+  assert.deepEqual(ctaFor('https://cost.hagicode.com/', 'docs'), {
+    href: 'https://cost.hagicode.com/?utm_source=docs&utm_medium=promoto',
+    rel: 'noopener',
+  });
+});
+
+test('a third-party campaign call to action keeps its destination and strict rel', () => {
+  assert.deepEqual(ctaFor('https://example.com/offer', 'docs'), {
+    href: 'https://example.com/offer',
+    rel: 'noopener noreferrer',
+  });
+});
+
+test('a rotated slide is classified independently of the slide before it', () => {
+  const first = ctaFor('https://example.com/offer', 'docs');
+  const second = ctaFor('https://www.hagicode.com/en-US/desktop/', 'docs');
+  assert.equal(first.rel, 'noopener noreferrer');
+  assert.equal(second.rel, 'noopener');
+  assert.equal(second.href, 'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=promoto');
+});
+
+test('without a site identifier the call to action keeps its destination and class rel', () => {
+  assert.deepEqual(ctaFor('https://www.hagicode.com/en-US/desktop/', undefined), {
+    href: 'https://www.hagicode.com/en-US/desktop/',
+    rel: 'noopener',
+  });
+});
+
+test('the banner element and its CTA wire the site identifier and per-slide policy', async () => {
+  const [source, astro] = await Promise.all([
+    readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8'),
+  ]);
+  const render = source.slice(source.indexOf('private renderCards'), source.indexOf('private updateSlides'));
+
+  assert.match(render, /withCampaignUtm\(card\.link, \{\s*siteId: this\.dataset\.siteId,\s*medium: 'promoto',/u);
+  assert.match(render, /link\.rel = getLinkRel\(classifyLink\(card\.link/u);
+  assert.doesNotMatch(render, /link\.rel = 'noopener noreferrer'/u);
+  assert.match(astro, /siteId\?: string;/u);
+  assert.match(astro, /data-site-id=\{siteId\?\.trim\(\) \|\| undefined\}/u);
+  assert.ok(source.includes("from './link-policy.js'"));
 });
 
 test('pager and dismiss stay a compact icon toolbar that follows the content in DOM order', async () => {

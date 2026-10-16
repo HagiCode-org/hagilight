@@ -4,14 +4,17 @@ import type { PromotionCard } from './dist/promotions.js';
 interface Props {
   fallback?: PromotionCard;
   locale?: string;
+  /** Identifies the hosting site in campaign tags; omitted leaves destinations untagged. */
+  siteId?: string;
 }
 
-const { fallback, locale = Astro.currentLocale ?? 'en' } = Astro.props;
+const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
 ---
 
 <hagilight-promoto-banner
   class="hagilight-promoto"
   data-locale={locale}
+  data-site-id={siteId?.trim() || undefined}
   data-fallback={fallback ? JSON.stringify(fallback) : undefined}
   hidden
 >

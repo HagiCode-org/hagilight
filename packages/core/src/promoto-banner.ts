@@ -1,4 +1,5 @@
 import { gaEventAttributes } from './analytics-events.js';
+import { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
 import {
   loadActivePromotions,
   type PromotionCard,
@@ -338,9 +339,15 @@ export function definePromotoBannerElement(): void {
 
         const link = document.createElement('a');
         link.className = 'hagilight-promoto__cta';
-        link.href = card.link;
+        // Classified and tagged per slide, so rotation never reuses a previous decision.
+        const origin = globalThis.location?.origin;
+        link.href = withCampaignUtm(card.link, {
+          siteId: this.dataset.siteId,
+          medium: 'promoto',
+          origin,
+        });
         link.target = '_blank';
-        link.rel = 'noopener noreferrer';
+        link.rel = getLinkRel(classifyLink(card.link, { origin }));
         link.textContent = card.ctaLabel;
         for (const [name, value] of Object.entries(gaEventAttributes({
           category: 'promotion',
