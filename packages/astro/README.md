@@ -49,6 +49,30 @@ The values come from `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then
 
 `github.head_ref` is set on pull requests and `github.ref_name` on pushes. A shallow clone still reports its commit, because `git rev-parse HEAD` reads the checkout.
 
+## llms.txt
+
+`hagilight()` writes `/llms.txt` after the build, following the [llms.txt](https://llmstxt.org/) layout: the site name as the H1, the home page description as a blockquote summary, and one H2 section of links per top-level path segment. It is generated from the built HTML, so it works for plain Astro and Starlight sites alike and needs no content collection.
+
+- Only one language is listed: the Astro `i18n.defaultLocale`, then the home page language. The home pages of the other languages go under `## Optional`.
+- Pages are left out when they are `noindex`, instant redirects, 404 pages, or declare a canonical URL for another page.
+- Each link carries the page's meta description. A description repeated on three or more pages is treated as a site-wide default and left out of the links.
+- Section order is Overview first, then by page count. A section lists 12 links (Overview 36) and the file lists at most 120.
+- An `llms.txt` that the site already provides, as a public file or a page, is never overwritten. `hagilight({ enabled: false })` skips generation too.
+
+```js
+hagilight({
+  llms: {
+    title: 'Example Docs',        // default: the home page og:site_name
+    summary: 'What this site is.', // default: the home page description
+    lang: 'en-US',                // default: i18n.defaultLocale
+    maxLinksPerSection: 60,       // default: 12
+    maxLinks: 200,                // default: 120
+  },
+});
+```
+
+Pass `llms: false` (or `{ enabled: false }`) to opt out. The file is only as good as the page titles and descriptions it reads, so write a real `description` for important pages.
+
 ## Body images
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.
