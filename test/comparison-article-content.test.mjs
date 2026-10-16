@@ -10,11 +10,30 @@ import {
 // Content contract for the *-vs-hagicode comparison articles.
 // See openspec/changes/update-comparison-articles/design.md (D2, D6).
 
-const FRESH_UPDATED_AT = '2026-10-15T00:00:00.000Z';
+// en-US and zh-CN carry the rewritten comparison structure (design D8: real comparisons with a
+// table, choose-when guidance, a co-use guide and an FAQ). The other locales keep the earlier
+// template until their English source has proven itself in search, so they follow the legacy contract.
+const REWRITTEN_LOCALES = ['en-US', 'zh-CN'];
+const REWRITTEN_UPDATED_AT = '2026-10-16T00:00:00.000Z';
+const LEGACY_UPDATED_AT = '2026-10-15T00:00:00.000Z';
+const MAX_DESCRIPTION_LENGTH = 155;
+const MIN_TABLE_ROWS = 8;
+const MIN_FAQ = 4;
+const MAX_FAQ = 6;
+// Product facts that are the same for every article by nature are exempt from the boilerplate check:
+// the HagiCode setup steps, HagiCode's own limits in the not-a-fit callout, and the interactive-question
+// item that describes one feature shared by the four CLIs that support it.
+const BOILERPLATE_EXEMPT_BLOCK_SUFFIXES = ['section-5-steps', 'section-4-not-a-fit'];
+const BOILERPLATE_EXEMPT_ITEM_SUFFIXES = ['section-6-interactive-questions'];
+// A paragraph this long that reappears in this many articles of one locale is boilerplate.
+const SHARED_PARAGRAPH_MIN_LENGTH = 60;
+const SHARED_PARAGRAPH_MAX_ARTICLES = 2;
 
 const SHARED_ITEM_SUFFIXES = ['section-2-item-11', 'section-2-item-12'];
 const INTERACTIVE_QUESTION_ITEM_SUFFIX = 'section-2-item-13';
 const AGENT_WORK_ITEM_SUFFIX = 'section-2-item-14';
+const REWRITTEN_INTERACTIVE_QUESTION_ITEM_SUFFIX = 'section-6-interactive-questions';
+const REWRITTEN_AGENT_WORK_ITEM_SUFFIX = 'section-6-agent-work';
 
 // Slugs whose CLI can produce structured interactive questions (InteractiveUserInputPolicy.SupportsQuestions).
 const INTERACTIVE_QUESTION_SLUGS = new Set([
@@ -54,6 +73,36 @@ const INTENTIONALLY_UNMAPPED_PROVIDERS = {
 };
 
 const PROVIDER_ARTICLE_LOCALES = ['en-US', 'zh-CN'];
+
+const isRewritten = ({ locale }) => REWRITTEN_LOCALES.includes(locale);
+const isLegacy = (article) => !isRewritten(article);
+
+function getSection6Items(detail) {
+  const section = detail.sections.find((item) => item.id.endsWith('-section-6'));
+  return section ? section.blocks.flatMap((block) => block.items ?? []) : [];
+}
+
+function collectParagraphs(detail) {
+  const paragraphs = [detail.summary];
+  for (const section of detail.sections) {
+    for (const block of section.blocks) {
+      if (BOILERPLATE_EXEMPT_BLOCK_SUFFIXES.some((suffix) => block.id.endsWith(suffix))) continue;
+      paragraphs.push(...(block.content ?? []));
+      for (const item of block.items ?? []) {
+        if (typeof item === 'string') {
+          paragraphs.push(item);
+        } else if (item.content) {
+          if (BOILERPLATE_EXEMPT_ITEM_SUFFIXES.some((suffix) => item.id.endsWith(suffix))) continue;
+          paragraphs.push(...item.content, ...(item.bullets ?? []));
+        }
+      }
+    }
+  }
+  for (const entry of detail.faq ?? []) {
+    paragraphs.push(entry.answer);
+  }
+  return paragraphs.map((text) => text.trim());
+}
 
 function getSection2Blocks(detail, locale, slug) {
   const section = detail.sections.find((item) => item.id.endsWith('-section-2'));
@@ -101,9 +150,9 @@ async function loadAllArticles() {
 
 const articlesPromise = loadAllArticles();
 
-test('every comparison article has the shared items 11 and 12 in section 2', async () => {
-  const articles = await articlesPromise;
-  assert.ok(articles.length > 0, 'no structured articles were loaded');
+test('legacy locales have the shared items 11 and 12 in section 2', async () => {
+  const articles = (await articlesPromise).filter(isLegacy);
+  assert.ok(articles.length > 0, 'no legacy-locale articles were loaded');
 
   for (const { locale, slug, detail } of articles) {
     const items = getCapabilityItems(detail, locale, slug);
@@ -116,8 +165,8 @@ test('every comparison article has the shared items 11 and 12 in section 2', asy
   }
 });
 
-test('item 13 (interactive questions) appears only for Claude, Pi, OMP and Reasonix', async () => {
-  const articles = await articlesPromise;
+test('legacy locales: item 13 (interactive questions) appears only for Claude, Pi, OMP and Reasonix', async () => {
+  const articles = (await articlesPromise).filter(isLegacy);
 
   for (const { locale, slug, detail } of articles) {
     const items = getCapabilityItems(detail, locale, slug);
@@ -136,8 +185,8 @@ test('item 13 (interactive questions) appears only for Claude, Pi, OMP and Reaso
   }
 });
 
-test('item 14 (agent work panel) appears only for the Claude article', async () => {
-  const articles = await articlesPromise;
+test('legacy locales: item 14 (agent work panel) appears only for the Claude article', async () => {
+  const articles = (await articlesPromise).filter(isLegacy);
 
   for (const { locale, slug, detail } of articles) {
     const items = getCapabilityItems(detail, locale, slug);
@@ -156,12 +205,13 @@ test('item 14 (agent work panel) appears only for the Claude article', async () 
   }
 });
 
-test('locales of the same slug share the same ordered section, block and item ids', async () => {
+test('locales of the same slug share the same ordered section, block and item ids within a contract generation', async () => {
   const articles = await articlesPromise;
   const bySlug = new Map();
   for (const article of articles) {
-    if (!bySlug.has(article.slug)) bySlug.set(article.slug, []);
-    bySlug.get(article.slug).push(article);
+    const key = `${article.slug}|${isRewritten(article) ? 'rewritten' : 'legacy'}`;
+    if (!bySlug.has(key)) bySlug.set(key, []);
+    bySlug.get(key).push(article);
   }
 
   for (const [slug, group] of bySlug) {
@@ -178,13 +228,15 @@ test('locales of the same slug share the same ordered section, block and item id
   }
 });
 
-test('every comparison article carries the fresh updatedAt timestamp', async () => {
+test('every comparison article carries the updatedAt timestamp of its contract generation', async () => {
   const articles = await articlesPromise;
-  for (const { locale, slug, detail } of articles) {
+  for (const article of articles) {
+    const { locale, slug, detail } = article;
+    const expected = isRewritten(article) ? REWRITTEN_UPDATED_AT : LEGACY_UPDATED_AT;
     assert.equal(
       detail.updatedAt,
-      FRESH_UPDATED_AT,
-      `${slug} [${locale}]: updatedAt must be ${FRESH_UPDATED_AT}, found ${detail.updatedAt}`,
+      expected,
+      `${slug} [${locale}]: updatedAt must be ${expected}, found ${detail.updatedAt}`,
     );
   }
 });
@@ -227,5 +279,97 @@ test('providers rejected by core have no comparison article', async () => {
         `provider ${provider} (${reason}) must not have an article, found slug ${slug} in [${locale}]`,
       );
     }
+  }
+});
+
+
+// ---------------------------------------------------------------------------
+// Rewritten comparison contract (en-US, zh-CN)
+// ---------------------------------------------------------------------------
+
+test('rewritten articles have the seven comparison sections in order', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+  assert.ok(articles.length > 0, 'no rewritten articles were loaded');
+
+  for (const { locale, slug, detail } of articles) {
+    assert.deepEqual(
+      detail.sections.map((section) => section.id),
+      [1, 2, 3, 4, 5, 6, 7].map((number) => `${slug}-section-${number}`),
+      `${slug} [${locale}]: section ids`,
+    );
+  }
+});
+
+test('rewritten articles carry a real comparison table', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+
+  for (const { locale, slug, detail } of articles) {
+    const tables = detail.sections.flatMap((section) => section.blocks).filter((block) => block.type === 'comparison-table');
+    assert.equal(tables.length, 1, `${slug} [${locale}]: expected exactly one comparison-table`);
+    const [table] = tables;
+    assert.equal(table.headers.length, 3, `${slug} [${locale}]: table needs a label column and two agent columns`);
+    assert.ok(table.rows.length >= MIN_TABLE_ROWS, `${slug} [${locale}]: table needs at least ${MIN_TABLE_ROWS} rows`);
+  }
+});
+
+test('rewritten articles state when HagiCode is not a fit and how to use both tools together', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+
+  for (const { locale, slug, detail } of articles) {
+    const blockIds = detail.sections.flatMap((section) => section.blocks.map((block) => block.id));
+    for (const suffix of ['section-4-choose-agent', 'section-4-choose-hagicode', 'section-4-not-a-fit', 'section-5-steps', 'section-5-notes']) {
+      assert.ok(blockIds.includes(`${slug}-${suffix}`), `${slug} [${locale}]: missing block ${slug}-${suffix}`);
+    }
+  }
+});
+
+test('rewritten articles have a short answer-first description and 4 to 6 FAQ entries', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+
+  for (const { locale, slug, detail } of articles) {
+    assert.ok(
+      [...detail.seo.description].length <= MAX_DESCRIPTION_LENGTH,
+      `${slug} [${locale}]: description is ${[...detail.seo.description].length} characters, limit ${MAX_DESCRIPTION_LENGTH}`,
+    );
+    assert.ok(detail.faq, `${slug} [${locale}]: faq is missing`);
+    assert.ok(
+      detail.faq.length >= MIN_FAQ && detail.faq.length <= MAX_FAQ,
+      `${slug} [${locale}]: faq has ${detail.faq?.length} entries, expected ${MIN_FAQ}-${MAX_FAQ}`,
+    );
+  }
+});
+
+test('rewritten articles: interactive-question and agent-work items only for the CLIs that support them', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+
+  for (const { locale, slug, detail } of articles) {
+    const items = getSection6Items(detail);
+    const hasQuestions = items.some((item) => item.id.endsWith(REWRITTEN_INTERACTIVE_QUESTION_ITEM_SUFFIX));
+    const hasAgentWork = items.some((item) => item.id.endsWith(REWRITTEN_AGENT_WORK_ITEM_SUFFIX));
+
+    assert.equal(hasQuestions, INTERACTIVE_QUESTION_SLUGS.has(slug), `${slug} [${locale}]: interactive-question item`);
+    assert.equal(hasAgentWork, AGENT_WORK_SLUGS.has(slug), `${slug} [${locale}]: agent-work item`);
+  }
+});
+
+test('rewritten articles share no long paragraph across more than two articles of a locale', async () => {
+  const articles = (await articlesPromise).filter(isRewritten);
+
+  for (const locale of REWRITTEN_LOCALES) {
+    const seen = new Map();
+    for (const article of articles.filter((entry) => entry.locale === locale)) {
+      for (const paragraph of new Set(collectParagraphs(article.detail))) {
+        if (paragraph.length < SHARED_PARAGRAPH_MIN_LENGTH) continue;
+        if (!seen.has(paragraph)) seen.set(paragraph, []);
+        seen.get(paragraph).push(article.slug);
+      }
+    }
+
+    const boilerplate = [...seen].filter(([, slugs]) => slugs.length > SHARED_PARAGRAPH_MAX_ARTICLES);
+    assert.deepEqual(
+      boilerplate.map(([paragraph, slugs]) => `${slugs.length}x ${paragraph.slice(0, 70)}`),
+      [],
+      `[${locale}]: paragraphs repeated across more than ${SHARED_PARAGRAPH_MAX_ARTICLES} articles`,
+    );
   }
 });

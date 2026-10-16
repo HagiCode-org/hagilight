@@ -3,247 +3,118 @@
   "slug": "pi-vs-hagicode",
   "category": "vs-hagicode",
   "locale": "en-US",
-  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "Pi CLI vs HagiCode: Features and Comparison",
-    "description": "Understand Pi CLI's provider-first workflow, session controls, and tool governance, and see how HagiCode turns Pi into a production-grade AI programming workbench through multi-threaded parallelism, OpenSpec proposals, AI commits, HagiTasks, gamified UI, Agents management, Monospecs, Vault, and OmniRoute. Also covers the shared tool-call view and TokenMonitor status-bar usage. Includes interactive questions that resume the same run."
+    "description": "Pi is a free, MIT-licensed minimal coding agent you extend yourself; HagiCode is a workbench that runs it. Compare features, pricing and when each fits."
   },
-  "summary": "Pi CLI is a flexible AI coding interface built for provider-agnostic model access. With configurable thinking modes, session persistence controls, and explicit tool gating, it gives developers fine-grained control over how an AI coding assistant behaves. However, Pi CLI is still fundamentally a terminal entry point, while HagiCode is a full AI programming workbench. Together, they turn Pi from a configurable CLI into a complete daily development environment. It also covers the shared tool-call view and optional TokenMonitor usage in the status bar. Pi CLI can ask structured questions during a run, and the run continues once you answer.",
+  "summary": "Pi is a minimal, MIT-licensed terminal coding agent that you shape with extensions, skills and packages. HagiCode is a workbench that runs Pi as its executor and adds sessions, proposals and commit tooling around it.",
   "sections": [
     {
       "id": "pi-vs-hagicode-section-1",
-      "title": "Pi CLI's Core Strengths",
+      "title": "Short answer",
       "blocks": [
         {
-          "id": "pi-vs-hagicode-section-1-capabilities",
-          "type": "capability-list",
-          "items": [
-            {
-              "id": "pi-vs-hagicode-section-1-item-1",
-              "title": "Key Features",
-              "content": [
-                "Pi CLI's capabilities focus on controllable AI execution rather than a hardwired single-provider experience:",
-                "Provider-first model access: Pi can be pointed at different model backends instead of forcing one fixed vendor path. That makes it attractive for teams that want to preserve one CLI workflow while changing the underlying provider or model strategy over time.",
-                "Configurable thinking and session behavior: Pi exposes switches such as thinking mode, session directory, and no-session execution. You can choose whether to preserve conversation state across runs or keep each turn completely stateless depending on the task.",
-                "Explicit tool governance: Pi lets you decide how much tool access an AI turn receives. Built-in tools and broader tool usage can be disabled when you want tighter safety boundaries or more predictable execution behavior."
-              ]
-            },
-            {
-              "id": "pi-vs-hagicode-section-1-item-2",
-              "title": "Technical Architecture",
-              "content": [
-                "Pi has several notable architectural characteristics:",
-                "Structured CLI runtime: In HagiCode Core, Pi is integrated as a thin adapter over the shared libs runtime, preserving a stable product-facing contract while delegating the underlying CLI process handling to a common provider layer.",
-                "Session-aware execution: Pi can either reuse persisted session state or run in fully stateless mode. That makes it suitable both for long-running development threads and for clean one-shot tasks where carry-over state would be undesirable.",
-                "Streaming and tool-capable responses: Pi streams output as it arrives (incremental fragments on Pi 0.84 and later, full snapshots on 0.78.x) and supports tool calls and system messages. It is not just a fire-and-forget prompt wrapper; it can participate in richer AI programming workflows that need interactive execution."
-              ]
-            },
-            {
-              "id": "pi-vs-hagicode-section-1-item-3",
-              "title": "Provider and Workflow Ecosystem",
-              "content": [
-                "Pi's ecosystem value comes from flexibility and composability:",
-                "Provider-routing friendly design: Pi fits naturally into environments where model routing is handled as an independent layer. This is especially useful when teams want to keep one interaction surface while experimenting with different upstream model providers.",
-                "Secondary model selection support: In HagiCode Core, Pi keeps the provider runtime in the primary profession while model selection remains configurable in the model slot. That separation reflects a workflow where CLI behavior and model choice are intentionally decoupled.",
-                "Unified monitoring and discovery: Pi is surfaced as a first-class monitored CLI with its own executable discovery path and health checks, making it easier to operate as part of a broader multi-agent workstation instead of as an isolated terminal command."
-              ]
-            }
+          "id": "pi-vs-hagicode-section-1-answer",
+          "type": "rich-text",
+          "content": [
+            "Pi is a minimal, extensible coding agent harness that runs in your terminal. It deliberately ships without sub-agents, plan mode or permission popups, and expects you to add what you need through extensions, skills and packages. HagiCode is a desktop and web workbench that launches agent CLIs such as Pi and supplies the workflow around them: parallel sessions, spec proposals, commits and history. It does not replace Pi.",
+            "If you like a small, hackable agent and prefer to build your own workflow on top of it, stay with Pi alone. Add HagiCode if you would rather have sessions, proposals and review handled by a ready-made workbench while Pi keeps doing the agent work."
           ]
         }
       ]
     },
     {
       "id": "pi-vs-hagicode-section-2",
-      "title": "Why Pi CLI Needs HagiCode",
+      "title": "Pi vs HagiCode at a glance",
       "blocks": [
         {
-          "id": "pi-vs-hagicode-section-2-intro",
-          "type": "rich-text",
-          "content": [
-            "Pi gives you unusually fine-grained control over provider routing, thinking mode, session reuse, and tool exposure, but a pure terminal workflow still leaves project management, orchestration, and long-term knowledge persistence to the user.",
-            "In real delivery work, those missing layers matter more than one smart command. HagiCode supplies the workflow structure Pi itself does not try to own."
-          ]
-        },
-        {
-          "id": "pi-vs-hagicode-section-2-capabilities",
-          "type": "capability-list",
-          "items": [
+          "id": "pi-vs-hagicode-section-2-table",
+          "type": "comparison-table",
+          "headers": [
+            "Aspect",
+            "Pi",
+            "HagiCode"
+          ],
+          "rows": [
             {
-              "id": "pi-vs-hagicode-section-2-item-1",
-              "title": "Multi-threaded parallelism: Let Pi run multiple controlled coding lanes at once",
-              "content": [
-                "Pi can do a lot inside one session, but real delivery rarely happens one task at a time.",
-                "HagiCode lets you run multiple Pi sessions in parallel, each with isolated context, a clear responsibility boundary, and independent progress.",
-                "That turns Pi from a configurable single-thread CLI into a parallel engineering workbench that matches how teams actually build software."
-              ],
-              "bullets": [
-                "Thread A is refining backend API endpoints;",
-                "Thread B is refactoring frontend components;",
-                "Thread C is writing unit tests;",
-                "Thread D is auditing code for security vulnerabilities."
+              "id": "pi-vs-hagicode-section-2-row-1",
+              "cells": [
+                "What it is",
+                "Minimal terminal agent harness, extended through extensions, skills, prompt templates and themes",
+                "AI programming workbench that runs agent CLIs, including Pi, as executors"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-2",
-              "title": "OpenSpec proposal sessions: Tie Pi's provider and model choices to traceable decisions",
-              "content": [
-                "In daily development, the most common chaos isn't being unable to write code — it's making a bunch of changes and then forgetting why you made them, what you changed, and how those changes relate to each other.",
-                "HagiCode's built-in OpenSpec proposal workflow fundamentally solves this problem. Every development task launches as a proposal:",
-                "This think-first-then-act approach gives Pi's flexible routing model a place to be documented. Months later, you can still see not only what changed, but why a certain provider, model route, or tool boundary was chosen."
-              ],
-              "bullets": [
-                "First, write down what problem this task solves and why this approach makes sense;",
-                "Discuss the technical approach in depth with Pi within the proposal framework — all conversations and decisions are recorded in the proposal context;",
-                "Once the approach is confirmed, Pi implements the code within the proposal's constraints;",
-                "The final proposal document, discussion records, and code changes form a complete trace chain."
+              "id": "pi-vs-hagicode-section-2-row-2",
+              "cells": [
+                "Interface and platforms",
+                "Interactive terminal UI, print/JSON mode, RPC, TypeScript SDK; macOS, Linux, Windows installers",
+                "Desktop app (Windows, macOS, Linux), Docker Compose container, Microsoft Store edition"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-3",
-              "title": "AI commits: Turn Pi output into clean commit history",
-              "content": [
-                "Writing commit messages after finishing code is a form of mental friction for many developers. Too casual and you can't find key commits later; too formal and it feels like wasted time.",
-                "HagiCode's AI commit feature hands this entirely to Pi: it analyzes your code changes, understands the intent and scope of impact, then automatically generates clearly structured, semantically accurate commit messages. More importantly, during the AI commit process, HagiCode automatically locks the repository to prevent state conflicts from concurrent operations, ensuring safe and reliable commits.",
-                "Save your attention for creation — let Pi handle the commit paperwork."
+              "id": "pi-vs-hagicode-section-2-row-3",
+              "cells": [
+                "Pricing and licensing",
+                "MIT-licensed and free; you pay only for the models you connect",
+                "Desktop and Container editions free; Store edition free base, optional one-time TurboEngine purchase"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-4",
-              "title": "Code Server browser editor: Jump from Pi analysis straight into editing",
-              "content": [
-                "After Pi analyzes code, identifies the problematic file, and pinpoints the exact line number, the familiar awkward moment occurs: you need to leave the AI conversation window, return to your IDE, find the file again, and manually jump to the right location. This analysis-to-editing context break not only interrupts your flow but keeps AI's value at 'telling you where the problem is' rather than 'helping you directly enter editing mode.'",
-                "HagiCode's built-in Code Server-based browser editor is designed specifically to solve this break:",
-                "The Code Server integration makes HagiCode not just a frontend page that can analyze code, but a complete workstation where Pi's analysis can directly land as editing actions. It minimizes the tool-switching cost between AI analysis and hands-on modification."
-              ],
-              "bullets": [
-                "One-click from analysis to editing: Once Pi identifies the file needing changes in a proposal, HagiCode can directly open that file in the workbench for editing. You do not need to switch tools or re-locate the file.",
-                "Local, container, remote — full coverage: whether your project runs on a local machine, in a Docker container, or on a remote server, HagiCode's Code Server can open the project directory through the browser for editing.",
-                "Vault direct editing: code reference libraries and learning projects registered in your Vault can also be opened and browsed directly through Code Server when Pi points you to relevant examples."
+              "id": "pi-vs-hagicode-section-2-row-4",
+              "cells": [
+                "Model and provider access",
+                "15+ providers by API key or OAuth login; custom providers via models.json or extensions",
+                "Hosts no models; uses Pi's own sign-in, or OmniRoute routing if you configure it"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-5",
-              "title": "HagiTask: Package Pi workflows as reusable command blueprints",
-              "content": [
-                "Pi's flexibility is powerful, but manually restating the same provider choices, tool boundaries, and task framing over and over is wasteful.",
-                "HagiCode's HagiTask mechanism turns those repeated patterns into reusable templates. It is more than shortcut commands — it is an extensible Skills integration platform:",
-                "HagiTask upgrades your collaboration with Pi from 'rebuild the workflow every time' to 'pick the prepared workflow and run it.' That is where configurability becomes real operational leverage."
-              ],
-              "bullets": [
-                "Community Skills ready to use: import proven review, refactor, CRUD, and documentation workflows instead of rebuilding them from scratch every time.",
-                "Extensible Skills system: adapt shared templates to your own team conventions, routing defaults, and coding standards.",
-                "Visual operations, not terminal bookkeeping: choose tasks, switch parameters, and reorder execution in a dedicated interface instead of encoding everything into repeated CLI habits."
+              "id": "pi-vs-hagicode-section-2-row-5",
+              "cells": [
+                "Parallel work",
+                "No built-in sub-agents; add them as an extension or package",
+                "Several sessions side by side, managed as named Agents"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-6",
-              "title": "Gamified interface: Make Pi's provider knobs visible and approachable",
-              "content": [
-                "Programming itself can be tedious, but it can also be fun. HagiCode's gamified interface design breaks away from the cold experience of command-line tools:",
-                "Pi provides control, HagiCode provides experience — together, they turn a highly configurable CLI into a workspace people can actually enjoy operating every day."
-              ],
-              "bullets": [
-                "Clear visual feedback: session state, progress, and results are visible without digging through terminal output.",
-                "Achievement and progress visualization: commits, proposal milestones, and delivery checkpoints become visible rhythm markers instead of invisible background state.",
-                "Lower operating friction: developers who are not terminal purists can still benefit from Pi's control model through a much friendlier interface layer."
+              "id": "pi-vs-hagicode-section-2-row-6",
+              "cells": [
+                "Spec and planning workflow",
+                "No plan mode by default; add one through extensions",
+                "OpenSpec proposals: propose, validate, apply, archive"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-7",
-              "title": "Agents management: Turn multiple Pi sessions into a manageable Agent fleet",
-              "content": [
-                "Parallel sessions are useful, but once you have several of them running, coordination becomes the next bottleneck.",
-                "HagiCode's Agents management layer turns each Pi worker into a named, schedulable Agent with visible status, assigned scope, and independent configuration.",
-                "You move from 'a lot of terminals are open' to 'a small AI team is being coordinated in one place.'"
-              ],
-              "bullets": [
-                "Agent identity and status visualization: see which Agent is running, waiting, blocked, or ready for archive at a glance.",
-                "Task-to-Agent binding: proposals, reviews, refactors, and test work can each be assigned to a dedicated Agent.",
-                "Independent Agent configuration: different Agents can use different model routes, Skills, tool exposure rules, and context scopes without interfering with each other."
+              "id": "pi-vs-hagicode-section-2-row-7",
+              "cells": [
+                "Git and commit handling",
+                "You or an extension handle commits; sessions export to HTML or a gist",
+                "AI-written commit messages with repository locking; Git management in the UI"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-8",
-              "title": "Monospecs multi-repo management: Give Pi the repo map it needs",
-              "content": [
-                "In real projects, code rarely lives in a single repository. Frontend, backend, documentation, shared libraries are spread across different repos, and a single feature change may need to touch several repos simultaneously. For Pi, single-repo mode works, but it has no native understanding of cross-repo relationships — you have to manually tell it in every conversation that 'this change also needs to sync to two other repos,' which is clearly inefficient.",
-                "HagiCode's Monospecs mechanism is the structured solution designed for multi-repo scenarios. Through the .hagicode/monospecs.yaml configuration file, it declares all sub-repo addresses, names, and relationships in the project group, giving Pi an automatic cross-repo map when launching proposals:",
-                "Monospecs essentially eliminates Pi's cognitive blind spots in cross-repo collaboration. Pi's routing flexibility matters more once it can also see the full change surface."
-              ],
-              "bullets": [
-                "Automatic repo relationship awareness: when creating a development proposal, Pi can directly read the sub-repo list from the Monospecs config instead of relying on repeated manual explanation.",
-                "Cross-repo change tracking: specs stay centralized while code changes stay in the relevant repos, keeping decision history and implementation cleanly separated.",
-                "AI commit smart repo targeting: HagiCode analyzes your changes against the Monospecs config and suggests where each commit belongs.",
-                "Per-repo AGENTS.md: Pi automatically picks up repo-specific conventions when operating across different codebases."
+              "id": "pi-vs-hagicode-section-2-row-8",
+              "cells": [
+                "Asking you questions",
+                "Extensions can open dialogs over RPC",
+                "Shows Pi's questions in the conversation, then continues the same run"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-9",
-              "title": "Vault cross-project knowledge base: Make Pi remember more than one terminal turn",
-              "content": [
-                "Pi's session controls are useful, but even persistent sessions are not the same as a durable cross-project memory layer. Without that, important context still has to be reintroduced too often.",
-                "Vault is HagiCode's cross-project persistent knowledge storage layer. Its core design philosophy is 'register once, reuse everywhere':",
-                "If Monospecs lets Pi understand where projects are, Vault lets Pi remember what you've already accumulated. That turns a configurable CLI into a longer-term engineering partner."
-              ],
-              "bullets": [
-                "Multi-type knowledge containers: register folders, code reference projects, Obsidian notes, and system-managed prompt assets in one place.",
-                "Automatic AI context injection: new proposals start with the right reference material already available to Pi.",
-                "Fine-grained access control: separate read-only references from editable project spaces so Pi can learn broadly without modifying the wrong thing.",
-                "Cross-project knowledge reuse: patterns captured once can support every later proposal instead of being rebuilt from scratch."
+              "id": "pi-vs-hagicode-section-2-row-9",
+              "cells": [
+                "Setup effort",
+                "One install script or npm install, then /login",
+                "Install Pi first, then HagiCode, then pick Pi as the Agent CLI"
               ]
             },
             {
-              "id": "pi-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute model routing: Make Pi's provider-first design usable at scale",
-              "content": [
-                "Pi already encourages a more decoupled relationship between workflow and provider choice, but a larger team still needs a central place to manage that routing cleanly.",
-                "OmniRoute separates the interaction layer from the model-routing layer, so HagiCode can keep Pi in the workflow while switching model sources underneath.",
-                "That gives you better cost control, better task-to-model fit, and less workflow churn when model pricing or availability changes."
-              ],
-              "bullets": [
-                "Keep the CLI or interaction style you already prefer while changing only the model route underneath.",
-                "Share one routing strategy across multiple Agents and multiple AI tools connected to HagiCode.",
-                "Tune different model routes for different workloads, such as fast coding, deep review, or architecture planning.",
-                "Adjust cost and capability once at the routing layer instead of reworking each individual workflow."
-              ]
-            },
-            {
-              "id": "pi-vs-hagicode-section-2-item-11",
-              "title": "Unified tool-call view: see Pi CLI's tool use in one consistent shape",
-              "content": [
-                "HagiCode attaches one typed tool-call shape to every tool-use and tool-result message. It records the tool kind, its input fields, status, result text or images, any error, and timing. The shape is computed from stored data, so session history and live updates show the same view.",
-                "The same shape covers every provider, so Pi CLI tool calls look like those of every other agent in your workspace. You read one format instead of learning each CLI's raw output."
-              ],
-              "bullets": [
-                "One shape for every provider: shell, file, search, fetch and MCP calls are presented consistently;",
-                "Failed calls carry a readable error message;",
-                "Raster tool images are carried as data URIs."
-              ]
-            },
-            {
-              "id": "pi-vs-hagicode-section-2-item-12",
-              "title": "Usage at a glance: today's tokens and cost in the status bar",
-              "content": [
-                "HagiCode can show today's token usage and cost from the TokenMonitor desktop app in its status bar. The integration is optional and off by default.",
-                "It reads TokenMonitor's local data file or a TokenMonitor HostHub on a schedule and keeps only today's total tokens and cost. The status bar stays a quick glance rather than a full usage report."
-              ],
-              "bullets": [
-                "Nothing is read until you turn the integration on;",
-                "The HostHub secret is write-only and is never returned or logged after you save it;",
-                "An invalid HostHub address is rejected when you save it."
-              ]
-            },
-            {
-              "id": "pi-vs-hagicode-section-2-item-13",
-              "title": "Interactive questions: let Pi CLI ask, then continue the same run",
-              "content": [
-                "When Pi CLI needs a decision, it can ask you a structured question during the run. HagiCode shows the question in the conversation, the session status changes from executing to waiting for a reply, and your answer lets the same run continue.",
-                "If the run has already ended, for example after a restart or a timeout, your answer is sent as a normal message in the same session so the work can carry on."
-              ],
-              "bullets": [
-                "Questions the CLI asks at the same time can be answered together in one submission;",
-                "A question that is not answered within 30 minutes expires and can still be answered through a follow-up message;",
-                "Enabled per CLI by the interactive-control setting, so you decide where agents may ask."
+              "id": "pi-vs-hagicode-section-2-row-10",
+              "cells": [
+                "Best for",
+                "Developers who want a small agent core they can bend to their own workflow",
+                "Running several Pi tasks across repos with specs, review and history in one place"
               ]
             }
           ]
@@ -252,30 +123,223 @@
     },
     {
       "id": "pi-vs-hagicode-section-3",
-      "title": "Summary",
+      "title": "What Pi does well",
       "blocks": [
         {
-          "id": "pi-vs-hagicode-section-3-intro",
-          "type": "rich-text",
-          "content": [
-            "Pi CLI is a flexible, provider-aware AI coding interface, and HagiCode is a complete AI programming workbench. Their relationship is complementary:",
-            "If you're already using Pi, try connecting it to HagiCode — you'll find Pi is no longer just a configurable terminal command, but a full-workflow AI partner operating inside a structured engineering environment."
-          ]
-        },
-        {
-          "id": "pi-vs-hagicode-section-3-bullets",
-          "type": "bullet-list",
+          "id": "pi-vs-hagicode-section-3-capabilities",
+          "type": "capability-list",
           "items": [
-            "Pi provides control: provider routing, thinking configuration, session behavior, and tool governance;",
-            "HagiCode provides efficiency: multi-threaded parallelism, Agents fleet management, OpenSpec proposals, AI commits, Code Server editor, HagiTasks;",
-            "HagiCode expands boundaries: Monospecs lets Pi understand cross-repo project relationships, Vault gives Pi cross-session long-term memory, OmniRoute scales Pi's provider-first workflow cleanly;",
-            "Tool-call view: one consistent shape for every provider's tool use, in history and live updates;",
-            "Usage at a glance: optional TokenMonitor status-bar view of today's tokens and cost;",
-            "Interactive questions: answer the agent's structured questions and let the same run continue;",
-            "Together they provide an experience: traceable decision chains, automated daily tasks, a genuinely enjoyable interface, and a long-term AI partner that truly understands your project landscape and can be freely configured with any model source."
+            {
+              "id": "pi-vs-hagicode-section-3-item-1",
+              "title": "A small core you can reshape",
+              "content": [
+                "Pi's own description is \"a minimal, extensible agent harness that you can make your own.\" Sub-agents, plan mode and permission popups are left out on purpose, so what you run is what you chose to add.",
+                "Extensions, skills, prompt templates and themes can be bundled as Pi packages and shared through npm or git."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-3-item-2",
+              "title": "Sessions stored as trees",
+              "content": [
+                "A session is a tree kept in a single file. You can return to an earlier point with /tree and branch from there without losing the other branch.",
+                "Older messages are summarised automatically as the context limit approaches, and compaction can be customised through extensions. /export writes a session to HTML and /share posts it as a GitHub gist."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-3-item-3",
+              "title": "Four ways to drive it",
+              "content": [
+                "Use the interactive terminal UI, print/JSON mode for scripts and event streams, an RPC protocol over stdin/stdout, or the TypeScript SDK to embed Pi in your own app.",
+                "That makes Pi easy to wrap, which is exactly how tools such as HagiCode can run it."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-3-item-4",
+              "title": "Broad provider support with your own accounts",
+              "content": [
+                "Pi lists more than 15 providers, including Anthropic, OpenAI, Google, Azure, Bedrock and Ollama. Sign in with /login using a subscription or an API key, and add custom providers through models.json.",
+                "Pi has no built-in permission system and runs with your user's permissions, so its docs suggest a container when you need stronger isolation."
+              ]
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "pi-vs-hagicode-section-4",
+      "title": "When to choose Pi, and when to choose HagiCode",
+      "blocks": [
+        {
+          "id": "pi-vs-hagicode-section-4-choose-agent",
+          "type": "bullet-list",
+          "items": [
+            "Choose Pi alone if you want a small agent core and enjoy writing extensions or skills to fit your own workflow.",
+            "Choose Pi alone if you work in a terminal and your tasks run one at a time.",
+            "Choose Pi alone if you embed an agent in your own tooling through the RPC protocol or the SDK.",
+            "Choose Pi alone if you already have your own spec, review and commit habits and do not want a second system."
+          ]
+        },
+        {
+          "id": "pi-vs-hagicode-section-4-choose-hagicode",
+          "type": "bullet-list",
+          "items": [
+            "Choose HagiCode if you want parallel sessions without writing or installing a sub-agent extension.",
+            "Choose HagiCode if you want a proposal and archive step around each change that Pi does not include by default.",
+            "Choose HagiCode if a Pi task spans several repositories and you would rather declare them once than re-explain them each session.",
+            "Choose HagiCode if you prefer a graphical view of sessions and tool calls to terminal output.",
+            "Choose HagiCode if you move between agents and want one interface for Pi, Claude Code, Codex and others."
+          ]
+        },
+        {
+          "id": "pi-vs-hagicode-section-4-not-a-fit",
+          "type": "callout",
+          "tone": "warning",
+          "title": "Where HagiCode is not the right tool for Pi work",
+          "content": [
+            "Scripted one-shot runs and CI: call Pi in print/JSON mode directly. HagiCode is built around interactive sessions.",
+            "Terminal-only habits: if you do not want a GUI, HagiCode only adds a layer between you and Pi.",
+            "Pi's extensions, themes and terminal UI do not carry over. HagiCode runs Pi in print/JSON mode, or in RPC mode when a run may ask questions, so UI-level customisation is not shown.",
+            "It needs Pi installed and signed in first. The free editions allow 3 concurrent proposals, and teams that do not want a proposal discipline will find the workflow heavier than plain Pi."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pi-vs-hagicode-section-5",
+      "title": "Using Pi together with HagiCode",
+      "blocks": [
+        {
+          "id": "pi-vs-hagicode-section-5-intro",
+          "type": "rich-text",
+          "content": [
+            "HagiCode does not bundle or replace Pi. It finds the pi executable on your machine, checks its version, and starts it for each run, so your install, login and models.json stay as they are.",
+            "From its settings HagiCode can pass Pi's provider, thinking level, session directory, no-session mode and tool restrictions."
+          ]
+        },
+        {
+          "id": "pi-vs-hagicode-section-5-steps",
+          "type": "bullet-list",
+          "items": [
+            "Install Pi (for example curl -fsSL https://pi.dev/install.sh | sh, or npm install -g --ignore-scripts @earendil-works/pi-coding-agent) and run /login.",
+            "Install HagiCode Desktop for Windows, macOS or Linux.",
+            "In HagiCode, choose Pi as the Agent CLI and pick a provider and model.",
+            "Open a repository and start a session or a proposal.",
+            "Expect Pi's output to stream into the conversation, with tool calls in the shared tool-call view.",
+            "To go back, run pi in your terminal as before. Your Pi packages and sessions are not locked to HagiCode."
+          ]
+        },
+        {
+          "id": "pi-vs-hagicode-section-5-notes",
+          "type": "callout",
+          "tone": "info",
+          "title": "What works with Pi inside HagiCode",
+          "content": [
+            "Works: parallel sessions, proposals, AI commits, the tool-call view, version detection and health checks, and interactive questions through Pi's RPC mode.",
+            "Does not apply: the agent work panel is Claude-only, and Pi extensions that draw terminal UI are not rendered."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pi-vs-hagicode-section-6",
+      "title": "What HagiCode adds on top of any agent",
+      "blocks": [
+        {
+          "id": "pi-vs-hagicode-section-6-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "pi-vs-hagicode-section-6-item-1",
+              "title": "Parallel sessions and Agents management",
+              "content": [
+                "Pi leaves sub-agents to extensions. In HagiCode every Pi run is its own session, so one can refactor while another writes tests, and Agents management shows each one's status."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-6-item-2",
+              "title": "OpenSpec proposals",
+              "content": [
+                "Pi ships without plan mode, so HagiCode's propose, validate, apply, archive flow gives each Pi task a written plan and a record. Free editions allow 3 concurrent proposals."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-6-item-3",
+              "title": "AI commit and Code Server",
+              "content": [
+                "HagiCode writes the commit message from your diff and locks the repository while it commits. The embedded Code Server opens files Pi changed in a browser editor."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-6-item-4",
+              "title": "Monospecs and Vault",
+              "content": [
+                "Monospecs lists your repositories in one file so Pi starts a proposal knowing the whole change surface. Vault keeps reference projects and notes that new proposals can use as context."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-6-item-5",
+              "title": "OmniRoute, tool-call view and TokenMonitor",
+              "content": [
+                "If you configure OmniRoute, Pi's model requests can be routed through it. Pi's tool calls use the same format as other agents. A TokenMonitor status-bar item shows today's tokens and cost; it is off by default."
+              ]
+            },
+            {
+              "id": "pi-vs-hagicode-section-6-interactive-questions",
+              "title": "Interactive questions",
+              "content": [
+                "When Pi asks a structured question, HagiCode shows it in the conversation, the session waits for a reply, and your answer continues the same run. If the run already ended, the answer goes in as a normal message in the same session."
+              ],
+              "bullets": [
+                "Questions asked at the same time can be answered in one submission;",
+                "A question unanswered after 30 minutes expires and can still be answered by a follow-up message;",
+                "Enabled per CLI by the interactive-control setting."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pi-vs-hagicode-section-7",
+      "title": "The bottom line",
+      "blocks": [
+        {
+          "id": "pi-vs-hagicode-section-7-bullets",
+          "type": "bullet-list",
+          "items": [
+            "Pi is a free, MIT-licensed, deliberately minimal agent; HagiCode is a workbench that runs it and does not replace it.",
+            "Stay with Pi alone if you want to shape the agent yourself or use it in scripts and your own tools.",
+            "Add HagiCode when you want parallel sessions, proposals and commit help without building them as Pi extensions.",
+            "Your Pi install and login are untouched, so trying HagiCode does not commit you to anything."
+          ]
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is Pi free?",
+      "answer": "Pi is MIT-licensed and free to install. You pay only for the models you connect, through an API key or a provider subscription you sign in to with /login. See pi.dev for current details."
+    },
+    {
+      "question": "How do I install Pi?",
+      "answer": "On macOS or Linux run curl -fsSL https://pi.dev/install.sh | sh. On Windows run powershell -c \"irm https://pi.dev/install.ps1 | iex\". You can also run npm install -g --ignore-scripts @earendil-works/pi-coding-agent, which needs Node.js 22.19 or newer."
+    },
+    {
+      "question": "Does Pi have sub-agents or a plan mode?",
+      "answer": "Not by default. Pi skips them on purpose and lets you add them through extensions, skills or packages."
+    },
+    {
+      "question": "Can I use Pi with HagiCode?",
+      "answer": "Yes. HagiCode lists Pi as an Agent CLI. Install Pi and run /login, then select it in HagiCode; HagiCode starts Pi for you and leaves your Pi setup unchanged."
+    },
+    {
+      "question": "Does HagiCode replace Pi?",
+      "answer": "No. HagiCode is the workbench around Pi, adding sessions, proposals, commits and history. It needs Pi installed and signed in to run."
+    },
+    {
+      "question": "Pi vs HagiCode: which should I pick?",
+      "answer": "Pick Pi alone if you want a minimal agent you extend yourself. Add HagiCode if you want ready-made parallel sessions, proposals and history around Pi."
     }
   ]
 }

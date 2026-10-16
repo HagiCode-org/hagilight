@@ -3,222 +3,110 @@
   "slug": "dsh-vs-hagicode",
   "category": "vs-hagicode",
   "locale": "zh-CN",
-  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "DeepSeek Harness (dsh) 对比 HagiCode:功能与差异",
-    "description": "了解 DeepSeek Harness 的托管 ACP 运行时、固定的 acp profile、启动超时与身份校验，并从多线程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何把 dsh 变成生产级的 AI 编程工作台。同时涵盖共用的工具调用视图与 TokenMonitor 状态栏用量。"
+    "description": "DeepSeek Harness (dsh) 是 DeepSeek 的开源 Agent harness,HagiCode 是运行它的工作台。从功能、价格、成熟度和适用场景对比。"
   },
-  "summary": "DeepSeek Harness（dsh）是一个通过 HagiCode 托管 ACP 运行时运行的编程代理，采用固定的 acp profile，并带有可配置的启动超时和它自己的模型设置。不过，dsh 本质上仍是终端入口，而 HagiCode 是完整的 AI 编程工作台。两者结合后，dsh 就成为完整的日常开发环境。它还涵盖共用的工具调用视图，以及状态栏中可选的 TokenMonitor 用量显示。",
+  "summary": "DeepSeek Harness (dsh) 是 DeepSeek AI 的开源 Agent harness,目前仍处于开发者预览阶段;HagiCode 是把 dsh 当作执行器之一来运行的工作台。想体验它的插件化架构或写脚本,单用 dsh 即可;需要并行会话、提案和托管提交时,再加上 HagiCode。",
   "sections": [
     {
       "id": "dsh-vs-hagicode-section-1",
-      "title": "DeepSeek Harness 的核心能力",
+      "title": "简短结论",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-1-capabilities",
-          "type": "capability-list",
-          "items": [
-            {
-              "id": "dsh-vs-hagicode-section-1-item-1",
-              "title": "核心功能",
-              "content": [
-                "DeepSeek Harness 通过共享的 ACP 运行时运行，因此 HagiCode 与其他基于 ACP 的 CLI 使用同一种 Agent 传输方式与之通信：",
-                "托管 profile：HagiCode 始终应用 acp profile，额外参数中的 --profile 会被拒绝，因此 profile 不会被误改。",
-                "启动超时：startupTimeoutMs 是正整数，默认值为 45000 毫秒，在较慢的环境中可以调高。",
-                "次要职业中的模型：主要职业管理可执行文件、额外参数和启动超时，次要职业则负责模型设置。"
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-1-item-2",
-              "title": "安装与身份校验",
-              "content": [
-                "通过 npm install -g @deepseek-ai/dsh 安装 DeepSeek Harness。由于 dsh 也是其他无关工具的名称，HagiCode 的健康探测会检查 dsh --help 是否提到 DeepSeek Harness，从而及时发现错误的可执行文件，而不是悄悄地使用它。",
-                "认证在 dsh 自身中配置。HagiCode 不为 DeepSeek Harness 提供凭据字段。"
-              ]
-            }
+          "id": "dsh-vs-hagicode-section-1-answer",
+          "type": "rich-text",
+          "content": [
+            "DeepSeek Harness,命令是 `dsh`,是 DeepSeek AI 开源的 Agent harness。它可以作为本地 Web UI、无界面的一次性命令、SDK 服务或 ACP 服务运行,几乎每个部分都是插件。HagiCode 是桌面与网页端的 AI 编程工作台,把包括 dsh 在内的 Agent CLI 当作执行器来驱动。它不取代 dsh;HagiCode 以 ACP 模式启动 dsh,并在外层提供会话、提案和提交处理。",
+            "dsh 目前是开发者预览版,它自己的安全声明写明这是实验性、未经审计、可能有不兼容变更的软件。如果你想研究 harness 本身、写插件或做脚本,单用 dsh 就好。如果想让它和其他 Agent 并排运行,并配上提案和并行会话,HagiCode 就是这一层。"
           ]
         }
       ]
     },
     {
       "id": "dsh-vs-hagicode-section-2",
-      "title": "为什么 DeepSeek Harness 需要 HagiCode",
+      "title": "DeepSeek Harness 与 HagiCode 对比一览",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-2-intro",
-          "type": "rich-text",
-          "content": [
-            "DeepSeek Harness 为你提供托管的 ACP 运行时和清晰的模型设置，但纯终端工作流仍把项目管理、任务编排和长期知识沉淀留给用户自己。",
-            "在真实的交付工作中，这些缺失的层次比一条聪明的命令更重要。HagiCode 提供了 DeepSeek Harness 自身并不试图承担的工作流结构。"
-          ]
-        },
-        {
-          "id": "dsh-vs-hagicode-section-2-capabilities",
-          "type": "capability-list",
-          "items": [
+          "id": "dsh-vs-hagicode-section-2-table",
+          "type": "comparison-table",
+          "headers": [
+            "对比项",
+            "DeepSeek Harness",
+            "HagiCode"
+          ],
+          "rows": [
             {
-              "id": "dsh-vs-hagicode-section-2-item-1",
-              "title": "多线程并行：让 DeepSeek Harness 同时跑出多条受控开发通道",
-              "content": [
-                "DeepSeek Harness 在单次调用里已经能做很多事，但真实开发几乎从来不是一次只推进一个任务。",
-                "HagiCode 允许你把多个 DeepSeek Harness 会话并行跑起来，每个会话都有独立上下文、明确职责和各自的推进节奏。",
-                "这样 DeepSeek Harness 就不再是一个“参数很多的可复现单线程 CLI”，而是一个真正贴近工程团队工作方式的并行工作台。"
-              ],
-              "bullets": [
-                "线程 A 在完善后端 API 接口；",
-                "线程 B 在重构前端组件；",
-                "线程 C 在编写单元测试；",
-                "线程 D 在审查代码安全漏洞。"
+              "id": "dsh-vs-hagicode-section-2-row-1",
+              "cells": [
+                "类别",
+                "DeepSeek AI 开源的 Agent harness,基于 Cordis 框架用插件搭成;开发者预览",
+                "工作台,把包括 dsh 在内的 Agent CLI 当执行器运行"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-2",
-              "title": "OpenSpec 提案会话：把 DeepSeek Harness 的模型选择变成可追溯决策",
-              "content": [
-                "在日常开发中，最容易出现的混乱不是代码写不出来，而是改了一堆东西之后，忘了为什么这么改、改了哪些、以及这些改动之间有什么关系。",
-                "HagiCode 内置的 OpenSpec 提案工作流从根本上解决了这个问题。每次开发任务都会以“提案”的形式启动：",
-                "对于 DeepSeek Harness 来说，这种结构尤其重要，因为它不仅能记录改了什么，还能记录为什么当时选择了某个模型、某条路由，或者某种工具边界。"
-              ],
-              "bullets": [
-                "先写清楚这次要解决什么问题，为什么这样做是合理的；",
-                "在提案框架下与 DeepSeek Harness 深入讨论技术方案，所有对话和决策都记录在提案上下文里；",
-                "方案确定后，DeepSeek Harness 在提案的约束范围内进行代码实现；",
-                "最终提案文档、讨论记录和代码变更形成一条完整的追溯链。"
+              "id": "dsh-vs-hagicode-section-2-row-2",
+              "cells": [
+                "界面与平台",
+                "本地 Web UI(`dsh web`)、headless、基于 stdio JSON-RPC 的 SDK、ACP;需要 Node.js 22.19+ 或 24+",
+                "桌面端(Windows、macOS、Linux)、Docker Compose 容器版、Microsoft Store 版"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-3",
-              "title": "AI 提交：把 DeepSeek Harness 的产出沉淀成干净的提交历史",
-              "content": [
-                "写完代码之后还要写 commit message，这件事对很多开发者来说是一种精神内耗。写得太随意回头找不到关键提交，写得太正式又觉得浪费时间。",
-                "HagiCode 的 AI 提交功能把这件事整个人交给了 DeepSeek Harness：它会分析你的代码变更、理解改动的意图和影响范围，然后自动生成结构清晰、语义准确的 commit message。更关键的是，在 AI 提交的过程中，HagiCode 会自动锁定仓库，防止并发操作导致的状态冲突，确保提交安全可靠。",
-                "你把注意力留给创造，commit message 这种流水账交给 DeepSeek Harness 就好。"
+              "id": "dsh-vs-hagicode-section-2-row-3",
+              "cells": [
+                "价格与许可",
+                "MIT 许可,免费运行;模型费用付给模型提供商",
+                "桌面版和容器版免费;Store 版基础免费,可选一次性购买 TurboEngine"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-4",
-              "title": "Code Server 浏览器编辑：让 DeepSeek Harness 的分析结果直接落到编辑动作",
-              "content": [
-                "DeepSeek Harness 分析完代码、定位到问题文件和具体行号之后，常见的尴尬发生了：你需要离开 AI 对话窗口，回到自己的 IDE 里重新找到那个文件，再手动跳到对应的位置。这个“分析→编辑”的上下文断点，不仅打断思路，也让 AI 的价值只停留在“告诉你问题在哪”，走不到“直接帮你进入修改状态”。",
-                "HagiCode 内置了基于 code-server 的浏览器编辑器，专门解决这个断点：",
-                "Code Server 集成让 HagiCode 不是一个“会分析代码的前台页面”，而是一个真正能让 DeepSeek Harness 的分析结论直接落地为编辑动作的完整工作站。它把“AI 分析”和“动手修改”之间的切换成本降到了最低。"
-              ],
-              "bullets": [
-                "一键从分析进入编辑：DeepSeek Harness 在提案中定位到需要修改的文件后，HagiCode 可以直接在工作台内打开该文件进入编辑状态。你不需要切换工具，也不需要重新定位文件。",
-                "本地、容器、远程全覆盖：无论项目跑在本地、容器还是远程机器上，HagiCode 的 Code Server 都能把编辑入口拉到同一个工作台里。",
-                "Vault 直连编辑：DeepSeek Harness 引用到的代码参考库和学习项目，也可以通过 Code Server 直接打开查看。"
+              "id": "dsh-vs-hagicode-section-2-row-4",
+              "cells": [
+                "模型与提供商",
+                "DeepSeek API key、目录内提供商(Anthropic、OpenAI、Moonshot、Z.ai 等)、自定义 OpenAI 或 Anthropic 兼容端点",
+                "不托管模型,把提供商和模型传给 dsh;可选 OmniRoute 路由"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-5",
-              "title": "HagiTask：把 DeepSeek Harness 的常见工作流封装成可复用模板",
-              "content": [
-                "DeepSeek Harness 的严谨性很强，但如果每次都要手动重述模型选择、工具边界、工作目录和任务框架，本身就是一种浪费。",
-                "HagiCode 的 HagiTask 机制，就是把这些重复出现的模式整理成可复用模板。它做的不只是“快捷指令”，更是一个可扩展的 Skills 集成平台：",
-                "HagiTask 让你和 DeepSeek Harness 的协作从“每次都重新搭流程”升级为“直接挑流程并执行”。这时，配置能力才真正变成工程效率。"
-              ],
-              "bullets": [
-                "社区 Skills 即装即用：把成熟的审查、重构、CRUD、文档生成流程直接导入使用。",
-                "可扩展的 Skills 体系：在共享模板上叠加团队自己的路由默认值、编码规范和检查清单。",
-                "可视化操作，不再靠终端记忆：选择任务、切换参数、调整顺序，都可以在专门的界面里完成。"
+              "id": "dsh-vs-hagicode-section-2-row-5",
+              "cells": [
+                "并行工作",
+                "Web UI 中可开多个会话;Agent 可在会话内委派工作",
+                "同时运行多个会话,每个是带状态的命名 Agent"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-6",
-              "title": "游戏化界面：让 DeepSeek Harness 的治理开关更直观",
-              "content": [
-                "编程本身可以是枯燥的，但也可以是好玩的。HagiCode 的游戏化界面设计，打破了命令行工具冷冰冰的体验：",
-                "DeepSeek Harness 提供控制力，HagiCode 提供体验层——两者结合，才能把一个配置丰富的 CLI 变成一个真正让人愿意天天打开的工作空间。"
-              ],
-              "bullets": [
-                "视觉反馈清晰：会话状态、运行进度和结果都不再埋在终端输出里。",
-                "成就与进度可视化：提交、提案节点和交付阶段都变成了可见节奏点。",
-                "降低操作门槛：即便不是终端重度用户，也能通过界面充分利用 DeepSeek Harness 的控制模型。"
+              "id": "dsh-vs-hagicode-section-2-row-6",
+              "cells": [
+                "规范与规划流程",
+                "Agent 在会话内维护计划;没有提案生命周期",
+                "OpenSpec 提案:提出、校验、实施、归档(免费版同时 3 个,TurboEngine 为 32 个)"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-7",
-              "title": "Agents 多代理管理：把多个 DeepSeek Harness 会话变成可调度 Agent 编队",
-              "content": [
-                "并行会话本身很有价值，但当你同时开着多个会话时，真正的新瓶颈会变成“怎么调度和管理它们”。",
-                "HagiCode 的 Agents 管理层会把每个 DeepSeek Harness 工作单元抽象成一个有名字、可调度、状态可见的 Agent。",
-                "你面对的不再是一堆打开的终端窗口，而是一支可以被统一协调的小型 AI 开发队伍。"
-              ],
-              "bullets": [
-                "Agent 身份与状态可视化：谁在运行、谁在等待、谁卡住、谁可归档，一眼就能看清。",
-                "任务与 Agent 绑定：提案、审查、重构、测试等任务都可以分配给专属 Agent。",
-                "Agent 配置独立可控：不同 Agent 可以挂不同的模型路由、Skills、工具边界和上下文范围，彼此互不干扰。"
+              "id": "dsh-vs-hagicode-section-2-row-7",
+              "cells": [
+                "Git 与提交",
+                "在工作区里执行 shell 命令;文档中有 GitHub 评审指南",
+                "AI 生成提交信息,提交期间锁定仓库;内置 Git 与 GitHub 集成"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-8",
-              "title": "Monospecs 多仓库管理：给 DeepSeek Harness 一张完整的仓库地图",
-              "content": [
-                "实际项目中，代码往往不在一个仓库里。前端、后端、文档、共享库分散在不同仓库，而一个功能变更可能要同时修改好几个仓库。对 DeepSeek Harness 来说，单仓库模式够用，但它无法天然理解跨仓库的关系——你得在每一次对话里手动告诉它“这个改动还要同步到另外两个仓库”，这显然是低效的。",
-                "HagiCode 的 Monospecs 机制就是为多仓库场景而设计的结构化方案。它通过 .hagicode/monospecs.yaml 配置文件声明项目群中所有子仓库的地址、名称和关系，让 DeepSeek Harness 在启动提案时就能自动获得完整的跨仓库地图：",
-                "Monospecs 的价值，在 DeepSeek Harness 身上会更明显，因为只有当它同时理解代码改动范围和模型路由范围时，这种灵活性才真正有意义。"
-              ],
-              "bullets": [
-                "自动感知仓库关系：DeepSeek Harness 可以直接从 Monospecs 中读取 repo 图谱，而不是反复依赖人工解释。",
-                "跨仓库变更追踪：specs 留在主仓库，代码修改留在对应子仓库，决策链条和实现边界都更清晰。",
-                "AI 提交精准识库：HagiCode 会结合 Monospecs 自动判断变更应落在哪个仓库。",
-                "每库可配 AGENTS.md：DeepSeek Harness 在不同仓库中自动读取相应开发约束。"
+              "id": "dsh-vs-hagicode-section-2-row-8",
+              "cells": [
+                "上手成本",
+                "`npx @deepseek-ai/dsh web`,然后在设置的模型页添加密钥",
+                "安装桌面端,另需 dsh 在 PATH 中并配置好模型"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-9",
-              "title": "Vault 跨项目知识库：让 DeepSeek Harness 记住的不止是一轮终端会话",
-              "content": [
-                "DeepSeek Harness 的会话控制已经很灵活，但“能复用会话”并不等于“拥有持久知识层”。如果没有这一层，重要背景仍然会被反复重讲。",
-                "Vault 是 HagiCode 提供的跨项目持久化知识存储层，它的核心设计理念是“一次注册，处处复用”：",
-                "如果说 Monospecs 是让 DeepSeek Harness 看懂项目在哪里，那 Vault 就是让 DeepSeek Harness 记住你已经积累了什么。一个可复现 CLI，只有在获得持久知识支撑后，才更像长期搭档。"
-              ],
-              "bullets": [
-                "多类型知识容器：把文件夹、代码参考库、Obsidian 笔记和系统托管资产统一注册进来。",
-                "AI 上下文自动注入：新提案一启动，DeepSeek Harness 就能拿到合适的参考材料。",
-                "访问权限精细化控制：区分只读参考库和可编辑项目空间，让 DeepSeek Harness 学得广、改得稳。",
-                "跨项目知识复用：一次沉淀的模式，可以在后续提案里持续复用，而不用每次重建。"
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute 模型路由：把 DeepSeek Harness 的路由设计真正放大",
-              "content": [
-                "DeepSeek Harness 本身已经把模型设置与工作流分开，但团队规模一大，仍然需要一个中心化的路由层来把这种灵活性用起来。",
-                "OmniRoute 把交互层和模型路由层拆开，让 HagiCode 可以继续把 DeepSeek Harness 放在工作流里，同时在底层灵活切换模型来源。",
-                "这样你就能同时获得更好的成本控制、更合适的任务匹配，以及模型供应变化时更低的迁移摩擦。"
-              ],
-              "bullets": [
-                "保留你已经习惯的 CLI 或交互方式，只替换底层模型路由。",
-                "一套路由策略可以被多个 Agent 和多个接入 HagiCode 的 AI 工具共享。",
-                "针对快速编码、深度审查、架构规划等不同任务配置不同模型路线。",
-                "在路由层一次调整成本与能力配置，而不是逐个工作流重复折腾。"
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-11",
-              "title": "统一工具调用视图：以一致的形态查看 DeepSeek Harness 的工具使用",
-              "content": [
-                "HagiCode 会为每条工具调用消息和工具结果消息附加同一种类型化的工具调用结构，包括工具类型、输入字段、状态、结果文本或图片、错误信息以及耗时。该结构由已存储的数据计算得出，因此会话历史与实时更新显示的内容一致。",
-                "无论使用哪个提供方，工具调用都采用同一种格式。DeepSeek Harness 的工具调用因此与工作区中其他 Agent 的调用保持一致，你无需分别适应每个 CLI 的原始输出。"
-              ],
-              "bullets": [
-                "所有提供方共用一种结构，shell、文件、搜索、抓取与 MCP 调用的呈现方式保持一致；",
-                "失败的调用会附带可读的错误信息；",
-                "栅格格式的工具图片以 data URI 形式传递。"
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-12",
-              "title": "一目了然：在状态栏查看今日的 Token 用量与费用",
-              "content": [
-                "HagiCode 可以在状态栏中显示来自 TokenMonitor 桌面应用的今日 Token 用量与费用。该集成为可选功能，默认关闭。",
-                "它会定时读取 TokenMonitor 的本地数据文件或 TokenMonitor HostHub，只保留今日的 Token 总量和费用。状态栏因此用于快速查看，而不是完整的用量报告。"
-              ],
-              "bullets": [
-                "未开启集成前不会读取任何数据；",
-                "HostHub 密钥只写不读，保存后不会再返回或写入日志；",
-                "无效的 HostHub 地址会在保存时被拒绝。"
+              "id": "dsh-vs-hagicode-section-2-row-9",
+              "cells": [
+                "最适合",
+                "想要开放、可改造 harness、能接受预览版软件的开发者",
+                "让 dsh 与其他 Agent 并排使用、并要求规范可追溯的人"
               ]
             }
           ]
@@ -227,29 +115,209 @@
     },
     {
       "id": "dsh-vs-hagicode-section-3",
-      "title": "总结",
+      "title": "DeepSeek Harness 的长处",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-3-intro",
-          "type": "rich-text",
-          "content": [
-            "DeepSeek Harness 是一个托管 ACP 的编程代理，具有清晰的模型设置；HagiCode 则是完整的 AI 编程工作台。两者的关系是互补的：",
-            "如果你已经在使用 dsh，不妨把它接入 HagiCode。你会发现 dsh 不再只是一个终端命令，而是在结构化工程环境中运行的全流程 AI 伙伴。"
-          ]
-        },
-        {
-          "id": "dsh-vs-hagicode-section-3-bullets",
-          "type": "bullet-list",
+          "id": "dsh-vs-hagicode-section-3-capabilities",
+          "type": "capability-list",
           "items": [
-            "DeepSeek Harness 提供控制：托管 ACP 运行时、固定的 acp profile、启动超时与专用的模型设置；",
-            "HagiCode 提供效率：多线程并行、Agents 编队管理、OpenSpec 提案、AI 提交、Code Server 编辑器、HagiTask；",
-            "HagiCode 拓展边界：Monospecs 让 dsh 理解跨仓库项目关系，Vault 为 dsh 提供跨会话的长期记忆，OmniRoute 在工作流底层保持模型路由的灵活性；",
-            "工具调用视图：所有提供方的工具使用都采用一致的结构，历史记录与实时更新保持一致；",
-            "一目了然：可选的 TokenMonitor 状态栏显示今日 Token 用量与费用；",
-            "总而言之，它们带来的是一种体验：可追溯的决策链、自动化的日常任务、真正令人愉快的界面，以及一位真正理解你项目全貌、可以自由配置任意模型来源的长期 AI 伙伴。"
+            {
+              "id": "dsh-vs-hagicode-section-3-item-1",
+              "title": "一切皆插件",
+              "content": [
+                "dsh 把模型适配器、Agent 循环和界面都做成通过 Cordis 组合的插件。每个 profile 有自己的插件集和用于覆盖配置的 `cordis.patch.yml`,`dsh plugin --profile <name> add <package>` 可以向 profile 安装插件。想改变一个 Agent harness 的行为,这正是这个项目的重点。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-2",
+              "title": "一个程序,四种运行方式",
+              "content": [
+                "`dsh web` 提供浏览器界面。`dsh headless \"run the tests\"` 回答一个任务后退出,可以从 stdin 读取任务、输出按行分隔的 JSON 事件,也能按 id 恢复会话。sdk profile 通过 stdio 提供 JSON-RPC,并有 Python SDK 指南;acp profile 为编辑器和自动化客户端服务。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-3",
+              "title": "不必重启就能换模型",
+              "content": [
+                "在设置的模型页,你可以填入 DeepSeek API key、选择目录内的提供商,或定义使用 OpenAI Chat Completions、OpenAI Responses、Anthropic Messages 协议的自定义端点。模型改动在下一次请求生效,密钥保存后只写不读,存放在 `$DSH_HOME/.credentials.yaml`。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-4",
+              "title": "对成熟度很坦率",
+              "content": [
+                "README 提醒会有不兼容变更,SAFETY.md 称其为实验性、不可用于生产,发布版本都是 alpha 标签。仓库创建于 2026 年 8 月,变化会很快;这种坦率有助于你决定在哪里运行它。"
+              ]
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-4",
+      "title": "什么时候选 DeepSeek Harness,什么时候选 HagiCode",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-4-choose-agent",
+          "type": "bullet-list",
+          "items": [
+            "你想试用 DeepSeek 自己的 harness,或开发、测试 dsh 插件;",
+            "你想要一个本地 Web UI 来操作 Agent,而不想再装别的应用;",
+            "你用 `dsh headless` 跑一次性脚本,或基于 SDK、ACP profile 开发;",
+            "你能接受预览版软件和版本间的不兼容变更;",
+            "你只使用 DeepSeek 模型或某一个网关。"
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-4-choose-hagicode",
+          "type": "bullet-list",
+          "items": [
+            "你想在同一个工作区里让 dsh 与 Claude Code、Codex 等其他 Agent CLI 并排使用;",
+            "你想同时运行多个 dsh 会话,并把每个作为命名 Agent 跟踪;",
+            "你希望每次改动都从 OpenSpec 提案开始,有校验和归档;",
+            "你想要 AI 生成提交信息和内嵌 Code Server 编辑器;",
+            "你想把 dsh 学到的内容存入 Vault，并在 Monospecs 里一次描述多仓库改动。"
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-4-not-a-fit",
+          "type": "callout",
+          "tone": "warning",
+          "title": "HagiCode 不适合 dsh 用户的场景",
+          "content": [
+            "脚本或 CI 运行:请直接用 `dsh headless` 或 SDK;HagiCode 是桌面与网页应用。",
+            "dsh 自带 Web UI,如果你只是想要一个浏览器前端,HagiCode 的功能超出所需。",
+            "需要先装好 dsh 并配置模型;HagiCode 会检查 `dsh --help` 是否表明是 DeepSeek Harness,名字相同的其他程序会被拒绝。",
+            "dsh 是预览版:一次不兼容的更新可能让 ACP 集成暂时失效,直到两边都跟上。",
+            "免费版同时最多 3 个提案,不想要规范流程的团队会觉得提案是额外负担。",
+            "HagiCode 并不是深度手工编辑的 IDE 替代品,编辑能力止于内嵌的 Code Server。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-5",
+      "title": "把 DeepSeek Harness 和 HagiCode 一起用",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-5-intro",
+          "type": "rich-text",
+          "content": [
+            "HagiCode 在你打开的仓库里,以 ACP profile 子进程的方式运行 dsh,并传入你选的提供商和模型。HagiCode 不提供 dsh 的凭据字段,登录和模型密钥仍留在 dsh 里。",
+            "不存在锁定:dsh 仍是一个普通安装,随时可以用 `dsh web` 或 `dsh headless` 直接运行。"
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-5-steps",
+          "type": "bullet-list",
+          "items": [
+            "安装 Node.js 22.19+ 或 24+,然后运行 `npm install -g @deepseek-ai/dsh`,让 `dsh` 命令出现在 PATH 中。",
+            "在 dsh 中至少配置一个模型提供商,例如在它的 Web UI 的设置、模型页填入 DeepSeek API key。",
+            "安装 HagiCode Desktop(Windows、macOS 或 Linux,免费),把 Agent CLI 选为 DeepSeek Harness。",
+            "同时设置提供商和模型,模型 id 要与 dsh 列出的完全一致,HagiCode 原样转发、不做拆分。",
+            "打开仓库,开始会话或提案。HagiCode 始终启动 `dsh --profile acp`,额外参数里不允许出现 `--profile`;启动超时默认 45 秒。",
+            "想回到纯 dsh,在同一目录直接运行它即可。"
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-5-notes",
+          "type": "callout",
+          "tone": "info",
+          "title": "dsh 在 HagiCode 里能用什么",
+          "content": [
+            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 dsh 会话。dsh 接受 `omniroute` 这样的提供商 id,所以把 OmniRoute 配成 dsh 的提供商后,它可以放在下层。",
+            "交互式提问只支持 Claude、Pi、OMP 和 Reasonix,Agent 工作面板只支持 Claude,所以这两项在 dsh 下不可用。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-6",
+      "title": "HagiCode 在 Agent 之上增加了什么",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-6-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "dsh-vs-hagicode-section-6-item-1",
+              "title": "并行会话与 Agents 管理",
+              "content": [
+                "同时运行多个 dsh 会话,各有独立上下文,并能看到哪个在运行、等待或已完成。dsh 自己的子 Agent 委派仍在单个会话内部,HagiCode 提供的是上面一层。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-2",
+              "title": "OpenSpec 提案",
+              "content": [
+                "每个任务从提案开始,在提案里与 dsh 讨论方案,再让 dsh 在该范围内实施。因为 dsh 是预览版,当后续版本行为变化时,书面提案也记录了你当时改了什么。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-3",
+              "title": "AI 提交与 Code Server",
+              "content": [
+                "HagiCode 根据 diff 写提交信息,并在提交期间锁定仓库,让 dsh 的产出落成干净的历史。Code Server 可以在浏览器里打开 dsh 改过的文件。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-4",
+              "title": "Monospecs 与 Vault",
+              "content": [
+                "Monospecs 在 `.hagicode/monospecs.yaml` 里列出子仓库,让跨仓库改动以一个提案的形式交给 dsh。Vault 存放你一次登记、反复复用的参考项目和笔记。"
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-5",
+              "title": "OmniRoute、工具调用视图与用量",
+              "content": [
+                "OmniRoute 集中管理各 Agent 的模型路由。dsh 的工具调用与其他 Agent 一样显示在同一种类型化视图里,可选的 TokenMonitor 会在状态栏显示今日 token 和费用。"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-7",
+      "title": "结论",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-7-bullets",
+          "type": "bullet-list",
+          "items": [
+            "dsh 是 DeepSeek AI 的开源、插件化 harness,目前仍是开发者预览版。",
+            "HagiCode 与它并不竞争:它运行 dsh,并增加并行 Agent、提案、提交和知识库,代价是多装一个软件。",
+            "探索、写脚本或开发插件时单用 dsh;当 dsh 只是真实项目里的多个 Agent 之一时,用 HagiCode 加 dsh。"
+          ]
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "DeepSeek Harness (dsh) 免费吗?",
+      "answer": "dsh 采用 MIT 许可,免费运行。你向模型提供商付费,例如通过 DeepSeek API key;具体费率请看提供商的价格页。"
+    },
+    {
+      "question": "dsh 怎么安装?",
+      "answer": "官方 README 用 `npx @deepseek-ai/dsh web` 运行,它会在 http://127.0.0.1:3080 启动 Web UI,需要 Node.js 22.19+ 或 24+。配合 HagiCode 使用时,请运行 `npm install -g @deepseek-ai/dsh` 全局安装,让 `dsh` 出现在 PATH 中。"
+    },
+    {
+      "question": "dsh 可以用于生产吗?",
+      "answer": "按它自己的说法不可以。README 称 dsh 是有不兼容变更的开发者预览版,SAFETY.md 写明它是实验性、未经审计、不可用于生产。"
+    },
+    {
+      "question": "dsh 能和 HagiCode 一起用吗?",
+      "answer": "可以。HagiCode 以 ACP profile 启动 dsh,传入你选的提供商和模型,并检查 `dsh --help` 是否表明是 DeepSeek Harness。请先安装 dsh 并配置模型。"
+    },
+    {
+      "question": "HagiCode 会取代 dsh 吗?",
+      "answer": "不会。dsh 是执行器,HagiCode 是它外层的工作台,你仍可直接运行 dsh。"
+    },
+    {
+      "question": "dsh 和 HagiCode 该选哪个?",
+      "answer": "想探索 harness、写插件或跑一次性脚本,单用 dsh。当 dsh 只是多个 Agent 之一,并需要并行会话、提案和托管提交时,再加 HagiCode。"
     }
   ]
 }

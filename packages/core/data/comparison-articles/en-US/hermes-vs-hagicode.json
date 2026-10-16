@@ -3,233 +3,110 @@
   "slug": "hermes-vs-hagicode",
   "category": "vs-hagicode",
   "locale": "en-US",
-  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "Hermes Agent vs HagiCode: Features and Comparison",
-    "description": "Understand Hermes Agent's key features, reasoning characteristics, and research background, and see how HagiCode turns Hermes' deep reasoning into daily development productivity through multi-threaded parallelism, OpenSpec proposals, AI commits, HagiTasks, gamified UI, Agents management, Monospecs, Vault, and OmniRoute. Also covers the shared tool-call view and TokenMonitor status-bar usage."
+    "description": "Hermes Agent is Nous Research's open-source, self-improving agent; HagiCode runs it as a coding executor. Compare features, pricing, setup and fit."
   },
-  "summary": "Hermes is Nous Research's AI Agent CLI tool, built on the core philosophy of giving AI genuine autonomous agent capabilities. Hermes excels in reasoning depth, autonomous planning, and multi-step execution — particularly well-suited for complex programming tasks requiring deep thought. However, Hermes is a research-driven Agent tool, while HagiCode is an engineering-practice-oriented AI programming workbench. Together, they transform Hermes' research-grade capabilities into reusable production-grade workflows. It also covers the shared tool-call view and optional TokenMonitor usage in the status bar.",
+  "summary": "Hermes Agent is Nous Research's open-source agent with memory, skills, scheduling and chat gateways, and HagiCode is a workbench that runs Hermes as a coding executor over ACP. Use Hermes alone as an always-on assistant; add HagiCode for parallel coding sessions, proposals and commits.",
   "sections": [
     {
       "id": "hermes-vs-hagicode-section-1",
-      "title": "Hermes' Core Strengths",
+      "title": "Short answer",
       "blocks": [
         {
-          "id": "hermes-vs-hagicode-section-1-capabilities",
-          "type": "capability-list",
-          "items": [
-            {
-              "id": "hermes-vs-hagicode-section-1-item-1",
-              "title": "Key Features",
-              "content": [
-                "Hermes' functionality is designed around the core concept of autonomous agents:",
-                "Autonomous task planning: Hermes doesn't just generate code from instructions — it understands vague high-level goals and autonomously breaks them down into concrete implementation steps. From 'I need a user authentication system' to specific file lists, module divisions, and interface definitions — Hermes plans it all out.",
-                "Multi-step autonomous execution: Once planning is complete, Hermes can execute step by step autonomously — writing code, running tests, fixing errors, continuing to the next step — all done independently. This 'Agent does the work for you' experience is Hermes' most core differentiating capability.",
-                "Deep reasoning and reflection: During execution, Hermes continuously evaluates its own output. If it discovers test failures or logical contradictions, it autonomously traces back, analyzes the cause, and adjusts its approach rather than simply throwing errors back at the user."
-              ]
-            },
-            {
-              "id": "hermes-vs-hagicode-section-1-item-2",
-              "title": "Reasoning Characteristics",
-              "content": [
-                "Hermes has several notable reasoning features:",
-                "Long-chain reasoning: Hermes excels at handling complex logic problems requiring multi-step reasoning. Rather than jumping straight to answers, it shows the complete thought path — each step builds on the previous conclusion, making the reasoning process understandable and verifiable.",
-                "Self-correction mechanism: When errors occur during execution, Hermes actively analyzes the cause, adjusts its approach, and re-executes. This autonomous error-correction capability makes it more reliable than typical code generation tools for complex tasks.",
-                "Context consistency maintenance: During long task execution, Hermes maintains consistent understanding of the overall goal and intermediate steps — no 'changing things until you forget the original objective' syndrome."
-              ]
-            },
-            {
-              "id": "hermes-vs-hagicode-section-1-item-3",
-              "title": "Research Background and Ecosystem",
-              "content": [
-                "Hermes' ecosystem centers on Nous Research's research community:",
-                "Research-driven development: Hermes is developed by Nous Research, an institution with deep expertise in AI Agent research. Hermes' feature design reflects cutting-edge research outcomes rather than market-demand-driven rapid iteration.",
-                "Open source and community participation: Hermes is open source, with researchers and developers able to contribute improvements. For developers interested in AI Agent technology frontiers, Hermes is a window into understanding Agent technology principles.",
-                "ACP protocol support: Hermes supports the ACP protocol, enabling standardized communication with other ACP-compatible AI tools."
-              ]
-            }
+          "id": "hermes-vs-hagicode-section-1-answer",
+          "type": "rich-text",
+          "content": [
+            "Hermes Agent is an open-source, self-improving agent from Nous Research. You run `hermes` in a terminal, or reach it from Telegram, Discord, Slack and other chat apps, and it keeps memory and builds skills over time. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, Hermes among them, as its executor. It does not replace Hermes; it runs `hermes acp` inside a repository and adds sessions, proposals and commit handling.",
+            "Hermes is broader than a coding agent, and that matters here. If you want an always-on assistant, scheduled jobs or a bot in your chat apps, stay with Hermes alone: HagiCode uses its ACP mode, where Hermes' own docs say messaging delivery and cron management are excluded. If your goal is coding work across repositories, HagiCode is the layer that organises it."
           ]
         }
       ]
     },
     {
       "id": "hermes-vs-hagicode-section-2",
-      "title": "Why Hermes Needs HagiCode",
+      "title": "Hermes Agent vs HagiCode at a glance",
       "blocks": [
         {
-          "id": "hermes-vs-hagicode-section-2-intro",
-          "type": "rich-text",
-          "content": [
-            "Hermes' autonomous agent capabilities are impressive, but a pure CLI Agent tool faces several core problems in real projects: How do you manage multiple parallel Agent tasks? How do you make the Agent's decision process traceable and auditable? How do you constrain the Agent's autonomy within a safe engineering framework?"
-          ]
-        },
-        {
-          "id": "hermes-vs-hagicode-section-2-capabilities",
-          "type": "capability-list",
-          "items": [
+          "id": "hermes-vs-hagicode-section-2-table",
+          "type": "comparison-table",
+          "headers": [
+            "Dimension",
+            "Hermes Agent",
+            "HagiCode"
+          ],
+          "rows": [
             {
-              "id": "hermes-vs-hagicode-section-2-item-1",
-              "title": "Multi-threaded parallelism: Let multiple Hermes Agents work for you simultaneously",
-              "content": [
-                "Hermes can do a lot inside one session, but real delivery rarely happens one task at a time.",
-                "HagiCode lets you run multiple Hermes sessions in parallel, each with isolated context, a clear responsibility boundary, and independent progress.",
-                "That turns AI assistance from a single conversation into a parallel engineering workbench that matches how teams actually build software."
-              ],
-              "bullets": [
-                "Thread A is refining backend API endpoints;",
-                "Thread B is refactoring frontend components;",
-                "Thread C is writing unit tests;",
-                "Thread D is auditing code for security vulnerabilities."
+              "id": "hermes-vs-hagicode-section-2-row-1",
+              "cells": [
+                "What it is",
+                "Open-source self-improving agent with memory, skills, scheduler and chat gateway; coding is one use",
+                "Workbench that runs agent CLIs, Hermes included, as coding executors"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-2",
-              "title": "OpenSpec proposal sessions: Equip Hermes' autonomy with a constraint framework",
-              "content": [
-                "In daily development, the most common chaos isn't being unable to write code — it's making a bunch of changes and then forgetting why you made them, what you changed, and how those changes relate to each other.",
-                "HagiCode's built-in OpenSpec proposal workflow fundamentally solves this problem. Every development task launches as a proposal:",
-                "This think-first-then-act approach lets Hermes's reasoning power shine even brighter, and lets you quickly understand the decision context months later when looking back at the code."
-              ],
-              "bullets": [
-                "First, write down what problem this task solves and why this approach makes sense;",
-                "Discuss the technical approach in depth with Hermes within the proposal framework — all conversations and decisions are recorded in the proposal context;",
-                "Once the approach is confirmed, Hermes implements the code within the proposal's constraints;",
-                "The final proposal document, discussion records, and code changes form a complete trace chain."
+              "id": "hermes-vs-hagicode-section-2-row-2",
+              "cells": [
+                "Interface and platforms",
+                "Terminal UI; Telegram, Discord, Slack, WhatsApp, Signal, Email; Linux, macOS, WSL2, native Windows, Termux; desktop app on macOS (Apple Silicon) and Windows",
+                "Desktop app (Windows, macOS, Linux), Docker Compose container, Microsoft Store edition"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-3",
-              "title": "AI commits: Standardize Hermes' multi-step outputs",
-              "content": [
-                "Writing commit messages after finishing code is a form of mental friction for many developers. Too casual and you can't find key commits later; too formal and it feels like wasted time.",
-                "HagiCode's AI commit feature hands this entirely to Hermes: it analyzes your code changes, understands the intent and scope of impact, then automatically generates clearly structured, semantically accurate commit messages. More importantly, during the AI commit process, HagiCode automatically locks the repository to prevent state conflicts from concurrent operations, ensuring safe and reliable commits.",
-                "Save your attention for creation — let Hermes handle the commit paperwork."
+              "id": "hermes-vs-hagicode-section-2-row-3",
+              "cells": [
+                "Pricing and licensing",
+                "MIT-licensed and free; you pay your model provider, or an optional Nous Portal subscription",
+                "Desktop and Container free; Store edition free with optional one-time TurboEngine purchase"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-4",
-              "title": "Code Server browser editor: Make Hermes' autonomous planning transparent to developers",
-              "content": [
-                "After Hermes analyzes code, identifies the problematic file, and pinpoints the exact line number, the familiar awkward moment occurs: you need to leave the AI conversation window, return to your IDE, find the file again, and manually jump to the right location. This analysis-to-editing context break not only interrupts your flow but keeps AI's value at 'telling you where the problem is' rather than 'helping you directly enter editing mode.'",
-                "HagiCode's built-in Code Server-based browser editor is designed specifically to solve this break:",
-                "The Code Server integration makes HagiCode not just a frontend page that can analyze code, but a complete workstation where Hermes's analysis can directly land as editing actions. It minimizes the tool-switching cost between AI analysis and hands-on modification."
-              ],
-              "bullets": [
-                "One-click from analysis to editing: Once Hermes identifies the file needing changes in a proposal, HagiCode can directly open that file in the workbench for editing. You don't need to switch tools or re-locate the file — the distance from analysis result to hands-on modification is zero.",
-                "Local, container, remote — full coverage: Whether your project runs on a local machine, in a Docker container, or on a remote server, HagiCode's Code Server can open the project directory through the browser for editing. You're no longer constrained by 'this project can only be edited in one specific environment.'",
-                "Vault direct editing: Code reference libraries and learning projects registered in your Vault can also be opened and browsed directly through Code Server. When Hermes references example code, you can jump in anytime for deeper study or practice."
+              "id": "hermes-vs-hagicode-section-2-row-4",
+              "cells": [
+                "Model and provider access",
+                "Nous Portal (300+ models), OpenRouter, OpenAI, your own endpoint and more; switch with `hermes model`",
+                "Hosts no models; uses what Hermes is configured with; optional OmniRoute routing"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-5",
-              "title": "HagiTask: Templatize Hermes' autonomous capabilities",
-              "content": [
-                "Hermes's capabilities are strong, but manually typing out requirements each time isn't efficient. More importantly, the community has already produced a wealth of high-quality Skills — from code review templates to full-stack CRUD generators, from automatic documentation generation to test case orchestration. These proven practices are scattered everywhere with no unified place to host and invoke them.",
-                "HagiCode's HagiTask mechanism is designed to solve this problem. It's more than just shortcut commands — it's an extensible Skills integration platform:",
-                "HagiTask upgrades your collaboration with Hermes from 'communicating from scratch every time' to 'standing on the community's shoulders, one-click invocation of mature workflows.' You pick the template, Hermes executes — this is true workflow automation, and the whole process is visually delightful."
-              ],
-              "bullets": [
-                "Community Skills ready to use: HagiCode supports importing popular community Skills as HagiTasks. You don't need to craft complex prompts from scratch — the community has already accumulated a wealth of high-quality task templates. Import and use immediately — new CRUD modules, comprehensive code reviews, API documentation generation — all have ready-made solutions.",
-                "Extensible Skills system: If you have unique project requirements or team conventions, HagiCode lets you customize and compose on top of community Skills. You can adjust checklists, add team coding standards, or even chain multiple Skills into a complete development pipeline, building your own team's task template library.",
-                "Visual operations, goodbye to the tedium of plain text: This is the fundamental difference between HagiCode and pure command-line tools. Choosing a HagiTask doesn't require typing commands and assembling parameters in the terminal — it's done through a carefully designed visual interface. Click to select tasks, dropdown menus to switch parameters, drag-and-drop to reorder tasks — every step has clear visual feedback and status indicators. The human-machine interaction shifts from 'writing code to invoke AI' to 'using a UI to direct AI.'"
+              "id": "hermes-vs-hagicode-section-2-row-5",
+              "cells": [
+                "Parallel work",
+                "Spawns isolated sub-agents; seven terminal backends including Docker, SSH, Modal and Daytona",
+                "Several sessions at once, each a named Agent with visible status"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-6",
-              "title": "Gamified interface: Make Hermes' autonomous behavior visible with feedback",
-              "content": [
-                "Programming itself can be tedious, but it can also be fun. HagiCode's gamified interface design breaks away from the cold experience of command-line tools:",
-                "Hermes provides intelligence, HagiCode provides experience — together, they transform AI programming from a 'productivity tool' into a 'development environment you actually want to open.'"
-              ],
-              "bullets": [
-                "Clear visual feedback: Each session's running status, progress, and results are presented through intuitive interface elements — no need to frantically scroll through terminal output.",
-                "Achievement and progress visualization: Task completion, code commits, proposal approvals — these milestones are wrapped as visible achievements, giving the development process a sense of rhythm and accomplishment.",
-                "Low barrier to entry: The combination of mouse clicks, drag-and-drop, and keyboard shortcuts lets developers unaccustomed to pure terminal workflows easily harness Hermes's full capabilities."
+              "id": "hermes-vs-hagicode-section-2-row-6",
+              "cells": [
+                "Spec and planning workflow",
+                "No proposal workflow; learns reusable skills from experience",
+                "OpenSpec proposals: propose, validate, apply, archive (3 concurrent free, 32 with TurboEngine)"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-7",
-              "title": "Agents management: Organize Hermes Agents into a manageable Agent fleet",
-              "content": [
-                "Parallel sessions are useful, but once you have several of them running, coordination becomes the next bottleneck.",
-                "HagiCode's Agents management layer turns each Hermes worker into a named, schedulable Agent with visible status, assigned scope, and independent configuration.",
-                "You move from 'a lot of terminals are open' to 'a small AI team is being coordinated in one place.'"
-              ],
-              "bullets": [
-                "Agent identity and status visualization: see which Agent is running, waiting, blocked, or ready for archive at a glance.",
-                "Task-to-Agent binding: proposals, reviews, refactors, and test work can each be assigned to a dedicated Agent.",
-                "Independent Agent configuration: different Agents can use different model routes, Skills, and context scopes without interfering with each other."
+              "id": "hermes-vs-hagicode-section-2-row-7",
+              "cells": [
+                "Git and commit handling",
+                "Works through its terminal tools; the README documents no dedicated commit workflow",
+                "AI-composed commit messages with the repository locked during the commit; Git and GitHub integration"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-8",
-              "title": "Monospecs multi-repo management: Give Hermes' autonomous planning a complete map",
-              "content": [
-                "In real projects, code rarely lives in a single repository. Frontend, backend, documentation, shared libraries are spread across different repos, and a single feature change may need to touch several repos simultaneously. For Hermes, single-repo mode works, but it has no native understanding of cross-repo relationships — you have to manually tell it in every conversation that 'this change also needs to sync to two other repos,' which is clearly inefficient.",
-                "HagiCode's Monospecs mechanism is the structured solution designed for multi-repo scenarios. Through the .hagicode/monospecs.yaml configuration file, it declares all sub-repo addresses, names, and relationships in the project group, giving Hermes an automatic cross-repo map when launching proposals:",
-                "Monospecs essentially eliminates Hermes's cognitive blind spots in cross-repo collaboration. Hermes's reasoning is powerful, but it still needs an accurate map to locate the scope of changes — and Monospecs is that systematically managed project map."
-              ],
-              "bullets": [
-                "Automatic repo relationship awareness: When creating a development proposal, Hermes can directly read the sub-repo list from the Monospecs config, knowing 'this change's frontend code is in repos/frontend, API definitions in repos/backend, documentation in repos/docs' — you no longer need to manually list which repos are involved each time.",
-                "Cross-repo change tracking: When a proposal spans multiple sub-repos, the OpenSpec proposal directory stays in the main repo, with sub-repos only carrying code changes. This keeps specs and code separated, sub-repos stay clean, but the entire change's decision chain and discussion records are centralized in one place. On archive, commit_when_archive can also auto-commit specs to the main repo, saving manual version control headaches.",
-                "AI commit smart repo targeting: When doing AI commits, HagiCode analyzes your changes against the Monospecs config and automatically suggests which target repo the commit should go to. You don't need to cd into each directory in the terminal — HagiCode handles the judgment of which repo this code belongs to.",
-                "Per-repo AGENTS.md: Each sub-repo can have its own AGENTS.md telling Hermes about that repo's tech stack, coding standards, and development conventions. Hermes automatically reads the corresponding guidance when operating on different repos, always behaving in line with your team's standards."
+              "id": "hermes-vs-hagicode-section-2-row-8",
+              "cells": [
+                "Setup effort",
+                "One-line installer that builds its own Python environment, then `hermes setup`",
+                "Desktop install, plus Hermes installed with its ACP support and a provider configured"
               ]
             },
             {
-              "id": "hermes-vs-hagicode-section-2-item-9",
-              "title": "Vault cross-project knowledge base: Enrich Hermes' reasoning references",
-              "content": [
-                "Hermes's context window is large, but every new session starts from scratch — the experience accumulated in the previous round of proposals, the project structures analyzed, the best practices discussed — all are 'forgotten' when the session ends. In pure conversation tools, you can only accept this, but in HagiCode, the Vault system changes the game.",
-                "Vault is HagiCode's cross-project persistent knowledge storage layer. Its core design philosophy is 'register once, reuse everywhere':",
-                "If Monospecs lets Hermes understand where projects are, Vault lets Hermes remember what we've learned before. The former expands Hermes's spatial vision, the latter extends Hermes's temporal memory — together, Hermes is no longer a stranger reintroducing themselves every time, but a long-term partner who truly understands your project landscape and knowledge accumulation."
-              ],
-              "bullets": [
-                "Multi-type knowledge containers: Vault supports four types — folder (general file directories), coderef (specifically for studying open-source projects, automatically initializing standardized directory structures), obsidian (directly connecting your existing Obsidian notebook), and system-managed (system-automated project config and prompt template libraries). You can register code repositories, study notes, and design documents scattered across different places into Vault — Hermes automatically perceives the existence of these knowledge resources in any proposal.",
-                "Automatic AI context injection: Every time a new proposal starts, HagiCode automatically injects your registered Vault information into Hermes's context. You don't need to manually copy code fragments or re-explain project backgrounds — Hermes receives the proposal while already knowing what learning resources and reference projects you have available, and can start working directly from existing knowledge.",
-                "Fine-grained access control: Each Vault can be marked as reference (read-only) or editable. Reference code libraries for open-source projects are set to read-only — Hermes can read and analyze but not modify, preventing accidental changes. Your own project Vaults set to editable let Hermes help you write code directly. This boundary keeps AI's freedom always controllable.",
-                "Cross-project knowledge reuse: Register a 'design patterns reference' Vault while analyzing Project A, and Hermes can access it in any subsequent proposal. You don't need to repeatedly build knowledge bases — Vault turns your learning outcomes and reference resources into inheritable long-term assets."
-              ]
-            },
-            {
-              "id": "hermes-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute model routing: Give Hermes' reasoning optimal model support",
-              "content": [
-                "Teams should be able to keep the workflow they like without locking model access to one vendor or one subscription path.",
-                "OmniRoute separates the interaction layer from the model-routing layer, so HagiCode can keep Hermes in the workflow while switching model sources underneath.",
-                "That gives you better cost control, better task-to-model fit, and less workflow churn when model pricing or availability changes."
-              ],
-              "bullets": [
-                "Keep the CLI or interaction style you already prefer while changing only the model route underneath.",
-                "Share one routing strategy across multiple Agents and multiple AI tools connected to HagiCode.",
-                "Tune different model routes for different workloads, such as fast coding, deep review, or architecture planning.",
-                "Adjust cost and capability once at the routing layer instead of reworking each individual workflow."
-              ]
-            },
-            {
-              "id": "hermes-vs-hagicode-section-2-item-11",
-              "title": "Unified tool-call view: see Hermes Agent's tool use in one consistent shape",
-              "content": [
-                "HagiCode attaches one typed tool-call shape to every tool-use and tool-result message. It records the tool kind, its input fields, status, result text or images, any error, and timing. The shape is computed from stored data, so session history and live updates show the same view.",
-                "The same shape covers every provider, so Hermes Agent tool calls look like those of every other agent in your workspace. You read one format instead of learning each CLI's raw output."
-              ],
-              "bullets": [
-                "One shape for every provider: shell, file, search, fetch and MCP calls are presented consistently;",
-                "Failed calls carry a readable error message;",
-                "Raster tool images are carried as data URIs."
-              ]
-            },
-            {
-              "id": "hermes-vs-hagicode-section-2-item-12",
-              "title": "Usage at a glance: today's tokens and cost in the status bar",
-              "content": [
-                "HagiCode can show today's token usage and cost from the TokenMonitor desktop app in its status bar. The integration is optional and off by default.",
-                "It reads TokenMonitor's local data file or a TokenMonitor HostHub on a schedule and keeps only today's total tokens and cost. The status bar stays a quick glance rather than a full usage report."
-              ],
-              "bullets": [
-                "Nothing is read until you turn the integration on;",
-                "The HostHub secret is write-only and is never returned or logged after you save it;",
-                "An invalid HostHub address is rejected when you save it."
+              "id": "hermes-vs-hagicode-section-2-row-9",
+              "cells": [
+                "Best for",
+                "An always-on personal or team agent across terminal, chat and cron jobs",
+                "Coding work across repositories with parallel sessions and traceable specs"
               ]
             }
           ]
@@ -238,29 +115,209 @@
     },
     {
       "id": "hermes-vs-hagicode-section-3",
-      "title": "Summary",
+      "title": "What Hermes Agent does well",
       "blocks": [
         {
-          "id": "hermes-vs-hagicode-section-3-intro",
-          "type": "rich-text",
-          "content": [
-            "Hermes is a research-grade AI Agent CLI tool with deep autonomous agent capabilities as its core advantage. HagiCode is an engineering-practice-oriented AI programming workbench. Their relationship is complementary:",
-            "If you're already using Hermes, try connecting it to HagiCode — you'll find Hermes' autonomy is no longer just an 'interesting research demo,' but a production-grade AI programming partner protected by a complete engineering framework."
-          ]
-        },
-        {
-          "id": "hermes-vs-hagicode-section-3-bullets",
-          "type": "bullet-list",
+          "id": "hermes-vs-hagicode-section-3-capabilities",
+          "type": "capability-list",
           "items": [
-            "Hermes provides autonomy: autonomous planning, multi-step execution, deep reasoning, self-correction;",
-            "HagiCode provides efficiency: multi-threaded parallelism, Agents fleet management, OpenSpec proposals, AI commits, Code Server editor, HagiTasks;",
-            "HagiCode expands boundaries: Monospecs lets Hermes understand cross-repo project relationships, Vault gives Hermes cross-session long-term memory, OmniRoute frees Hermes from model subscription lock-in;",
-            "Tool-call view: one consistent shape for every provider's tool use, in history and live updates;",
-            "Usage at a glance: optional TokenMonitor status-bar view of today's tokens and cost;",
-            "Together they provide an experience: traceable decision chains, automated daily tasks, a genuinely enjoyable interface, and a long-term AI partner that truly understands your project landscape and can be freely configured with any model source."
+            {
+              "id": "hermes-vs-hagicode-section-3-item-1",
+              "title": "A learning loop and long-term memory",
+              "content": [
+                "Hermes creates skills after complex tasks, improves them as it uses them, searches its own past conversations with full-text search and LLM summaries, and builds a model of you across sessions. It follows the agentskills.io open standard, so skills are portable. This is the feature to choose Hermes for."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-3-item-2",
+              "title": "It lives where you do",
+              "content": [
+                "One gateway process connects Telegram, Discord, Slack, WhatsApp, Signal and the CLI, with voice-memo transcription. A built-in cron scheduler takes natural-language jobs, such as nightly backups or weekly audits, and delivers results to any connected platform."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-3-item-3",
+              "title": "Runs anywhere, not just a laptop",
+              "content": [
+                "Hermes supports seven terminal backends: local, Docker, SSH, Singularity, Modal, Daytona and Vercel Sandbox. Daytona and Modal can hibernate when idle, so you can run it on a small VPS and talk to it from chat while it works on a cloud machine."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-3-item-4",
+              "title": "Model freedom and delegation",
+              "content": [
+                "`hermes model` switches provider and model without code changes; the Nous Portal subscription is optional and bundles models with web search, image generation and a cloud browser. Hermes can spawn isolated sub-agents and write scripts that call its tools over RPC. Releases are frequent and still 0.x (v0.22 in October 2026)."
+              ]
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "hermes-vs-hagicode-section-4",
+      "title": "When to choose Hermes Agent, and when to choose HagiCode",
+      "blocks": [
+        {
+          "id": "hermes-vs-hagicode-section-4-choose-agent",
+          "type": "bullet-list",
+          "items": [
+            "you want an always-on assistant you can message from Telegram, Discord or Slack;",
+            "you want scheduled, unattended jobs delivered to a chat platform;",
+            "you want the agent on a VPS or serverless sandbox instead of your laptop;",
+            "you value Hermes' memory, skills that improve with use, and cross-session recall;",
+            "you want to switch providers with `hermes model` and optionally use Nous Portal."
+          ]
+        },
+        {
+          "id": "hermes-vs-hagicode-section-4-choose-hagicode",
+          "type": "bullet-list",
+          "items": [
+            "you do coding work and want several Hermes sessions at once, each tracked as a named Agent;",
+            "you want each change to start as a written OpenSpec proposal with validation and archive;",
+            "you want Hermes' code changes committed with AI-written messages and fixed in an embedded editor;",
+            "you also use Claude Code, Codex or other agent CLIs and want one workspace for all of them;",
+            "you want Hermes' research and findings kept in a shared Vault, with Monospecs covering several repositories."
+          ]
+        },
+        {
+          "id": "hermes-vs-hagicode-section-4-not-a-fit",
+          "type": "callout",
+          "tone": "warning",
+          "title": "Where HagiCode is not the right tool for Hermes users",
+          "content": [
+            "Messaging, cron and always-on use: HagiCode runs Hermes in ACP mode, where Hermes' docs exclude messaging delivery and cron management, so run Hermes directly for those.",
+            "Headless CI or scripted runs: call `hermes` directly; HagiCode is a desktop and web app.",
+            "It needs Hermes installed with ACP support and a provider configured first, so setup is longer than running Hermes alone.",
+            "HagiCode requests Hermes' `bypassPermissions` ACP mode by default; review your Hermes approval settings and work in a repository you can restore.",
+            "Free editions cap concurrent proposals at 3, and teams that do not want spec discipline will find proposals overhead.",
+            "HagiCode is not an IDE replacement for deep manual editing beyond the embedded Code Server."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hermes-vs-hagicode-section-5",
+      "title": "Using Hermes Agent together with HagiCode",
+      "blocks": [
+        {
+          "id": "hermes-vs-hagicode-section-5-intro",
+          "type": "rich-text",
+          "content": [
+            "HagiCode is a workbench on top of the CLI. It starts `hermes acp` in the repository you open, so your own Hermes install and provider credentials do the work. Hermes keeps reading its provider setup from its own configuration, `~/.hermes/.env` or `config.yaml`.",
+            "Nothing is locked in: Hermes stays a normal install, with its memory, skills and gateway untouched."
+          ]
+        },
+        {
+          "id": "hermes-vs-hagicode-section-5-steps",
+          "type": "bullet-list",
+          "items": [
+            "Install Hermes (Linux, macOS, WSL2: `curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`; Windows PowerShell: `iex (irm https://hermes-agent.nousresearch.com/install.ps1)`).",
+            "Run `hermes setup` or `hermes model` to choose a provider, then check ACP with `hermes acp --check`; the ACP support may need its extra installed, as the Hermes ACP docs describe.",
+            "Install HagiCode Desktop (Windows, macOS or Linux; free) and choose Hermes as the Agent CLI, optionally setting a model.",
+            "Open a repository and start a session or an OpenSpec proposal.",
+            "Expect Hermes to run its coding tools in that repository; its chat gateway and scheduler are not part of the session.",
+            "To go back to plain Hermes, run `hermes` directly; nothing in your Hermes setup changed."
+          ]
+        },
+        {
+          "id": "hermes-vs-hagicode-section-5-notes",
+          "type": "callout",
+          "tone": "info",
+          "title": "What works for Hermes inside HagiCode",
+          "content": [
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Hermes sessions. OmniRoute is a HagiCode feature, and how far it reaches Hermes depends on Hermes' own provider settings.",
+            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with Hermes."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hermes-vs-hagicode-section-6",
+      "title": "What HagiCode adds on top of any agent",
+      "blocks": [
+        {
+          "id": "hermes-vs-hagicode-section-6-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "hermes-vs-hagicode-section-6-item-1",
+              "title": "Parallel sessions and Agents management",
+              "content": [
+                "Hermes can spawn sub-agents inside one conversation. HagiCode adds the level above: several Hermes sessions across tasks or repositories, each a named Agent whose status you can see."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-6-item-2",
+              "title": "OpenSpec proposals",
+              "content": [
+                "Hermes learns from experience, but its memory is not a record of why a change was made. An OpenSpec proposal is: the problem, the agreed approach and the resulting code changes stay together and can be archived."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-6-item-3",
+              "title": "AI commit and Code Server",
+              "content": [
+                "HagiCode drafts the commit message from the diff and locks the repository during the commit. Code Server opens the files Hermes changed in a browser editor, so review and edits stay in one window."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-6-item-4",
+              "title": "Monospecs and Vault",
+              "content": [
+                "Monospecs declares sub-repositories in `.hagicode/monospecs.yaml` so a cross-repo change reaches Hermes as one proposal. Vault holds reference projects and notes shared across projects, next to what Hermes remembers about you."
+              ]
+            },
+            {
+              "id": "hermes-vs-hagicode-section-6-item-5",
+              "title": "OmniRoute, tool-call view and usage",
+              "content": [
+                "OmniRoute can centralise model routing across agents. Hermes tool calls appear in the same typed view as every other agent's, and optional TokenMonitor shows today's tokens and cost in the status bar."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hermes-vs-hagicode-section-7",
+      "title": "The bottom line",
+      "blocks": [
+        {
+          "id": "hermes-vs-hagicode-section-7-bullets",
+          "type": "bullet-list",
+          "items": [
+            "Hermes Agent is a broad, self-improving agent that also codes; HagiCode is a coding workbench that can run it.",
+            "HagiCode adds parallel Agents, proposals, AI commits and a knowledge base around Hermes' coding use, but not its chat gateway or scheduler.",
+            "Use Hermes alone for an always-on assistant, and HagiCode plus Hermes for organised, multi-repository coding."
+          ]
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is Hermes Agent free?",
+      "answer": "Hermes Agent is MIT-licensed and free to install. You pay your model provider, or optionally a Nous Portal subscription that bundles models and tools; see portal.nousresearch.com for current plans."
+    },
+    {
+      "question": "How do I install Hermes Agent?",
+      "answer": "On Linux, macOS or WSL2 run `curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`. On native Windows run `iex (irm https://hermes-agent.nousresearch.com/install.ps1)` in PowerShell, then start it with `hermes`."
+    },
+    {
+      "question": "Can I use Hermes Agent with HagiCode?",
+      "answer": "Yes. Install Hermes and configure a provider, then choose Hermes as the Agent CLI in HagiCode. HagiCode runs `hermes acp` in your repository."
+    },
+    {
+      "question": "Does HagiCode replace Hermes Agent?",
+      "answer": "No. Hermes does the work; HagiCode organises sessions, proposals and commits around it. Its chat gateway and scheduler are not available inside HagiCode sessions."
+    },
+    {
+      "question": "Is Hermes Agent a coding agent?",
+      "answer": "It can code, but it is a general agent first, with memory, skills, scheduled jobs and chat gateways. HagiCode uses its coding side."
+    },
+    {
+      "question": "Hermes vs HagiCode: which should I pick?",
+      "answer": "Pick Hermes alone for an always-on, multi-platform assistant. Add HagiCode when the job is coding across repositories and you want parallel sessions, proposals and managed commits."
     }
   ]
 }

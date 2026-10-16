@@ -3,222 +3,110 @@
   "slug": "dsh-vs-hagicode",
   "category": "vs-hagicode",
   "locale": "en-US",
-  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "DeepSeek Harness (dsh) vs HagiCode: Features and Comparison",
-    "description": "Understand DeepSeek Harness's managed ACP runtime, fixed acp profile, startup timeout, and identity check, and see how HagiCode turns dsh into a production-grade AI programming workbench through multi-threaded parallelism, OpenSpec proposals, AI commits, HagiTasks, gamified UI, Agents management, Monospecs, Vault, and OmniRoute. Also covers the shared tool-call view and TokenMonitor status-bar usage."
+    "description": "DeepSeek Harness (dsh) is DeepSeek's open-source agent harness; HagiCode runs it in a workbench. Compare features, pricing, maturity and fit."
   },
-  "summary": "DeepSeek Harness (dsh) is a coding agent that runs through HagiCode's managed ACP runtime, with a fixed acp profile, a configurable startup timeout, and a model setting of its own. However, dsh is still fundamentally a terminal entry point, while HagiCode is a full AI programming workbench. Together, they turn dsh into a complete daily development environment. It also covers the shared tool-call view and optional TokenMonitor usage in the status bar.",
+  "summary": "DeepSeek Harness (dsh) is DeepSeek AI's open-source agent harness, still in developer preview, and HagiCode is a workbench that runs dsh as one of its executors. Use dsh alone to try its plugin-based harness or script it; add HagiCode for parallel sessions, proposals and managed commits around it.",
   "sections": [
     {
       "id": "dsh-vs-hagicode-section-1",
-      "title": "DeepSeek Harness's Core Strengths",
+      "title": "Short answer",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-1-capabilities",
-          "type": "capability-list",
-          "items": [
-            {
-              "id": "dsh-vs-hagicode-section-1-item-1",
-              "title": "Key Features",
-              "content": [
-                "DeepSeek Harness runs through the shared ACP runtime, so HagiCode drives it over the same agent transport as the other ACP-based CLIs:",
-                "Managed profile: HagiCode always applies the acp profile, and --profile in extra arguments is rejected, so the profile cannot be changed by mistake.",
-                "Startup timeout: startupTimeoutMs is a positive integer that defaults to 45000 milliseconds, and you can raise it for slower environments.",
-                "Model in the secondary profession: the primary profession manages the binary, extra arguments, and startup timeout, while the secondary profession owns the model."
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-1-item-2",
-              "title": "Installation and Identity Check",
-              "content": [
-                "DeepSeek Harness is installed with npm install -g @deepseek-ai/dsh. Because dsh is also the name of unrelated tools, HagiCode's health probe checks that dsh --help mentions DeepSeek Harness, so a wrong binary is caught instead of being used silently.",
-                "Authentication is configured in dsh itself. HagiCode exposes no credential fields for DeepSeek Harness."
-              ]
-            }
+          "id": "dsh-vs-hagicode-section-1-answer",
+          "type": "rich-text",
+          "content": [
+            "DeepSeek Harness, command `dsh`, is an open-source agent harness from DeepSeek AI. It runs as a local Web UI, a headless one-shot command, an SDK server or an ACP server, and almost every part of it is a plugin. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, dsh among them, as its executor. It does not replace dsh; HagiCode starts dsh in its ACP mode and adds sessions, proposals and commit handling around it.",
+            "dsh is a developer preview whose own safety notice says it is experimental, unaudited and subject to breaking changes. If you want to explore the harness itself, write plugins or script it, stay with dsh alone. If you want to run it next to other agents with proposals and parallel sessions, HagiCode is the layer for that."
           ]
         }
       ]
     },
     {
       "id": "dsh-vs-hagicode-section-2",
-      "title": "Why DeepSeek Harness Needs HagiCode",
+      "title": "DeepSeek Harness vs HagiCode at a glance",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-2-intro",
-          "type": "rich-text",
-          "content": [
-            "DeepSeek Harness gives you a managed ACP runtime and a clear model setting, but a pure terminal workflow still leaves project management, orchestration, and long-term knowledge persistence to the user.",
-            "In real delivery work, those missing layers matter more than one smart command. HagiCode supplies the workflow structure DeepSeek Harness itself does not try to own."
-          ]
-        },
-        {
-          "id": "dsh-vs-hagicode-section-2-capabilities",
-          "type": "capability-list",
-          "items": [
+          "id": "dsh-vs-hagicode-section-2-table",
+          "type": "comparison-table",
+          "headers": [
+            "Dimension",
+            "DeepSeek Harness",
+            "HagiCode"
+          ],
+          "rows": [
             {
-              "id": "dsh-vs-hagicode-section-2-item-1",
-              "title": "Multi-threaded parallelism: Let DeepSeek Harness run multiple controlled coding lanes at once",
-              "content": [
-                "DeepSeek Harness can do a lot inside one invocation, but real delivery rarely happens one task at a time.",
-                "HagiCode lets you run multiple DeepSeek Harness sessions in parallel, each with isolated context, a clear responsibility boundary, and independent progress.",
-                "That turns DeepSeek Harness from a reproducible single-shot CLI into a parallel engineering workbench that matches how teams actually build software."
-              ],
-              "bullets": [
-                "Thread A is refining backend API endpoints;",
-                "Thread B is refactoring frontend components;",
-                "Thread C is writing unit tests;",
-                "Thread D is auditing code for security vulnerabilities."
+              "id": "dsh-vs-hagicode-section-2-row-1",
+              "cells": [
+                "What it is",
+                "Open-source agent harness from DeepSeek AI, built from plugins on the Cordis framework; developer preview",
+                "Workbench that runs agent CLIs, dsh included, as executors"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-2",
-              "title": "OpenSpec proposal sessions: Tie DeepSeek Harness's model choices to traceable decisions",
-              "content": [
-                "In daily development, the most common chaos isn't being unable to write code — it's making a bunch of changes and then forgetting why you made them, what you changed, and how those changes relate to each other.",
-                "HagiCode's built-in OpenSpec proposal workflow fundamentally solves this problem. Every development task launches as a proposal:",
-                "This think-first-then-act approach gives DeepSeek Harness's flexible routing model a place to be documented. Months later, you can still see not only what changed, but why a certain model route, or tool boundary was chosen."
-              ],
-              "bullets": [
-                "First, write down what problem this task solves and why this approach makes sense;",
-                "Discuss the technical approach in depth with DeepSeek Harness within the proposal framework — all conversations and decisions are recorded in the proposal context;",
-                "Once the approach is confirmed, DeepSeek Harness implements the code within the proposal's constraints;",
-                "The final proposal document, discussion records, and code changes form a complete trace chain."
+              "id": "dsh-vs-hagicode-section-2-row-2",
+              "cells": [
+                "Interface and platforms",
+                "Local Web UI (`dsh web`), headless, SDK over stdio JSON-RPC, ACP; needs Node.js 22.19+ or 24+",
+                "Desktop app (Windows, macOS, Linux), Docker Compose container, Microsoft Store edition"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-3",
-              "title": "AI commits: Turn DeepSeek Harness output into clean commit history",
-              "content": [
-                "Writing commit messages after finishing code is a form of mental friction for many developers. Too casual and you can't find key commits later; too formal and it feels like wasted time.",
-                "HagiCode's AI commit feature hands this entirely to DeepSeek Harness: it analyzes your code changes, understands the intent and scope of impact, then automatically generates clearly structured, semantically accurate commit messages. More importantly, during the AI commit process, HagiCode automatically locks the repository to prevent state conflicts from concurrent operations, ensuring safe and reliable commits.",
-                "Save your attention for creation — let DeepSeek Harness handle the commit paperwork."
+              "id": "dsh-vs-hagicode-section-2-row-3",
+              "cells": [
+                "Pricing and licensing",
+                "MIT-licensed and free to run; you pay your model provider",
+                "Desktop and Container free; Store edition free with optional one-time TurboEngine purchase"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-4",
-              "title": "Code Server browser editor: Jump from DeepSeek Harness analysis straight into editing",
-              "content": [
-                "After DeepSeek Harness analyzes code, identifies the problematic file, and pinpoints the exact line number, the familiar awkward moment occurs: you need to leave the AI conversation window, return to your IDE, find the file again, and manually jump to the right location. This analysis-to-editing context break not only interrupts your flow but keeps AI's value at 'telling you where the problem is' rather than 'helping you directly enter editing mode.'",
-                "HagiCode's built-in Code Server-based browser editor is designed specifically to solve this break:",
-                "The Code Server integration makes HagiCode not just a frontend page that can analyze code, but a complete workstation where DeepSeek Harness's analysis can directly land as editing actions. It minimizes the tool-switching cost between AI analysis and hands-on modification."
-              ],
-              "bullets": [
-                "One-click from analysis to editing: Once DeepSeek Harness identifies the file needing changes in a proposal, HagiCode can directly open that file in the workbench for editing. You do not need to switch tools or re-locate the file.",
-                "Local, container, remote — full coverage: whether your project runs on a local machine, in a Docker container, or on a remote server, HagiCode's Code Server can open the project directory through the browser for editing.",
-                "Vault direct editing: code reference libraries and learning projects registered in your Vault can also be opened and browsed directly through Code Server when DeepSeek Harness points you to relevant examples."
+              "id": "dsh-vs-hagicode-section-2-row-4",
+              "cells": [
+                "Model and provider access",
+                "DeepSeek API key, catalog providers (Anthropic, OpenAI, Moonshot, Z.ai and more), custom OpenAI- or Anthropic-compatible endpoints",
+                "Hosts no models; sends provider and model to dsh; optional OmniRoute routing"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-5",
-              "title": "HagiTask: Package DeepSeek Harness workflows as reusable command blueprints",
-              "content": [
-                "DeepSeek Harness's discipline is powerful, but manually restating the same model choices, tool boundaries, working directories, and task framing over and over is wasteful.",
-                "HagiCode's HagiTask mechanism turns those repeated patterns into reusable templates. It is more than shortcut commands — it is an extensible Skills integration platform:",
-                "HagiTask upgrades your collaboration with DeepSeek Harness from 'rebuild the workflow every time' to 'pick the prepared workflow and run it.' That is where configurability becomes real operational leverage."
-              ],
-              "bullets": [
-                "Community Skills ready to use: import proven review, refactor, CRUD, and documentation workflows instead of rebuilding them from scratch every time.",
-                "Extensible Skills system: adapt shared templates to your own team conventions, routing defaults, and coding standards.",
-                "Visual operations, not terminal bookkeeping: choose tasks, switch parameters, and reorder execution in a dedicated interface instead of encoding everything into repeated CLI habits."
+              "id": "dsh-vs-hagicode-section-2-row-5",
+              "cells": [
+                "Parallel work",
+                "Sessions in the Web UI; the agent can delegate work inside a session",
+                "Several sessions at once, each a named Agent with visible status"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-6",
-              "title": "Gamified interface: Make DeepSeek Harness's governance knobs visible and approachable",
-              "content": [
-                "Programming itself can be tedious, but it can also be fun. HagiCode's gamified interface design breaks away from the cold experience of command-line tools:",
-                "DeepSeek Harness provides control, HagiCode provides experience — together, they turn a highly configurable CLI into a workspace people can actually enjoy operating every day."
-              ],
-              "bullets": [
-                "Clear visual feedback: session state, progress, and results are visible without digging through terminal output.",
-                "Achievement and progress visualization: commits, proposal milestones, and delivery checkpoints become visible rhythm markers instead of invisible background state.",
-                "Lower operating friction: developers who are not terminal purists can still benefit from DeepSeek Harness's control model through a much friendlier interface layer."
+              "id": "dsh-vs-hagicode-section-2-row-6",
+              "cells": [
+                "Spec and planning workflow",
+                "The agent maintains a plan inside a session; no proposal lifecycle",
+                "OpenSpec proposals: propose, validate, apply, archive (3 concurrent free, 32 with TurboEngine)"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-7",
-              "title": "Agents management: Turn multiple DeepSeek Harness sessions into a manageable Agent fleet",
-              "content": [
-                "Parallel sessions are useful, but once you have several of them running, coordination becomes the next bottleneck.",
-                "HagiCode's Agents management layer turns each DeepSeek Harness worker into a named, schedulable Agent with visible status, assigned scope, and independent configuration.",
-                "You move from 'a lot of terminals are open' to 'a small AI team is being coordinated in one place.'"
-              ],
-              "bullets": [
-                "Agent identity and status visualization: see which Agent is running, waiting, blocked, or ready for archive at a glance.",
-                "Task-to-Agent binding: proposals, reviews, refactors, and test work can each be assigned to a dedicated Agent.",
-                "Independent Agent configuration: different Agents can use different model routes, Skills, tool exposure rules, and context scopes without interfering with each other."
+              "id": "dsh-vs-hagicode-section-2-row-7",
+              "cells": [
+                "Git and commit handling",
+                "Runs shell commands in the workspace; its docs include a GitHub review guide",
+                "AI-composed commit messages with the repository locked during the commit; Git and GitHub integration"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-8",
-              "title": "Monospecs multi-repo management: Give DeepSeek Harness the repo map it needs",
-              "content": [
-                "In real projects, code rarely lives in a single repository. Frontend, backend, documentation, shared libraries are spread across different repos, and a single feature change may need to touch several repos simultaneously. For DeepSeek Harness, single-repo mode works, but it has no native understanding of cross-repo relationships — you have to manually tell it in every conversation that 'this change also needs to sync to two other repos,' which is clearly inefficient.",
-                "HagiCode's Monospecs mechanism is the structured solution designed for multi-repo scenarios. Through the .hagicode/monospecs.yaml configuration file, it declares all sub-repo addresses, names, and relationships in the project group, giving DeepSeek Harness an automatic cross-repo map when launching proposals:",
-                "Monospecs essentially eliminates DeepSeek Harness's cognitive blind spots in cross-repo collaboration. DeepSeek Harness's routing flexibility matters more once it can also see the full change surface."
-              ],
-              "bullets": [
-                "Automatic repo relationship awareness: when creating a development proposal, DeepSeek Harness can directly read the sub-repo list from the Monospecs config instead of relying on repeated manual explanation.",
-                "Cross-repo change tracking: specs stay centralized while code changes stay in the relevant repos, keeping decision history and implementation cleanly separated.",
-                "AI commit smart repo targeting: HagiCode analyzes your changes against the Monospecs config and suggests where each commit belongs.",
-                "Per-repo AGENTS.md: DeepSeek Harness automatically picks up repo-specific conventions when operating across different codebases."
+              "id": "dsh-vs-hagicode-section-2-row-8",
+              "cells": [
+                "Setup effort",
+                "`npx @deepseek-ai/dsh web`, then add a model key under Settings, Models",
+                "Desktop install, plus dsh on PATH and a configured model"
               ]
             },
             {
-              "id": "dsh-vs-hagicode-section-2-item-9",
-              "title": "Vault cross-project knowledge base: Make DeepSeek Harness remember more than one terminal turn",
-              "content": [
-                "DeepSeek Harness's session controls are useful, but even persistent sessions are not the same as a durable cross-project memory layer. Without that, important context still has to be reintroduced too often.",
-                "Vault is HagiCode's cross-project persistent knowledge storage layer. Its core design philosophy is 'register once, reuse everywhere':",
-                "If Monospecs lets DeepSeek Harness understand where projects are, Vault lets DeepSeek Harness remember what you've already accumulated. That turns a reproducible CLI into a longer-term engineering partner."
-              ],
-              "bullets": [
-                "Multi-type knowledge containers: register folders, code reference projects, Obsidian notes, and system-managed prompt assets in one place.",
-                "Automatic AI context injection: new proposals start with the right reference material already available to DeepSeek Harness.",
-                "Fine-grained access control: separate read-only references from editable project spaces so DeepSeek Harness can learn broadly without modifying the wrong thing.",
-                "Cross-project knowledge reuse: patterns captured once can support every later proposal instead of being rebuilt from scratch."
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute model routing: Make DeepSeek Harness's routing design usable at scale",
-              "content": [
-                "DeepSeek Harness already keeps its model setting separate from the workflow, but a larger team still needs a central place to manage that routing cleanly.",
-                "OmniRoute separates the interaction layer from the model-routing layer, so HagiCode can keep DeepSeek Harness in the workflow while switching model sources underneath.",
-                "That gives you better cost control, better task-to-model fit, and less workflow churn when model pricing or availability changes."
-              ],
-              "bullets": [
-                "Keep the CLI or interaction style you already prefer while changing only the model route underneath.",
-                "Share one routing strategy across multiple Agents and multiple AI tools connected to HagiCode.",
-                "Tune different model routes for different workloads, such as fast coding, deep review, or architecture planning.",
-                "Adjust cost and capability once at the routing layer instead of reworking each individual workflow."
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-11",
-              "title": "Unified tool-call view: see DeepSeek Harness's tool use in one consistent shape",
-              "content": [
-                "HagiCode attaches one typed tool-call shape to every tool-use and tool-result message. It records the tool kind, its input fields, status, result text or images, any error, and timing. The shape is computed from stored data, so session history and live updates show the same view.",
-                "The same shape covers every provider, so DeepSeek Harness tool calls look like those of every other agent in your workspace. You read one format instead of learning each CLI's raw output."
-              ],
-              "bullets": [
-                "One shape for every provider: shell, file, search, fetch and MCP calls are presented consistently;",
-                "Failed calls carry a readable error message;",
-                "Raster tool images are carried as data URIs."
-              ]
-            },
-            {
-              "id": "dsh-vs-hagicode-section-2-item-12",
-              "title": "Usage at a glance: today's tokens and cost in the status bar",
-              "content": [
-                "HagiCode can show today's token usage and cost from the TokenMonitor desktop app in its status bar. The integration is optional and off by default.",
-                "It reads TokenMonitor's local data file or a TokenMonitor HostHub on a schedule and keeps only today's total tokens and cost. The status bar stays a quick glance rather than a full usage report."
-              ],
-              "bullets": [
-                "Nothing is read until you turn the integration on;",
-                "The HostHub secret is write-only and is never returned or logged after you save it;",
-                "An invalid HostHub address is rejected when you save it."
+              "id": "dsh-vs-hagicode-section-2-row-9",
+              "cells": [
+                "Best for",
+                "Developers who want an open, hackable harness and accept preview software",
+                "People running dsh next to other agents, with traceable specs"
               ]
             }
           ]
@@ -227,29 +115,209 @@
     },
     {
       "id": "dsh-vs-hagicode-section-3",
-      "title": "Summary",
+      "title": "What DeepSeek Harness does well",
       "blocks": [
         {
-          "id": "dsh-vs-hagicode-section-3-intro",
-          "type": "rich-text",
-          "content": [
-            "DeepSeek Harness is a managed ACP coding agent with a clear model setting, and HagiCode is a complete AI programming workbench. Their relationship is complementary:",
-            "If you're already using dsh, try connecting it to HagiCode. You'll find dsh is no longer just a terminal command, but a full-workflow AI partner operating inside a structured engineering environment."
-          ]
-        },
-        {
-          "id": "dsh-vs-hagicode-section-3-bullets",
-          "type": "bullet-list",
+          "id": "dsh-vs-hagicode-section-3-capabilities",
+          "type": "capability-list",
           "items": [
-            "DeepSeek Harness provides control: managed ACP runtime, fixed acp profile, startup timeout, and a dedicated model setting;",
-            "HagiCode provides efficiency: multi-threaded parallelism, Agents fleet management, OpenSpec proposals, AI commits, Code Server editor, HagiTasks;",
-            "HagiCode expands boundaries: Monospecs lets dsh understand cross-repo project relationships, Vault gives dsh cross-session long-term memory, OmniRoute keeps model routing flexible underneath the workflow;",
-            "Tool-call view: one consistent shape for every provider's tool use, in history and live updates;",
-            "Usage at a glance: optional TokenMonitor status-bar view of today's tokens and cost;",
-            "Together they provide an experience: traceable decision chains, automated daily tasks, a genuinely enjoyable interface, and a long-term AI partner that truly understands your project landscape and can be freely configured with any model source."
+            {
+              "id": "dsh-vs-hagicode-section-3-item-1",
+              "title": "Everything is a plugin",
+              "content": [
+                "dsh treats the model adapter, agent loop and interface as plugins composed through Cordis. Each profile has its own plugin set and a `cordis.patch.yml` for overrides, and `dsh plugin --profile <name> add <package>` installs a plugin into a profile. If you want to change how an agent harness behaves, that is the point of the project."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-2",
+              "title": "Four run modes from one binary",
+              "content": [
+                "`dsh web` serves the browser UI. `dsh headless \"run the tests\"` answers one task and exits, reads a task from stdin, can emit newline-delimited JSON events and can resume a session by id. The sdk profile serves JSON-RPC over stdio, with a Python SDK guide, and the acp profile serves editors and automation clients."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-3",
+              "title": "Model flexibility without a rebuild",
+              "content": [
+                "In Settings, Models you enter a DeepSeek API key, pick a catalog provider, or define a custom endpoint speaking OpenAI Chat Completions, OpenAI Responses or Anthropic Messages. Model changes apply on the next request, and keys are write-only after saving, stored in `$DSH_HOME/.credentials.yaml`."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-3-item-4",
+              "title": "Open about its maturity",
+              "content": [
+                "The README warns of compatibility-breaking changes, SAFETY.md calls the software experimental and not production-ready, and releases are alpha tags. The repository was created in August 2026, so expect fast change; that candor is useful when you decide where to run it."
+              ]
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-4",
+      "title": "When to choose DeepSeek Harness, and when to choose HagiCode",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-4-choose-agent",
+          "type": "bullet-list",
+          "items": [
+            "you want to try DeepSeek's own harness, or build and test dsh plugins;",
+            "you want a local Web UI over an agent without installing another app;",
+            "you script one-shot tasks with `dsh headless` or build on the SDK or ACP profiles;",
+            "you are comfortable with preview software and breaking changes between releases;",
+            "you only ever use DeepSeek models or one gateway."
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-4-choose-hagicode",
+          "type": "bullet-list",
+          "items": [
+            "you want to run dsh next to Claude Code, Codex or other agent CLIs in one workspace;",
+            "you want several dsh sessions at once, each tracked as a named Agent;",
+            "you want each change to start as an OpenSpec proposal with validation and archive;",
+            "you want AI-composed commit messages and an embedded Code Server editor;",
+            "you want what dsh learns saved to a Vault, and multi-repository changes described once in Monospecs."
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-4-not-a-fit",
+          "type": "callout",
+          "tone": "warning",
+          "title": "Where HagiCode is not the right tool for dsh users",
+          "content": [
+            "Scripted or CI runs: call `dsh headless` or the SDK directly; HagiCode is a desktop and web app.",
+            "dsh already ships a Web UI, so if all you want is a browser front end for dsh, HagiCode is more than you need.",
+            "It needs dsh installed and a model configured first, and HagiCode checks that `dsh --help` identifies DeepSeek Harness, so look-alike binaries are refused.",
+            "dsh is a preview: a breaking release can break the ACP integration until both sides catch up.",
+            "Free editions cap concurrent proposals at 3, and teams that do not want spec discipline will find proposals overhead.",
+            "HagiCode is not an IDE replacement for deep manual editing beyond the embedded Code Server."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-5",
+      "title": "Using DeepSeek Harness together with HagiCode",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-5-intro",
+          "type": "rich-text",
+          "content": [
+            "HagiCode runs dsh as a subprocess in its ACP profile, in the repository you open, and passes the provider and model you choose. HagiCode exposes no credential fields for dsh, so sign-in and model keys stay in dsh.",
+            "Nothing is locked in: dsh remains a normal install that you can run with `dsh web` or `dsh headless` at any time."
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-5-steps",
+          "type": "bullet-list",
+          "items": [
+            "Install Node.js 22.19+ or 24+, then `npm install -g @deepseek-ai/dsh`, so a `dsh` command is on your PATH.",
+            "Configure at least one model provider in dsh, for example a DeepSeek API key in its Web UI under Settings, Models.",
+            "Install HagiCode Desktop (Windows, macOS or Linux; free) and choose DeepSeek Harness as the Agent CLI.",
+            "Set the provider and model together, with the model id exactly as dsh lists it; HagiCode forwards it unsplit.",
+            "Open a repository and start a session or proposal. HagiCode always boots `dsh --profile acp` and rejects a `--profile` in extra arguments; the startup timeout defaults to 45 seconds.",
+            "To go back to plain dsh, run it directly in the same directory."
+          ]
+        },
+        {
+          "id": "dsh-vs-hagicode-section-5-notes",
+          "type": "callout",
+          "tone": "info",
+          "title": "What works for dsh inside HagiCode",
+          "content": [
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to dsh sessions. dsh accepts a provider id such as `omniroute`, so OmniRoute can sit underneath if you set it up as a dsh provider.",
+            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with dsh."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-6",
+      "title": "What HagiCode adds on top of any agent",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-6-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "dsh-vs-hagicode-section-6-item-1",
+              "title": "Parallel sessions and Agents management",
+              "content": [
+                "Run several dsh sessions at once, each with its own context, and see which is running, waiting or done. dsh's own sub-agent delegation stays inside a session; HagiCode adds the layer above."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-2",
+              "title": "OpenSpec proposals",
+              "content": [
+                "Start each task as a proposal, discuss the approach with dsh inside it, then let dsh implement within that scope. Because dsh is a preview, the written proposal also records what you changed when a later release behaves differently."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-3",
+              "title": "AI commit and Code Server",
+              "content": [
+                "HagiCode writes the commit message from the diff and locks the repository during the commit, so dsh output ends up as a clean history. Code Server opens the files dsh touched in a browser editor."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-4",
+              "title": "Monospecs and Vault",
+              "content": [
+                "Monospecs lists your sub-repositories in `.hagicode/monospecs.yaml`, so a cross-repo change reaches dsh as one proposal. Vault stores reference projects and notes you register once and reuse."
+              ]
+            },
+            {
+              "id": "dsh-vs-hagicode-section-6-item-5",
+              "title": "OmniRoute, tool-call view and usage",
+              "content": [
+                "OmniRoute centralises model routing across agents. dsh tool calls show in the same typed view as every other agent's, and optional TokenMonitor puts today's tokens and cost in the status bar."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsh-vs-hagicode-section-7",
+      "title": "The bottom line",
+      "blocks": [
+        {
+          "id": "dsh-vs-hagicode-section-7-bullets",
+          "type": "bullet-list",
+          "items": [
+            "dsh is an open-source, plugin-based harness from DeepSeek AI, still in developer preview.",
+            "HagiCode does not compete with it: it runs dsh and adds parallel Agents, proposals, commits and a knowledge base, at the cost of an extra install.",
+            "Use dsh alone to explore, script or build plugins; use HagiCode plus dsh when it is one of several agents in real project work."
+          ]
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is DeepSeek Harness (dsh) free?",
+      "answer": "dsh is MIT-licensed and free to run. You pay your model provider, for example through a DeepSeek API key; see the provider's pricing page for rates."
+    },
+    {
+      "question": "How do I install dsh?",
+      "answer": "The official README runs it with `npx @deepseek-ai/dsh web`, which starts a Web UI at http://127.0.0.1:3080, and needs Node.js 22.19+ or 24+. For HagiCode, install it globally with `npm install -g @deepseek-ai/dsh` so `dsh` is on your PATH."
+    },
+    {
+      "question": "Is dsh ready for production?",
+      "answer": "No, by its own statement. The README says dsh is a developer preview with compatibility-breaking changes, and SAFETY.md says it is experimental, unaudited and not production-ready."
+    },
+    {
+      "question": "Can I use dsh with HagiCode?",
+      "answer": "Yes. HagiCode starts dsh in its ACP profile, passes the provider and model you choose, and checks that `dsh --help` identifies DeepSeek Harness. Install dsh and configure a model first."
+    },
+    {
+      "question": "Does HagiCode replace dsh?",
+      "answer": "No. dsh is the executor; HagiCode is the workbench around it, and you can still run dsh directly."
+    },
+    {
+      "question": "dsh vs HagiCode: which should I pick?",
+      "answer": "Pick dsh alone to explore the harness, write plugins or script one-shot tasks. Add HagiCode when dsh is one of several agents and you want parallel sessions, proposals and managed commits."
     }
   ]
 }

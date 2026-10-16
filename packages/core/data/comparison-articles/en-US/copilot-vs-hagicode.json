@@ -3,233 +3,110 @@
   "slug": "copilot-vs-hagicode",
   "category": "vs-hagicode",
   "locale": "en-US",
-  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "GitHub Copilot vs HagiCode: Features and Comparison",
-    "description": "Understand GitHub Copilot's key features, multi-model support, and technical architecture, and see how HagiCode elevates Copilot from a code completion assistant to a full-workflow development partner through multi-threaded parallelism, OpenSpec proposals, AI commits, HagiTasks, gamified UI, Agents management, Monospecs, Vault, and OmniRoute. Also covers the shared tool-call view and TokenMonitor status-bar usage."
+    "description": "GitHub Copilot CLI is a terminal agent; HagiCode is a workbench that runs it. Compare features, pricing and fit, and see when to use Copilot CLI alone."
   },
-  "summary": "GitHub Copilot is one of the most popular AI programming tools today. With deep GitHub ecosystem integration, powerful code completion, and unified access to multiple AI models, it has become a daily staple for millions of developers. However, Copilot is fundamentally an AI capability interface layer, while HagiCode is a desktop workbench purpose-built for AI programming scenarios. Each excels in its domain, and using them together unlocks Copilot's full development potential. It also covers the shared tool-call view and optional TokenMonitor usage in the status bar.",
+  "summary": "GitHub Copilot CLI is a terminal AI agent that runs on your Copilot subscription; HagiCode is a desktop workbench that uses it as an executor. This page compares what each does, what they cost, and when Copilot CLI alone is enough.",
   "sections": [
     {
       "id": "copilot-vs-hagicode-section-1",
-      "title": "GitHub Copilot's Core Strengths",
+      "title": "Short answer",
       "blocks": [
         {
-          "id": "copilot-vs-hagicode-section-1-capabilities",
-          "type": "capability-list",
-          "items": [
-            {
-              "id": "copilot-vs-hagicode-section-1-item-1",
-              "title": "Key Features",
-              "content": [
-                "GitHub Copilot's capabilities span three layers:",
-                "Unified multi-model access: One of Copilot's most distinctive strengths is its ability to support multiple AI models through a single CLI interface — including OpenAI's GPT series (GPT-4, GPT-5), the Claude family, and other mainstream models. You don't need to implement separate calling logic for each model. One interface, flexible model switching underneath.",
-                "Code generation and completion: Copilot's core experience is real-time code suggestions based on context. It goes beyond simple completion — it understands codebase structure, function signatures, and comment intent, producing contextually coherent code fragments. From one-line fixes to full component generation, Copilot covers it all.",
-                "Tool calling and session management: Copilot CLI supports built-in tool calling capabilities including file operations, Git commands, and shell interaction. It also supports streaming output and session context retention, enabling multi-turn programming conversations."
-              ]
-            },
-            {
-              "id": "copilot-vs-hagicode-section-1-item-2",
-              "title": "Model Characteristics",
-              "content": [
-                "GitHub Copilot has several distinctive model-level features:",
-                "Pluggable multi-model architecture: Unlike single-model binding, Copilot's architecture allows multiple model capabilities through a single CLI. You can choose the best model for each task type — a strong reasoning model for complex architecture design, a fast model for rapid coding — without switching tools.",
-                "Deep GitHub ecosystem integration: Copilot is natively integrated with GitHub repositories, Issues, Pull Requests, and workflows. It can perceive project context and historical changes, making AI suggestions more relevant to your actual project rather than offering generic answers.",
-                "Official SDK support: GitHub has released an official .NET SDK, enabling developers to upgrade from command-line invocation to deeper SDK integration with more granular event tracking and session management. This provides a solid foundation for advanced integration scenarios."
-              ]
-            },
-            {
-              "id": "copilot-vs-hagicode-section-1-item-3",
-              "title": "Plugin and Tool Ecosystem",
-              "content": [
-                "Copilot's ecosystem spans three directions:",
-                "ACP (Agent Communication Protocol) support: Copilot CLI supports ACP, enabling standardized communication with other AI tools and platforms, making it an interoperable node in multi-tool collaboration networks.",
-                "VS Code and JetBrains integration: Copilot deeply integrates with mainstream IDEs, supporting direct AI capability invocation within editors. The CLI form of Copilot provides an independent entry point for terminal workflows.",
-                "GitHub Actions and CI/CD: Copilot can integrate into GitHub Actions pipelines, applying AI capabilities in code review, automated testing, and other stages."
-              ]
-            }
+          "id": "copilot-vs-hagicode-section-1-answer",
+          "type": "rich-text",
+          "content": [
+            "GitHub Copilot CLI is GitHub's terminal AI coding agent: you run `copilot` in a repo, and it reads, edits and runs commands using your Copilot subscription. HagiCode is a desktop and web workbench that launches Copilot CLI (or one of 15 other Agent CLIs) as the executor behind its sessions, proposals and commits. It does not replace Copilot CLI and it does not sell models.",
+            "If you want one agent in one terminal, close to GitHub issues and pull requests, stay with Copilot CLI alone. HagiCode earns its place when you run several tasks at once, want spec-driven proposals, or prefer a visual workspace on top of the same Copilot login."
           ]
         }
       ]
     },
     {
       "id": "copilot-vs-hagicode-section-2",
-      "title": "Why GitHub Copilot Needs HagiCode",
+      "title": "GitHub Copilot CLI vs HagiCode at a glance",
       "blocks": [
         {
-          "id": "copilot-vs-hagicode-section-2-intro",
-          "type": "rich-text",
-          "content": [
-            "Copilot's multi-model access and GitHub ecosystem integration are indeed impressive, but any AI tool's capabilities need a suitable working environment to deliver. Copilot excels at providing good code suggestions in a single session, but in real-world multi-task, multi-repo, long-cycle development scenarios, Copilot alone is not enough."
-          ]
-        },
-        {
-          "id": "copilot-vs-hagicode-section-2-capabilities",
-          "type": "capability-list",
-          "items": [
+          "id": "copilot-vs-hagicode-section-2-table",
+          "type": "comparison-table",
+          "headers": [
+            "Dimension",
+            "GitHub Copilot CLI",
+            "HagiCode"
+          ],
+          "rows": [
             {
-              "id": "copilot-vs-hagicode-section-2-item-1",
-              "title": "Multi-threaded parallelism: Let multiple Copilots work for you simultaneously",
-              "content": [
-                "Copilot can do a lot inside one session, but real delivery rarely happens one task at a time.",
-                "HagiCode lets you run multiple Copilot sessions in parallel, each with isolated context, a clear responsibility boundary, and independent progress.",
-                "That turns AI assistance from a single conversation into a parallel engineering workbench that matches how teams actually build software."
-              ],
-              "bullets": [
-                "Thread A is refining backend API endpoints;",
-                "Thread B is refactoring frontend components;",
-                "Thread C is writing unit tests;",
-                "Thread D is auditing code for security vulnerabilities."
+              "id": "copilot-vs-hagicode-section-2-row-1",
+              "cells": [
+                "What it is",
+                "Terminal AI coding agent from GitHub, part of the Copilot product line",
+                "Desktop and web AI programming workbench that drives Agent CLIs you install"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-2",
-              "title": "OpenSpec proposal sessions: Make every Copilot change traceable",
-              "content": [
-                "In daily development, the most common chaos isn't being unable to write code — it's making a bunch of changes and then forgetting why you made them, what you changed, and how those changes relate to each other.",
-                "HagiCode's built-in OpenSpec proposal workflow fundamentally solves this problem. Every development task launches as a proposal:",
-                "This think-first-then-act approach lets Copilot's reasoning power shine even brighter, and lets you quickly understand the decision context months later when looking back at the code."
-              ],
-              "bullets": [
-                "First, write down what problem this task solves and why this approach makes sense;",
-                "Discuss the technical approach in depth with Copilot within the proposal framework — all conversations and decisions are recorded in the proposal context;",
-                "Once the approach is confirmed, Copilot implements the code within the proposal's constraints;",
-                "The final proposal document, discussion records, and code changes form a complete trace chain."
+              "id": "copilot-vs-hagicode-section-2-row-2",
+              "cells": [
+                "Interface and platforms",
+                "Terminal UI started with `copilot`; Linux, macOS, Windows (PowerShell or WSL)",
+                "Desktop app for Windows, macOS, Linux; Docker Compose container; Microsoft Store edition"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-3",
-              "title": "AI commits: Let Copilot write your commit messages",
-              "content": [
-                "Writing commit messages after finishing code is a form of mental friction for many developers. Too casual and you can't find key commits later; too formal and it feels like wasted time.",
-                "HagiCode's AI commit feature hands this entirely to Copilot: it analyzes your code changes, understands the intent and scope of impact, then automatically generates clearly structured, semantically accurate commit messages. More importantly, during the AI commit process, HagiCode automatically locks the repository to prevent state conflicts from concurrent operations, ensuring safe and reliable commits.",
-                "Save your attention for creation — let Copilot handle the commit paperwork."
+              "id": "copilot-vs-hagicode-section-2-row-3",
+              "cells": [
+                "Pricing and licensing",
+                "Needs a Copilot plan: Free tier, or paid Pro (from $10/month as of October 2026), Pro+, Max, Business, Enterprise",
+                "Desktop and Container free; Store edition free with optional one-time TurboEngine purchase"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-4",
-              "title": "Code Server browser editor: Zero-switch from analysis to editing",
-              "content": [
-                "After Copilot analyzes code, identifies the problematic file, and pinpoints the exact line number, the familiar awkward moment occurs: you need to leave the AI conversation window, return to your IDE, find the file again, and manually jump to the right location. This analysis-to-editing context break not only interrupts your flow but keeps AI's value at 'telling you where the problem is' rather than 'helping you directly enter editing mode.'",
-                "HagiCode's built-in Code Server-based browser editor is designed specifically to solve this break:",
-                "The Code Server integration makes HagiCode not just a frontend page that can analyze code, but a complete workstation where Copilot's analysis can directly land as editing actions. It minimizes the tool-switching cost between AI analysis and hands-on modification."
-              ],
-              "bullets": [
-                "One-click from analysis to editing: Once Copilot identifies the file needing changes in a proposal, HagiCode can directly open that file in the workbench for editing. You don't need to switch tools or re-locate the file — the distance from analysis result to hands-on modification is zero.",
-                "Local, container, remote — full coverage: Whether your project runs on a local machine, in a Docker container, or on a remote server, HagiCode's Code Server can open the project directory through the browser for editing. You're no longer constrained by 'this project can only be edited in one specific environment.'",
-                "Vault direct editing: Code reference libraries and learning projects registered in your Vault can also be opened and browsed directly through Code Server. When Copilot references example code, you can jump in anytime for deeper study or practice."
+              "id": "copilot-vs-hagicode-section-2-row-4",
+              "cells": [
+                "Model and provider access",
+                "Pick models with `/model`, including Claude and GPT families; bring-your-own provider via environment variables",
+                "Hosts no models; uses whatever Copilot CLI is signed in with, so model cost stays on your Copilot plan"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-5",
-              "title": "HagiTask: Trigger Copilot's capabilities with one click",
-              "content": [
-                "Copilot's capabilities are strong, but manually typing out requirements each time isn't efficient. More importantly, the community has already produced a wealth of high-quality Skills — from code review templates to full-stack CRUD generators, from automatic documentation generation to test case orchestration. These proven practices are scattered everywhere with no unified place to host and invoke them.",
-                "HagiCode's HagiTask mechanism is designed to solve this problem. It's more than just shortcut commands — it's an extensible Skills integration platform:",
-                "HagiTask upgrades your collaboration with Copilot from 'communicating from scratch every time' to 'standing on the community's shoulders, one-click invocation of mature workflows.' You pick the template, Copilot executes — this is true workflow automation, and the whole process is visually delightful."
-              ],
-              "bullets": [
-                "Community Skills ready to use: HagiCode supports importing popular community Skills as HagiTasks. You don't need to craft complex prompts from scratch — the community has already accumulated a wealth of high-quality task templates. Import and use immediately — new CRUD modules, comprehensive code reviews, API documentation generation — all have ready-made solutions.",
-                "Extensible Skills system: If you have unique project requirements or team conventions, HagiCode lets you customize and compose on top of community Skills. You can adjust checklists, add team coding standards, or even chain multiple Skills into a complete development pipeline, building your own team's task template library.",
-                "Visual operations, goodbye to the tedium of plain text: This is the fundamental difference between HagiCode and pure command-line tools. Choosing a HagiTask doesn't require typing commands and assembling parameters in the terminal — it's done through a carefully designed visual interface. Click to select tasks, dropdown menus to switch parameters, drag-and-drop to reorder tasks — every step has clear visual feedback and status indicators. The human-machine interaction shifts from 'writing code to invoke AI' to 'using a UI to direct AI.'"
+              "id": "copilot-vs-hagicode-section-2-row-5",
+              "cells": [
+                "Parallel work",
+                "One conversation per terminal; delegates to built-in and custom sub-agents",
+                "Several concurrent sessions across repos, managed from an Agents view"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-6",
-              "title": "Gamified interface: Make human-AI collaboration enjoyable",
-              "content": [
-                "Programming itself can be tedious, but it can also be fun. HagiCode's gamified interface design breaks away from the cold experience of command-line tools:",
-                "Copilot provides intelligence, HagiCode provides experience — together, they transform AI programming from a 'productivity tool' into a 'development environment you actually want to open.'"
-              ],
-              "bullets": [
-                "Clear visual feedback: Each session's running status, progress, and results are presented through intuitive interface elements — no need to frantically scroll through terminal output.",
-                "Achievement and progress visualization: Task completion, code commits, proposal approvals — these milestones are wrapped as visible achievements, giving the development process a sense of rhythm and accomplishment.",
-                "Low barrier to entry: The combination of mouse clicks, drag-and-drop, and keyboard shortcuts lets developers unaccustomed to pure terminal workflows easily harness Copilot's full capabilities."
+              "id": "copilot-vs-hagicode-section-2-row-6",
+              "cells": [
+                "Spec and planning workflow",
+                "Plan mode, toggled with Shift+Tab inside a session",
+                "OpenSpec proposals: propose, validate, apply, archive; 3 concurrent on free editions, 32 with TurboEngine"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-7",
-              "title": "Agents management: Turn multiple Copilot sessions into a manageable Agent fleet",
-              "content": [
-                "Parallel sessions are useful, but once you have several of them running, coordination becomes the next bottleneck.",
-                "HagiCode's Agents management layer turns each Copilot worker into a named, schedulable Agent with visible status, assigned scope, and independent configuration.",
-                "You move from 'a lot of terminals are open' to 'a small AI team is being coordinated in one place.'"
-              ],
-              "bullets": [
-                "Agent identity and status visualization: see which Agent is running, waiting, blocked, or ready for archive at a glance.",
-                "Task-to-Agent binding: proposals, reviews, refactors, and test work can each be assigned to a dedicated Agent.",
-                "Independent Agent configuration: different Agents can use different model routes, Skills, and context scopes without interfering with each other."
+              "id": "copilot-vs-hagicode-section-2-row-7",
+              "cells": [
+                "Git and commit handling",
+                "Runs Git commands and talks to GitHub.com from the session",
+                "AI-composed commits, Git management, GitHub integration, embedded Code Server editor"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-8",
-              "title": "Monospecs multi-repo management: Let Copilot navigate across project groups",
-              "content": [
-                "In real projects, code rarely lives in a single repository. Frontend, backend, documentation, shared libraries are spread across different repos, and a single feature change may need to touch several repos simultaneously. For Copilot, single-repo mode works, but it has no native understanding of cross-repo relationships — you have to manually tell it in every conversation that 'this change also needs to sync to two other repos,' which is clearly inefficient.",
-                "HagiCode's Monospecs mechanism is the structured solution designed for multi-repo scenarios. Through the .hagicode/monospecs.yaml configuration file, it declares all sub-repo addresses, names, and relationships in the project group, giving Copilot an automatic cross-repo map when launching proposals:",
-                "Monospecs essentially eliminates Copilot's cognitive blind spots in cross-repo collaboration. Copilot's reasoning is powerful, but it still needs an accurate map to locate the scope of changes — and Monospecs is that systematically managed project map."
-              ],
-              "bullets": [
-                "Automatic repo relationship awareness: When creating a development proposal, Copilot can directly read the sub-repo list from the Monospecs config, knowing 'this change's frontend code is in repos/frontend, API definitions in repos/backend, documentation in repos/docs' — you no longer need to manually list which repos are involved each time.",
-                "Cross-repo change tracking: When a proposal spans multiple sub-repos, the OpenSpec proposal directory stays in the main repo, with sub-repos only carrying code changes. This keeps specs and code separated, sub-repos stay clean, but the entire change's decision chain and discussion records are centralized in one place. On archive, commit_when_archive can also auto-commit specs to the main repo, saving manual version control headaches.",
-                "AI commit smart repo targeting: When doing AI commits, HagiCode analyzes your changes against the Monospecs config and automatically suggests which target repo the commit should go to. You don't need to cd into each directory in the terminal — HagiCode handles the judgment of which repo this code belongs to.",
-                "Per-repo AGENTS.md: Each sub-repo can have its own AGENTS.md telling Copilot about that repo's tech stack, coding standards, and development conventions. Copilot automatically reads the corresponding guidance when operating on different repos, always behaving in line with your team's standards."
+              "id": "copilot-vs-hagicode-section-2-row-8",
+              "cells": [
+                "Setup effort",
+                "One install command, then `/login` or a token; no extra app",
+                "Install HagiCode Desktop, and have Copilot CLI installed and signed in first"
               ]
             },
             {
-              "id": "copilot-vs-hagicode-section-2-item-9",
-              "title": "Vault cross-project knowledge base: Give Copilot long-term memory",
-              "content": [
-                "Copilot's context window is large, but every new session starts from scratch — the experience accumulated in the previous round of proposals, the project structures analyzed, the best practices discussed — all are 'forgotten' when the session ends. In pure conversation tools, you can only accept this, but in HagiCode, the Vault system changes the game.",
-                "Vault is HagiCode's cross-project persistent knowledge storage layer. Its core design philosophy is 'register once, reuse everywhere':",
-                "If Monospecs lets Copilot understand where projects are, Vault lets Copilot remember what we've learned before. The former expands Copilot's spatial vision, the latter extends Copilot's temporal memory — together, Copilot is no longer a stranger reintroducing themselves every time, but a long-term partner who truly understands your project landscape and knowledge accumulation."
-              ],
-              "bullets": [
-                "Multi-type knowledge containers: Vault supports four types — folder (general file directories), coderef (specifically for studying open-source projects, automatically initializing standardized directory structures), obsidian (directly connecting your existing Obsidian notebook), and system-managed (system-automated project config and prompt template libraries). You can register code repositories, study notes, and design documents scattered across different places into Vault — Copilot automatically perceives the existence of these knowledge resources in any proposal.",
-                "Automatic AI context injection: Every time a new proposal starts, HagiCode automatically injects your registered Vault information into Copilot's context. You don't need to manually copy code fragments or re-explain project backgrounds — Copilot receives the proposal while already knowing what learning resources and reference projects you have available, and can start working directly from existing knowledge.",
-                "Fine-grained access control: Each Vault can be marked as reference (read-only) or editable. Reference code libraries for open-source projects are set to read-only — Copilot can read and analyze but not modify, preventing accidental changes. Your own project Vaults set to editable let Copilot help you write code directly. This boundary keeps AI's freedom always controllable.",
-                "Cross-project knowledge reuse: Register a 'design patterns reference' Vault while analyzing Project A, and Copilot can access it in any subsequent proposal. You don't need to repeatedly build knowledge bases — Vault turns your learning outcomes and reference resources into inheritable long-term assets."
-              ]
-            },
-            {
-              "id": "copilot-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute model routing: Make Copilot's model choices even freer",
-              "content": [
-                "Teams should be able to keep the workflow they like without locking model access to one vendor or one subscription path.",
-                "OmniRoute separates the interaction layer from the model-routing layer, so HagiCode can keep Copilot in the workflow while switching model sources underneath.",
-                "That gives you better cost control, better task-to-model fit, and less workflow churn when model pricing or availability changes."
-              ],
-              "bullets": [
-                "Keep the CLI or interaction style you already prefer while changing only the model route underneath.",
-                "Share one routing strategy across multiple Agents and multiple AI tools connected to HagiCode.",
-                "Tune different model routes for different workloads, such as fast coding, deep review, or architecture planning.",
-                "Adjust cost and capability once at the routing layer instead of reworking each individual workflow."
-              ]
-            },
-            {
-              "id": "copilot-vs-hagicode-section-2-item-11",
-              "title": "Unified tool-call view: see GitHub Copilot's tool use in one consistent shape",
-              "content": [
-                "HagiCode attaches one typed tool-call shape to every tool-use and tool-result message. It records the tool kind, its input fields, status, result text or images, any error, and timing. The shape is computed from stored data, so session history and live updates show the same view.",
-                "The same shape covers every provider, so GitHub Copilot tool calls look like those of every other agent in your workspace. You read one format instead of learning each CLI's raw output."
-              ],
-              "bullets": [
-                "One shape for every provider: shell, file, search, fetch and MCP calls are presented consistently;",
-                "Failed calls carry a readable error message;",
-                "Raster tool images are carried as data URIs."
-              ]
-            },
-            {
-              "id": "copilot-vs-hagicode-section-2-item-12",
-              "title": "Usage at a glance: today's tokens and cost in the status bar",
-              "content": [
-                "HagiCode can show today's token usage and cost from the TokenMonitor desktop app in its status bar. The integration is optional and off by default.",
-                "It reads TokenMonitor's local data file or a TokenMonitor HostHub on a schedule and keeps only today's total tokens and cost. The status bar stays a quick glance rather than a full usage report."
-              ],
-              "bullets": [
-                "Nothing is read until you turn the integration on;",
-                "The HostHub secret is write-only and is never returned or logged after you save it;",
-                "An invalid HostHub address is rejected when you save it."
+              "id": "copilot-vs-hagicode-section-2-row-9",
+              "cells": [
+                "Best for",
+                "Terminal-first developers working in GitHub issues and pull requests",
+                "Developers juggling several tasks or repos who want a GUI and a spec discipline"
               ]
             }
           ]
@@ -238,29 +115,206 @@
     },
     {
       "id": "copilot-vs-hagicode-section-3",
-      "title": "Summary",
+      "title": "What GitHub Copilot CLI does well",
       "blocks": [
         {
-          "id": "copilot-vs-hagicode-section-3-intro",
-          "type": "rich-text",
-          "content": [
-            "GitHub Copilot is an excellent multi-model AI programming interface, and HagiCode is a workbench purpose-built for AI programming scenarios. Their relationship is complementary, not competitive:",
-            "If you're already using GitHub Copilot, try connecting it to HagiCode — you'll find Copilot isn't just a code completion assistant, but a full-workflow AI partner powered by a complete workbench."
-          ]
-        },
-        {
-          "id": "copilot-vs-hagicode-section-3-bullets",
-          "type": "bullet-list",
+          "id": "copilot-vs-hagicode-section-3-capabilities",
+          "type": "capability-list",
           "items": [
-            "Copilot provides capability: multi-model access, code generation, GitHub ecosystem integration;",
-            "HagiCode provides efficiency: multi-threaded parallelism, Agents fleet management, OpenSpec proposals, AI commits, Code Server editor, HagiTasks;",
-            "HagiCode expands boundaries: Monospecs lets Copilot understand cross-repo project relationships, Vault gives Copilot cross-session long-term memory, OmniRoute frees Copilot from model subscription lock-in;",
-            "Tool-call view: one consistent shape for every provider's tool use, in history and live updates;",
-            "Usage at a glance: optional TokenMonitor status-bar view of today's tokens and cost;",
-            "Together they provide an experience: traceable decision chains, automated daily tasks, a genuinely enjoyable interface, and a long-term AI partner that truly understands your project landscape and can be freely configured with any model source."
+            {
+              "id": "copilot-vs-hagicode-section-3-item-1",
+              "title": "GitHub-native by design",
+              "content": [
+                "Copilot CLI is built by the company that hosts your repository, so asking it about issues, pull requests and GitHub.com is a first-class use rather than a plugin. It signs in with `/login`, or with a fine-grained personal access token that has the \"Copilot Requests\" permission, passed as `GH_TOKEN` or `GITHUB_TOKEN`, which is convenient for scripts."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-3-item-2",
+              "title": "Model choice, including your own provider",
+              "content": [
+                "Switch models mid-session with `/model` or start with `--model`. GitHub lists Claude and GPT families, and some newer models offer a 1 million token context window with configurable reasoning levels, which use more credits. You can also point the CLI at an OpenAI-compatible endpoint, Azure OpenAI, Anthropic or a local model such as Ollama through environment variables."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-3-item-3",
+              "title": "Interactive and scripted use from one tool",
+              "content": [
+                "Run `copilot` for an interactive session, or `copilot -p \"<prompt>\"` for a single scripted run, with explicit approval flags for file changes and commands. That makes it usable in shell scripts and CI, which a GUI workbench is not suited for."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-3-item-4",
+              "title": "Extensible and governed",
+              "content": [
+                "MCP servers add data sources and tools, custom agents specialise Copilot for a task, and built-in specialised agents take common jobs. Content exclusion applies to Business and Enterprise users, so organisations can set policy centrally. Experimental features such as Autopilot sit behind `--experimental`."
+              ]
+            }
           ]
         }
       ]
+    },
+    {
+      "id": "copilot-vs-hagicode-section-4",
+      "title": "When to choose GitHub Copilot CLI, and when to choose HagiCode",
+      "blocks": [
+        {
+          "id": "copilot-vs-hagicode-section-4-choose-agent",
+          "type": "bullet-list",
+          "items": [
+            "You already pay for Copilot and mostly work in a single terminal on one task at a time.",
+            "Your work revolves around GitHub issues and pull requests, and you want the agent close to them.",
+            "You need headless or scripted runs, for example `copilot -p` in CI.",
+            "You want the smallest possible toolchain: one install, one login, no extra app.",
+            "Your organisation manages Copilot policy and expects people to use the CLI directly."
+          ]
+        },
+        {
+          "id": "copilot-vs-hagicode-section-4-choose-hagicode",
+          "type": "bullet-list",
+          "items": [
+            "You run several tasks or repositories at once and want sessions side by side instead of terminal tabs.",
+            "You want a written proposal, validation and archive step before the agent changes code.",
+            "You like reviewing tool calls and diffs in a GUI, and having an AI-composed commit step.",
+            "You want a shared knowledge base (Vault) and multi-repo workspaces (Monospecs) around your agent.",
+            "You switch between Agent CLIs (Copilot, Claude Code, Codex and others) and want one workspace for all of them."
+          ]
+        },
+        {
+          "id": "copilot-vs-hagicode-section-4-not-a-fit",
+          "type": "callout",
+          "tone": "warning",
+          "title": "Where HagiCode is not the right tool",
+          "content": [
+            "Headless CI jobs and scripted one-shot runs: call `copilot -p` directly.",
+            "You only want a terminal and no GUI, or a quick question inside an editor you already use.",
+            "Your team does not want proposal and spec discipline; HagiCode is built around it.",
+            "HagiCode needs Copilot CLI installed and signed in first, so it adds setup compared with running Copilot CLI alone, and free editions cap concurrent proposals at 3.",
+            "It is not an IDE replacement: deep manual editing beyond the embedded Code Server belongs in your own editor."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copilot-vs-hagicode-section-5",
+      "title": "Using GitHub Copilot CLI together with HagiCode",
+      "blocks": [
+        {
+          "id": "copilot-vs-hagicode-section-5-intro",
+          "type": "rich-text",
+          "content": [
+            "HagiCode sits on top of the CLI you already have. It starts `copilot` for you through the GitHub Copilot SDK, so your install, GitHub login and Copilot plan are unchanged, and usage still counts against that plan.",
+            "Nothing is locked in: your repositories stay ordinary Git repositories and you can run `copilot` in a terminal at any time."
+          ]
+        },
+        {
+          "id": "copilot-vs-hagicode-section-5-steps",
+          "type": "bullet-list",
+          "items": [
+            "1. Install Copilot CLI (`npm install -g @github/copilot`, `brew install copilot-cli`, or `winget install GitHub.Copilot`) and sign in with `/login`.",
+            "2. Install HagiCode Desktop (free) for Windows, macOS or Linux.",
+            "3. In HagiCode, choose GitHub Copilot as the Agent CLI for a session.",
+            "4. Open a repository and start a session or an OpenSpec proposal.",
+            "5. Expect the usual Copilot model choices and billing; HagiCode adds the surrounding workflow, not new models.",
+            "6. To go back to plain Copilot CLI, just open a terminal in the same repository."
+          ]
+        },
+        {
+          "id": "copilot-vs-hagicode-section-5-notes",
+          "type": "callout",
+          "tone": "info",
+          "title": "What works for GitHub Copilot CLI inside HagiCode",
+          "content": [
+            "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Copilot CLI.",
+            "Does not apply to Copilot: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
+            "HagiCode passes only a verified subset of Copilot startup flags to the CLI, and if your organisation has disabled Copilot CLI, HagiCode cannot use it either."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copilot-vs-hagicode-section-6",
+      "title": "What HagiCode adds on top of any agent",
+      "blocks": [
+        {
+          "id": "copilot-vs-hagicode-section-6-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "copilot-vs-hagicode-section-6-item-1",
+              "title": "Parallel sessions and Agents management",
+              "content": [
+                "Copilot CLI is one conversation per terminal. In HagiCode you can keep several Copilot sessions running across repositories and follow them from an Agents view, instead of juggling tabs."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-6-item-2",
+              "title": "OpenSpec proposals",
+              "content": [
+                "Before Copilot edits anything, you can run a propose, validate, apply and archive loop. The proposal becomes a reviewable record of why a change was made, which plain chat history is not."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-6-item-3",
+              "title": "AI commits and Code Server",
+              "content": [
+                "After a Copilot session HagiCode can compose the commit message from the diff, and the embedded Code Server lets you inspect or fix the result without leaving the workbench."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-6-item-4",
+              "title": "Monospecs and Vault",
+              "content": [
+                "Monospecs groups several repositories into one workspace so Copilot sessions can span them; Vault keeps notes and decisions that outlive a single session."
+              ]
+            },
+            {
+              "id": "copilot-vs-hagicode-section-6-item-5",
+              "title": "One tool-call view and optional TokenMonitor",
+              "content": [
+                "Tool calls from Copilot and other agents are shown in the same layout, and an optional TokenMonitor can show usage in the status bar. HagiCode does not change how Copilot is billed."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copilot-vs-hagicode-section-7",
+      "title": "The bottom line",
+      "blocks": [
+        {
+          "id": "copilot-vs-hagicode-section-7-bullets",
+          "type": "bullet-list",
+          "items": [
+            "Copilot CLI is a capable, GitHub-aware terminal agent; if one terminal and one task at a time is your workflow, you do not need anything else.",
+            "HagiCode is a different layer: a workbench for parallel sessions, proposals and commits that runs Copilot CLI underneath.",
+            "Using both costs nothing extra beyond your Copilot plan, since HagiCode's free editions run your existing install.",
+            "Skip HagiCode if you need headless automation or dislike spec discipline."
+          ]
+        }
+      ]
+    }
+  ],
+  "faq": [
+    {
+      "question": "Is GitHub Copilot CLI free?",
+      "answer": "There is a free Copilot tier with limited usage, and paid plans from Pro upward; Pro starts at $10/month as of October 2026. Plan names, prices and usage allowances change, so check GitHub's Copilot plans page."
+    },
+    {
+      "question": "How do I install GitHub Copilot CLI?",
+      "answer": "Run `npm install -g @github/copilot`, `brew install copilot-cli`, `winget install GitHub.Copilot`, or `curl -fsSL https://gh.io/copilot-install | bash`. Then start `copilot` and sign in with `/login`."
+    },
+    {
+      "question": "Can I use GitHub Copilot CLI with HagiCode?",
+      "answer": "Yes. Install and sign in to Copilot CLI first, then pick GitHub Copilot as the Agent CLI in HagiCode. Billing stays with your Copilot plan."
+    },
+    {
+      "question": "Does HagiCode replace GitHub Copilot CLI?",
+      "answer": "No. HagiCode runs Copilot CLI as its executor and adds sessions, proposals, commits and a GUI around it."
+    },
+    {
+      "question": "GitHub Copilot CLI vs HagiCode: which should I pick?",
+      "answer": "Use Copilot CLI alone for single-terminal work and scripts. Add HagiCode when you run parallel tasks, want OpenSpec proposals, or prefer a visual workspace."
     }
   ]
 }
