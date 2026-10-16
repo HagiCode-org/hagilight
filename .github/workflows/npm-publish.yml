@@ -30,12 +30,11 @@ jobs:
           cache-dependency-path: package-lock.json
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - name: Build, type-check, test, and check all four packages
+      # The example builds run in CI; the stamped tarballs are packed and installed below.
+      - name: Type-check and test
         run: |
           npm run typecheck
           npm test
-          npm run build:example
-          npm run pack:check
       - name: Resolve development version
         id: version
         env:
@@ -81,12 +80,11 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: echo "version=$(node scripts/release.mjs verify "$RELEASE_TAG")" >> "$GITHUB_OUTPUT"
-      - name: Build, type-check, test, and check all four packages
+      # The example builds run in CI; the stamped tarballs are packed and installed below.
+      - name: Type-check and test
         run: |
           npm run typecheck
           npm test
-          npm run build:example
-          npm run pack:check
       - name: Stamp core, all dependent packages, and example dependencies
         env:
           VERSION: ${{ steps.version.outputs.version }}

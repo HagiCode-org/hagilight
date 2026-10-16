@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     name: Validate (${{ matrix.label }})
@@ -34,12 +38,24 @@ jobs:
           set -o pipefail
           mkdir -p .ci-artifacts
           npm run typecheck 2>&1 | tee .ci-artifacts/typecheck.log
-      - name: Validate packages and examples
+      # `npm test` already runs real Astro and Docusaurus builds, so every OS gets that coverage.
+      # The slower checks below do not depend on the OS and run on Linux only.
+      - name: Run tests
         shell: bash
         run: |
           set -o pipefail
           npm test 2>&1 | tee .ci-artifacts/test.log
+      - name: Build example variants
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          set -o pipefail
           npm run build:example 2>&1 | tee .ci-artifacts/build.log
+      - name: Verify tarballs
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          set -o pipefail
           npm run pack:check 2>&1 | tee .ci-artifacts/pack.log
           npm run integration:installed 2>&1 | tee .ci-artifacts/integration.log
       - name: Install Chromium for viewport regression
