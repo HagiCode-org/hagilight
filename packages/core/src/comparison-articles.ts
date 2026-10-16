@@ -62,6 +62,21 @@ export interface StructuredArticleCalloutBlock {
   content: string[];
 }
 
+export interface StructuredArticleComparisonTableRow {
+  id: string;
+  /** One entry per header, in header order. The first entry is the row label. */
+  cells: string[];
+}
+
+export interface StructuredArticleComparisonTableBlock {
+  id: string;
+  type: 'comparison-table';
+  caption?: string;
+  /** Column headers. The first one labels the row-label column. */
+  headers: string[];
+  rows: StructuredArticleComparisonTableRow[];
+}
+
 export interface StructuredArticleCtaGroupBlock {
   id: string;
   type: 'cta-group';
@@ -73,6 +88,7 @@ export type StructuredArticleBlock =
   | StructuredArticleBulletListBlock
   | StructuredArticleCapabilityListBlock
   | StructuredArticleComparisonGridBlock
+  | StructuredArticleComparisonTableBlock
   | StructuredArticleCalloutBlock
   | StructuredArticleCtaGroupBlock;
 
@@ -80,6 +96,11 @@ export interface StructuredArticleSection {
   id: string;
   title: string;
   blocks: StructuredArticleBlock[];
+}
+
+export interface StructuredArticleFaqItem {
+  question: string;
+  answer: string;
 }
 
 export interface StructuredArticleDetail {
@@ -91,6 +112,8 @@ export interface StructuredArticleDetail {
   seo: StructuredArticleSeo;
   summary: string;
   sections: StructuredArticleSection[];
+  /** Visible FAQ entries; also emitted as FAQPage structured data by the consuming site. */
+  faq?: StructuredArticleFaqItem[];
   cta?: {
     primary?: StructuredArticleCtaLink;
     secondary?: StructuredArticleCtaLink;
@@ -240,6 +263,33 @@ function validateStructuredArticleBlock(block: unknown, fieldName: string): Stru
       };
     }
 
+    case 'comparison-table': {
+      const headers = assertStringArray(block.headers, `${fieldName}.headers`);
+      assert(headers.length >= 2, `${fieldName}.headers must contain at least two columns.`);
+      assert(Array.isArray(block.rows) && block.rows.length > 0, `${fieldName}.rows must be a non-empty array.`);
+      const rows = block.rows.map((row, index) => {
+        const rowField = `${fieldName}.rows[${index}]`;
+        assert(isRecord(row), `${rowField} must be an object.`);
+        const cells = assertStringArray(row.cells, `${rowField}.cells`);
+        assert(cells.length === headers.length, `${rowField}.cells must have ${headers.length} entries, one per header.`);
+
+        return {
+          id: assertNonEmptyString(row.id, `${rowField}.id`),
+          cells,
+        };
+      });
+
+      ensureUnique(rows.map((row) => row.id), `${fieldName}.rows`);
+
+      return {
+        id,
+        type,
+        ...(block.caption === undefined ? {} : { caption: assertNonEmptyString(block.caption, `${fieldName}.caption`) }),
+        headers,
+        rows,
+      };
+    }
+
     case 'callout':
       return {
         id,
@@ -292,6 +342,20 @@ function validateStructuredArticleBlock(block: unknown, fieldName: string): Stru
   }
 }
 
+function validateFaq(value: unknown, fieldName: string): StructuredArticleFaqItem[] {
+  assert(Array.isArray(value) && value.length > 0, `${fieldName} must be a non-empty array.`);
+
+  return value.map((entry, index) => {
+    const entryField = `${fieldName}[${index}]`;
+    assert(isRecord(entry), `${entryField} must be an object.`);
+
+    return {
+      question: assertNonEmptyString(entry.question, `${entryField}.question`),
+      answer: assertNonEmptyString(entry.answer, `${entryField}.answer`),
+    };
+  });
+}
+
 export function validateStructuredArticleDetail(detail: unknown, sourceLabel = 'structured article'): StructuredArticleDetail {
   assert(isRecord(detail), `${sourceLabel} must be an object.`);
 
@@ -342,6 +406,7 @@ export function validateStructuredArticleDetail(detail: unknown, sourceLabel = '
     },
     summary,
     sections,
+    ...(detail.faq === undefined ? {} : { faq: validateFaq(detail.faq, `${sourceLabel}.faq`) }),
     ...(detail.cta === undefined
       ? {}
       : {

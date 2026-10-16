@@ -295,3 +295,58 @@ test('the data set holds 136 article files in 10 locales', async () => {
   assert.equal(locales.length, 10);
   assert.equal(total, 136);
 });
+
+test('a comparison-table block is validated with its headers and rows', async () => {
+  const detail = await readPackagedDetail('en-US', 'claude-vs-hagicode');
+  const table = {
+    id: 'fixture-table',
+    type: 'comparison-table',
+    caption: 'Fixture',
+    headers: ['Aspect', 'Agent', 'HagiCode'],
+    rows: [{ id: 'fixture-row-1', cells: ['Price', 'Free', 'Free'] }],
+  };
+  const withTable = structuredClone(detail);
+  withTable.sections[0].blocks.push(table);
+
+  const validated = validateStructuredArticleDetail(withTable, 'fixture');
+  assert.deepEqual(validated.sections[0].blocks.at(-1), table);
+
+  const shortRow = structuredClone(withTable);
+  shortRow.sections[0].blocks.at(-1).rows[0].cells = ['Price', 'Free'];
+  assert.throws(
+    () => validateStructuredArticleDetail(shortRow, 'fixture'),
+    /fixture\.sections\[0\]\.blocks\[\d+\]\.rows\[0\]\.cells must have 3 entries, one per header\./u,
+  );
+
+  const oneColumn = structuredClone(withTable);
+  oneColumn.sections[0].blocks.at(-1).headers = ['Aspect'];
+  assert.throws(
+    () => validateStructuredArticleDetail(oneColumn, 'fixture'),
+    /headers must contain at least two columns\./u,
+  );
+
+  const duplicateRows = structuredClone(withTable);
+  duplicateRows.sections[0].blocks.at(-1).rows.push({ id: 'fixture-row-1', cells: ['Mode', 'CLI', 'GUI'] });
+  assert.throws(
+    () => validateStructuredArticleDetail(duplicateRows, 'fixture'),
+    /\.rows contains duplicate id fixture-row-1\./u,
+  );
+});
+
+test('faq entries are optional but must be complete when present', async () => {
+  const detail = await readPackagedDetail('en-US', 'claude-vs-hagicode');
+  const { faq: _ignored, ...withoutFaq } = detail;
+
+  assert.equal(validateStructuredArticleDetail(withoutFaq, 'fixture').faq, undefined);
+
+  const entry = { question: 'Is it free?', answer: 'Yes.' };
+  assert.deepEqual(validateStructuredArticleDetail({ ...withoutFaq, faq: [entry] }, 'fixture').faq, [entry]);
+  assert.throws(
+    () => validateStructuredArticleDetail({ ...withoutFaq, faq: [] }, 'fixture'),
+    /fixture\.faq must be a non-empty array\./u,
+  );
+  assert.throws(
+    () => validateStructuredArticleDetail({ ...withoutFaq, faq: [{ question: 'Is it free?' }] }, 'fixture'),
+    /fixture\.faq\[0\]\.answer must be a non-empty string\./u,
+  );
+});
