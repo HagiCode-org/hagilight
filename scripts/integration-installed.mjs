@@ -157,7 +157,7 @@ function verifyDefaultLinksAndAnalytics() {
     /href="https:\/\/tasks\.hagicode\.com\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
   );
   assert.ok(html.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'));
-  assert.ok(html.includes("gtag('config', measurementId)"));
+  assert.ok(html.includes("window.gtag('config', \"G-EN03FMT2Q4\")"));
   assert.ok(html.includes('sdk.51.la/js-sdk-pro.min.js'));
   assert.ok(html.includes('L6b88a5yK4h2Xnci'));
 }
@@ -217,8 +217,8 @@ function verifyAnalyticsBuild() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
   assert.equal(countOccurrences(html, 'googletagmanager.com/gtag/js?id=G-TEST123'), 1);
-  assert.equal(countOccurrences(html, "gtag('config', measurementId)"), 1);
-  assert.match(html, /measurementId\s*=\s*["']G-TEST123["']/u);
+  assert.equal(countOccurrences(html, "window.gtag('config', \"G-TEST123\")"), 1);
+  assert.ok(html.includes('window.gtag = function gtag()'));
   assert.equal(countOccurrences(html, 'sdk.51.la/js-sdk-pro.min.js'), 1);
   assert.equal(countOccurrences(html, 'LA.init('), 1);
   assert.match(html, /siteId\s*=\s*["']test-site-51la["']/u);
