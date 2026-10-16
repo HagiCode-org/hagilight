@@ -107,6 +107,8 @@ test('header, footer, and showcase tag only the tracked links for GA click event
     readFile(new URL('../packages/core/GoogleAnalytics.astro', import.meta.url), 'utf8'),
   ]);
 
+  assert.doesNotMatch(analytics, /define:vars/, 'an IIFE-wrapped init script leaves window.gtag undefined');
+  assert.match(analytics, /window\.gtag = function/);
   assert.equal(header.match(/siteLinkGaAttributes\(link, 'header'\)/g)?.length, 1);
   assert.equal(footer.match(/siteLinkGaAttributes\(link, 'footer'\)/g)?.length, 2, 'quick and community links');
   assert.doesNotMatch(footer, /siteLinkGaAttributes\(site\b/, 'related sites stay untagged');

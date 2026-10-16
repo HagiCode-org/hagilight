@@ -6,17 +6,20 @@ interface Props {
 const { measurementId } = Astro.props;
 if (!measurementId?.trim()) throw new Error('GoogleAnalytics requires a measurementId prop.');
 const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+// Astro wraps a script that receives template variables in an IIFE, which would keep gtag out of
+// the global scope and silently disable the click-event listener below. Assign window.gtag explicitly.
+const initScript = [
+  'window.dataLayer = window.dataLayer || [];',
+  'window.gtag = function gtag(){ window.dataLayer.push(arguments); };',
+  "window.gtag('js', new Date());",
+  `window.gtag('config', ${JSON.stringify(measurementId).replace(/</g, '\\u003c')});`,
+].join('\n');
 ---
 
 {import.meta.env.PROD && (
   <>
     <script async src={scriptUrl}></script>
-    <script is:inline define:vars={{ measurementId }}>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', measurementId);
-    </script>
+    <script is:inline set:html={initScript}></script>
   </>
 )}
 
