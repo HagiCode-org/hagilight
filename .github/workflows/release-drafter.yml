@@ -2,7 +2,7 @@ name: Release Drafter
 
 # Drafts the next stable release from Conventional Commit messages since the last
 # vX.Y.Z tag, so direct pushes to main are covered as well as merged pull requests.
-# Publishing the draft (not this workflow) triggers npm-publish.yml.
+# Publishing the draft is a manual step; this workflow never publishes a release.
 
 on:
   push:
@@ -40,20 +40,23 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           RELEASE_VERSION: ${{ inputs.version }}
         run: |
-          echo "version=$(node scripts/release-notes.mjs version)" >> "$GITHUB_OUTPUT"
-          node scripts/release-notes.mjs notes > "$RUNNER_TEMP/release-notes.md"
+          echo "version=$(node .github/scripts/release-notes.mjs version)" >> "$GITHUB_OUTPUT"
+          node .github/scripts/release-notes.mjs notes > "$RUNNER_TEMP/release-notes.md"
       - name: Create or update the draft release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.notes.outputs.version }}
+          TITLE_TEMPLATE: 'Hagilight v{version}'
         run: |
           tag="v$VERSION"
+          title="${TITLE_TEMPLATE//\{version\}/$VERSION}"
+          target="$(git rev-parse HEAD)"
           existing="$(gh release list --limit 100 --json tagName,isDraft --jq '[.[] | select(.isDraft)][0].tagName // empty')"
           if [ -n "$existing" ]; then
-            gh release edit "$existing" --tag "$tag" --title "Hagilight $tag" \
-              --notes-file "$RUNNER_TEMP/release-notes.md" --target "$GITHUB_SHA"
+            gh release edit "$existing" --tag "$tag" --title "$title" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" --target "$target"
           else
-            gh release create "$tag" --draft --title "Hagilight $tag" \
-              --notes-file "$RUNNER_TEMP/release-notes.md" --target "$GITHUB_SHA"
+            gh release create "$tag" --draft --title "$title" \
+              --notes-file "$RUNNER_TEMP/release-notes.md" --target "$target"
           fi
-          echo "Draft release $tag updated from commits up to $GITHUB_SHA." >> "$GITHUB_STEP_SUMMARY"
+          echo "Draft release $tag updated from commits up to $target." >> "$GITHUB_STEP_SUMMARY"

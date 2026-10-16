@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { bumpVersion, groupCommits, parseCommit, renderNotes } from '../scripts/release-notes.mjs';
+import { bumpVersion, groupCommits, parseCommit, renderNotes } from '../.github/scripts/release-notes.mjs';
 
 const sha = (n) => String(n).repeat(40);
 const commit = (subject, body = '', n = 1) => parseCommit({ sha: sha(n), subject, body });
@@ -36,6 +36,11 @@ test('bumps patch, minor for features, and minor or major for breaking changes',
   assert.equal(bumpVersion('1.2.3', [commit('feat: y'), commit('fix!: z')]), '2.0.0');
 });
 
+test('handles a range without commits', () => {
+  assert.equal(bumpVersion('0.9.8', []), '0.9.9');
+  assert.equal(renderNotes([]), '## Changes\n\n_No changes yet._\n');
+});
+
 test('renders scoped entries with commit links', () => {
   const body = renderNotes([commit('feat(core): add links', '', 1), commit('Tweak things', '', 2)], 'HagiCode-org/hagilight');
   assert.equal(body, [
@@ -55,8 +60,8 @@ test('renders scoped entries with commit links', () => {
 test('release drafter workflow builds notes from full git history and keeps drafts unpublished', () => {
   const workflow = readFileSync(new URL('../.github/workflows/release-drafter.yml', import.meta.url), 'utf8');
   assert.match(workflow, /fetch-depth: 0/);
-  assert.match(workflow, /scripts\/release-notes\.mjs version/);
-  assert.match(workflow, /scripts\/release-notes\.mjs notes/);
+  assert.match(workflow, /\.github\/scripts\/release-notes\.mjs version/);
+  assert.match(workflow, /\.github\/scripts\/release-notes\.mjs notes/);
   assert.match(workflow, /--draft/);
   assert.doesNotMatch(workflow, /release-drafter\/release-drafter/);
 });

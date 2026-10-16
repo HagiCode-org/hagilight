@@ -1,6 +1,20 @@
 import { execFileSync } from 'node:child_process';
-import { compareVersions, stableVersion } from './release.mjs';
-import { root } from './packages.mjs';
+
+// Dependency-free on purpose: this file is copied unchanged into other repositories.
+function stableVersion(tag) {
+  const match = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(tag);
+  if (!match) throw new Error(`Expected a stable release tag vX.Y.Z, received: ${tag}`);
+  return match.slice(1).join('.');
+}
+
+function compareVersions(left, right) {
+  const a = left.split('.').map(Number);
+  const b = right.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== b[i]) return a[i] - b[i];
+  }
+  return 0;
+}
 
 /** Release note sections, in display order. A commit lands in the first section that matches its type. */
 const SECTIONS = [
@@ -49,6 +63,7 @@ export function bumpVersion(lastVersion, commits) {
 
 /** Renders the release body. `repository` (owner/name) turns short SHAs into commit links. */
 export function renderNotes(commits, repository) {
+  if (commits.length === 0) return '## Changes\n\n_No changes yet._\n';
   const sections = groupCommits(commits).map(({ title, commits: entries }) => {
     const lines = entries.map((commit) => {
       const short = commit.sha.slice(0, 7);
@@ -62,7 +77,7 @@ export function renderNotes(commits, repository) {
 }
 
 function git(...args) {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 }
 
 /** Newest stable `vX.Y.Z` tag reachable from HEAD, or null when nothing was released yet. */
@@ -94,11 +109,10 @@ export function readCommits(tag) {
 function main() {
   const [command] = process.argv.slice(2);
   if (command !== 'version' && command !== 'notes') {
-    throw new Error('Usage: node scripts/release-notes.mjs version|notes');
+    throw new Error('Usage: node .github/scripts/release-notes.mjs version|notes');
   }
   const last = lastStableTag();
   const commits = readCommits(last?.tag);
-  if (commits.length === 0) throw new Error(`No commits since ${last?.tag ?? 'the start of history'}`);
   if (command === 'version') {
     const override = process.env.RELEASE_VERSION;
     process.stdout.write(override ? stableVersion(`v${override}`) : last ? bumpVersion(last.version, commits) : '0.1.0');
@@ -107,4 +121,4 @@ function main() {
   }
 }
 
-if (process.argv[1]?.endsWith('/scripts/release-notes.mjs')) main();
+if (process.argv[1]?.endsWith('release-notes.mjs')) main();
