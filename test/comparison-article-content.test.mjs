@@ -10,10 +10,13 @@ import {
 // Content contract for the *-vs-hagicode comparison articles.
 // See openspec/changes/update-comparison-articles/design.md (D2, D6).
 
-// en-US and zh-CN carry the rewritten comparison structure (design D8: real comparisons with a
+// en-US and zh-CN (plus the page listed in REWRITTEN_EXTRA_PAGES) carry the rewritten comparison structure (design D8: real comparisons with a
 // table, choose-when guidance, a co-use guide and an FAQ). The other locales keep the earlier
 // template until their English source has proven itself in search, so they follow the legacy contract.
 const REWRITTEN_LOCALES = ['en-US', 'zh-CN'];
+// Single pages in another locale that were rewritten because they already earn search impressions:
+// "qodercli" lands on the ru-RU page (231 impressions in the 2026-09-16 to 10-13 Search Console window).
+const REWRITTEN_EXTRA_PAGES = new Set(['ru-RU/qoder-vs-hagicode']);
 const REWRITTEN_UPDATED_AT = '2026-10-16T00:00:00.000Z';
 const LEGACY_UPDATED_AT = '2026-10-15T00:00:00.000Z';
 const MAX_DESCRIPTION_LENGTH = 155;
@@ -74,7 +77,7 @@ const INTENTIONALLY_UNMAPPED_PROVIDERS = {
 
 const PROVIDER_ARTICLE_LOCALES = ['en-US', 'zh-CN'];
 
-const isRewritten = ({ locale }) => REWRITTEN_LOCALES.includes(locale);
+const isRewritten = ({ locale, slug }) => REWRITTEN_LOCALES.includes(locale) || REWRITTEN_EXTRA_PAGES.has(`${locale}/${slug}`);
 const isLegacy = (article) => !isRewritten(article);
 
 function getSection6Items(detail) {
