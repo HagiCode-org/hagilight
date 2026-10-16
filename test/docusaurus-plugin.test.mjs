@@ -227,6 +227,16 @@ test('site gtag configuration is silent when Google Analytics is disabled', () =
   assert.deepEqual(warnings, []);
 });
 
+test('the footer site identifier is published for the banner only when the banner is enabled', () => {
+  const siteMeta = (plugin) => nonSeoHeadTags(plugin).filter((tag) => tag.attributes?.name === 'hagilight-site-id');
+
+  assert.deepEqual(siteMeta(createPlugin({ links: { siteId: 'docs' } })), [
+    { tagName: 'meta', attributes: { name: 'hagilight-site-id', content: 'docs' } },
+  ]);
+  assert.deepEqual(siteMeta(createPlugin({ links: {} })), []);
+  assert.deepEqual(siteMeta(createPlugin({ promoto: { enabled: false }, links: { siteId: 'docs' } })), []);
+});
+
 test('analytics head tags appear only in production builds', () => {
   const plugin = createPlugin();
 

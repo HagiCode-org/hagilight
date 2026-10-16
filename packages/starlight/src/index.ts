@@ -378,7 +378,9 @@ import options from '${optionsId}';
   const promotionImport = serializedOptions.promotoEnabled
     ? `import PromotoBanner from ${JSON.stringify(coreExport('PromotoBanner'))};`
     : '';
-  const promotionRender = serializedOptions.promotoEnabled ? '<PromotoBanner />' : '';
+  const promotionRender = serializedOptions.promotoEnabled
+    ? '<PromotoBanner siteId={options.links?.siteId} />'
+    : '';
   const analyticsImport = serializedOptions.fiftyOneLaId
     ? `import Analytics51LA from ${JSON.stringify(coreExport('Analytics51LA'))};`
     : '';

@@ -259,6 +259,14 @@ test('validates SEO defaults, organization identity, site URL, and unambiguous l
   assert.equal(optedOut.updated.components.Head, undefined);
 });
 
+test('the Starlight promotion banner receives the footer site identifier', () => {
+  const configured = configure({ links: { siteId: 'docs', relatedSites: [] } });
+  const [vite] = integrationVitePlugins(configured.integrations[0]);
+  const footerSource = vite.load(vite.resolveId(configured.updated.components.Footer));
+
+  assert.match(footerSource, /<PromotoBanner siteId=\{options\.links\?\.siteId\} \/>/u);
+});
+
 test('uses Docs analytics IDs by default and allows overriding or disabling providers', () => {
   const defaults = configure();
   const enabled = configure({

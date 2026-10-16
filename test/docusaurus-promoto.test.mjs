@@ -13,7 +13,7 @@ const CORE_ELEMENT_SOURCE = readFileSync(new URL('../packages/core/src/promoto-b
 const PROMOTO_CSS = readFileSync(new URL('../packages/docusaurus/promoto.css', import.meta.url), 'utf8');
 const DOCUSAURUS_CLIENT_SOURCE = readFileSync(new URL('../packages/docusaurus/src/client/promoto.ts', import.meta.url), 'utf8');
 
-function fakeDocument({ footer = null, lang = 'en-US' } = {}) {
+function fakeDocument({ footer = null, lang = 'en-US', siteId } = {}) {
   const nodes = [];
   const doc = {
     footer,
@@ -25,7 +25,10 @@ function fakeDocument({ footer = null, lang = 'en-US' } = {}) {
         nodes.push(node);
       },
     },
-    querySelector: () => doc.footer,
+    querySelector: (selector) => {
+      if (selector === 'footer') return doc.footer;
+      return siteId === undefined ? null : { getAttribute: () => siteId };
+    },
     querySelectorAll: () => nodes.filter((node) => node.isConnected),
     createElement: () => ({
       className: '',
@@ -52,6 +55,16 @@ test('mounting appends one hidden banner with the locale and the shared markup',
   assert.equal(banner.dataset.locale, 'zh-CN');
   assert.equal(banner.hidden, true);
   assert.equal(banner.innerHTML, PROMOTO_SHELL_MARKUP);
+});
+
+test('the banner takes its site identifier from the site meta tag and leaves it unset without one', () => {
+  const tagged = fakeDocument({ siteId: 'docs' });
+  mountPromotoBanner(tagged, 'en-US');
+  assert.equal(connectedBanners(tagged)[0].dataset.siteId, 'docs');
+
+  const untagged = fakeDocument();
+  mountPromotoBanner(untagged, 'en-US');
+  assert.equal(connectedBanners(untagged)[0].dataset.siteId, undefined);
 });
 
 test('repeated route updates on the same footer keep a single banner', () => {

@@ -12,6 +12,11 @@ interface PromotoMount {
 
 const mounts = new WeakMap<Document, PromotoMount>();
 
+function readSiteId(doc: Document): string | undefined {
+  const content = doc.querySelector('meta[name="hagilight-site-id"]')?.getAttribute('content')?.trim();
+  return content || undefined;
+}
+
 export function mountPromotoBanner(doc: Document, locale: string): void {
   const footer = doc.querySelector('footer');
   const previous = mounts.get(doc);
@@ -21,6 +26,8 @@ export function mountPromotoBanner(doc: Document, locale: string): void {
   const banner = doc.createElement(ELEMENT_NAME);
   banner.className = 'hagilight-promoto';
   banner.dataset.locale = locale;
+  const siteId = readSiteId(doc);
+  if (siteId) banner.dataset.siteId = siteId;
   banner.hidden = true;
   banner.innerHTML = PROMOTO_SHELL_MARKUP;
   doc.body.append(banner);

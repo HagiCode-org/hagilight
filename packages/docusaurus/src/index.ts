@@ -40,6 +40,13 @@ function analyticsHeadTags(options: ResolvedHagilightOptions): HtmlTagObject[] {
   ];
 }
 
+/** Exposes the footer site identifier to the client banner, which tags its call to action with it. */
+function promotoSiteIdHeadTags(options: ResolvedHagilightOptions): HtmlTagObject[] {
+  const siteId = options.links.siteId?.trim();
+  if (!options.promoto || !siteId) return [];
+  return [{ tagName: 'meta', attributes: { name: 'hagilight-site-id', content: siteId } }];
+}
+
 function clientModules(options: ResolvedHagilightOptions): string[] {
   const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined;
   return [
@@ -104,6 +111,7 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
           ...analyticsHeadTags(options),
           ...seoHeadTags(options.seo, site),
           ...feedHeadTags(site, options.rss, feedItems.length),
+          ...promotoSiteIdHeadTags(options),
         ],
       };
     },
