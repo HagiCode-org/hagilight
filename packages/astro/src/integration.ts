@@ -1,6 +1,6 @@
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { extname, isAbsolute, resolve, win32 } from 'node:path';
+import { extname, isAbsolute, join, resolve, win32 } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
@@ -9,6 +9,7 @@ import { checkContentImageRegistration, registerContentImages } from '@hagicode/
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
+import { buildLlmsTxt, parsePageMeta, type LlmsPage } from './llms.js';
 
 export type {
   RssFeedCallback,
@@ -36,6 +37,27 @@ export interface HagilightOptions {
    * Independent of `enabled`, which controls only sitemap and robots.
    */
   contentImages?: boolean | HagilightContentImagesOptions;
+  /**
+   * Generate `/llms.txt` after the build from the built pages. Defaults to `true`; `false` or
+   * `{ enabled: false }` opts out. A site-provided `llms.txt` (public file or page) is never
+   * overwritten. It also follows `enabled`: `hagilight({ enabled: false })` skips it.
+   */
+  llms?: boolean | HagilightLlmsOptions;
+}
+
+export interface HagilightLlmsOptions {
+  /** Defaults to `true`. */
+  enabled?: boolean;
+  /** Site name for the H1. Defaults to the home page `og:site_name` or title. */
+  title?: string;
+  /** Summary blockquote. Defaults to the home page description. */
+  summary?: string;
+  /** Language to list, for example `en-US`. Defaults to the Astro default locale, then the home page language. */
+  lang?: string;
+  /** Maximum links per section. Defaults to 12. */
+  maxLinksPerSection?: number;
+  /** Maximum links in total. Defaults to 120. */
+  maxLinks?: number;
 }
 
 export interface HagilightContentImagesOptions {
@@ -102,7 +124,7 @@ const BUILTIN_RSS_FEED_SOURCE = BUILTIN_RSS_FEED.toString();
  * owns sitemap generation, a consumer-owned robots page or public file takes
  * precedence, and an enabled Starlight Hagilight integration owns RSS feeds.
  */
-export function hagilight({ enabled = true, rss, contentImages }: HagilightOptions = {}): AstroIntegration {
+export function hagilight({ enabled = true, rss, contentImages, llms }: HagilightOptions = {}): AstroIntegration {
   if (typeof enabled !== 'boolean') {
     throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
   }
@@ -112,6 +134,7 @@ export function hagilight({ enabled = true, rss, contentImages }: HagilightOptio
   if (isRecord(contentImages) && contentImages.enabled !== undefined && typeof contentImages.enabled !== 'boolean') {
     throw new TypeError('Hagilight content images enabled option must be a boolean.');
   }
+  const llmsOptions = resolveLlmsOptions(llms);
   const contentImagesEnabled = typeof contentImages === 'boolean' ? contentImages : contentImages?.enabled !== false;
   if (rss !== undefined && typeof rss !== 'boolean' && !isRecord(rss)) {
     throw new TypeError('Hagilight RSS option must be a boolean or an options object.');
@@ -124,6 +147,7 @@ export function hagilight({ enabled = true, rss, contentImages }: HagilightOptio
       throw new TypeError('Hagilight RSS getFeed must be a non-empty module path.');
     }
   }
+  let resolvedConfig: AstroConfig | undefined;
   return {
     name: '@hagicode/hagilight:discovery',
     hooks: {
@@ -188,10 +212,84 @@ export function hagilight({ enabled = true, rss, contentImages }: HagilightOptio
         });
       },
       'astro:config:done'({ config, logger }) {
+        resolvedConfig = config;
         checkContentImageRegistration({ config, logger, enabled: contentImagesEnabled });
+      },
+      'astro:build:done'({ dir, pages, logger }) {
+        if (!enabled || !llmsOptions.enabled || !resolvedConfig) return;
+        writeLlmsTxt({ config: resolvedConfig, dir, pages, options: llmsOptions, logger });
       },
     },
   };
+}
+
+function resolveLlmsOptions(llms: boolean | HagilightLlmsOptions | undefined): HagilightLlmsOptions & { enabled: boolean } {
+  if (llms !== undefined && typeof llms !== 'boolean' && !isRecord(llms)) {
+    throw new TypeError('Hagilight llms option must be a boolean or an options object.');
+  }
+  if (typeof llms === 'boolean') return { enabled: llms };
+  const options = llms ?? {};
+  if (options.enabled !== undefined && typeof options.enabled !== 'boolean') {
+    throw new TypeError('Hagilight llms enabled option must be a boolean.');
+  }
+  for (const key of ['title', 'summary', 'lang'] as const) {
+    if (options[key] !== undefined && (typeof options[key] !== 'string' || !options[key]!.trim())) {
+      throw new TypeError(`Hagilight llms ${key} must be a non-empty string.`);
+    }
+  }
+  for (const key of ['maxLinksPerSection', 'maxLinks'] as const) {
+    if (options[key] !== undefined && (!Number.isInteger(options[key]) || (options[key] as number) < 1)) {
+      throw new TypeError(`Hagilight llms ${key} must be a positive integer.`);
+    }
+  }
+  return { ...options, enabled: options.enabled !== false };
+}
+
+interface WriteLlmsTxtInput {
+  config: AstroConfig;
+  dir: URL;
+  pages: readonly { pathname: string }[];
+  options: HagilightLlmsOptions;
+  logger: { info(message: string): void; warn(message: string): void };
+}
+
+function writeLlmsTxt({ config, dir, pages, options, logger }: WriteLlmsTxtInput): void {
+  const outDir = fileURLToPath(dir);
+  const target = join(outDir, 'llms.txt');
+  if (existsSync(target)) {
+    logger.info('llms.txt already exists in the build output; leaving it untouched.');
+    return;
+  }
+  const base = `${config.base || '/'}`.replace(/\/?$/u, '/');
+  const siteBase = new URL(base, config.site as string | URL);
+  const i18n = config.i18n as { defaultLocale?: string } | undefined;
+  const entries: LlmsPage[] = [];
+  for (const { pathname } of pages) {
+    const relative = pathname.replace(/^\/+/u, '');
+    const candidates = relative === '' || relative.endsWith('/')
+      ? [join(outDir, relative, 'index.html')]
+      : [join(outDir, relative, 'index.html'), join(outDir, `${relative}.html`)];
+    const file = candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile());
+    if (!file) continue;
+    const url = new URL(relative, siteBase).href;
+    const meta = parsePageMeta(readFileSync(file, 'utf8'), url);
+    if (!meta) continue;
+    entries.push({ path: new URL(url).pathname.slice(siteBase.pathname.length - 1), url, lang: meta.lang, title: meta.title, description: meta.description, siteName: meta.siteName });
+  }
+  const body = buildLlmsTxt({
+    pages: entries,
+    title: options.title,
+    summary: options.summary,
+    lang: options.lang ?? i18n?.defaultLocale,
+    maxLinksPerSection: options.maxLinksPerSection,
+    maxLinks: options.maxLinks,
+  });
+  if (!body) {
+    logger.warn('No indexable pages were found, so llms.txt was not generated.');
+    return;
+  }
+  writeFileSync(target, body, 'utf8');
+  logger.info(`Generated llms.txt from ${entries.length} page(s).`);
 }
 
 function deriveRssLocales(locales: RssLocalesInput | undefined, config: AstroConfig): RssLocalesInput | undefined {
