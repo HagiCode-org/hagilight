@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "1.0.0",
+  "slug": "junie-vs-hagicode",
+  "category": "vs-hagicode",
+  "locale": "en-US",
+  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "seo": {
+    "title": "Junie CLI vs HagiCode: Features and Comparison",
+    "description": "Understand Junie CLI's optional provider and effort settings, Brave mode, and session binding, and see how HagiCode turns Junie into a production-grade AI programming workbench through multi-threaded parallelism, OpenSpec proposals, AI commits, HagiTasks, gamified UI, Agents management, Monospecs, Vault, and OmniRoute. Also covers the shared tool-call view and TokenMonitor status-bar usage."
+  },
+  "summary": "Junie CLI is an AI coding agent with explicit controls for its provider, effort level, and Brave mode, and a session binding that keeps each provider and model pair in its own compatible session. However, Junie CLI is still fundamentally a terminal entry point, while HagiCode is a full AI programming workbench. Together, they turn Junie from a configurable command into a complete daily development environment. It also covers the shared tool-call view and optional TokenMonitor usage in the status bar.",
+  "sections": [
+    {
+      "id": "junie-vs-hagicode-section-1",
+      "title": "Junie CLI's Core Strengths",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-1-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "junie-vs-hagicode-section-1-item-1",
+              "title": "Key Features",
+              "content": [
+                "Junie CLI's value is in making its main choices explicit and stable:",
+                "Optional provider, separate from the model: Junie's provider is stored on its own and forwarded as --provider, while the model is set in the secondary profession and forwarded as --model. Changing one does not silently change the other.",
+                "Effort levels: low, medium, and high. Leave the effort empty to let Junie choose."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-1-item-2",
+              "title": "Safety and Session Boundaries",
+              "content": [
+                "Junie CLI keeps its run boundaries under HagiCode's control:",
+                "Brave mode on by default: Brave mode is enabled unless you turn it off, and an explicit off omits the --brave flag.",
+                "Managed flags: raw arguments cannot override the Brave, provider, or model flags that HagiCode manages.",
+                "Session binding: the provider and model pair plus the execution context form the session binding, so changing either one starts a compatible session rather than resuming another one.",
+                "Managed authentication: authentication stays system-managed, and HagiCode publishes or accepts no Junie credential fields."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "junie-vs-hagicode-section-2",
+      "title": "Why Junie CLI Needs HagiCode",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-2-intro",
+          "type": "rich-text",
+          "content": [
+            "Junie CLI gives you explicit control over its provider, effort, Brave mode, and session binding, but a pure terminal workflow still leaves project management, orchestration, and long-term knowledge persistence to the user.",
+            "In real delivery work, those missing layers matter more than one smart command. HagiCode supplies the workflow structure Junie CLI itself does not try to own."
+          ]
+        },
+        {
+          "id": "junie-vs-hagicode-section-2-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "junie-vs-hagicode-section-2-item-1",
+              "title": "Multi-threaded parallelism: Let Junie run multiple controlled coding lanes at once",
+              "content": [
+                "Junie can do a lot inside one invocation, but real delivery rarely happens one task at a time.",
+                "HagiCode lets you run multiple Junie sessions in parallel, each with isolated context, a clear responsibility boundary, and independent progress.",
+                "That turns Junie from a reproducible single-shot CLI into a parallel engineering workbench that matches how teams actually build software."
+              ],
+              "bullets": [
+                "Thread A is refining backend API endpoints;",
+                "Thread B is refactoring frontend components;",
+                "Thread C is writing unit tests;",
+                "Thread D is auditing code for security vulnerabilities."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-2",
+              "title": "OpenSpec proposal sessions: Tie Junie's provider and model choices to traceable decisions",
+              "content": [
+                "In daily development, the most common chaos isn't being unable to write code — it's making a bunch of changes and then forgetting why you made them, what you changed, and how those changes relate to each other.",
+                "HagiCode's built-in OpenSpec proposal workflow fundamentally solves this problem. Every development task launches as a proposal:",
+                "This think-first-then-act approach gives Junie's flexible routing model a place to be documented. Months later, you can still see not only what changed, but why a certain provider, model route, or tool boundary was chosen."
+              ],
+              "bullets": [
+                "First, write down what problem this task solves and why this approach makes sense;",
+                "Discuss the technical approach in depth with Junie within the proposal framework — all conversations and decisions are recorded in the proposal context;",
+                "Once the approach is confirmed, Junie implements the code within the proposal's constraints;",
+                "The final proposal document, discussion records, and code changes form a complete trace chain."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-3",
+              "title": "AI commits: Turn Junie output into clean commit history",
+              "content": [
+                "Writing commit messages after finishing code is a form of mental friction for many developers. Too casual and you can't find key commits later; too formal and it feels like wasted time.",
+                "HagiCode's AI commit feature hands this entirely to Junie: it analyzes your code changes, understands the intent and scope of impact, then automatically generates clearly structured, semantically accurate commit messages. More importantly, during the AI commit process, HagiCode automatically locks the repository to prevent state conflicts from concurrent operations, ensuring safe and reliable commits.",
+                "Save your attention for creation — let Junie handle the commit paperwork."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-4",
+              "title": "Code Server browser editor: Jump from Junie analysis straight into editing",
+              "content": [
+                "After Junie analyzes code, identifies the problematic file, and pinpoints the exact line number, the familiar awkward moment occurs: you need to leave the AI conversation window, return to your IDE, find the file again, and manually jump to the right location. This analysis-to-editing context break not only interrupts your flow but keeps AI's value at 'telling you where the problem is' rather than 'helping you directly enter editing mode.'",
+                "HagiCode's built-in Code Server-based browser editor is designed specifically to solve this break:",
+                "The Code Server integration makes HagiCode not just a frontend page that can analyze code, but a complete workstation where Junie's analysis can directly land as editing actions. It minimizes the tool-switching cost between AI analysis and hands-on modification."
+              ],
+              "bullets": [
+                "One-click from analysis to editing: Once Junie identifies the file needing changes in a proposal, HagiCode can directly open that file in the workbench for editing. You do not need to switch tools or re-locate the file.",
+                "Local, container, remote — full coverage: whether your project runs on a local machine, in a Docker container, or on a remote server, HagiCode's Code Server can open the project directory through the browser for editing.",
+                "Vault direct editing: code reference libraries and learning projects registered in your Vault can also be opened and browsed directly through Code Server when Junie points you to relevant examples."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-5",
+              "title": "HagiTask: Package Junie workflows as reusable command blueprints",
+              "content": [
+                "Junie's discipline is powerful, but manually restating the same provider choices, tool boundaries, working directories, and task framing over and over is wasteful.",
+                "HagiCode's HagiTask mechanism turns those repeated patterns into reusable templates. It is more than shortcut commands — it is an extensible Skills integration platform:",
+                "HagiTask upgrades your collaboration with Junie from 'rebuild the workflow every time' to 'pick the prepared workflow and run it.' That is where configurability becomes real operational leverage."
+              ],
+              "bullets": [
+                "Community Skills ready to use: import proven review, refactor, CRUD, and documentation workflows instead of rebuilding them from scratch every time.",
+                "Extensible Skills system: adapt shared templates to your own team conventions, routing defaults, and coding standards.",
+                "Visual operations, not terminal bookkeeping: choose tasks, switch parameters, and reorder execution in a dedicated interface instead of encoding everything into repeated CLI habits."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-6",
+              "title": "Gamified interface: Make Junie's governance knobs visible and approachable",
+              "content": [
+                "Programming itself can be tedious, but it can also be fun. HagiCode's gamified interface design breaks away from the cold experience of command-line tools:",
+                "Junie provides control, HagiCode provides experience — together, they turn a highly configurable CLI into a workspace people can actually enjoy operating every day."
+              ],
+              "bullets": [
+                "Clear visual feedback: session state, progress, and results are visible without digging through terminal output.",
+                "Achievement and progress visualization: commits, proposal milestones, and delivery checkpoints become visible rhythm markers instead of invisible background state.",
+                "Lower operating friction: developers who are not terminal purists can still benefit from Junie's control model through a much friendlier interface layer."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-7",
+              "title": "Agents management: Turn multiple Junie sessions into a manageable Agent fleet",
+              "content": [
+                "Parallel sessions are useful, but once you have several of them running, coordination becomes the next bottleneck.",
+                "HagiCode's Agents management layer turns each Junie worker into a named, schedulable Agent with visible status, assigned scope, and independent configuration.",
+                "You move from 'a lot of terminals are open' to 'a small AI team is being coordinated in one place.'"
+              ],
+              "bullets": [
+                "Agent identity and status visualization: see which Agent is running, waiting, blocked, or ready for archive at a glance.",
+                "Task-to-Agent binding: proposals, reviews, refactors, and test work can each be assigned to a dedicated Agent.",
+                "Independent Agent configuration: different Agents can use different model routes, Skills, tool exposure rules, and context scopes without interfering with each other."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-8",
+              "title": "Monospecs multi-repo management: Give Junie the repo map it needs",
+              "content": [
+                "In real projects, code rarely lives in a single repository. Frontend, backend, documentation, shared libraries are spread across different repos, and a single feature change may need to touch several repos simultaneously. For Junie, single-repo mode works, but it has no native understanding of cross-repo relationships — you have to manually tell it in every conversation that 'this change also needs to sync to two other repos,' which is clearly inefficient.",
+                "HagiCode's Monospecs mechanism is the structured solution designed for multi-repo scenarios. Through the .hagicode/monospecs.yaml configuration file, it declares all sub-repo addresses, names, and relationships in the project group, giving Junie an automatic cross-repo map when launching proposals:",
+                "Monospecs essentially eliminates Junie's cognitive blind spots in cross-repo collaboration. Junie's routing flexibility matters more once it can also see the full change surface."
+              ],
+              "bullets": [
+                "Automatic repo relationship awareness: when creating a development proposal, Junie can directly read the sub-repo list from the Monospecs config instead of relying on repeated manual explanation.",
+                "Cross-repo change tracking: specs stay centralized while code changes stay in the relevant repos, keeping decision history and implementation cleanly separated.",
+                "AI commit smart repo targeting: HagiCode analyzes your changes against the Monospecs config and suggests where each commit belongs.",
+                "Per-repo AGENTS.md: Junie automatically picks up repo-specific conventions when operating across different codebases."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-9",
+              "title": "Vault cross-project knowledge base: Make Junie remember more than one terminal turn",
+              "content": [
+                "Junie's session controls are useful, but even persistent sessions are not the same as a durable cross-project memory layer. Without that, important context still has to be reintroduced too often.",
+                "Vault is HagiCode's cross-project persistent knowledge storage layer. Its core design philosophy is 'register once, reuse everywhere':",
+                "If Monospecs lets Junie understand where projects are, Vault lets Junie remember what you've already accumulated. That turns a reproducible CLI into a longer-term engineering partner."
+              ],
+              "bullets": [
+                "Multi-type knowledge containers: register folders, code reference projects, Obsidian notes, and system-managed prompt assets in one place.",
+                "Automatic AI context injection: new proposals start with the right reference material already available to Junie.",
+                "Fine-grained access control: separate read-only references from editable project spaces so Junie can learn broadly without modifying the wrong thing.",
+                "Cross-project knowledge reuse: patterns captured once can support every later proposal instead of being rebuilt from scratch."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-10",
+              "title": "OmniRoute model routing: Make Junie's routing design usable at scale",
+              "content": [
+                "Junie already encourages a more decoupled relationship between workflow and provider choice, but a larger team still needs a central place to manage that routing cleanly.",
+                "OmniRoute separates the interaction layer from the model-routing layer, so HagiCode can keep Junie in the workflow while switching model sources underneath.",
+                "That gives you better cost control, better task-to-model fit, and less workflow churn when model pricing or availability changes."
+              ],
+              "bullets": [
+                "Keep the CLI or interaction style you already prefer while changing only the model route underneath.",
+                "Share one routing strategy across multiple Agents and multiple AI tools connected to HagiCode.",
+                "Tune different model routes for different workloads, such as fast coding, deep review, or architecture planning.",
+                "Adjust cost and capability once at the routing layer instead of reworking each individual workflow."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-11",
+              "title": "Unified tool-call view: see Junie CLI's tool use in one consistent shape",
+              "content": [
+                "HagiCode attaches one typed tool-call shape to every tool-use and tool-result message. It records the tool kind, its input fields, status, result text or images, any error, and timing. The shape is computed from stored data, so session history and live updates show the same view.",
+                "The same shape covers every provider, so Junie CLI tool calls look like those of every other agent in your workspace. You read one format instead of learning each CLI's raw output."
+              ],
+              "bullets": [
+                "One shape for every provider: shell, file, search, fetch and MCP calls are presented consistently;",
+                "Failed calls carry a readable error message;",
+                "Raster tool images are carried as data URIs."
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-12",
+              "title": "Usage at a glance: today's tokens and cost in the status bar",
+              "content": [
+                "HagiCode can show today's token usage and cost from the TokenMonitor desktop app in its status bar. The integration is optional and off by default.",
+                "It reads TokenMonitor's local data file or a TokenMonitor HostHub on a schedule and keeps only today's total tokens and cost. The status bar stays a quick glance rather than a full usage report."
+              ],
+              "bullets": [
+                "Nothing is read until you turn the integration on;",
+                "The HostHub secret is write-only and is never returned or logged after you save it;",
+                "An invalid HostHub address is rejected when you save it."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "junie-vs-hagicode-section-3",
+      "title": "Summary",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-3-intro",
+          "type": "rich-text",
+          "content": [
+            "Junie CLI is a disciplined AI coding agent with explicit provider, effort, and Brave-mode controls, and HagiCode is a complete AI programming workbench. Their relationship is complementary:",
+            "If you're already using Junie CLI, try connecting it to HagiCode. You'll find Junie is no longer just a terminal command, but a full-workflow AI partner operating inside a structured engineering environment."
+          ]
+        },
+        {
+          "id": "junie-vs-hagicode-section-3-bullets",
+          "type": "bullet-list",
+          "items": [
+            "Junie CLI provides control: provider, effort level, Brave mode, and session binding;",
+            "HagiCode provides efficiency: multi-threaded parallelism, Agents fleet management, OpenSpec proposals, AI commits, Code Server editor, HagiTasks;",
+            "HagiCode expands boundaries: Monospecs lets Junie CLI understand cross-repo project relationships, Vault gives Junie CLI cross-session long-term memory, OmniRoute keeps model routing flexible underneath the workflow;",
+            "Tool-call view: one consistent shape for every provider's tool use, in history and live updates;",
+            "Usage at a glance: optional TokenMonitor status-bar view of today's tokens and cost;",
+            "Together they provide an experience: traceable decision chains, automated daily tasks, a genuinely enjoyable interface, and a long-term AI partner that truly understands your project landscape and can be freely configured with any model source."
+          ]
+        }
+      ]
+    }
+  ]
+}

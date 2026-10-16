@@ -1,0 +1,257 @@
+{
+  "schemaVersion": "1.0.0",
+  "slug": "junie-vs-hagicode",
+  "category": "vs-hagicode",
+  "locale": "zh-CN",
+  "updatedAt": "2026-10-15T00:00:00.000Z",
+  "seo": {
+    "title": "Junie CLI 对比 HagiCode:功能与差异",
+    "description": "了解 Junie CLI 可选的 provider 与 effort 设置、Brave 模式以及会话绑定，并从多线程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何把 Junie 变成生产级的 AI 编程工作台。同时涵盖共用的工具调用视图与 TokenMonitor 状态栏用量。"
+  },
+  "summary": "Junie CLI 是一个 AI 编程代理，其 provider、effort 等级和 Brave 模式都可以显式配置，会话绑定则让每一组 provider 与模型组合保持在各自兼容的会话中。不过，Junie CLI 本质上仍是终端入口，而 HagiCode 是完整的 AI 编程工作台。两者结合后，Junie 就不再只是一个可配置的命令，而是完整的日常开发环境。它还涵盖共用的工具调用视图，以及状态栏中可选的 TokenMonitor 用量显示。",
+  "sections": [
+    {
+      "id": "junie-vs-hagicode-section-1",
+      "title": "Junie CLI 的核心能力",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-1-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "junie-vs-hagicode-section-1-item-1",
+              "title": "核心功能",
+              "content": [
+                "Junie CLI 的价值在于让其主要选项保持显式且稳定：",
+                "可选 provider，与模型分离：Junie 的 provider 单独保存，并以 --provider 传递；模型在次要职业中设置，并以 --model 传递。改变其中一个不会悄悄改变另一个。",
+                "Effort 等级：low、medium 和 high。留空则由 Junie 自行选择。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-1-item-2",
+              "title": "安全与会话边界",
+              "content": [
+                "Junie CLI 的运行边界由 HagiCode 掌控：",
+                "默认开启 Brave 模式：除非你关闭，否则 Brave 模式始终启用；显式关闭时会省略 --brave 参数。",
+                "托管参数：原始参数无法覆盖 HagiCode 管理的 Brave、provider 或 model 参数。",
+                "会话绑定：provider 与模型组合，加上执行上下文，共同构成会话绑定；改变其中任一项会启动一个兼容的新会话，而不是恢复另一个会话。",
+                "托管认证：认证由系统托管，HagiCode 不发布也不接受 Junie 的凭据字段。"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "junie-vs-hagicode-section-2",
+      "title": "为什么 Junie CLI 需要 HagiCode",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-2-intro",
+          "type": "rich-text",
+          "content": [
+            "Junie CLI 让你可以显式控制 provider、effort、Brave 模式与会话绑定，但纯终端工作流仍把项目管理、任务编排和长期知识沉淀留给用户自己。",
+            "在真实的交付工作中，这些缺失的层次比一条聪明的命令更重要。HagiCode 提供了 Junie CLI 自身并不试图承担的工作流结构。"
+          ]
+        },
+        {
+          "id": "junie-vs-hagicode-section-2-capabilities",
+          "type": "capability-list",
+          "items": [
+            {
+              "id": "junie-vs-hagicode-section-2-item-1",
+              "title": "多线程并行：让 Junie 同时跑出多条受控开发通道",
+              "content": [
+                "Junie 在单次调用里已经能做很多事，但真实开发几乎从来不是一次只推进一个任务。",
+                "HagiCode 允许你把多个 Junie 会话并行跑起来，每个会话都有独立上下文、明确职责和各自的推进节奏。",
+                "这样 Junie 就不再是一个“参数很多的可复现单线程 CLI”，而是一个真正贴近工程团队工作方式的并行工作台。"
+              ],
+              "bullets": [
+                "线程 A 在完善后端 API 接口；",
+                "线程 B 在重构前端组件；",
+                "线程 C 在编写单元测试；",
+                "线程 D 在审查代码安全漏洞。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-2",
+              "title": "OpenSpec 提案会话：把 Junie 的 provider 与模型选择变成可追溯决策",
+              "content": [
+                "在日常开发中，最容易出现的混乱不是代码写不出来，而是改了一堆东西之后，忘了为什么这么改、改了哪些、以及这些改动之间有什么关系。",
+                "HagiCode 内置的 OpenSpec 提案工作流从根本上解决了这个问题。每次开发任务都会以“提案”的形式启动：",
+                "对于 Junie 来说，这种结构尤其重要，因为它不仅能记录改了什么，还能记录为什么当时选择了某条 provider 路由、某个模型来源，或者某种工具边界。"
+              ],
+              "bullets": [
+                "先写清楚这次要解决什么问题，为什么这样做是合理的；",
+                "在提案框架下与 Junie 深入讨论技术方案，所有对话和决策都记录在提案上下文里；",
+                "方案确定后，Junie 在提案的约束范围内进行代码实现；",
+                "最终提案文档、讨论记录和代码变更形成一条完整的追溯链。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-3",
+              "title": "AI 提交：把 Junie 的产出沉淀成干净的提交历史",
+              "content": [
+                "写完代码之后还要写 commit message，这件事对很多开发者来说是一种精神内耗。写得太随意回头找不到关键提交，写得太正式又觉得浪费时间。",
+                "HagiCode 的 AI 提交功能把这件事整个人交给了 Junie：它会分析你的代码变更、理解改动的意图和影响范围，然后自动生成结构清晰、语义准确的 commit message。更关键的是，在 AI 提交的过程中，HagiCode 会自动锁定仓库，防止并发操作导致的状态冲突，确保提交安全可靠。",
+                "你把注意力留给创造，commit message 这种流水账交给 Junie 就好。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-4",
+              "title": "Code Server 浏览器编辑：让 Junie 的分析结果直接落到编辑动作",
+              "content": [
+                "Junie 分析完代码、定位到问题文件和具体行号之后，常见的尴尬发生了：你需要离开 AI 对话窗口，回到自己的 IDE 里重新找到那个文件，再手动跳到对应的位置。这个“分析→编辑”的上下文断点，不仅打断思路，也让 AI 的价值只停留在“告诉你问题在哪”，走不到“直接帮你进入修改状态”。",
+                "HagiCode 内置了基于 code-server 的浏览器编辑器，专门解决这个断点：",
+                "Code Server 集成让 HagiCode 不是一个“会分析代码的前台页面”，而是一个真正能让 Junie 的分析结论直接落地为编辑动作的完整工作站。它把“AI 分析”和“动手修改”之间的切换成本降到了最低。"
+              ],
+              "bullets": [
+                "一键从分析进入编辑：Junie 在提案中定位到需要修改的文件后，HagiCode 可以直接在工作台内打开该文件进入编辑状态。你不需要切换工具，也不需要重新定位文件。",
+                "本地、容器、远程全覆盖：无论项目跑在本地、容器还是远程机器上，HagiCode 的 Code Server 都能把编辑入口拉到同一个工作台里。",
+                "Vault 直连编辑：Junie 引用到的代码参考库和学习项目，也可以通过 Code Server 直接打开查看。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-5",
+              "title": "HagiTask：把 Junie 的常见工作流封装成可复用模板",
+              "content": [
+                "Junie 的严谨性很强，但如果每次都要手动重述 provider 选择、工具边界、工作目录和任务框架，本身就是一种浪费。",
+                "HagiCode 的 HagiTask 机制，就是把这些重复出现的模式整理成可复用模板。它做的不只是“快捷指令”，更是一个可扩展的 Skills 集成平台：",
+                "HagiTask 让你和 Junie 的协作从“每次都重新搭流程”升级为“直接挑流程并执行”。这时，配置能力才真正变成工程效率。"
+              ],
+              "bullets": [
+                "社区 Skills 即装即用：把成熟的审查、重构、CRUD、文档生成流程直接导入使用。",
+                "可扩展的 Skills 体系：在共享模板上叠加团队自己的路由默认值、编码规范和检查清单。",
+                "可视化操作，不再靠终端记忆：选择任务、切换参数、调整顺序，都可以在专门的界面里完成。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-6",
+              "title": "游戏化界面：让 Junie 的治理开关更直观",
+              "content": [
+                "编程本身可以是枯燥的，但也可以是好玩的。HagiCode 的游戏化界面设计，打破了命令行工具冷冰冰的体验：",
+                "Junie 提供控制力，HagiCode 提供体验层——两者结合，才能把一个配置丰富的 CLI 变成一个真正让人愿意天天打开的工作空间。"
+              ],
+              "bullets": [
+                "视觉反馈清晰：会话状态、运行进度和结果都不再埋在终端输出里。",
+                "成就与进度可视化：提交、提案节点和交付阶段都变成了可见节奏点。",
+                "降低操作门槛：即便不是终端重度用户，也能通过界面充分利用 Junie 的控制模型。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-7",
+              "title": "Agents 多代理管理：把多个 Junie 会话变成可调度 Agent 编队",
+              "content": [
+                "并行会话本身很有价值，但当你同时开着多个会话时，真正的新瓶颈会变成“怎么调度和管理它们”。",
+                "HagiCode 的 Agents 管理层会把每个 Junie 工作单元抽象成一个有名字、可调度、状态可见的 Agent。",
+                "你面对的不再是一堆打开的终端窗口，而是一支可以被统一协调的小型 AI 开发队伍。"
+              ],
+              "bullets": [
+                "Agent 身份与状态可视化：谁在运行、谁在等待、谁卡住、谁可归档，一眼就能看清。",
+                "任务与 Agent 绑定：提案、审查、重构、测试等任务都可以分配给专属 Agent。",
+                "Agent 配置独立可控：不同 Agent 可以挂不同的模型路由、Skills、工具边界和上下文范围，彼此互不干扰。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-8",
+              "title": "Monospecs 多仓库管理：给 Junie 一张完整的仓库地图",
+              "content": [
+                "实际项目中，代码往往不在一个仓库里。前端、后端、文档、共享库分散在不同仓库，而一个功能变更可能要同时修改好几个仓库。对 Junie 来说，单仓库模式够用，但它无法天然理解跨仓库的关系——你得在每一次对话里手动告诉它“这个改动还要同步到另外两个仓库”，这显然是低效的。",
+                "HagiCode 的 Monospecs 机制就是为多仓库场景而设计的结构化方案。它通过 .hagicode/monospecs.yaml 配置文件声明项目群中所有子仓库的地址、名称和关系，让 Junie 在启动提案时就能自动获得完整的跨仓库地图：",
+                "Monospecs 的价值，在 Junie 身上会更明显，因为只有当它同时理解代码改动范围和模型路由范围时，这种灵活性才真正有意义。"
+              ],
+              "bullets": [
+                "自动感知仓库关系：Junie 可以直接从 Monospecs 中读取 repo 图谱，而不是反复依赖人工解释。",
+                "跨仓库变更追踪：specs 留在主仓库，代码修改留在对应子仓库，决策链条和实现边界都更清晰。",
+                "AI 提交精准识库：HagiCode 会结合 Monospecs 自动判断变更应落在哪个仓库。",
+                "每库可配 AGENTS.md：Junie 在不同仓库中自动读取相应开发约束。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-9",
+              "title": "Vault 跨项目知识库：让 Junie 记住的不止是一轮终端会话",
+              "content": [
+                "Junie 的会话控制已经很灵活，但“能复用会话”并不等于“拥有持久知识层”。如果没有这一层，重要背景仍然会被反复重讲。",
+                "Vault 是 HagiCode 提供的跨项目持久化知识存储层，它的核心设计理念是“一次注册，处处复用”：",
+                "如果说 Monospecs 是让 Junie 看懂项目在哪里，那 Vault 就是让 Junie 记住你已经积累了什么。一个可复现 CLI，只有在获得持久知识支撑后，才更像长期搭档。"
+              ],
+              "bullets": [
+                "多类型知识容器：把文件夹、代码参考库、Obsidian 笔记和系统托管资产统一注册进来。",
+                "AI 上下文自动注入：新提案一启动，Junie 就能拿到合适的参考材料。",
+                "访问权限精细化控制：区分只读参考库和可编辑项目空间，让 Junie 学得广、改得稳。",
+                "跨项目知识复用：一次沉淀的模式，可以在后续提案里持续复用，而不用每次重建。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-10",
+              "title": "OmniRoute 模型路由：把 Junie 的路由设计真正放大",
+              "content": [
+                "Junie 本身已经鼓励把工作流和 provider 选择拆开，但团队规模一大，仍然需要一个中心化的路由层来把这种灵活性用起来。",
+                "OmniRoute 把交互层和模型路由层拆开，让 HagiCode 可以继续把 Junie 放在工作流里，同时在底层灵活切换模型来源。",
+                "这样你就能同时获得更好的成本控制、更合适的任务匹配，以及模型供应变化时更低的迁移摩擦。"
+              ],
+              "bullets": [
+                "保留你已经习惯的 CLI 或交互方式，只替换底层模型路由。",
+                "一套路由策略可以被多个 Agent 和多个接入 HagiCode 的 AI 工具共享。",
+                "针对快速编码、深度审查、架构规划等不同任务配置不同模型路线。",
+                "在路由层一次调整成本与能力配置，而不是逐个工作流重复折腾。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-11",
+              "title": "统一工具调用视图：以一致的形态查看 Junie CLI 的工具使用",
+              "content": [
+                "HagiCode 会为每条工具调用消息和工具结果消息附加同一种类型化的工具调用结构，包括工具类型、输入字段、状态、结果文本或图片、错误信息以及耗时。该结构由已存储的数据计算得出，因此会话历史与实时更新显示的内容一致。",
+                "无论使用哪个提供方，工具调用都采用同一种格式。Junie CLI 的工具调用因此与工作区中其他 Agent 的调用保持一致，你无需分别适应每个 CLI 的原始输出。"
+              ],
+              "bullets": [
+                "所有提供方共用一种结构，shell、文件、搜索、抓取与 MCP 调用的呈现方式保持一致；",
+                "失败的调用会附带可读的错误信息；",
+                "栅格格式的工具图片以 data URI 形式传递。"
+              ]
+            },
+            {
+              "id": "junie-vs-hagicode-section-2-item-12",
+              "title": "一目了然：在状态栏查看今日的 Token 用量与费用",
+              "content": [
+                "HagiCode 可以在状态栏中显示来自 TokenMonitor 桌面应用的今日 Token 用量与费用。该集成为可选功能，默认关闭。",
+                "它会定时读取 TokenMonitor 的本地数据文件或 TokenMonitor HostHub，只保留今日的 Token 总量和费用。状态栏因此用于快速查看，而不是完整的用量报告。"
+              ],
+              "bullets": [
+                "未开启集成前不会读取任何数据；",
+                "HostHub 密钥只写不读，保存后不会再返回或写入日志；",
+                "无效的 HostHub 地址会在保存时被拒绝。"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "junie-vs-hagicode-section-3",
+      "title": "总结",
+      "blocks": [
+        {
+          "id": "junie-vs-hagicode-section-3-intro",
+          "type": "rich-text",
+          "content": [
+            "Junie CLI 是一个讲究纪律的 AI 编程代理，具备显式的 provider、effort 与 Brave 模式控制；HagiCode 则是完整的 AI 编程工作台。两者的关系是互补的：",
+            "如果你已经在使用 Junie CLI，不妨把它接入 HagiCode。你会发现 Junie 不再只是一个终端命令，而是在结构化工程环境中运行的全流程 AI 伙伴。"
+          ]
+        },
+        {
+          "id": "junie-vs-hagicode-section-3-bullets",
+          "type": "bullet-list",
+          "items": [
+            "Junie CLI 提供控制：provider、effort 等级、Brave 模式与会话绑定；",
+            "HagiCode 提供效率：多线程并行、Agents 编队管理、OpenSpec 提案、AI 提交、Code Server 编辑器、HagiTask；",
+            "HagiCode 拓展边界：Monospecs 让 Junie CLI 理解跨仓库项目关系，Vault 为 Junie CLI 提供跨会话的长期记忆，OmniRoute 在工作流底层保持模型路由的灵活性；",
+            "工具调用视图：所有提供方的工具使用都采用一致的结构，历史记录与实时更新保持一致；",
+            "一目了然：可选的 TokenMonitor 状态栏显示今日 Token 用量与费用；",
+            "总而言之，它们带来的是一种体验：可追溯的决策链、自动化的日常任务、真正令人愉快的界面，以及一位真正理解你项目全貌、可以自由配置任意模型来源的长期 AI 伙伴。"
+          ]
+        }
+      ]
+    }
+  ]
+}
