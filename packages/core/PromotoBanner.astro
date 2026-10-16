@@ -86,9 +86,11 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
   .hagilight-promoto__shell {
     position: fixed;
     z-index: 40;
-    inset-inline: 0;
+    /* Centered in the content area: a theme narrows it by setting these two insets on :root. */
+    inset-inline-start: var(--hagilight-promoto-inset-start, 0px);
+    inset-inline-end: var(--hagilight-promoto-inset-end, 0px);
     bottom: max(1rem, env(safe-area-inset-bottom));
-    width: min(42rem, calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
+    width: min(42rem, calc(100% - var(--hagilight-promoto-inset-start, 0px) - var(--hagilight-promoto-inset-end, 0px) - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
     margin-inline: auto;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--sl-color-accent, #2563eb) 24%, var(--sl-color-gray-5, #cbd5e1));

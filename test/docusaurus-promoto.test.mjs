@@ -5,7 +5,7 @@ import { test } from 'node:test';
 const { PROMOTO_SHELL_MARKUP } = await import(
   new URL('../packages/docusaurus/dist/client/promoto-markup.js', import.meta.url).href
 );
-const { mountPromotoBanner, onRouteDidUpdate } = await import(
+const { mountPromotoBanner, onRouteDidUpdate, syncPromotoInsets } = await import(
   new URL('../packages/docusaurus/dist/client/promoto.js', import.meta.url).href
 );
 
@@ -148,4 +148,67 @@ test('promote styles use Infima tokens and no Starlight tokens or hard-coded whi
   assert.match(PROMOTO_CSS, /data-state='footer-hidden'/u);
   assert.match(PROMOTO_CSS, /\[data-state='top-hidden'\] \.hagilight-promoto__shell/u);
   assert.match(PROMOTO_CSS, /prefers-reduced-motion: reduce/u);
+});
+
+const rect = (left, right) => ({ left, right, width: right - left });
+
+function layoutDocument({ viewport, main, columns = [], sidebar }) {
+  const element = (box) => ({ getBoundingClientRect: () => box });
+  return {
+    documentElement: { clientWidth: viewport },
+    querySelector: (selector) => {
+      if (selector === 'main') return main && { ...element(main), querySelectorAll: () => columns.map(element) };
+      if (selector === '.theme-doc-sidebar-container') return sidebar && element(sidebar);
+      return null;
+    },
+  };
+}
+
+function bannerStyle() {
+  const properties = {};
+  return { properties, style: { setProperty: (name, value) => { properties[name] = value; } } };
+}
+
+test('desktop docs pages inset the card to the content column, clear of the sidebar and the table of contents', () => {
+  const doc = layoutDocument({
+    viewport: 1920,
+    main: rect(300, 1920),
+    columns: [rect(450, 1440), rect(1440, 1770)],
+    sidebar: rect(0, 300),
+  });
+  const banner = bannerStyle();
+  syncPromotoInsets(doc, banner);
+  assert.deepEqual(banner.properties, {
+    '--hagilight-promoto-inset-start': '450px',
+    '--hagilight-promoto-inset-end': '480px',
+  });
+});
+
+test('the card never starts inside the doc sidebar', () => {
+  const doc = layoutDocument({ viewport: 1280, main: rect(0, 1280), columns: [rect(0, 1000)], sidebar: rect(0, 300) });
+  const banner = bannerStyle();
+  syncPromotoInsets(doc, banner);
+  assert.equal(banner.properties['--hagilight-promoto-inset-start'], '300px');
+});
+
+test('pages without a column layout fall back to main, and mobile widths use the whole viewport', () => {
+  const home = bannerStyle();
+  syncPromotoInsets(layoutDocument({ viewport: 1920, main: rect(300, 1620) }), home);
+  assert.deepEqual(home.properties, {
+    '--hagilight-promoto-inset-start': '300px',
+    '--hagilight-promoto-inset-end': '300px',
+  });
+
+  const phone = bannerStyle();
+  syncPromotoInsets(layoutDocument({ viewport: 800, main: rect(0, 800), columns: [rect(16, 784)], sidebar: rect(0, 0) }), phone);
+  assert.deepEqual(phone.properties, {
+    '--hagilight-promoto-inset-start': '0px',
+    '--hagilight-promoto-inset-end': '0px',
+  });
+});
+
+test('the card is positioned between two themable insets and sizes itself inside them', () => {
+  assert.match(PROMOTO_CSS, /inset-inline-start: var\(--hagilight-promoto-inset-start, 0px\);/u);
+  assert.match(PROMOTO_CSS, /inset-inline-end: var\(--hagilight-promoto-inset-end, 0px\);/u);
+  assert.match(PROMOTO_CSS, /width: min\(42rem, calc\(100% - var\(--hagilight-promoto-inset-start, 0px\) - var\(--hagilight-promoto-inset-end, 0px\)/u);
 });

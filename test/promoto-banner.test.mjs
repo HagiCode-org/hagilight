@@ -390,3 +390,13 @@ test('the Astro component styles hide the shell in the top-hidden state', async 
   const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
   assert.match(component, /\.hagilight-promoto\[data-state='top-hidden'\] \.hagilight-promoto__shell\s*\{[^}]*visibility:\s*hidden/u);
 });
+
+test('core card is placed between two insets that themes can set to avoid sidebars', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  const starlightCss = await readFile(new URL('../packages/starlight/content-width.css', import.meta.url), 'utf8');
+  assert.match(component, /inset-inline-start: var\(--hagilight-promoto-inset-start, 0px\);/u);
+  assert.match(component, /inset-inline-end: var\(--hagilight-promoto-inset-end, 0px\);/u);
+  assert.match(component, /width: min\(42rem, calc\(100% - var\(--hagilight-promoto-inset-start, 0px\)/u);
+  assert.match(starlightCss, /--hagilight-promoto-inset-start: var\(--sl-sidebar-width\)/u);
+  assert.match(starlightCss, /--hagilight-promoto-inset-end:/u);
+});

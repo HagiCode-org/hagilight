@@ -387,6 +387,39 @@ async function measureStarlightRails(page, route, viewport) {
   return content;
 }
 
+async function assertPromotoPlacement(page, route, viewport, mode) {
+  // The card only has content once the promotion feed answers, which the offline harness blocks.
+  // Reveal the empty shell so the test measures its placement, not its content.
+  const geometry = await page.evaluate(() => {
+    const banner = document.querySelector('.hagilight-promoto');
+    const shell = banner?.querySelector('.hagilight-promoto__shell');
+    if (!banner || !shell) return null;
+    const hidden = [banner.hidden, shell.hidden];
+    banner.hidden = false;
+    shell.hidden = false;
+    const edges = (selector) => {
+      const rect = document.querySelector(selector)?.getBoundingClientRect();
+      return rect && rect.width > 0 ? { left: rect.left, right: rect.right } : null;
+    };
+    const result = {
+      shell: edges('.hagilight-promoto__shell'),
+      sidebar: edges('.sidebar-pane'),
+      toc: edges('.right-sidebar-container'),
+      content: edges('.sl-markdown-content'),
+    };
+    [banner.hidden, shell.hidden] = hidden;
+    return result;
+  });
+  const region = `promoto placement (${mode} width)`;
+  check(Boolean(geometry?.shell), route, viewport, region, 'could not measure the promoto card');
+  const { shell, sidebar, toc, content } = geometry;
+  check(Boolean(sidebar && content), route, viewport, region, 'could not measure the sidebar or the content');
+  check(shell.left >= sidebar.right - 1, route, viewport, region, `card starts at ${shell.left}px, over the ${sidebar.right}px sidebar`);
+  if (toc) check(shell.right <= toc.left + 1, route, viewport, region, `card ends at ${shell.right}px, over the table of contents at ${toc.left}px`);
+  const offset = (shell.left + shell.right) / 2 - (content.left + content.right) / 2;
+  check(Math.abs(offset) <= 2, route, viewport, region, `card centre is ${Math.round(offset)}px off the content column centre`);
+}
+
 async function assertStarlightPage(page, route, viewport) {
   await bounds(page, '.page > header.header', route, viewport, 'Starlight header');
   await bounds(page, '.right-group', route, viewport, 'Starlight header controls');
@@ -400,6 +433,7 @@ async function assertStarlightPage(page, route, viewport) {
     document.documentElement.dataset.hagilightContentWidth = 'wide';
   });
   const wideContent = await measureStarlightRails(page, route, viewport);
+  await assertPromotoPlacement(page, route, viewport, 'wide');
   check(
     wideContent.width <= 1082,
     route,
@@ -419,6 +453,7 @@ async function assertStarlightPage(page, route, viewport) {
     `narrow width ${narrowContent.width}px did not reduce wide width ${wideContent.width}px`,
   );
   await assertNoPageOverflow(page, route, viewport, 'narrow reading layout');
+  await assertPromotoPlacement(page, route, viewport, 'narrow');
 
   await wideButton.click();
   await page.locator('html[data-hagilight-content-width="wide"]').waitFor();

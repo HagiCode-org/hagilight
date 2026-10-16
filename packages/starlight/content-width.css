@@ -49,3 +49,33 @@
 .hagilight-ai-disclosure a {
   margin-inline-start: 0.5rem;
 }
+
+/*
+ * Promoto card placement. The fixed card is centered in the content column, not in
+ * the viewport, so it never covers the sidebar or the table of contents. The
+ * geometry mirrors Starlight's own layout: a left sidebar from 50em, and from 72em
+ * a main pane of min(F - sidebar, content + (F - content - sidebar) / 2) for
+ * F = 100% - sidebar, with the content flush to its right edge inside the panel
+ * padding when a table of contents is shown.
+ */
+@media (min-width: 50em) {
+  [data-has-sidebar] {
+    --hagilight-promoto-inset-start: var(--sl-sidebar-width);
+  }
+}
+
+@media (min-width: 72em) {
+  [data-has-sidebar][data-has-toc] {
+    --hagilight-promoto-main-width: min(
+      100% - 2 * var(--sl-sidebar-width),
+      var(--sl-content-width) + (100% - var(--sl-content-width) - 2 * var(--sl-sidebar-width)) / 2
+    );
+    --hagilight-promoto-inset-start: calc(
+      var(--sl-sidebar-width) +
+        max(var(--sl-content-pad-x), var(--hagilight-promoto-main-width) - var(--sl-content-pad-x) - var(--sl-content-width))
+    );
+    --hagilight-promoto-inset-end: calc(
+      100% - var(--sl-sidebar-width) - var(--hagilight-promoto-main-width) + var(--sl-content-pad-x)
+    );
+  }
+}
