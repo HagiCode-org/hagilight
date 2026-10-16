@@ -51,6 +51,23 @@ After trimming, `HAGILIGHT_BUILD_BRANCH` must be nonblank and free of control ch
 
 The footer shows the commit as its first seven characters, with the full hash in the `title` attribute. The core `Footer` renders this line only when it receives a `buildInfo` prop or the `hagilight()` integration from `@hagicode/hagilight/integration` is registered; otherwise it renders no build text.
 
+## Comparison articles
+
+Core ships the 136 `*-vs-hagicode` comparison articles (10 locales) as JSON under `data/comparison-articles/<locale>/<slug>.json`. The files are the `1.0.0` structured-article schema, unchanged from the source they moved from. Two entry points split the API by runtime, following the build-info split:
+
+- `@hagicode/hagilight-core/comparison-articles` is browser-safe. It exports the article types, the `STRUCTURED_ARTICLE_*` constants, `validateStructuredArticleDetail(detail, sourceLabel?)` (throws an error that names the failing field path), `buildStructuredArticleDetailPath(locale, slug)` (`/articles/<locale>/<slug>.json`), `buildStructuredArticleLocaleManifestPath(locale)`, and two manifest builders over already-loaded details: `buildStructuredArticleLocaleManifestFromDetails(locale, details)` and `buildStructuredArticleRootManifestFromLocaleManifests(localeManifests)`.
+- `@hagicode/hagilight-core/comparison-articles-source` is Node-only. It exports `STRUCTURED_ARTICLE_SOURCE_ROOT`, `listStructuredArticleLocales`, `listStructuredArticleSlugs`, `loadStructuredArticleDetail`, `loadStructuredArticleLocaleDetails`, `buildStructuredArticleLocaleManifest`, and `buildStructuredArticleRootManifest`. Each function takes an optional `sourceRoot` as its last argument, which tests use. Without it, the data root resolves from the module's location, so the packaged data of the installed core version is read from any working directory.
+
+Loading fails with an error that names the file when an article's `locale` or `slug` does not match its directory or file name.
+
+For one article without the loaders, import the raw JSON through the pattern export:
+
+```ts
+import claude from '@hagicode/hagilight-core/comparison-articles-data/en-US/claude-vs-hagicode.json' with { type: 'json' };
+```
+
+Only files under `data/comparison-articles/*.json` are exported this way; every other packaged path stays private.
+
 ## Content images
 
 `@hagicode/hagilight-core/content-images` normalizes the `<img>` elements in Markdown and MDX body content at build time. A body image gets the marker class `hagilight-content-image`, `loading="lazy"`, and `decoding="async"`. Values the author already set are kept, existing classes are kept, and the marker is added once.
