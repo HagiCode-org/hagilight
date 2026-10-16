@@ -120,12 +120,12 @@ test('header, footer, and showcase tag only the tracked links for GA click event
     /showcaseTag\('navigation', 'home'\)/,
     /showcaseTag\('navigation', 'productDocs'\)/,
     /showcaseTag\('download', 'downloadClient'\)/,
-    /showcaseTag\('download', 'microsoftStore', storeHref\)/,
+    /showcaseTag\('store', 'microsoftStore', storeHref\)/,
     /location: 'article_promotion'/,
   ]) assert.match(promotion, expected);
   const badge = promotion.match(/<ms-store-badge[\s\S]*?<\/ms-store-badge>/)?.[0] ?? '';
   const [badgeHost, fallbackLink] = badge.split('<a');
-  assert.match(badgeHost, /showcaseTag\('download', 'microsoftStore', storeHref\)/, 'the host carries the tag');
+  assert.match(badgeHost, /showcaseTag\('store', 'microsoftStore', storeHref\)/, 'the host carries the tag');
   assert.doesNotMatch(fallbackLink, /showcaseTag/, 'the inner fallback link is not tagged twice');
 
   assert.match(analytics, /<script>\s*import \{ installGaEventTracking \} from '\.\/dist\/analytics-events\.js';\s*installGaEventTracking\(\);/);

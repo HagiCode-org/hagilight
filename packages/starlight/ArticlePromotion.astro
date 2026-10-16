@@ -25,7 +25,7 @@ const storeHref = linkHref('microsoftStore', 'https://apps.microsoft.com/detail/
 const downloadsHref = linkHref('downloadClient', 'https://www.hagicode.com/');
 const storeProductId = resolveMicrosoftStoreProductId(storeHref);
 const badgeLanguage = resolveMicrosoftStoreBadgeLanguage(lang);
-const showcaseTag = (category: 'download' | 'navigation', label: string, url?: string) =>
+const showcaseTag = (category: 'download' | 'store' | 'navigation', label: string, url?: string) =>
   gaEventAttributes({ category, label, location: 'article_promotion', url });
 
 // Keyed by the ids in assets/showcase/manifest.json and in the copy catalog's gallery.
@@ -124,7 +124,7 @@ const gallery = copy.gallery.flatMap((item) => {
           language={badgeLanguage}
           aria-label={copy.windowsStoreAriaLabel}
           title={copy.windowsStoreAriaLabel}
-          {...showcaseTag('download', 'microsoftStore', storeHref)}
+          {...showcaseTag('store', 'microsoftStore', storeHref)}
         >
           <a
             class="hagilight-article-promotion__store-fallback"

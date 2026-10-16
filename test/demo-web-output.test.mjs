@@ -140,7 +140,7 @@ test('every plain-Astro footer shows one branch, commit, and build-time span aft
 test('built footer tags tracked quick and community links and leaves other links untagged', () => {
   const expected = {
     downloadClient: ['download', /\/desktop\/?$/],
-    microsoftStore: ['download', /9N3PM0N3SVDW$/],
+    microsoftStore: ['store', /9N3PM0N3SVDW$/],
     dockerCompose: ['navigation', /docker-compose\/?$/],
     productDocs: ['navigation', /product-overview\/?$/],
     blogPosts: ['navigation', /\/blog\/?$/],

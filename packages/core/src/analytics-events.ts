@@ -1,12 +1,13 @@
 import type { SiteLink, SiteLinkKey } from './links.js';
 
-export const GA_CATEGORIES = ['download', 'navigation', 'community', 'promotion'] as const;
+export const GA_CATEGORIES = ['download', 'store', 'navigation', 'community', 'promotion'] as const;
 export type GaCategory = (typeof GA_CATEGORIES)[number];
-export type GaAction = 'download_click' | 'link_click';
+export type GaAction = 'download_click' | 'store_visit' | 'link_click';
 
 // GA4 has no native category/action/label: the action is the event name.
 export const GA_CATEGORY_ACTIONS: Readonly<Record<GaCategory, GaAction>> = Object.freeze({
   download: 'download_click',
+  store: 'store_visit',
   navigation: 'link_click',
   community: 'link_click',
   promotion: 'link_click',
@@ -21,7 +22,7 @@ export const TRACKED_SITE_LINKS: Readonly<Partial<Record<SiteLinkKey, GaCategory
   blog: 'navigation',
   support: 'navigation',
   downloadClient: 'download',
-  microsoftStore: 'download',
+  microsoftStore: 'store',
   dockerCompose: 'navigation',
   productDocs: 'navigation',
   blogPosts: 'navigation',

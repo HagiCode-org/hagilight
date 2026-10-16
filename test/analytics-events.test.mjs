@@ -39,9 +39,10 @@ function collect(event) {
 }
 
 test('vocabulary derives the GA4 event name from the category', () => {
-  assert.deepEqual([...GA_CATEGORIES], ['download', 'navigation', 'community', 'promotion']);
+  assert.deepEqual([...GA_CATEGORIES], ['download', 'store', 'navigation', 'community', 'promotion']);
   assert.deepEqual({ ...GA_CATEGORY_ACTIONS }, {
     download: 'download_click',
+    store: 'store_visit',
     navigation: 'link_click',
     community: 'link_click',
     promotion: 'link_click',
@@ -55,7 +56,7 @@ test('tracked site link inventory is a reviewed snapshot', () => {
     blog: 'navigation',
     support: 'navigation',
     downloadClient: 'download',
-    microsoftStore: 'download',
+    microsoftStore: 'store',
     dockerCompose: 'navigation',
     productDocs: 'navigation',
     blogPosts: 'navigation',
@@ -190,16 +191,63 @@ test('handleGaClick resolves nested tags to the first tagged element only', () =
 
 test('Store badge host reports its data-ga-url for the badge and the fallback link', () => {
   const store = 'https://apps.microsoft.com/detail/9N3PM0N3SVDW';
-  const host = tag('download', 'microsoftStore', 'article_promotion', store);
+  const host = tag('store', 'microsoftStore', 'article_promotion', store);
   const fallback = new FakeElement({ href: store }, { href: store });
   for (const path of [[new FakeElement(), host], [fallback, new FakeElement(), host]]) {
     const sent = collect(clickPath(...path));
     assert.equal(sent.length, 1);
     assert.deepEqual(
       [sent[0][0], sent[0][1].event_label, sent[0][1].link_location, sent[0][1].link_url],
-      ['download_click', 'microsoftStore', 'article_promotion', store],
+      ['store_visit', 'microsoftStore', 'article_promotion', store],
     );
   }
+});
+
+test('store category reports store_visit and never download_click', () => {
+  const sent = collect(clickPath(tag('store', 'microsoftStore', 'footer', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW')));
+  assert.deepEqual(sent, [[
+    'store_visit',
+    {
+      event_category: 'store',
+      event_label: 'microsoftStore',
+      link_location: 'footer',
+      link_url: 'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
+      transport_type: 'beacon',
+    },
+  ]]);
+  assert.equal(gaEventAttributes({ category: 'store', label: 'openSteamStore', location: 'article_promotion' })['data-ga-category'], 'store');
+  assert.deepEqual(gaEventAttributes({ category: 'store', label: 'microsoftStore', location: 'footer' }), {
+    'data-ga-category': 'store',
+    'data-ga-label': 'microsoftStore',
+    'data-ga-location': 'footer',
+  });
+});
+
+test('a legacy download tag on a Store label still sends download_click', () => {
+  const [[action, params]] = collect(clickPath(tag('download', 'microsoftStore', 'footer', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW')));
+  assert.equal(action, 'download_click');
+  assert.equal(params.event_category, 'download');
+  assert.equal(params.event_label, 'microsoftStore');
+});
+
+test('categories outside the vocabulary are rejected at build time and ignored at click time', () => {
+  const valid = { category: 'store', label: 'microsoftStore', location: 'footer' };
+  for (const category of ['Store', 'store_visit', 'download_click', 'purchase', '']) {
+    assert.throws(() => gaEventAttributes({ ...valid, category }), TypeError, `${category} is rejected`);
+    assert.deepEqual(collect(clickPath(tag(category, 'microsoftStore'))), [], `${category} sends nothing`);
+  }
+});
+
+test('footer Store and download links take their tags from the tracked table', () => {
+  const resolved = resolveSiteLinks('en-US');
+  const store = resolved.quick.find((link) => link.id === 'microsoftStore');
+  const download = resolved.quick.find((link) => link.id === 'downloadClient');
+  assert.equal(siteLinkGaAttributes(store, 'footer')['data-ga-category'], 'store');
+  assert.equal(siteLinkGaAttributes(store, 'footer')['data-ga-label'], 'microsoftStore');
+  assert.equal(siteLinkGaAttributes(download, 'footer')['data-ga-category'], 'download');
+  assert.equal(siteLinkGaAttributes(download, 'footer')['data-ga-label'], 'downloadClient');
+  assert.equal(siteLinkGaAttributes(store, 'footer')['data-ga-location'], 'footer');
+  assert.equal(siteLinkGaAttributes(download, 'footer')['data-ga-location'], 'footer');
 });
 
 test('handleGaClick never cancels or alters the event', () => {
