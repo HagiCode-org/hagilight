@@ -400,3 +400,33 @@ test('core card is placed between two insets that themes can set to avoid sideba
   assert.match(starlightCss, /--hagilight-promoto-inset-start: var\(--sl-sidebar-width\)/u);
   assert.match(starlightCss, /--hagilight-promoto-inset-end:/u);
 });
+
+test('the progress line is the rotation clock and every motion has a static fallback', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  const script = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+
+  // Rotation advances on the line's animationend, so hover, keyboard focus and pause hold the card with it.
+  assert.match(script, /addEventListener\('animationend'/u);
+  assert.doesNotMatch(script, /setInterval\(\(\) => this\.move/u);
+  assert.match(component, /__shell:hover \.hagilight-promoto__progress[\s\S]*?animation-play-state:\s*paused/u);
+  assert.match(component, /:has\(:focus-visible\)/u);
+  assert.doesNotMatch(component, /:focus-within/u);
+
+  // The spring needs linear(); everything else gets a plain ease-out, and reduced motion gets none of it.
+  assert.match(component, /--promoto-ease:\s*cubic-bezier/u);
+  assert.match(component, /@supports \(transition-timing-function: linear\(0, 1\)\)/u);
+  assert.match(component, /\[data-state='ready'\] \.hagilight-promoto__shell\s*\{[^}]*animation:\s*hagilight-promoto-rise/u);
+  assert.doesNotMatch(component, /@starting-style/u);
+  assert.match(component, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?__progress\s*\{[^}]*display:\s*none/u);
+  assert.match(script, /typeof shell\.animate !== 'function'/u);
+});
+
+test('call to action, muted copy and hover colors follow the card instead of fixed light-mode values', async () => {
+  const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+
+  assert.match(component, /--promoto-cta-fg:\s*var\(--sl-color-black,\s*#fff\)/u);
+  assert.match(component, /--promoto-cta-bg:\s*var\(--sl-color-text-accent,/u);
+  assert.match(component, /--promoto-strong:\s*var\(--sl-color-text-high,\s*var\(--sl-color-white,/u);
+  assert.match(component, /--promoto-muted:\s*var\(--sl-color-gray-2,\s*color-mix\(/u);
+  assert.doesNotMatch(component, /color:\s*#fff;/u);
+});

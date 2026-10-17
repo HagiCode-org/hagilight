@@ -13,6 +13,7 @@ const VISIT_COUNT_KEY_PREFIX = 'hagilight:promoto-banner:visit-count:';
 const VISIT_EVENT = 'hagilight:promoto-visit';
 const PAGE_TOP_VISIT_LIMIT = 30;
 const ROTATION_INTERVAL_MS = 8000;
+const DISMISS_DURATION_MS = 220;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 export type PromotionVisibility = 'dismissed' | 'footer-hidden' | 'hidden' | 'ready' | 'top-hidden';
@@ -198,7 +199,8 @@ export function definePromotoBannerElement(): void {
     private dismissedSignature = readDismissedSignature();
     private paused = false;
     private reducedMotion = false;
-    private rotationTimer: number | undefined;
+    private tick = 0;
+    private dismissing = false;
     private refreshTimer: number | undefined;
     private motionQuery: MediaQueryList | undefined;
     private resizeObserver: ResizeObserver | undefined;
@@ -211,34 +213,62 @@ export function definePromotoBannerElement(): void {
       if (this.reducedMotion) return;
       this.paused = !this.paused;
       this.updateControls();
-      this.syncRotation();
+      // Pausing freezes the progress line where it is; resuming carries on from there.
+      this.syncRotation(false);
     };
     private readonly onDismiss = () => {
       const signature = getPromotionSetSignature(this.cards);
-      if (!signature) return;
+      if (!signature || this.dismissing) return;
       this.dismissedSignature = signature;
       saveDismissedSignature(signature);
-      this.updateVisibility();
       this.stopRotation();
+      const shell = this.querySelector<HTMLElement>('[data-promoto-shell]');
+      const finish = () => {
+        this.dismissing = false;
+        this.updateVisibility();
+      };
+      if (!shell || this.reducedMotion || typeof shell.animate !== 'function') {
+        finish();
+        return;
+      }
+      // Sink away before the card is removed; the filled animation is cancelled once it is hidden.
+      this.dismissing = true;
+      shell.inert = true;
+      const exit = shell.animate(
+        [
+          { opacity: 1, transform: 'none' },
+          { opacity: 0, transform: 'translateY(1rem) scale(0.97)' },
+        ],
+        { duration: DISMISS_DURATION_MS, easing: 'ease-in', fill: 'forwards' },
+      );
+      const settle = () => {
+        finish();
+        exit.cancel();
+      };
+      exit.finished.then(settle, settle);
+    };
+    // The progress line's fill is the rotation clock, so hover, focus and pause hold the card with it.
+    private readonly onProgressEnd = (event: AnimationEvent) => {
+      if (event.target === event.currentTarget) this.move(1);
     };
     private readonly onLayoutChange = () => {
       const previousState = this.dataset.state;
       this.updateVisibility();
-      if (previousState !== this.dataset.state) this.syncRotation();
+      if (previousState !== this.dataset.state) this.syncRotation(true);
     };
     private readonly onVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         this.stopRotation();
         this.stopRefresh();
       } else {
-        this.syncRotation();
+        this.syncRotation(true);
         this.startRefresh();
       }
     };
     private readonly onMotionChange = () => {
       this.reducedMotion = this.motionQuery?.matches ?? false;
       this.updateControls();
-      this.syncRotation();
+      this.syncRotation(true);
     };
     private readonly onPageLoad = () => {
       recordSiteVisit();
@@ -257,6 +287,8 @@ export function definePromotoBannerElement(): void {
       this.querySelector('[data-promoto-next]')?.addEventListener('click', this.onNext);
       this.querySelector('[data-promoto-pause]')?.addEventListener('click', this.onPause);
       this.querySelector('[data-promoto-dismiss]')?.addEventListener('click', this.onDismiss);
+      this.querySelector('[data-promoto-progress]')?.addEventListener('animationend', this.onProgressEnd as EventListener);
+      this.style.setProperty('--promoto-rotation', `${ROTATION_INTERVAL_MS}ms`);
       window.addEventListener('scroll', this.onLayoutChange, { passive: true });
       window.addEventListener('resize', this.onLayoutChange);
       document.addEventListener('visibilitychange', this.onVisibilityChange);
@@ -278,6 +310,7 @@ export function definePromotoBannerElement(): void {
       this.querySelector('[data-promoto-next]')?.removeEventListener('click', this.onNext);
       this.querySelector('[data-promoto-pause]')?.removeEventListener('click', this.onPause);
       this.querySelector('[data-promoto-dismiss]')?.removeEventListener('click', this.onDismiss);
+      this.querySelector('[data-promoto-progress]')?.removeEventListener('animationend', this.onProgressEnd as EventListener);
       window.removeEventListener('scroll', this.onLayoutChange);
       window.removeEventListener('resize', this.onLayoutChange);
       document.removeEventListener('visibilitychange', this.onVisibilityChange);
@@ -301,7 +334,7 @@ export function definePromotoBannerElement(): void {
       this.renderCards();
       this.updateVisibility();
       this.updateControls();
-      this.syncRotation();
+      this.syncRotation(false);
     }
 
     private readFallback(): PromotionCard | null {
@@ -427,8 +460,9 @@ export function definePromotoBannerElement(): void {
     private move(direction: -1 | 1): void {
       if (this.cards.length < 2) return;
       this.currentIndex = getNextPromotionIndex(this.currentIndex, this.cards.length, direction);
+      this.dataset.dir = direction < 0 ? 'prev' : 'next';
       this.updateSlides();
-      this.syncRotation();
+      this.syncRotation(true);
     }
 
     private updateVisibility(): void {
@@ -458,23 +492,29 @@ export function definePromotoBannerElement(): void {
       return bounds.top < window.innerHeight && bounds.bottom > 0;
     }
 
-    private syncRotation(): void {
-      this.stopRotation();
-      const state = this.dataset.state;
-      if (state !== 'ready' && state !== 'footer-hidden' && state !== 'top-hidden' && state !== 'hidden' && state !== 'dismissed') return;
-      if (!shouldAutoRotate(
+    /**
+     * Mirrors the rotation state onto the host for CSS: `data-rotating` runs the progress line,
+     * `data-paused` holds it. `restart` begins a fresh cycle; without it a running one carries on.
+     */
+    private syncRotation(restart: boolean): void {
+      const rotating = shouldAutoRotate(
         this.cards.length,
-        this.paused,
+        false,
         this.reducedMotion,
         document.visibilityState !== 'hidden',
-        state,
-      )) return;
-      this.rotationTimer = window.setInterval(() => this.move(1), ROTATION_INTERVAL_MS);
+        (this.dataset.state ?? 'hidden') as PromotionVisibility,
+      ) && !this.dismissing;
+      const wasRotating = this.hasAttribute('data-rotating');
+      this.toggleAttribute('data-rotating', rotating);
+      this.toggleAttribute('data-paused', this.paused);
+      if (rotating && (restart || !wasRotating)) {
+        this.tick = this.tick === 0 ? 1 : 0;
+        this.dataset.tick = String(this.tick);
+      }
     }
 
     private stopRotation(): void {
-      if (this.rotationTimer !== undefined) window.clearInterval(this.rotationTimer);
-      this.rotationTimer = undefined;
+      this.removeAttribute('data-rotating');
     }
 
     private startRefresh(): void {
