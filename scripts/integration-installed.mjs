@@ -749,7 +749,7 @@ try {
 
   const customHeadConfig = withAnalyticsConfig(
     enabledConfig,
-    '{ googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }',
+    '{ googleAnalytics: { enabled: false }, posthog: { enabled: false }, fiftyOneLa: { enabled: false } }',
   )
     .replace(/        seo: \{\r?\n[\s\S]*?        \},\r?\n(?=        rss: \{)/u, '        seo: { enabled: false },\n')
     .replace('starlight({', "starlight({ components: { Head: './CustomHead.astro' },");
