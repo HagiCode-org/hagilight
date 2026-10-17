@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon: Helden erledigen die Arbeit, Sie behalten Fortschritt, Level und Geschichte im Blick.',
-      alt: 'Bereich Hero Dungeon von HagiCode namens Ember Keep mit drei laufenden Helden samt Level, Fortschritt und Geschichtstext.',
+      caption: 'Hero Scenario: Helden erledigen die Arbeit, Sie behalten Fortschritt, Level und Geschichte im Blick.',
+      alt: 'Bereich Hero Scenario von HagiCode namens Ember Keep mit drei laufenden Helden samt Level, Fortschritt und Geschichtstext.',
     },
   ],
   windowsLabel: 'Für Windows herunterladen',

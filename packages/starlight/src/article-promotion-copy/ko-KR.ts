@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon: 영웅이 작업을 진행하고, 당신은 진행 상황과 레벨, 이야기를 지켜봅니다.',
-      alt: 'Ember Keep이라는 이름의 HagiCode Hero Dungeon 패널. 실행 중인 영웅 세 명의 레벨, 진행률, 이야기 문구가 표시됩니다.',
+      caption: 'Hero Scenario: 영웅이 작업을 진행하고, 당신은 진행 상황과 레벨, 이야기를 지켜봅니다.',
+      alt: 'Ember Keep이라는 이름의 HagiCode Hero Scenario 패널. 실행 중인 영웅 세 명의 레벨, 진행률, 이야기 문구가 표시됩니다.',
     },
   ],
   windowsLabel: 'Windows용 다운로드',

@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon: герои ведут работу, а вы следите за прогрессом, уровнями и сюжетом.',
-      alt: 'Панель Hero Dungeon в HagiCode под названием Ember Keep: три работающих героя с уровнем, прогрессом и текстом сюжета.',
+      caption: 'Hero Scenario: герои ведут работу, а вы следите за прогрессом, уровнями и сюжетом.',
+      alt: 'Панель Hero Scenario в HagiCode под названием Ember Keep: три работающих героя с уровнем, прогрессом и текстом сюжета.',
     },
   ],
   windowsLabel: 'Скачать для Windows',

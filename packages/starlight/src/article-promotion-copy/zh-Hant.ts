@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon：英雄推進工作，你隨時查看進度、等級與劇情。',
-      alt: 'HagiCode Hero Dungeon 面板畫面，名為 Ember Keep，列出三位執行中的英雄及其等級、進度與劇情文字。',
+      caption: 'Hero Scenario：英雄推進工作，你隨時查看進度、等級與劇情。',
+      alt: 'HagiCode Hero Scenario 面板畫面，名為 Ember Keep，列出三位執行中的英雄及其等級、進度與劇情文字。',
     },
   ],
   windowsLabel: '下載 Windows 版',

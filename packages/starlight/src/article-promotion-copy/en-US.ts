@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon: heroes run the work while you follow progress, levels, and story.',
-      alt: 'HagiCode Hero Dungeon panel named Ember Keep, listing three running heroes with their level, progress, and story text.',
+      caption: 'Hero Scenario: heroes run the work while you follow progress, levels, and story.',
+      alt: 'HagiCode Hero Scenario panel named Ember Keep, listing three running heroes with their level, progress, and story text.',
     },
   ],
   windowsLabel: 'Download for Windows',

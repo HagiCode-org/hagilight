@@ -79,8 +79,8 @@ test('showcase copy keeps brand and product terms untranslated in every locale',
     assert.ok(copy.lead.includes('HagiCode'), `${locale} lead names HagiCode`);
     assert.ok(copy.features[0].description.includes('OpenSpec'), `${locale} smart card names OpenSpec`);
     assert.ok(copy.features[1].description.toLowerCase().includes(GLOSSARY[locale].multiAgent.toLowerCase()), `${locale} efficient card names multi-agent work`);
-    assert.ok(copy.gallery.find(({ id }) => id === 'heroes')?.caption.includes('Hero Dungeon'), `${locale} feature gallery names Hero Dungeon`);
-    assert.ok(!copy.features[2].description.includes('Hero Dungeon'), `${locale} Interesting card leads with UI interactions`);
+    assert.ok(copy.gallery.find(({ id }) => id === 'heroes')?.caption.includes('Hero Scenario'), `${locale} feature gallery names Hero Scenario`);
+    assert.ok(!copy.features[2].description.includes('Hero Scenario'), `${locale} Interesting card leads with UI interactions`);
     assert.ok(copy.windowsLabel.includes('Windows'), `${locale} Windows label`);
     assert.ok(copy.windowsStoreLabel.includes('Microsoft Store'), `${locale} Store fallback label`);
     assert.ok(copy.windowsStoreAriaLabel.includes('Microsoft Store'), `${locale} Store accessible name`);

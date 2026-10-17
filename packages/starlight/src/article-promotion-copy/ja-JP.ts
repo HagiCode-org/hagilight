@@ -28,8 +28,8 @@ export default {
     },
     {
       id: 'heroes',
-      caption: 'Hero Dungeon：ヒーローが作業を進め、進行状況・レベル・物語を見守れます。',
-      alt: 'HagiCode の Hero Dungeon パネル「Ember Keep」。実行中の 3 人のヒーローのレベル、進行状況、物語のテキストが並ぶ。',
+      caption: 'Hero Scenario：ヒーローが作業を進め、進行状況・レベル・物語を見守れます。',
+      alt: 'HagiCode の Hero Scenario パネル「Ember Keep」。実行中の 3 人のヒーローのレベル、進行状況、物語のテキストが並ぶ。',
     },
   ],
   windowsLabel: 'Windows 版をダウンロード',
