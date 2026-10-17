@@ -45,6 +45,11 @@ const expectedExports = {
     'registerContentImages',
     'satteriContentImages',
   ],
+  '@hagicode/hagilight-core/footer-brand': [
+    'FOOTER_BRAND_LOCALES',
+    'pickFooterBrandLinks',
+    'resolveFooterBrand',
+  ],
   '@hagicode/hagilight-core/build-info': [
     'UNKNOWN',
     'buildInfoFromLocals',

@@ -47,7 +47,7 @@ test('vocabulary derives the GA4 event name from the category', () => {
     community: 'link_click',
     promotion: 'link_click',
   });
-  assert.deepEqual([...GA_LOCATIONS], ['header', 'footer', 'article_promotion', 'promoto_banner']);
+  assert.deepEqual([...GA_LOCATIONS], ['header', 'footer', 'footer_brand', 'article_promotion', 'promoto_banner']);
 });
 
 test('tracked site link inventory is a reviewed snapshot', () => {

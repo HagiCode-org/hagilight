@@ -1,5 +1,6 @@
 ---
 import Copyright from '@hagicode/hagilight-core/Copyright';
+import FooterBrand from '@hagicode/hagilight-core/FooterBrand';
 import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
@@ -44,6 +45,9 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
 ---
 
 <DefaultFooter />
+<div class="hagilight-brand-host">
+  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} />
+</div>
 <div class="hagilight-site-links">
   {resolvedLinks.relatedSites.length > 0 && (
     <section>
@@ -124,11 +128,16 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
 </p>
 
 <style>
+  .hagilight-brand-host {
+    margin-top: 2rem;
+    padding-inline: 1rem;
+  }
+
   .hagilight-site-links {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
     gap: 1.5rem;
-    margin: 2rem auto 1rem;
+    margin: 0 auto 1rem;
     max-width: 72rem;
     padding-inline: 1rem;
   }

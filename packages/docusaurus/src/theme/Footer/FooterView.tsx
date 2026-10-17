@@ -1,6 +1,7 @@
-import { Fragment, type ReactElement } from 'react';
+import { Fragment, type CSSProperties, type ReactElement } from 'react';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-info';
+import { pickFooterBrandLinks, resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';
 import type { SiteLink } from '@hagicode/hagilight-core/links';
 import type { FooterLinks } from '../../footer.js';
 
@@ -43,11 +44,71 @@ function LinkSection({ heading, navLabel, links, tagged }: LinkSectionProps): Re
   );
 }
 
+function FooterBrand({ locale, links }: { locale: string; links: readonly SiteLink[] }): ReactElement {
+  const brand = resolveFooterBrand(locale);
+  const { primary, secondary } = pickFooterBrandLinks(links);
+  return (
+    <section className="hagilight-brand" lang={brand.locale} aria-labelledby="hagilight-brand-title">
+      <div className="hagilight-brand__lead">
+        <h2 className="hagilight-brand__headline" id="hagilight-brand-title">{brand.headline}</h2>
+        <div className="hagilight-brand__body">
+          <p className="hagilight-brand__summary">{brand.summary}</p>
+          {(primary || secondary) && (
+            <div className="hagilight-brand__actions">
+              {primary && (
+                <a
+                  className="hagilight-brand__primary"
+                  href={primary.href}
+                  target={primary.target}
+                  rel={primary.rel}
+                  aria-label={primary.ariaLabel}
+                  {...siteLinkGaAttributes(primary, 'footer_brand')}
+                >
+                  <span>{primary.label}</span>
+                  <svg className="hagilight-brand__arrow" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+                    <path d="M2.5 8h10M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+              )}
+              {secondary && (
+                <a
+                  className="hagilight-brand__secondary"
+                  href={secondary.href}
+                  target={secondary.target}
+                  rel={secondary.rel}
+                  aria-label={secondary.ariaLabel}
+                  {...siteLinkGaAttributes(secondary, 'footer_brand')}
+                >
+                  {secondary.label}
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      <dl className="hagilight-brand__pillars">
+        {brand.pillars.map((pillar, index) => (
+          <div
+            key={pillar.id}
+            className="hagilight-brand__pillar"
+            data-pillar={pillar.id}
+            style={{ '--hagilight-brand-i': index } as CSSProperties}
+          >
+            <dt>{pillar.label}</dt>
+            <dd>{pillar.description}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 export function FooterView({ links, version, year, buildInfo }: FooterViewProps): ReactElement {
   const { labels } = links;
   const buildItems = buildInfoItems(buildInfo);
   return (
     <footer className="hagilight-footer">
+      <FooterBrand locale={links.locale} links={links.quick} />
       <div className="hagilight-footer__sections">
         {links.relatedSites.length > 0 && (
           <section>

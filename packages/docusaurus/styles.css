@@ -85,3 +85,227 @@
     gap: 0.75rem 1rem;
   }
 }
+
+/* Product statement: headline, summary, calls to action, and the three pillars. */
+.hagilight-footer .hagilight-brand {
+  --_heading: var(--ifm-heading-color, currentColor);
+  --_muted: var(--hagilight-footer-muted, var(--ifm-color-emphasis-700, color-mix(in srgb, currentColor 72%, transparent)));
+  --_rule: var(--hagilight-footer-border, var(--ifm-color-emphasis-300));
+  container: hagilight-brand / inline-size;
+  display: grid;
+  gap: 2.25rem;
+  margin: 0 auto 2rem;
+  max-width: 72rem;
+  padding-block: 1rem 2.25rem;
+  border-bottom: 1px solid var(--_rule);
+}
+
+/* Korean breaks between words, not inside them. */
+.hagilight-footer .hagilight-brand:lang(ko) {
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
+.hagilight-footer .hagilight-brand__lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem 3.5rem;
+}
+
+.hagilight-footer .hagilight-brand__headline {
+  margin: 0;
+  color: var(--_heading);
+  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3rem);
+  font-size: clamp(1.75rem, 1rem + 3.2cqi, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.hagilight-footer .hagilight-brand__headline:lang(zh),
+.hagilight-footer .hagilight-brand__headline:lang(ja),
+.hagilight-footer .hagilight-brand__headline:lang(ko) {
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.hagilight-footer .hagilight-brand__body {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+  min-width: 0;
+}
+
+.hagilight-footer .hagilight-brand__summary {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--_muted);
+  font-size: 1rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.hagilight-footer .hagilight-brand__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+}
+
+.hagilight-footer .hagilight-brand__primary,
+.hagilight-footer .hagilight-brand__secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--_heading);
+  text-decoration: none;
+}
+
+.hagilight-footer .hagilight-brand__primary {
+  gap: 0.6rem;
+  border: 2px solid currentColor;
+  border-radius: 0.5rem;
+  padding-inline: 1.1rem;
+  font-weight: 650;
+  transition: background-color 180ms ease-out;
+}
+
+.hagilight-footer .hagilight-brand__primary:hover {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.hagilight-footer .hagilight-brand__arrow {
+  flex: none;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hagilight-footer .hagilight-brand__primary:hover .hagilight-brand__arrow,
+.hagilight-footer .hagilight-brand__primary:focus-visible .hagilight-brand__arrow {
+  transform: translateX(0.3rem);
+}
+
+.hagilight-footer .hagilight-brand__secondary {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.hagilight-footer .hagilight-brand__secondary:hover {
+  text-decoration-thickness: 2px;
+}
+
+.hagilight-footer .hagilight-brand a:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+.hagilight-footer .hagilight-brand__pillars {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+}
+
+.hagilight-footer .hagilight-brand__pillar {
+  position: relative;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--_rule);
+}
+
+/* The heavy rule that the scroll-driven reveal draws over the hairline track. */
+.hagilight-footer .hagilight-brand__pillar::before {
+  content: '';
+  position: absolute;
+  inset: -1px 0 auto;
+  height: 2px;
+  background: var(--_heading);
+  transform-origin: left center;
+}
+
+.hagilight-footer .hagilight-brand__pillar dt {
+  margin: 0 0 0.4rem;
+  color: var(--_heading);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.hagilight-footer .hagilight-brand__pillar dd {
+  margin: 0;
+  max-width: none;
+  color: var(--_muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+/* Breakpoints follow the width the footer is given, not the viewport: Starlight's content pane is narrow. */
+@container hagilight-brand (min-width: 40rem) {
+  .hagilight-footer .hagilight-brand__pillars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem 2.5rem;
+  }
+
+  .hagilight-footer .hagilight-brand__pillar dd {
+    max-width: 34ch;
+  }
+}
+
+@container hagilight-brand (min-width: 52rem) {
+  .hagilight-footer .hagilight-brand__lead {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: end;
+  }
+}
+
+/*
+ * The one authored moment: as the footer scrolls into view the headline is uncovered from
+ * its baseline and the three pillar rules draw in left to right, one after another.
+ * Without scroll-driven animation, or with reduced motion, everything is simply shown.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .hagilight-footer .hagilight-brand__headline {
+      animation-name: hagilight-brand-uncover;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    .hagilight-footer .hagilight-brand__pillar::before {
+      animation-name: hagilight-brand-draw;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range:
+        entry calc(10% + var(--hagilight-brand-i, 0) * 14%)
+        entry calc(70% + var(--hagilight-brand-i, 0) * 14%);
+    }
+  }
+}
+
+@keyframes hagilight-brand-uncover {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(0.4em);
+  }
+
+  to {
+    clip-path: inset(0 0 -0.2em 0);
+    transform: none;
+  }
+}
+
+@keyframes hagilight-brand-draw {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}

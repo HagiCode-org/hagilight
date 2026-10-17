@@ -1,5 +1,6 @@
 ---
 import Copyright from './Copyright.astro';
+import FooterBrand from './FooterBrand.astro';
 import { siteLinkGaAttributes } from './dist/analytics-events.js';
 import { resolveSiteLinks, type SiteLinksOptions } from './dist/links.js';
 import { resolveRssFooterLinks } from './dist/rss-footer-context.js';
@@ -29,6 +30,7 @@ const resolvedLinks = resolveSiteLinks(locale, {
 ---
 
 <footer class="hagilight-footer">
+  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} />
   <div class="hagilight-footer__sections">
     {resolvedLinks.relatedSites.length > 0 && (
       <section>

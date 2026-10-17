@@ -13,7 +13,7 @@ export const GA_CATEGORY_ACTIONS: Readonly<Record<GaCategory, GaAction>> = Objec
   promotion: 'link_click',
 });
 
-export const GA_LOCATIONS = ['header', 'footer', 'article_promotion', 'promoto_banner'] as const;
+export const GA_LOCATIONS = ['header', 'footer', 'footer_brand', 'article_promotion', 'promoto_banner'] as const;
 export type GaLocation = (typeof GA_LOCATIONS)[number];
 
 /** Shared links that report click events, keyed by `SiteLink.id`. Renaming a key changes its GA label. */

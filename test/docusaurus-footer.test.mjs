@@ -133,13 +133,16 @@ test('the attribution appears exactly once and precedes the build line inside th
 test('tracked quick and community links carry GA attributes; other links do not', () => {
   const resolved = resolveFooterLinks({ locale: 'en-US', baseUrl: '/', links: {}, rssEnabled: true });
   const html = render();
-  const tagOf = (href) => html.match(new RegExp(`<a [^>]*href="${escapeRegExp(href)}"[^>]*>`, 'u'))?.[0];
+  // The link list is the last anchor for a destination; the product statement's calls to action come first.
+  const tagsOf = (href) => [...html.matchAll(new RegExp(`<a [^>]*href="${escapeRegExp(href)}"[^>]*>`, 'gu'))].map(([tag]) => tag);
+  const tagOf = (href) => tagsOf(href).at(-1);
   const byId = (links, id) => links.find((link) => link.id === id);
 
   const download = byId(resolved.quick, 'downloadClient');
   assert.match(tagOf(download.href), /data-ga-category="download"/u);
   assert.match(tagOf(download.href), /data-ga-label="downloadClient"/u);
   assert.match(tagOf(download.href), /data-ga-location="footer"/u);
+  assert.match(tagsOf(download.href)[0], /data-ga-location="footer_brand"/u);
 
   const github = byId(resolved.community, 'github');
   assert.match(tagOf(github.href), /data-ga-category="community"/u);

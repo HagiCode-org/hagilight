@@ -153,8 +153,16 @@ test('built footer tags tracked quick and community links and leaves other links
     const footer = html.match(/<footer\b[\s\S]*?<\/footer>/u)?.[0];
     assert.ok(footer, `${page.file} has a footer`);
     const anchors = [...footer.matchAll(/<a\b[^>]*>/gu)].map(([anchor]) => anchor);
-    const tagged = anchors.filter((anchor) => anchor.includes('data-ga-label='));
     const attribute = (anchor, name) => anchor.match(new RegExp(`${name}="([^"]*)"`, 'u'))?.[1];
+    const allTagged = anchors.filter((anchor) => anchor.includes('data-ga-label='));
+    // The product statement's two calls to action report from their own location.
+    const brandTagged = allTagged.filter((anchor) => attribute(anchor, 'data-ga-location') === 'footer_brand');
+    const tagged = allTagged.filter((anchor) => !brandTagged.includes(anchor));
+    assert.deepEqual(
+      brandTagged.map((anchor) => attribute(anchor, 'data-ga-label')).sort(),
+      ['downloadClient', 'productDocs'],
+      `${page.file} reports the product statement calls to action as footer_brand`,
+    );
 
     assert.deepEqual(
       tagged.map((anchor) => attribute(anchor, 'data-ga-label')).sort(),
