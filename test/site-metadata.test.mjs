@@ -296,5 +296,5 @@ test('the schema example in the core README validates against the contract', () 
   const section = readme.slice(readme.indexOf('## Site metadata file'), readme.indexOf('## Comparison articles'));
   const example = JSON.parse(section.match(/```json\n([\s\S]*?)```/u)[1]);
   assert.deepEqual(validateSiteMetadata(example), []);
-  assert.equal(serializeSiteMetadata(example), `${JSON.stringify(example, null, 2)}\n`, 'the example already uses canonical key order');
+  assert.equal(serializeSiteMetadata(example), `${JSON.stringify(example)}\n`, 'the example already uses canonical key order');
 });

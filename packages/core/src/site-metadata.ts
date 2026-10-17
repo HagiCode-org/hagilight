@@ -262,7 +262,7 @@ export function validateSiteMetadata(value: unknown): readonly string[] {
   return problems;
 }
 
-/** Canonical JSON: fixed key order, two-space indent, trailing newline. Identical input gives identical bytes. */
+/** Canonical minified JSON: fixed key order, no indentation, trailing newline. Identical input gives identical bytes. */
 export function serializeSiteMetadata(metadata: SiteMetadata): string {
   const canonical = {
     schemaVersion: metadata.schemaVersion,
@@ -290,7 +290,7 @@ export function serializeSiteMetadata(metadata: SiteMetadata): string {
       .filter((key) => metadata.features[key] !== undefined)
       .map((key) => [key, metadata.features[key]])),
   };
-  return `${JSON.stringify(canonical, null, 2)}\n`;
+  return `${JSON.stringify(canonical)}\n`;
 }
 
 /**
