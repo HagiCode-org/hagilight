@@ -9,7 +9,14 @@ import { checkContentImageRegistration, registerContentImages } from '@hagicode/
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
+import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
+import {
+  expectSiteMetadataReport,
+  reportSiteMetadataBuilt,
+  resolveSiteMetadataOwner,
+} from '@hagicode/hagilight-core/site-metadata-ownership';
 import { buildLlmsTxt, parsePageMeta, type LlmsPage } from './llms.js';
+import { writeAstroSiteMetadata } from './site-metadata.js';
 
 export type {
   RssFeedCallback,
@@ -43,6 +50,22 @@ export interface HagilightOptions {
    * overwritten. It also follows `enabled`: `hagilight({ enabled: false })` skips it.
    */
   llms?: boolean | HagilightLlmsOptions;
+  /**
+   * Generate `/.well-known/hagilight.metadata.json` after the build. Defaults to `true`; `false`
+   * opts out, and an options object may set `name` and `description`. A site-provided file is
+   * never overwritten. Independent of `enabled`. When the Starlight plugin is also registered
+   * and generates metadata, the Starlight plugin writes the file.
+   */
+  metadata?: boolean | HagilightMetadataOptions;
+}
+
+export interface HagilightMetadataOptions {
+  /** Defaults to `true`. */
+  enabled?: boolean;
+  /** Site name. Defaults to the home page `og:site_name` or title, then the site hostname. */
+  name?: string;
+  /** Site description. Defaults to the home page description. */
+  description?: string;
 }
 
 export interface HagilightLlmsOptions {
@@ -124,7 +147,7 @@ const BUILTIN_RSS_FEED_SOURCE = BUILTIN_RSS_FEED.toString();
  * owns sitemap generation, a consumer-owned robots page or public file takes
  * precedence, and an enabled Starlight Hagilight integration owns RSS feeds.
  */
-export function hagilight({ enabled = true, rss, contentImages, llms }: HagilightOptions = {}): AstroIntegration {
+export function hagilight({ enabled = true, rss, contentImages, llms, metadata }: HagilightOptions = {}): AstroIntegration {
   if (typeof enabled !== 'boolean') {
     throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
   }
@@ -135,6 +158,7 @@ export function hagilight({ enabled = true, rss, contentImages, llms }: Hagiligh
     throw new TypeError('Hagilight content images enabled option must be a boolean.');
   }
   const llmsOptions = resolveLlmsOptions(llms);
+  const metadataOptions = resolveSiteMetadataOption(metadata);
   const contentImagesEnabled = typeof contentImages === 'boolean' ? contentImages : contentImages?.enabled !== false;
   if (rss !== undefined && typeof rss !== 'boolean' && !isRecord(rss)) {
     throw new TypeError('Hagilight RSS option must be a boolean or an options object.');
@@ -148,76 +172,122 @@ export function hagilight({ enabled = true, rss, contentImages, llms }: Hagiligh
     }
   }
   let resolvedConfig: AstroConfig | undefined;
+  let resolvedBuildInfo: BuildInfo | undefined;
+  // Set when the Starlight plugin owns the metadata file. This integration then reports
+  // after its `llms.txt` step, so the owner's write sees the final discovery outputs.
+  let metadataPeerToken: symbol | undefined;
   return {
     name: '@hagicode/hagilight:discovery',
     hooks: {
       'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig, logger }) {
-        registerContentImages({ config, logger, enabled: contentImagesEnabled });
-        const buildInfo = resolveBuildInfo({ root: fileURLToPath(config.root) });
-        updateConfig({ vite: { plugins: [createBuildInfoPlugin(buildInfo)] } });
-        addMiddleware({ entrypoint: fileURLToPath(new URL('./build-info-middleware.js', import.meta.url)), order: 'pre' });
-        if (!enabled) return;
-        resolveDiscoverySite(config.site);
+        try {
+          registerContentImages({ config, logger, enabled: contentImagesEnabled });
+          const buildInfo = resolveBuildInfo({ root: fileURLToPath(config.root) });
+          resolvedBuildInfo = buildInfo;
+          metadataPeerToken = resolveSiteMetadataOwner() === 'starlight' ? expectSiteMetadataReport() : undefined;
+          updateConfig({ vite: { plugins: [createBuildInfoPlugin(buildInfo)] } });
+          addMiddleware({ entrypoint: fileURLToPath(new URL('./build-info-middleware.js', import.meta.url)), order: 'pre' });
+          if (!enabled) return;
+          resolveDiscoverySite(config.site);
 
-        const integrations: readonly unknown[] = config.integrations ?? [];
-        if (!integrations.some((integration) => {
-          const name = integrationName(integration);
-          return name === '@astrojs/sitemap' || name === '@astrojs/starlight';
-        })) {
-          updateConfig({ integrations: [sitemap()] });
-        }
+          const integrations: readonly unknown[] = config.integrations ?? [];
+          if (!integrations.some((integration) => {
+            const name = integrationName(integration);
+            return name === '@astrojs/sitemap' || name === '@astrojs/starlight';
+          })) {
+            updateConfig({ integrations: [sitemap()] });
+          }
 
-        const pageRoot = resolve(fileURLToPath(config.srcDir), 'pages');
-        const publicRoot = fileURLToPath(config.publicDir);
-        const hasRobotsPage = existsSync(pageRoot) && readdirSync(pageRoot).some((name) =>
-          /^robots\.txt\.(?:astro|html|js|jsx|md|mdx|ts|tsx)$/u.test(name)
-          || name === 'robots.txt');
-        if (!hasRobotsPage && !existsSync(resolve(publicRoot, 'robots.txt'))) {
-          injectRoute({
-            pattern: '/robots.txt',
-            entrypoint: routeEntrypoint('robots.txt.ts'),
-            prerender: true,
+          const pageRoot = resolve(fileURLToPath(config.srcDir), 'pages');
+          const publicRoot = fileURLToPath(config.publicDir);
+          const hasRobotsPage = existsSync(pageRoot) && readdirSync(pageRoot).some((name) =>
+            /^robots\.txt\.(?:astro|html|js|jsx|md|mdx|ts|tsx)$/u.test(name)
+            || name === 'robots.txt');
+          if (!hasRobotsPage && !existsSync(resolve(publicRoot, 'robots.txt'))) {
+            injectRoute({
+              pattern: '/robots.txt',
+              entrypoint: routeEntrypoint('robots.txt.ts'),
+              prerender: true,
+            });
+          }
+
+          if (rss === false) return;
+          if (resolvePlainAstroRssOwner(config.integrations) === 'starlight') return;
+
+          const rssOptions: HagilightRssOptions = rss === true || rss === undefined ? {} : rss;
+          const locales = resolveRssLocales(
+            deriveRssLocales(rssOptions.locales, config),
+            { requireNonEmpty: false },
+          );
+          const modulePath = rssOptions.getFeed
+            ? resolveFeedModule(config.root, rssOptions.getFeed)
+            : null;
+
+          const site = resolveSite(config.site);
+          assertNoRouteCollisions(config, locales);
+          const baseSegments = `${config.base || '/' }`.split('/').filter(Boolean);
+          const baseUrl = baseSegments.length > 0 ? `/${baseSegments.join('/')}/` : '/';
+          const baseLocation = new URL(baseUrl, site);
+          const defaultFeedUrl = new URL('rss.xml', baseLocation).href;
+          const localeFeedUrls = Object.fromEntries(locales
+            .filter(({ filename }) => filename !== 'en')
+            .map(({ lang, filename }) => [lang, new URL(`rss.${filename}.xml`, baseLocation).href]));
+
+          injectRoute({ pattern: '/rss.xml', entrypoint: routeEntrypoint('rss.xml.ts'), prerender: true });
+          injectRoute({ pattern: '/rss.[language].xml', entrypoint: routeEntrypoint('rss.[language].xml.ts'), prerender: true });
+          addMiddleware({ entrypoint: fileURLToPath(new URL('./rss-middleware.js', import.meta.url)), order: 'pre' });
+          updateConfig({
+            vite: {
+              plugins: [createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUrl, localeFeedUrls })],
+            },
           });
+        } finally {
+          // Appended after this integration's own sitemap, so the metadata write runs after
+          // `@astrojs/sitemap` has written its index. Skipped when a Starlight owner writes the file.
+          if (metadataPeerToken === undefined && metadataOptions.enabled) {
+            updateConfig({ integrations: [createMetadataFinalizer(() => ({ config: resolvedConfig, build: resolvedBuildInfo, options: metadataOptions }))] });
+          }
         }
-
-        if (rss === false) return;
-        if (resolvePlainAstroRssOwner(config.integrations) === 'starlight') return;
-
-        const rssOptions: HagilightRssOptions = rss === true || rss === undefined ? {} : rss;
-        const locales = resolveRssLocales(
-          deriveRssLocales(rssOptions.locales, config),
-          { requireNonEmpty: false },
-        );
-        const modulePath = rssOptions.getFeed
-          ? resolveFeedModule(config.root, rssOptions.getFeed)
-          : null;
-
-        const site = resolveSite(config.site);
-        assertNoRouteCollisions(config, locales);
-        const baseSegments = `${config.base || '/' }`.split('/').filter(Boolean);
-        const baseUrl = baseSegments.length > 0 ? `/${baseSegments.join('/')}/` : '/';
-        const baseLocation = new URL(baseUrl, site);
-        const defaultFeedUrl = new URL('rss.xml', baseLocation).href;
-        const localeFeedUrls = Object.fromEntries(locales
-          .filter(({ filename }) => filename !== 'en')
-          .map(({ lang, filename }) => [lang, new URL(`rss.${filename}.xml`, baseLocation).href]));
-
-        injectRoute({ pattern: '/rss.xml', entrypoint: routeEntrypoint('rss.xml.ts'), prerender: true });
-        injectRoute({ pattern: '/rss.[language].xml', entrypoint: routeEntrypoint('rss.[language].xml.ts'), prerender: true });
-        addMiddleware({ entrypoint: fileURLToPath(new URL('./rss-middleware.js', import.meta.url)), order: 'pre' });
-        updateConfig({
-          vite: {
-            plugins: [createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUrl, localeFeedUrls })],
-          },
-        });
       },
       'astro:config:done'({ config, logger }) {
         resolvedConfig = config;
         checkContentImageRegistration({ config, logger, enabled: contentImagesEnabled });
       },
       'astro:build:done'({ dir, pages, logger }) {
-        if (!enabled || !llmsOptions.enabled || !resolvedConfig) return;
-        writeLlmsTxt({ config: resolvedConfig, dir, pages, options: llmsOptions, logger });
+        try {
+          if (enabled && llmsOptions.enabled && resolvedConfig) {
+            writeLlmsTxt({ config: resolvedConfig, dir, pages, options: llmsOptions, logger });
+          }
+        } finally {
+          if (metadataPeerToken !== undefined) {
+            reportSiteMetadataBuilt(metadataPeerToken);
+            metadataPeerToken = undefined;
+          }
+        }
+      },
+    },
+  };
+}
+
+interface MetadataSource {
+  config: AstroConfig | undefined;
+  build: BuildInfo | undefined;
+  options: { enabled: boolean; name?: string; description?: string };
+}
+
+/**
+ * Integration appended after the sitemap, so its `astro:build:done` runs after
+ * `@astrojs/sitemap` has written `sitemap-index.xml`. Hook order follows the
+ * integration list, which is why the metadata write does not run in this integration's own hook.
+ */
+function createMetadataFinalizer(source: () => MetadataSource): AstroIntegration {
+  return {
+    name: '@hagicode/hagilight:metadata',
+    hooks: {
+      'astro:build:done'({ dir, pages, logger }) {
+        const { config, build, options } = source();
+        if (!config || !build || !options.enabled) return;
+        writeAstroSiteMetadata({ config, outDir: fileURLToPath(dir), pages, build, options, logger });
       },
     },
   };

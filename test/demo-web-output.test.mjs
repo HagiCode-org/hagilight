@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { executableScripts, verifyPostHog } from '../scripts/posthog-assertions.mjs';
+import { SITE_METADATA_PATH } from '@hagicode/hagilight-core/site-metadata';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const outputDir = join(root, 'examples/demo-web/dist');
@@ -290,6 +291,23 @@ test('every locale and transit page initializes PostHog once in the production h
   for (const file of ['index.html', ...pages.map(({ file }) => file)]) {
     verifyPostHog(readFileSync(join(outputDir, file), 'utf8'), file);
   }
+});
+
+// Runs before the development-server test, which rewrites dist/en-US/index.html in the shared output directory.
+test('the plain-Astro demo build writes the site metadata file with llms discovery and built-page analytics flags', () => {
+  const metadata = JSON.parse(readFileSync(join(outputDir, SITE_METADATA_PATH), 'utf8'));
+  assert.equal(metadata.schemaVersion, 1);
+  assert.equal(metadata.generator.name, '@hagicode/hagilight');
+  assert.equal(metadata.discovery.llms, '/llms.txt');
+  assert.equal(metadata.discovery.sitemap, '/sitemap-index.xml');
+  const builtPages = ['index.html', 'en-US/index.html', 'zh-CN/index.html']
+    .map((file) => readFileSync(join(outputDir, file), 'utf8'));
+  const loaderPresent = (predicate) => builtPages.some(predicate);
+  assert.equal(metadata.analytics.googleAnalytics, loaderPresent((html) => html.includes('https://www.googletagmanager.com/gtag/js')));
+  assert.equal(metadata.analytics.fiftyOneLa, loaderPresent((html) => html.includes('id="LA_COLLECT"') && html.includes('https://sdk.51.la/js-sdk-pro.min.js')));
+  assert.equal(metadata.analytics.posthog, loaderPresent((html) => html.includes('__hagilightPosthogInitialized')));
+  assert.equal(metadata.analytics.posthog, true, 'the demo enables PostHog');
+  assert.deepEqual(metadata.languages.locales.map(({ code }) => code), ['en-US', 'zh-CN']);
 });
 
 test('development pages emit no executable PostHog initialization or loader', async () => {

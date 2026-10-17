@@ -41,6 +41,14 @@ const sections = [
         example: "import { buildInfoItems } from '@hagicode/hagilight-core/build-info';\nimport { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';\n\nconst items = buildInfoItems(resolveBuildInfo({ root: process.cwd() }));",
       },
       {
+        id: 'site-metadata',
+        title: '站点元数据文件',
+        kind: '构建产物 · schema 版本 1',
+        summary: '构建会写入 .well-known/hagilight.metadata.json，包含站点标识、语言、构建信息、发现文件以及分析工具开关。@hagicode/hagilight-core/site-metadata 定义契约，@hagicode/hagilight-core/site-metadata-writer 在 Node 中写入文件，@hagicode/hagilight-core/site-metadata-ownership 决定由哪个集成写入。',
+        evidence: '本演示构建包含 .well-known/hagilight.metadata.json，其 discovery 字段列出了构建实际生成的 llms.txt 和站点地图。',
+        example: "import { buildSiteMetadata, serializeSiteMetadata } from '@hagicode/hagilight-core/site-metadata';\n\nconst json = serializeSiteMetadata(buildSiteMetadata({ generator, site, build, discovery, analytics }));",
+      },
+      {
         id: 'site-links',
         title: '共享站点链接',
         kind: '实时组合',

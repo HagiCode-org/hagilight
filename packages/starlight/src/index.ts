@@ -15,10 +15,13 @@ import {
   type RssOwnerClaim,
 } from '@hagicode/hagilight-core/rss-ownership';
 import { isValidSeoImageReference, resolveSeoImageUrl } from '@hagicode/hagilight-core/seo';
+import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
+import { registerStarlightSiteMetadataOwner } from '@hagicode/hagilight-core/site-metadata-ownership';
 import type { AIDisclosureDefaults } from './ai-disclosures.js';
 import type { StarlightRssRuntimeConfig } from './rss-renderer.js';
 import { resolveRssOptions, type RssContentOptions } from './rss-utils.js';
 import { resolveSeoLocales, type SeoLocale, type SeoOrganization } from './seo-utils.js';
+import { createStarlightMetadataFinalizer, type StarlightSiteMetadataSetup } from './site-metadata.js';
 import { THEME_BOOTSTRAP } from './themes.js';
 
 export interface HagilightToggleOptions {
@@ -83,7 +86,23 @@ export interface HagilightContentComponentsOptions {
 
 export type HagilightAIDisclosureOptions = Partial<AIDisclosureDefaults>;
 
+export interface HagilightMetadataOptions {
+  /** Defaults to `true`. */
+  enabled?: boolean;
+  /** Site name. Defaults to the Starlight `title` for the default locale, then the site hostname. */
+  name?: string;
+  /** Site description. Defaults to the Starlight `description` when the site sets one. */
+  description?: string;
+}
+
 export interface HagilightStarlightOptions {
+  /**
+   * Generate `/.well-known/hagilight.metadata.json` after the build. Defaults to `true`; `false`
+   * opts out, and an options object may set `name` and `description`. A site-provided file is
+   * never overwritten. When a plain-Astro `hagilight()` is also registered, this plugin writes
+   * the file and the plain-Astro integration defers to it.
+   */
+  metadata?: boolean | HagilightMetadataOptions;
   header?: HagilightToggleOptions;
   notFoundPage?: HagilightToggleOptions;
   rss?: HagilightRssOptions;
@@ -367,6 +386,8 @@ function createConfiguredIntegration(
   generateRss: boolean,
   unregisterRssOwner: () => void,
   contentImagesEnabled: boolean,
+  siteMetadata: StarlightSiteMetadataSetup,
+  unregisterSiteMetadataOwner: () => void,
 ): AstroIntegration & { readonly [RSS_OWNER]: RssOwnerClaim } {
   const optionsId = `virtual:hagilight-starlight/${instanceId}/options`;
   const rssConfigId = 'virtual:hagilight-starlight/rss-config';
@@ -493,9 +514,15 @@ ${serializedOptions.posthogApiKey ? '<PostHog apiKey={options.posthogApiKey} />'
           });
         }
         updateConfig({ vite: { plugins: [vitePlugin] } });
+        if (siteMetadata.enabled) {
+          // Starlight splices its own sitemap into the integration list before this setup runs,
+          // so an integration appended here runs after the sitemap has written its index.
+          updateConfig({ integrations: [createStarlightMetadataFinalizer(siteMetadata, () => buildInfo)] });
+        }
       },
       'astro:config:done'({ config, logger }) {
         unregisterRssOwner();
+        unregisterSiteMetadataOwner();
         checkContentImageRegistration({ config, logger, enabled: contentImagesEnabled });
         if (config.image?.service?.entrypoint === NOOP_IMAGE_SERVICE) {
           logger.warn(NOOP_IMAGE_SERVICE_WARNING);
@@ -585,6 +612,8 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     seo,
   };
   const unregisterRssOwner = registerStarlightRssOwner(rssEnabled);
+  const metadata = resolveSiteMetadataOption(input.metadata);
+  const unregisterSiteMetadataOwner = registerStarlightSiteMetadataOwner(metadata.enabled);
 
   return {
     name: '@hagicode/hagilight-starlight',
@@ -677,6 +706,25 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
           generateRss,
           unregisterRssOwner,
           contentImagesEnabled,
+          {
+            enabled: metadata.enabled,
+            name: metadata.name,
+            description: metadata.description,
+            title: config.title,
+            siteDescription: (config as { description?: unknown }).description,
+            locales: config.locales,
+            defaultLocale: config.defaultLocale,
+            site: astroConfig.site,
+            base: astroConfig.base,
+            publicDir: astroConfig.publicDir,
+            analytics: {
+              googleAnalytics: serializedOptions.googleAnalyticsMeasurementId !== undefined,
+              fiftyOneLa: serializedOptions.fiftyOneLaId !== undefined,
+              posthog: serializedOptions.posthogApiKey !== undefined,
+            },
+            features: { seo: seo.enabled, promoto: promotoEnabled },
+          },
+          unregisterSiteMetadataOwner,
         ));
         updateConfig({
           ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),

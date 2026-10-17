@@ -80,12 +80,31 @@ function normalizeUrl(href: string, base: string): string | undefined {
  * not be listed: `noindex`, instant redirects, 404 pages, and pages whose canonical URL points
  * somewhere else.
  */
-export function parsePageMeta(html: string, pageUrl: string): LlmsPageMeta | undefined {
+/**
+ * Read the page head without applying indexing rules. Site-level facts such as the
+ * site name and description stay available on pages that are `noindex`.
+ */
+export function parseHeadMeta(html: string): LlmsPageMeta {
   const headEnd = html.indexOf('</head>');
   const head = headEnd === -1 ? html : html.slice(0, headEnd);
   const metas = [...head.matchAll(/<meta\b[^>]*>/giu)].map(([tag]) => attributes(tag));
   const named = (name: string) => metas.find((meta) => meta.name?.toLowerCase() === name)?.content;
   const property = (name: string) => metas.find((meta) => meta.property?.toLowerCase() === name)?.content;
+  const title = clean(decodeEntities(head.match(/<title[^>]*>([\s\S]*?)<\/title>/iu)?.[1] ?? '')) ?? '';
+  const htmlTag = html.match(/<html\b[^>]*>/iu)?.[0];
+  return {
+    lang: clean(htmlTag ? attributes(htmlTag).lang : undefined),
+    title,
+    description: clean(named('description') ?? property('og:description')),
+    siteName: clean(property('og:site_name')),
+  };
+}
+
+export function parsePageMeta(html: string, pageUrl: string): LlmsPageMeta | undefined {
+  const headEnd = html.indexOf('</head>');
+  const head = headEnd === -1 ? html : html.slice(0, headEnd);
+  const metas = [...head.matchAll(/<meta\b[^>]*>/giu)].map(([tag]) => attributes(tag));
+  const named = (name: string) => metas.find((meta) => meta.name?.toLowerCase() === name)?.content;
 
   if (/noindex/iu.test(named('robots') ?? '')) return undefined;
   if (metas.some((meta) => meta['http-equiv']?.toLowerCase() === 'refresh')) return undefined;
@@ -100,17 +119,9 @@ export function parsePageMeta(html: string, pageUrl: string): LlmsPageMeta | und
     if (canonical && own && canonical.replace(/\/$/u, '') !== own.replace(/\/$/u, '')) return undefined;
   }
 
-  const title = clean(decodeEntities(head.match(/<title[^>]*>([\s\S]*?)<\/title>/iu)?.[1] ?? ''));
-  if (!title || /^(?:404\b|page not found)/iu.test(title)) return undefined;
-  const htmlTag = html.match(/<html\b[^>]*>/iu)?.[0];
-  const lang = clean(htmlTag ? attributes(htmlTag).lang : undefined);
-
-  return {
-    lang,
-    title,
-    description: clean(named('description') ?? property('og:description')),
-    siteName: clean(property('og:site_name')),
-  };
+  const meta = parseHeadMeta(html);
+  if (!meta.title || /^(?:404\b|page not found)/iu.test(meta.title)) return undefined;
+  return meta;
 }
 
 function sameLanguage(a: string | undefined, b: string | undefined): boolean {

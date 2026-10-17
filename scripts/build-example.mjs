@@ -46,6 +46,23 @@ function build(env, outputDir) {
   return read;
 }
 
+function readSiteMetadata(read) {
+  const metadata = JSON.parse(read('.well-known/hagilight.metadata.json'));
+  assert.equal(metadata.schemaVersion, 1);
+  assert.equal(metadata.discovery.sitemap, '/sitemap-index.xml', 'the sitemap exists when metadata is written');
+  assert.equal(metadata.discovery.llms, '/llms.txt', 'llms.txt exists when metadata is written');
+  return metadata;
+}
+
+function verifySiteMetadataCoexistence(afterStarlight, beforeStarlight) {
+  const normalize = (metadata) => ({ ...metadata, build: { ...metadata.build, builtAt: 'unknown' } });
+  const after = readSiteMetadata(afterStarlight);
+  const before = readSiteMetadata(beforeStarlight);
+  assert.equal(after.generator.name, '@hagicode/hagilight-starlight');
+  assert.equal(before.generator.name, '@hagicode/hagilight-starlight');
+  assert.deepEqual(normalize(before), normalize(after));
+}
+
 function buildCoreFooter() {
   execFileSync(npm, ['run', 'build', '-w', 'hagilight-core-footer-example'], {
     cwd: root,
@@ -725,6 +742,25 @@ const unifiedDiscoveryFeeds = build({
 verifyBodyImages(unifiedDiscoveryFeeds);
 verifyMarkdownPage(unifiedDiscoveryFeeds);
 verifyMdxPage(unifiedDiscoveryFeeds);
+
+// Plain-Astro hagilight() registered before and after the Starlight plugin: one metadata file,
+// written by Starlight, with the same content either way (builtAt aside).
+const discoveryFirstFeeds = build({
+  HAGILIGHT_EXAMPLE_DISCOVERY: 'first',
+}, join(EXAMPLE_OUTPUT_ROOT, 'discovery-first'));
+verifySiteMetadataCoexistence(unifiedDiscoveryFeeds, discoveryFirstFeeds);
+// With the Starlight plugin opted out, the plain-Astro integration writes the file itself.
+const starlightMetadataOff = build({
+  HAGILIGHT_EXAMPLE_DISCOVERY: 'true',
+  HAGILIGHT_EXAMPLE_METADATA: 'false',
+}, join(EXAMPLE_OUTPUT_ROOT, 'starlight-metadata-off'));
+assert.equal(readSiteMetadata(starlightMetadataOff).generator.name, '@hagicode/hagilight');
+// Analytics flags follow the resolved options: all true by default, all false when each provider is disabled.
+assert.deepEqual(readSiteMetadata(discoveryFirstFeeds).analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
+const analyticsOff = build({
+  HAGILIGHT_EXAMPLE_ANALYTICS: 'off',
+}, join(EXAMPLE_OUTPUT_ROOT, 'analytics-off'));
+assert.deepEqual(readSiteMetadata(analyticsOff).analytics, { googleAnalytics: false, fiftyOneLa: false, posthog: false });
 
 const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'disabled');
 const disabledFeeds = build({

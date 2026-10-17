@@ -41,6 +41,14 @@ const sections = [
         example: "import { buildInfoItems } from '@hagicode/hagilight-core/build-info';\nimport { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';\n\nconst items = buildInfoItems(resolveBuildInfo({ root: process.cwd() }));",
       },
       {
+        id: 'site-metadata',
+        title: 'Site metadata file',
+        kind: 'Build output · schema version 1',
+        summary: 'The build writes .well-known/hagilight.metadata.json with site identity, locales, build facts, discovery artifacts, and analytics on/off flags. @hagicode/hagilight-core/site-metadata holds the contract, @hagicode/hagilight-core/site-metadata-writer writes it in Node, and @hagicode/hagilight-core/site-metadata-ownership decides which integration writes it.',
+        evidence: 'This demo build contains .well-known/hagilight.metadata.json, and its discovery block lists the llms.txt and sitemap that the build produced.',
+        example: "import { buildSiteMetadata, serializeSiteMetadata } from '@hagicode/hagilight-core/site-metadata';\n\nconst json = serializeSiteMetadata(buildSiteMetadata({ generator, site, build, discovery, analytics }));",
+      },
+      {
         id: 'site-links',
         title: 'Shared site links',
         kind: 'Live composition',
