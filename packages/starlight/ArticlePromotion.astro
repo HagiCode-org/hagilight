@@ -57,7 +57,8 @@ const gallery = copy.gallery.flatMap((item) => {
           href={homeHref}
           {...showcaseTag('navigation', 'home')}
         >
-          {copy.visitLabel}
+          <span>{copy.visitLabel}</span>
+          <svg class="hagilight-article-promotion__arrow" aria-hidden="true" focusable="false" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
         </a>
         <a
           class="hagilight-article-promotion__cta hagilight-article-promotion__cta--secondary"
@@ -137,7 +138,7 @@ const gallery = copy.gallery.flatMap((item) => {
           class="hagilight-article-promotion__downloads"
           href={downloadsHref}
           {...showcaseTag('download', 'downloadClient')}
-        >{copy.allDownloadsLabel}</a>
+        ><span>{copy.allDownloadsLabel}</span><svg class="hagilight-article-promotion__arrow" aria-hidden="true" focusable="false" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a>
       </div>
     </div>
 
@@ -151,43 +152,74 @@ const gallery = copy.gallery.flatMap((item) => {
 
 <style>
   /*
-   * Zones, top to bottom: pitch (what it is, where to go, the three pillars), gallery (proof),
-   * closing (get it, share it). Zones are separated by space and hairlines rather than nested
-   * boxes. The topology follows the section's own width, so the wide-content toggle and the
-   * sidebar layouts reflow it, not just the viewport. Mobile-first: the base rules are the
-   * single-column layout, which is also what a browser without container queries renders.
+   * One stage, four beats, top to bottom: pitch (what it is, the way in, the three pillars),
+   * gallery (proof), closing band (get it, share it). The stage is tinted from the active theme's
+   * accent so it reads as a deliberate HagiCode moment against the article's neutral page, and the
+   * closing band bleeds to the stage edges so "get it" is the last, heaviest surface. Pillars are
+   * separated by accent rules rather than boxes. The topology follows the section's own width, so
+   * the wide-content toggle and the sidebar layouts reflow it, not just the viewport. Mobile-first:
+   * the base rules are the single-column layout, which is also what a browser without container
+   * queries renders. Every color derives from Starlight's tokens, so all themes and both modes work.
    */
   .hagilight-article-promotion {
+    --hagilight-promo-pad: 1.5rem;
+    --hagilight-promo-edge: color-mix(in srgb, var(--sl-color-text-accent) 38%, var(--sl-color-gray-5));
+    --hagilight-promo-tint: color-mix(in srgb, var(--sl-color-accent-low) 55%, var(--sl-color-bg-nav));
+    position: relative;
     container-type: inline-size;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
+    gap: 2.25rem;
     margin: 3rem auto 2rem;
-    padding: clamp(1rem, 3vw, 1.75rem);
-    border: 1px solid var(--sl-color-gray-5);
+    padding: calc(var(--hagilight-promo-pad) + 0.25rem) var(--hagilight-promo-pad) var(--hagilight-promo-pad);
+    overflow: clip;
+    border: 1px solid var(--hagilight-promo-edge);
     border-radius: var(--sl-radius-lg, 0.75rem);
-    background: var(--sl-color-bg-nav);
+    background:
+      radial-gradient(70% 45% at 0% 0%, color-mix(in srgb, var(--sl-color-text-accent) 16%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--hagilight-promo-tint), var(--sl-color-bg-nav) 55%);
     color: var(--sl-color-text);
+  }
+
+  /* The accent rule across the top edge: the stage's signature, drawn in on scroll where supported. */
+  .hagilight-article-promotion::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sl-color-text-accent), color-mix(in srgb, var(--sl-color-text-accent) 20%, transparent));
+    transform-origin: left center;
+    pointer-events: none;
+  }
+
+  .hagilight-article-promotion ::selection {
+    background: color-mix(in srgb, var(--sl-color-text-accent) 38%, transparent);
+    color: var(--sl-color-white);
   }
 
   .hagilight-article-promotion h2,
   .hagilight-article-promotion h3 {
     margin: 0;
     color: var(--sl-color-white);
-    line-height: 1.25;
+    line-height: 1.2;
+    text-wrap: balance;
   }
 
   .hagilight-article-promotion h2 {
-    font-size: var(--sl-text-2xl, 1.5rem);
+    font-size: clamp(2rem, 1.3rem + 3.2cqi, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
   .hagilight-article-promotion h3 {
-    font-size: var(--sl-text-lg, 1.125rem);
+    font-size: var(--sl-text-xl, 1.25rem);
+    font-weight: 700;
   }
 
   .hagilight-article-promotion p {
     margin: 0;
     line-height: 1.6;
+    text-wrap: pretty;
   }
 
   .hagilight-article-promotion ul {
@@ -201,17 +233,17 @@ const gallery = copy.gallery.flatMap((item) => {
     outline-offset: 3px;
   }
 
-  /* Pitch: headline, definition, promise, then the way in. */
+  /* Pitch: headline, one emphasized promise, the way in, then the pillars. */
   .hagilight-article-promotion__pitch {
     display: grid;
-    gap: 1.75rem;
+    gap: 2rem;
   }
 
   .hagilight-article-promotion__intro {
     display: grid;
     align-content: start;
     justify-items: start;
-    gap: 0.75rem;
+    gap: 0.875rem;
   }
 
   .hagilight-article-promotion__lead,
@@ -219,9 +251,15 @@ const gallery = copy.gallery.flatMap((item) => {
     max-inline-size: 68ch;
   }
 
+  .hagilight-article-promotion__lead {
+    color: var(--sl-color-gray-2);
+  }
+
   .hagilight-article-promotion__tagline {
     color: var(--sl-color-white);
-    font-weight: 600;
+    font-size: var(--sl-text-lg, 1.125rem);
+    font-weight: 650;
+    line-height: 1.45;
   }
 
   .hagilight-article-promotion__actions {
@@ -236,32 +274,60 @@ const gallery = copy.gallery.flatMap((item) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     min-height: 2.75rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.25rem;
     border: 1px solid var(--sl-color-text-accent);
     border-radius: var(--sl-radius-sm, 0.375rem);
     font-weight: 700;
     text-decoration: none;
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s;
   }
 
+  /* The one loud control: bigger than its sibling, lifted, with an arrow that leans forward on hover. */
   .hagilight-article-promotion__cta--primary {
+    min-height: 3.25rem;
+    padding-inline: 1.625rem;
     background: var(--sl-color-text-accent);
     color: var(--sl-color-bg);
+    font-size: var(--sl-text-lg, 1.125rem);
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--sl-color-text-accent) 70%, transparent);
   }
 
   .hagilight-article-promotion__cta--secondary {
     background: transparent;
+    color: var(--sl-color-white);
+    border-color: var(--sl-color-gray-3);
+  }
+
+  .hagilight-article-promotion__arrow {
+    flex: none;
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hagilight-article-promotion__cta--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--sl-color-text-accent) 80%, transparent);
+  }
+
+  .hagilight-article-promotion__cta--primary:active {
+    transform: translateY(0);
+  }
+
+  .hagilight-article-promotion__cta--secondary:hover {
+    border-color: var(--sl-color-text-accent);
     color: var(--sl-color-text-accent);
   }
 
-  .hagilight-article-promotion__cta:hover {
-    filter: brightness(1.08);
+  .hagilight-article-promotion__cta:hover .hagilight-article-promotion__arrow,
+  .hagilight-article-promotion__downloads:hover .hagilight-article-promotion__arrow {
+    transform: translateX(3px);
   }
 
-  /* Pillars: one hairline-topped row each, icon and word on a line, description under it. */
+  /* Pillars: each opens with an accent rule; the pillar word is the loudest text after the title. */
   .hagilight-article-promotion__features {
     display: grid;
-    gap: 1rem 1.5rem;
+    gap: 1.25rem 1.5rem;
   }
 
   .hagilight-article-promotion__features li {
@@ -269,16 +335,17 @@ const gallery = copy.gallery.flatMap((item) => {
     grid-template-columns: auto minmax(0, 1fr);
     align-content: start;
     align-items: center;
-    gap: 0.5rem 0.625rem;
+    gap: 0.625rem 0.75rem;
     min-width: 0;
-    padding-block-start: 0.875rem;
-    border-block-start: 1px solid var(--sl-color-gray-5);
+    padding-block-start: 1rem;
+    border-block-start: 2px solid color-mix(in srgb, var(--sl-color-text-accent) 55%, transparent);
   }
 
   .hagilight-article-promotion__features strong {
     color: var(--sl-color-text-accent);
-    font-size: var(--sl-text-lg, 1.125rem);
-    line-height: 1.25;
+    font-size: var(--sl-text-xl, 1.25rem);
+    font-weight: 750;
+    line-height: 1.2;
   }
 
   .hagilight-article-promotion__feature-text {
@@ -288,6 +355,17 @@ const gallery = copy.gallery.flatMap((item) => {
   }
 
   .hagilight-article-promotion__icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--sl-radius-md, 0.5rem);
+    background: color-mix(in srgb, var(--sl-color-text-accent) 18%, transparent);
+  }
+
+  .hagilight-article-promotion__icon::after {
+    content: '';
     width: 1.5rem;
     height: 1.5rem;
     background: var(--sl-color-text-accent);
@@ -298,12 +376,12 @@ const gallery = copy.gallery.flatMap((item) => {
   /* Gallery: three audited screenshots, kept in the catalog's narrative order. */
   .hagilight-article-promotion__gallery-block {
     display: grid;
-    gap: 1rem;
+    gap: 1.125rem;
   }
 
   .hagilight-article-promotion__gallery {
     display: grid;
-    gap: 1.25rem 1rem;
+    gap: 1.5rem 1.25rem;
   }
 
   .hagilight-article-promotion__gallery li {
@@ -312,7 +390,7 @@ const gallery = copy.gallery.flatMap((item) => {
 
   .hagilight-article-promotion figure {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.625rem;
     margin: 0;
   }
 
@@ -324,22 +402,31 @@ const gallery = copy.gallery.flatMap((item) => {
     display: block;
     width: 100%;
     height: auto;
-    border: 1px solid var(--sl-color-gray-5);
+    border: 1px solid var(--hagilight-promo-edge);
     border-radius: var(--sl-radius-md, 0.5rem);
+    box-shadow: 0 18px 32px -18px color-mix(in srgb, var(--sl-color-black) 80%, transparent);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s;
+  }
+
+  .hagilight-article-promotion figure:hover img {
+    transform: translateY(-3px);
+    border-color: var(--sl-color-text-accent);
   }
 
   .hagilight-article-promotion figcaption {
-    color: var(--sl-color-gray-2);
+    color: var(--sl-color-gray-1);
     font-size: var(--sl-text-sm, 0.875rem);
     line-height: 1.5;
   }
 
-  /* Closing: the practical next steps, as two parallel headed blocks. */
+  /* Closing: a full-bleed band, the heaviest surface, so "get it" is where the eye lands last. */
   .hagilight-article-promotion__closing {
     display: grid;
-    gap: 1.5rem;
-    padding-block-start: 1.5rem;
-    border-block-start: 1px solid var(--sl-color-gray-5);
+    gap: 1.75rem;
+    margin: 0 calc(var(--hagilight-promo-pad) * -1) calc(var(--hagilight-promo-pad) * -1);
+    padding: var(--hagilight-promo-pad);
+    border-block-start: 1px solid var(--hagilight-promo-edge);
+    background: color-mix(in srgb, var(--sl-color-accent-low) 80%, var(--sl-color-bg));
   }
 
   .hagilight-article-promotion__windows,
@@ -347,7 +434,7 @@ const gallery = copy.gallery.flatMap((item) => {
     display: grid;
     align-content: start;
     justify-items: start;
-    gap: 0.5rem;
+    gap: 0.625rem;
     min-width: 0;
   }
 
@@ -356,7 +443,7 @@ const gallery = copy.gallery.flatMap((item) => {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 1.25rem;
+    gap: 0 1.5rem;
     max-width: 100%;
   }
 
@@ -378,15 +465,18 @@ const gallery = copy.gallery.flatMap((item) => {
   .hagilight-article-promotion__downloads {
     display: inline-flex;
     align-items: center;
+    gap: 0.375rem;
     min-height: 2.75rem;
     color: var(--sl-color-text-accent);
-    font-weight: 600;
+    font-weight: 650;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
   }
 
   .hagilight-article-promotion__share-text {
     justify-self: stretch;
     padding: 0.75rem 1rem;
-    border: 1px dashed var(--sl-color-gray-4);
+    border: 1px dashed var(--sl-color-text-accent);
     border-radius: var(--sl-radius-md, 0.5rem);
     background: var(--sl-color-bg);
     overflow-wrap: anywhere;
@@ -450,6 +540,55 @@ const gallery = copy.gallery.flatMap((item) => {
       flex-wrap: nowrap;
       align-items: stretch;
       justify-self: stretch;
+    }
+  }
+
+  /*
+   * The one authored moment: as the stage scrolls into view its accent rule draws across and the
+   * screenshots rise into place one after another. Scroll-driven, so there is no JS and nothing
+   * replays; engines without view timelines, and readers who ask for less motion, get the final
+   * state. The animations start at 0.35 opacity, so a tall item that never reaches its full entry
+   * range is still readable.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .hagilight-article-promotion::before {
+        animation-name: hagilight-promotion-rule;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 80%;
+      }
+
+      .hagilight-article-promotion__gallery li {
+        animation-name: hagilight-promotion-rise;
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 5% entry 45%;
+      }
+
+      .hagilight-article-promotion__gallery li:nth-child(2) {
+        animation-range: entry 12% entry 52%;
+      }
+
+      .hagilight-article-promotion__gallery li:nth-child(3) {
+        animation-range: entry 19% entry 59%;
+      }
+    }
+  }
+
+  @keyframes hagilight-promotion-rule {
+    from {
+      transform: scaleX(0.04);
+    }
+  }
+
+  @keyframes hagilight-promotion-rise {
+    from {
+      opacity: 0.35;
+      translate: 0 1.75rem;
+      scale: 0.97;
     }
   }
 </style>
