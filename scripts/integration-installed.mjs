@@ -76,7 +76,7 @@ function countOccurrences(value, needle) {
 
 function withAnalyticsConfig(config, analyticsOptions) {
   const updated = config.replace(
-    /        analytics: process\.env\.HAGILIGHT_VIEWPORT_TEST === 'true'\r?\n          \? \{ googleAnalytics: \{ enabled: false \}, fiftyOneLa: \{ enabled: false \} \}\r?\n          : undefined,/u,
+    /        analytics: process\.env\.HAGILIGHT_EXAMPLE_ANALYTICS === 'off'[\s\S]*?: undefined,/u,
     `        analytics: ${analyticsOptions},`,
   );
   if (updated === config) throw new Error('Could not replace the example analytics configuration');
