@@ -5,14 +5,14 @@
   "locale": "zh-Hant",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI 對比 HagiCode:功能與差異",
-    "description": "了解 CodeBuddy CLI 的主要功能、企業級特性和技術生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 CodeBuddy 的企業級能力獲得全面工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
+    "title": "CodeBuddy 對比 HagiCode:功能與差異",
+    "description": "了解 CodeBuddy 的主要功能、企業級特性和技術生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 CodeBuddy 的企業級能力獲得全面工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
   },
-  "summary": "CodeBuddy CLI 是一款面向企業級開發場景的 AI 編碼助手，以「安全、可控、高效」為產品理念。它在許可權管理、程式碼安全和團隊協作方面有比一般開源工具更成熟的考量，特別適合對程式碼安全和合規性有嚴格要求的團隊。不過 CodeBuddy CLI 本身是一個編碼助手工具，而 HagiCode 是一個全面的 AI 程式設計工作台——兩者配合，才能把 CodeBuddy 的企業級基因從「工具層面」釋放到「平台層面」。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
+  "summary": "CodeBuddy 是一款面向企業級開發場景的 AI 編碼助手，以「安全、可控、高效」為產品理念。它在許可權管理、程式碼安全和團隊協作方面有比一般開源工具更成熟的考量，特別適合對程式碼安全和合規性有嚴格要求的團隊。不過 CodeBuddy 本身是一個編碼助手工具，而 HagiCode 是一個全面的 AI 程式設計工作台——兩者配合，才能把 CodeBuddy 的企業級基因從「工具層面」釋放到「平台層面」。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
   "sections": [
     {
       "id": "codebuddy-vs-hagicode-section-1",
-      "title": "CodeBuddy CLI 的核心能力",
+      "title": "CodeBuddy 的核心能力",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "codebuddy-vs-hagicode-section-1-item-1",
               "title": "主要功能",
               "content": [
-                "CodeBuddy CLI 的功能以「企業級 AI 編碼」為核心：",
+                "CodeBuddy 的功能以「企業級 AI 編碼」為核心：",
                 "智慧程式碼生成與重構：CodeBuddy 能夠根據自然語言描述或程式碼上下文生成高品質的程式碼實現。支援多種程式語言和框架，特別在企業級 Java、C# 等後端技術棧上表現突出。重構建議兼顧效能、可維護性和團隊編碼規範。",
                 "安全合規的程式碼審查：CodeBuddy 的程式碼審查不僅關注功能性 bug，還特別強調安全漏洞檢測和合規性檢查。對於金融、醫療等對程式碼安全有高度要求的行業，這是核心差異化能力。",
                 "團隊協作與知識管理：CodeBuddy 支援團隊級別的配置管理和編碼規範同步。團隊的管理者可以定義編碼標準、安全規則和最佳實踐模板，團隊成員使用 CodeBuddy 時自動遵循這些團隊規範。"
@@ -43,7 +43,7 @@
               "title": "技術生態",
               "content": [
                 "CodeBuddy 的技術生態圍繞企業開發場景展開：",
-                "ACP 協議支援：CodeBuddy CLI 支援 ACP 協議，可以與其他 ACP 相容的 AI 工具進行標準化互操作。",
+                "ACP 協議支援：CodeBuddy 支援 ACP 協議，可以與其他 ACP 相容的 AI 工具進行標準化互操作。",
                 "企業技術棧深度適配：對 Java Spring、.NET、微服務架構等企業主流技術棧有深度適配，生成的程式碼在企業級框架規範上表現優異。",
                 "CI/CD 整合能力：CodeBuddy 可以整合到企業現有的 CI/CD 流水線中，在程式碼提交、構建和部署階段發揮 AI 能力。"
               ]
@@ -54,7 +54,7 @@
     },
     {
       "id": "codebuddy-vs-hagicode-section-2",
-      "title": "為什麼 CodeBuddy CLI 需要 HagiCode",
+      "title": "為什麼 CodeBuddy 需要 HagiCode",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-2-intro",
@@ -208,10 +208,10 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-11",
-              "title": "統一的工具呼叫檢視：以一致的樣貌查看 CodeBuddy CLI 的工具使用",
+              "title": "統一的工具呼叫檢視：以一致的樣貌查看 CodeBuddy 的工具使用",
               "content": [
                 "HagiCode 會為每則工具使用與工具結果訊息附上同一種具型別的工具呼叫結構，內容涵蓋工具類型、輸入欄位、狀態、結果文字或圖片、錯誤訊息與耗時。這個結構是由已儲存的資料即時計算而來，因此會話歷史與即時更新看到的內容完全一致。",
-                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 CodeBuddy CLI 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
+                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 CodeBuddy 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
               ],
               "bullets": [
                 "所有供應商共用同一種結構，shell、檔案、搜尋、擷取與 MCP 呼叫的呈現方式一致；",
@@ -244,8 +244,8 @@
           "id": "codebuddy-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "CodeBuddy CLI 是一個企業級 AI 編碼助手，以安全性、合規性和團隊協作能力見長；HagiCode 是一個全面的 AI 程式設計工作台。它們的關係是互補：",
-            "如果你已經在用 CodeBuddy CLI，不妨試試把它接入 HagiCode——你會發現 CodeBuddy 的安全和合規優勢不再只是「單獨工具的亮點」，而是一個被完整企業級工作流平台加持的全方位 AI 開發體系。"
+            "CodeBuddy 是一個企業級 AI 編碼助手，以安全性、合規性和團隊協作能力見長；HagiCode 是一個全面的 AI 程式設計工作台。它們的關係是互補：",
+            "如果你已經在用 CodeBuddy，不妨試試把它接入 HagiCode——你會發現 CodeBuddy 的安全和合規優勢不再只是「單獨工具的亮點」，而是一個被完整企業級工作流平台加持的全方位 AI 開發體系。"
           ]
         },
         {

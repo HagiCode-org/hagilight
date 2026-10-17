@@ -25,7 +25,7 @@
                 "Les capacités de GitHub Copilot s'étendent sur trois couches :",
                 "Accès multi-modèles unifié : l'une des forces les plus distinctives de Copilot est sa capacité à prendre en charge plusieurs modèles IA via une seule interface CLI — incluant la série GPT d'OpenAI (GPT-4, GPT-5), la famille Claude et d'autres modèles mainstream. Vous n'avez pas besoin d'implémenter une logique d'appel séparée pour chaque modèle. Une interface, changement de modèle flexible en dessous.",
                 "Génération et complétion de code : l'expérience fondamentale de Copilot est des suggestions de code en temps réel basées sur le contexte. Elle va au-delà de la simple complétion — il comprend la structure de codebase, les signatures de fonction et l'intention des commentaires, produisant des fragments de code cohérents contextuellement. De la correction d'une ligne à la génération de composants complets, Copilot couvre tout.",
-                "Appels d'outils et gestion de session : Copilot CLI prend en charge les capacités d'appel d'outils intégrées incluant opérations sur fichiers, commandes Git et interaction shell. Il prend aussi en charge la sortie en streaming et la rétention de contexte de session, permettant des conversations de programmation multi-tours."
+                "Appels d'outils et gestion de session : Copilot prend en charge les capacités d'appel d'outils intégrées incluant opérations sur fichiers, commandes Git et interaction shell. Il prend aussi en charge la sortie en streaming et la rétention de contexte de session, permettant des conversations de programmation multi-tours."
               ]
             },
             {
@@ -43,7 +43,7 @@
               "title": "Écosystème de plugins et d'outils",
               "content": [
                 "L'écosystème de Copilot s'étend sur trois directions :",
-                "Support ACP (Agent Communication Protocol) : Copilot CLI prend en charge ACP, permettant une communication standardisée avec d'autres outils et plateformes IA, en faisant un nœud interopérable dans les réseaux de collaboration multi-outils.",
+                "Support ACP (Agent Communication Protocol) : Copilot prend en charge ACP, permettant une communication standardisée avec d'autres outils et plateformes IA, en faisant un nœud interopérable dans les réseaux de collaboration multi-outils.",
                 "Intégration VS Code et JetBrains : Copilot s'intègre profondément aux IDE mainstream, prenant en charge l'invocation directe de capacité IA au sein des éditeurs. La forme CLI de Copilot fournit un point d'entrée indépendant pour les workflows terminal.",
                 "GitHub Actions et CI/CD : Copilot peut s'intégrer dans les pipelines GitHub Actions, appliquant les capacités IA dans la revue de code, les tests automatisés et autres phases."
               ]

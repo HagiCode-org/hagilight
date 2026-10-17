@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Kimi CLI vs HagiCode: Features and Comparison",
-    "description": "Kimi CLI is now Kimi Code CLI, Moonshot AI's terminal coding agent; HagiCode is a workbench that runs it. Compare features, pricing and when each fits."
+    "title": "Kimi vs HagiCode: Features and Comparison",
+    "description": "Kimi is now Kimi Code, Moonshot AI's terminal coding agent; HagiCode is a workbench that runs it. Compare features, pricing and when each fits."
   },
-  "summary": "Kimi CLI, now called Kimi Code CLI, is Moonshot AI's terminal coding agent; HagiCode is a workbench that can run it as an executor. This page compares features, access and cost, and when the CLI alone is enough.",
+  "summary": "Kimi, now called Kimi Code, is Moonshot AI's terminal coding agent; HagiCode is a workbench that can run it as an executor. This page compares features, access and cost, and when the CLI alone is enough.",
   "sections": [
     {
       "id": "kimi-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "kimi-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Kimi CLI is Moonshot AI's terminal coding agent. The original Python project has been archived and replaced by Kimi Code CLI from the same team, which still installs a `kimi` command. HagiCode is a desktop and web workbench that launches `kimi` as one of its Agent CLIs and adds parallel sessions, proposals and commits around it. It does not replace Kimi and it does not sell Kimi access.",
+            "Kimi is Moonshot AI's terminal coding agent. The original Python project has been archived and replaced by Kimi Code from the same team, which still installs a `kimi` command. HagiCode is a desktop and web workbench that launches `kimi` as one of its Agent CLIs and adds parallel sessions, proposals and commits around it. It does not replace Kimi and it does not sell Kimi access.",
             "If you want a fast single-binary agent in your terminal, and perhaps in Zed or JetBrains over ACP, stay with Kimi alone. Add HagiCode when you run several tasks at once or want a spec-driven workflow on top of the same login."
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "kimi-vs-hagicode-section-2",
-      "title": "Kimi CLI vs HagiCode at a glance",
+      "title": "Kimi vs HagiCode at a glance",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Dimension",
-            "Kimi CLI",
+            "Kimi",
             "HagiCode"
           ],
           "rows": [
@@ -41,7 +41,7 @@
               "id": "kimi-vs-hagicode-section-2-row-1",
               "cells": [
                 "What it is",
-                "Moonshot AI's terminal coding agent; the original Kimi CLI is archived and succeeded by Kimi Code CLI (MIT)",
+                "Moonshot AI's terminal coding agent; the original Kimi is archived and succeeded by Kimi Code (MIT)",
                 "Desktop and web AI programming workbench that drives Agent CLIs you install"
               ]
             },
@@ -115,7 +115,7 @@
     },
     {
       "id": "kimi-vs-hagicode-section-3",
-      "title": "What Kimi CLI does well",
+      "title": "What Kimi does well",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-3-capabilities",
@@ -132,7 +132,7 @@
               "id": "kimi-vs-hagicode-section-3-item-2",
               "title": "Single binary, quick start",
               "content": [
-                "Kimi Code CLI ships as a single binary with fast startup and a purpose-built terminal UI, and the install script does not need Node.js. On Windows it needs Git for Windows, with `KIMI_SHELL_PATH` for a custom Git Bash location."
+                "Kimi Code ships as a single binary with fast startup and a purpose-built terminal UI, and the install script does not need Node.js. On Windows it needs Git for Windows, with `KIMI_SHELL_PATH` for a custom Git Bash location."
               ]
             },
             {
@@ -155,7 +155,7 @@
     },
     {
       "id": "kimi-vs-hagicode-section-4",
-      "title": "When to choose Kimi CLI, and when to choose HagiCode",
+      "title": "When to choose Kimi, and when to choose HagiCode",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-4-choose-agent",
@@ -189,14 +189,14 @@
             "You only want a terminal, or a quick question in an editor you already use over ACP.",
             "Teams that do not want proposal and spec discipline; free editions also cap concurrent proposals at 3.",
             "It needs `kimi` installed and signed in first, so it adds setup compared with Kimi alone.",
-            "If you still run the archived Kimi CLI, move to Kimi Code CLI first: its repository says existing Kimi CLI installations will stop working."
+            "If you still run the archived Kimi, move to Kimi Code first: its repository says existing Kimi installations will stop working."
           ]
         }
       ]
     },
     {
       "id": "kimi-vs-hagicode-section-5",
-      "title": "Using Kimi CLI together with HagiCode",
+      "title": "Using Kimi together with HagiCode",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-5-intro",
@@ -210,7 +210,7 @@
           "id": "kimi-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. Install Kimi Code CLI (`curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash` on macOS or Linux, or `irm https://code.kimi.com/kimi-code/install.ps1 | iex` on Windows) and run `/login`.",
+            "1. Install Kimi Code (`curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash` on macOS or Linux, or `irm https://code.kimi.com/kimi-code/install.ps1 | iex` on Windows) and run `/login`.",
             "2. Install HagiCode Desktop (free) for Windows, macOS or Linux.",
             "3. In HagiCode, choose Kimi as the Agent CLI for a session.",
             "4. Open a repository and start a session or an OpenSpec proposal.",
@@ -222,11 +222,11 @@
           "id": "kimi-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "What works for Kimi CLI inside HagiCode",
+          "title": "What works for Kimi inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Kimi.",
             "Does not apply to Kimi: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
-            "HagiCode relies on the `kimi acp` interface, which Kimi Code CLI also documents; features that exist only in the Kimi terminal UI stay there."
+            "HagiCode relies on the `kimi acp` interface, which Kimi Code also documents; features that exist only in the Kimi terminal UI stay there."
           ]
         }
       ]
@@ -286,9 +286,9 @@
           "id": "kimi-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Kimi Code CLI is a fast, extensible terminal agent with ACP editor support; if one terminal and one task fits you, it is enough on its own.",
+            "Kimi Code is a fast, extensible terminal agent with ACP editor support; if one terminal and one task fits you, it is enough on its own.",
             "HagiCode is a workbench layer that runs `kimi` underneath, adding sessions, proposals and commits rather than models.",
-            "Check that you are on Kimi Code CLI, not the archived Kimi CLI, before adding HagiCode."
+            "Check that you are on Kimi Code, not the archived Kimi, before adding HagiCode."
           ]
         }
       ]
@@ -296,23 +296,23 @@
   ],
   "faq": [
     {
-      "question": "Is Kimi CLI free?",
+      "question": "Is Kimi free?",
       "answer": "The CLI is open source, but model access is not free: Kimi Code is included in Kimi memberships from the Plus tier up (the Go tier excludes it), and you can alternatively use a Moonshot Open Platform API key. Plans and prices on kimi.com change, so check the pricing page."
     },
     {
-      "question": "Is Kimi CLI still maintained?",
-      "answer": "The original Kimi CLI repository is archived and no longer maintained. It was replaced by Kimi Code CLI (MIT licence) from the same team, and the repository says existing Kimi CLI installations will stop working."
+      "question": "Is Kimi still maintained?",
+      "answer": "The original Kimi repository is archived and no longer maintained. It was replaced by Kimi Code (MIT licence) from the same team, and the repository says existing Kimi installations will stop working."
     },
     {
-      "question": "How do I install Kimi CLI?",
-      "answer": "Install Kimi Code CLI with `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash` (macOS, Linux), `irm https://code.kimi.com/kimi-code/install.ps1 | iex` (Windows), `brew install kimi-code` or `npm install -g @moonshot-ai/kimi-code`. Then run `kimi` and `/login`."
+      "question": "How do I install Kimi?",
+      "answer": "Install Kimi Code with `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash` (macOS, Linux), `irm https://code.kimi.com/kimi-code/install.ps1 | iex` (Windows), `brew install kimi-code` or `npm install -g @moonshot-ai/kimi-code`. Then run `kimi` and `/login`."
     },
     {
-      "question": "Can I use Kimi CLI with HagiCode?",
+      "question": "Can I use Kimi with HagiCode?",
       "answer": "Yes. Install Kimi and sign in, then choose Kimi as the Agent CLI in HagiCode, which launches `kimi acp`. Billing stays with Moonshot."
     },
     {
-      "question": "Kimi CLI vs HagiCode: which should I pick?",
+      "question": "Kimi vs HagiCode: which should I pick?",
       "answer": "Use Kimi alone for a fast terminal or editor agent. Add HagiCode for parallel sessions, OpenSpec proposals and a GUI over the same CLI."
     }
   ]

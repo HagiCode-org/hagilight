@@ -5,14 +5,14 @@
   "locale": "ko-KR",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI vs HagiCode 비교: 기능과 차이점",
-    "description": "CodeBuddy CLI의 주요 기능, 엔터프라이즈급 특성, 기술 생태계를 이해하고, 멀티스레드 병렬, OpenSpec 제안, AI 커밋, HagiTask, 게임화 UI, Agents 관리, Monospecs, Vault, OmniRoute를 통해 HagiCode가 CodeBuddy를 다음 단계로 끌어올리는 방법을 살펴보세요. 공통 도구 호출 뷰와 TokenMonitor 상태 표시줄 사용량도 다룹니다."
+    "title": "CodeBuddy vs HagiCode 비교: 기능과 차이점",
+    "description": "CodeBuddy의 주요 기능, 엔터프라이즈급 특성, 기술 생태계를 이해하고, 멀티스레드 병렬, OpenSpec 제안, AI 커밋, HagiTask, 게임화 UI, Agents 관리, Monospecs, Vault, OmniRoute를 통해 HagiCode가 CodeBuddy를 다음 단계로 끌어올리는 방법을 살펴보세요. 공통 도구 호출 뷰와 TokenMonitor 상태 표시줄 사용량도 다룹니다."
   },
-  "summary": "CodeBuddy CLI는 엔터프라이즈 개발 시나리오를 위해 설계된 AI 코딩 어시스턴트로, 보안, 컴플라이언스, 팀 협업을 핵심으로 삼습니다. CodeBuddy CLI는 견고한 코드 보호와 컴플라이언스 보장을 제공하는 반면, HagiCode는 워크플로, 지식 관리, 다중 리포 연동 같은 더 넓은 영역을 담당하는 워크벤치입니다. 둘을 결합하면 엔터프라이즈급 AI 개발 경험을 완성할 수 있습니다. 또한 공통 도구 호출 뷰와, 상태 표시줄에 표시되는 선택형 TokenMonitor 사용량도 다룹니다.",
+  "summary": "CodeBuddy는 엔터프라이즈 개발 시나리오를 위해 설계된 AI 코딩 어시스턴트로, 보안, 컴플라이언스, 팀 협업을 핵심으로 삼습니다. CodeBuddy는 견고한 코드 보호와 컴플라이언스 보장을 제공하는 반면, HagiCode는 워크플로, 지식 관리, 다중 리포 연동 같은 더 넓은 영역을 담당하는 워크벤치입니다. 둘을 결합하면 엔터프라이즈급 AI 개발 경험을 완성할 수 있습니다. 또한 공통 도구 호출 뷰와, 상태 표시줄에 표시되는 선택형 TokenMonitor 사용량도 다룹니다.",
   "sections": [
     {
       "id": "codebuddy-vs-hagicode-section-1",
-      "title": "CodeBuddy CLI의 핵심 강점",
+      "title": "CodeBuddy의 핵심 강점",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "codebuddy-vs-hagicode-section-1-item-1",
               "title": "주요 기능",
               "content": [
-                "CodeBuddy CLI의 기능은 엔터프라이즈급 AI 코딩을 중심으로 구축됩니다：",
+                "CodeBuddy의 기능은 엔터프라이즈급 AI 코딩을 중심으로 구축됩니다：",
                 "지능형 코드 생성 및 리팩터링：CodeBuddy는 자연어 설명이나 코드 맥락에서 고품질 코드 구현을 생성합니다. 여러 프로그래밍 언어와 프레임워크를 지원하며, 특히 엔터프라이즈 Java, C# 등 백엔드 스택에서 뛰어난 성능을 냅니다. 리팩터링 제안은 성능, 유지보수성, 팀 코딩 기준의 균형을 맞춥니다.",
                 "보안 컴플라이언스 코드 리뷰：CodeBuddy의 코드 리뷰는 기능적 버그를 넘어 보안 취약점 탐지와 컴플라이언스 점검을 특히 강조합니다. 금융과 의료처럼 코드 보안 요구사항이 엄격한 산업에서, 이것은 핵심 차별화 요소입니다.",
                 "팀 협업과 지식 관리：CodeBuddy는 팀 수준의 설정 관리와 코딩 기준 동기화를 지원합니다. 팀 리드가 코딩 기준, 보안 규칙, 모범 사례 템플릿을 정의하면, CodeBuddy를 쓰는 모든 팀원이 자동으로 이를 따릅니다."
@@ -43,7 +43,7 @@
               "title": "기술 생태계",
               "content": [
                 "CodeBuddy의 기술 생태계는 엔터프라이즈 개발 시나리오를 중심으로 구축됩니다：",
-                "ACP 프로토콜 지원：CodeBuddy CLI는 ACP 프로토콜을 지원해, 다른 ACP 호환 AI 도구와의 표준화된 상호운용을 가능하게 합니다.",
+                "ACP 프로토콜 지원：CodeBuddy는 ACP 프로토콜을 지원해, 다른 ACP 호환 AI 도구와의 표준화된 상호운용을 가능하게 합니다.",
                 "엔터프라이즈 기술 스택에 대한 깊은 적응：CodeBuddy는 Java Spring, .NET, 마이크로서비스 아키텍처 같은 주류 엔터프라이즈 스택에 깊이 적응해, 엔터프라이즈 프레임워크 관행에 뛰어난 코드를 생산합니다.",
                 "CI/CD 통합：CodeBuddy는 기존 엔터프라이즈 CI/CD 파이프라인에 통합되어, 코드 커밋, 빌드, 배포 단계에서 AI 능력을 적용할 수 있습니다."
               ]
@@ -54,7 +54,7 @@
     },
     {
       "id": "codebuddy-vs-hagicode-section-2",
-      "title": "왜 CodeBuddy CLI에 HagiCode가 필요한가",
+      "title": "왜 CodeBuddy에 HagiCode가 필요한가",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-2-intro",
@@ -208,10 +208,10 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-11",
-              "title": "통합 도구 호출 뷰：CodeBuddy CLI의 도구 사용을 일관된 형태로 확인",
+              "title": "통합 도구 호출 뷰：CodeBuddy의 도구 사용을 일관된 형태로 확인",
               "content": [
                 "HagiCode는 모든 도구 호출 메시지와 도구 결과 메시지에 타입이 지정된 하나의 도구 호출 구조를 붙입니다. 도구 종류, 입력 필드, 상태, 결과 텍스트나 이미지, 오류, 소요 시간이 여기에 담깁니다. 이 구조는 저장된 데이터에서 계산되므로 세션 기록과 실시간 업데이트가 똑같은 모습으로 표시됩니다.",
-                "모든 프로바이더에 같은 구조가 적용되므로 CodeBuddy CLI의 도구 호출도 워크스페이스의 다른 에이전트와 같은 형태로 보입니다. CLI마다 다른 원본 출력을 따로 익힐 필요 없이 하나의 형식만 읽으면 됩니다."
+                "모든 프로바이더에 같은 구조가 적용되므로 CodeBuddy의 도구 호출도 워크스페이스의 다른 에이전트와 같은 형태로 보입니다. CLI마다 다른 원본 출력을 따로 익힐 필요 없이 하나의 형식만 읽으면 됩니다."
               ],
               "bullets": [
                 "모든 프로바이더에 하나의 구조：shell, 파일, 검색, fetch, MCP 호출이 일관되게 표시됩니다;",
@@ -244,8 +244,8 @@
           "id": "codebuddy-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "CodeBuddy CLI는 보안, 컴플라이언스, 팀 협업 능력으로 알려진 엔터프라이즈급 AI 코딩 어시스턴트입니다. HagiCode는 종합적인 AI 프로그래밍 워크벤치입니다. 둘의 관계는 보완적입니다：",
-            "이미 CodeBuddy CLI를 쓰고 있다면, HagiCode에 연결해 보세요. CodeBuddy의 보안과 컴플라이언스 장점이 더 이상 '단일 도구의 돋보이는 기능'에 머물지 않고, 완전한 워크플로 플랫폼이 뒷받침하는 엔터프라이즈급 AI 개발 시스템의 일부가 된 것을 알게 될 것입니다."
+            "CodeBuddy는 보안, 컴플라이언스, 팀 협업 능력으로 알려진 엔터프라이즈급 AI 코딩 어시스턴트입니다. HagiCode는 종합적인 AI 프로그래밍 워크벤치입니다. 둘의 관계는 보완적입니다：",
+            "이미 CodeBuddy를 쓰고 있다면, HagiCode에 연결해 보세요. CodeBuddy의 보안과 컴플라이언스 장점이 더 이상 '단일 도구의 돋보이는 기능'에 머물지 않고, 완전한 워크플로 플랫폼이 뒷받침하는 엔터프라이즈급 AI 개발 시스템의 일부가 된 것을 알게 될 것입니다."
           ]
         },
         {

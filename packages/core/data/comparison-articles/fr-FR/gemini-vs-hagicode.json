@@ -5,14 +5,14 @@
   "locale": "fr-FR",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Gemini CLI vs HagiCode : fonctionnalités et comparaison",
-    "description": "Comprenez les fonctions clés de Google Gemini CLI, ses capacités multimodales et son intégration à l'écosystème Google, et voyez comment HagiCode porte Gemini CLI au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
+    "title": "Gemini vs HagiCode : fonctionnalités et comparaison",
+    "description": "Comprenez les fonctions clés de Google Gemini, ses capacités multimodales et son intégration à l'écosystème Google, et voyez comment HagiCode porte Gemini au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
   },
-  "summary": "Google Gemini CLI est l'outil de programmation IA terminal officiel de Google. Avec la compréhension multimodale de Gemini, sa capacité de traitement à contexte ultra-long et son intégration profonde à l'écosystème Google, il excelle particulièrement dans les tâches complexes incluant des informations visuelles. Cependant, Gemini CLI est essentiellement un outil terminal, et HagiCode est un atelier avec visualisation, gestion et persistance des connaissances. Les deux ensemble étendent la capacité multimodale de Gemini à une expérience de développement complète. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état.",
+  "summary": "Google Gemini est l'outil de programmation IA terminal officiel de Google. Avec la compréhension multimodale de Gemini, sa capacité de traitement à contexte ultra-long et son intégration profonde à l'écosystème Google, il excelle particulièrement dans les tâches complexes incluant des informations visuelles. Cependant, Gemini est essentiellement un outil terminal, et HagiCode est un atelier avec visualisation, gestion et persistance des connaissances. Les deux ensemble étendent la capacité multimodale de Gemini à une expérience de développement complète. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état.",
   "sections": [
     {
       "id": "gemini-vs-hagicode-section-1",
-      "title": "Les forces principales de Gemini CLI",
+      "title": "Les forces principales de Gemini",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-1-capabilities",
@@ -22,10 +22,10 @@
               "id": "gemini-vs-hagicode-section-1-item-1",
               "title": "Fonctions clés",
               "content": [
-                "La fonctionnalité de Google Gemini CLI tourne autour des avantages uniques du modèle Gemini :",
+                "La fonctionnalité de Google Gemini tourne autour des avantages uniques du modèle Gemini :",
                 "Compréhension multimodale du code : Gemini peut comprendre simultanément le code, les captures d'écran, les diagrammes d'architecture et les documents de conception. Il traite non seulement du texte mais aussi des informations visuelles, et a des forces dans des tâches comme coller une capture d'écran UI pour générer le code d'un composant.",
                 "Traitement à contexte ultra-long : Gemini prend en charge des fenêtres de contexte au niveau du million de tokens. Cela signifie que même si vous chargez de grandes codebases, plusieurs documents ou de longs documents de conception en une fois, il comprend le tout de manière cohérente. Un avantage pour l'analyse de projets extrêmement vastes.",
-                "Intégration native en ligne de commande : Gemini CLI fournit une expérience de programmation terminal complète. Il intègre opérations sur fichiers, exécution de commandes et liaison Git, et complète le workflow de développement sans quitter le terminal."
+                "Intégration native en ligne de commande : Gemini fournit une expérience de programmation terminal complète. Il intègre opérations sur fichiers, exécution de commandes et liaison Git, et complète le workflow de développement sans quitter le terminal."
               ]
             },
             {
@@ -42,10 +42,10 @@
               "id": "gemini-vs-hagicode-section-1-item-3",
               "title": "Écosystème et intégration",
               "content": [
-                "L'écosystème de Gemini CLI tourne autour de la stack technologique de Google :",
-                "Intégration Google Cloud : Gemini CLI est naturellement connecté aux services Google Cloud et peut accéder directement à Cloud Storage, BigQuery, Vertex AI et plus. Transparent pour les équipes qui utilisent Google Cloud.",
-                "Open source et piloté par la communauté : Gemini CLI est un projet open source hébergé sur GitHub. La communauté participe à l'itération via des suggestions de fonctionnalités, des rapports de bugs et des contributions de code.",
-                "Support du protocole ACP : Gemini CLI prend en charge ACP (Agent Communication Protocol), permettant une communication standardisée avec d'autres outils et plateformes IA."
+                "L'écosystème de Gemini tourne autour de la stack technologique de Google :",
+                "Intégration Google Cloud : Gemini est naturellement connecté aux services Google Cloud et peut accéder directement à Cloud Storage, BigQuery, Vertex AI et plus. Transparent pour les équipes qui utilisent Google Cloud.",
+                "Open source et piloté par la communauté : Gemini est un projet open source hébergé sur GitHub. La communauté participe à l'itération via des suggestions de fonctionnalités, des rapports de bugs et des contributions de code.",
+                "Support du protocole ACP : Gemini prend en charge ACP (Agent Communication Protocol), permettant une communication standardisée avec d'autres outils et plateformes IA."
               ]
             }
           ]
@@ -193,7 +193,7 @@
             },
             {
               "id": "gemini-vs-hagicode-section-2-item-10",
-              "title": "Routage de modèle OmniRoute : donner à Gemini CLI plus d'un chemin",
+              "title": "Routage de modèle OmniRoute : donner à Gemini plus d'un chemin",
               "content": [
                 "Les équipes devraient pouvoir conserver le workflow qu'elles aiment sans verrouiller l'accès au modèle à un seul fournisseur ou un seul chemin d'abonnement.",
                 "OmniRoute sépare la couche d'interaction de la couche de routage de modèle, de sorte que HagiCode peut garder Gemini dans le workflow tout en changeant les sources de modèle en dessous.",
@@ -208,10 +208,10 @@
             },
             {
               "id": "gemini-vs-hagicode-section-2-item-11",
-              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Gemini CLI sous une forme cohérente",
+              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Gemini sous une forme cohérente",
               "content": [
                 "HagiCode associe une même structure typée d'appel d'outil à chaque message d'utilisation d'outil et de résultat d'outil. Elle consigne le type d'outil, ses champs d'entrée, son statut, le texte ou les images du résultat, l'éventuelle erreur et la durée. Cette structure est calculée à partir des données stockées : l'historique de la session et les mises à jour en direct affichent donc la même vue.",
-                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Gemini CLI ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
+                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Gemini ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
               ],
               "bullets": [
                 "Une seule structure pour tous les fournisseurs : les appels shell, fichier, recherche, fetch et MCP sont présentés de façon cohérente ;",
@@ -244,8 +244,8 @@
           "id": "gemini-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Google Gemini CLI est un outil de programmation IA aux capacités multimodales uniquement puissantes et au contexte ultra-long, et HagiCode est un atelier conçu pour les scénarios de programmation IA. Leur relation est complémentaire :",
-            "Si vous utilisez déjà Gemini CLI, essayez de le connecter à HagiCode — vous découvrirez que la compréhension multimodale de Gemini atterrit de manière plus ordonnée et plus durablement valuable au sein d'un atelier avec gestion visuelle et persistance des connaissances."
+            "Google Gemini est un outil de programmation IA aux capacités multimodales uniquement puissantes et au contexte ultra-long, et HagiCode est un atelier conçu pour les scénarios de programmation IA. Leur relation est complémentaire :",
+            "Si vous utilisez déjà Gemini, essayez de le connecter à HagiCode — vous découvrirez que la compréhension multimodale de Gemini atterrit de manière plus ordonnée et plus durablement valuable au sein d'un atelier avec gestion visuelle et persistance des connaissances."
           ]
         },
         {

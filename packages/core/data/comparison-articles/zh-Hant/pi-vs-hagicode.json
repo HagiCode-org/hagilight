@@ -5,14 +5,14 @@
   "locale": "zh-Hant",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Pi CLI 對比 HagiCode:功能與差異",
-    "description": "了解 Pi CLI 以 provider 為中心的工作方式、會話控制和工具治理能力，並从多線程並行、OpenSpec 提案、AI 提交、HagiTask、游戏化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何把 Pi 變成生產級的 AI 编程工作台。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。包含可接續同一次執行的互動式提問。"
+    "title": "Pi 對比 HagiCode:功能與差異",
+    "description": "了解 Pi 以 provider 為中心的工作方式、會話控制和工具治理能力，並从多線程並行、OpenSpec 提案、AI 提交、HagiTask、游戏化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何把 Pi 變成生產級的 AI 编程工作台。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。包含可接續同一次執行的互動式提問。"
   },
-  "summary": "Pi CLI 是一個强调 provider 解耦的灵活 AI 编程入口。它通过可配置的 thinking 模式、會話持久化控制以及顯式的工具開关，讓開發者能夠更细粒度地决定 AI 助手该如何工作。不过 Pi CLI 本質上仍然是一個命令行入口，而 HagiCode 是一個完整的 AI 编程工作台。两者結合，才能把 Pi 从“可配置 CLI”升級為“日常開發環境”。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。Pi CLI 可以在執行中提出結構化問題，你回答之後，執行便會接續進行。",
+  "summary": "Pi 是一個强调 provider 解耦的灵活 AI 编程入口。它通过可配置的 thinking 模式、會話持久化控制以及顯式的工具開关，讓開發者能夠更细粒度地决定 AI 助手该如何工作。不过 Pi 本質上仍然是一個命令行入口，而 HagiCode 是一個完整的 AI 编程工作台。两者結合，才能把 Pi 从“可配置 CLI”升級為“日常開發環境”。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。Pi 可以在執行中提出結構化問題，你回答之後，執行便會接續進行。",
   "sections": [
     {
       "id": "pi-vs-hagicode-section-1",
-      "title": "Pi CLI 的核心能力",
+      "title": "Pi 的核心能力",
       "blocks": [
         {
           "id": "pi-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "pi-vs-hagicode-section-1-item-1",
               "title": "主要功能",
               "content": [
-                "Pi CLI 的价值不在于把你锁进某一個模型供應商，而在于给你更可控的 AI 執行方式：",
+                "Pi 的价值不在于把你锁进某一個模型供應商，而在于给你更可控的 AI 執行方式：",
                 "以 provider 為中心的模型接入：Pi 可以指向不同的模型後端，而不是把工作流强行绑定在单一供應商上。對于希望保留同一套 CLI 习惯、但又想灵活切换模型来源的團隊来说，這一點非常重要。",
                 "可配置的 thinking 與會話行為：Pi 暴露了 thinking、sessionDirectory 和 noSession 等控制項。你可以决定一個任務應该保留歷史上下文、持續複用會話，還是每次都以完全无状態的方式運行。",
                 "顯式的工具治理：Pi 允许你关闭内建工具，甚至整體关闭工具能力。当你需要更嚴格的安全邊界、更可预测的執行行為時，這种控制权會非常有价值。"
@@ -54,7 +54,7 @@
     },
     {
       "id": "pi-vs-hagicode-section-2",
-      "title": "為什么 Pi CLI 需要 HagiCode",
+      "title": "為什么 Pi 需要 HagiCode",
       "blocks": [
         {
           "id": "pi-vs-hagicode-section-2-intro",
@@ -209,10 +209,10 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-11",
-              "title": "統一的工具呼叫檢視：以一致的樣貌查看 Pi CLI 的工具使用",
+              "title": "統一的工具呼叫檢視：以一致的樣貌查看 Pi 的工具使用",
               "content": [
                 "HagiCode 會為每則工具使用與工具結果訊息附上同一種具型別的工具呼叫結構，內容涵蓋工具類型、輸入欄位、狀態、結果文字或圖片、錯誤訊息與耗時。這個結構是由已儲存的資料即時計算而來，因此會話歷史與即時更新看到的內容完全一致。",
-                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 Pi CLI 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
+                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 Pi 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
               ],
               "bullets": [
                 "所有供應商共用同一種結構，shell、檔案、搜尋、擷取與 MCP 呼叫的呈現方式一致；",
@@ -235,9 +235,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-13",
-              "title": "互動式提問：讓 Pi CLI 開口詢問，並在同一次執行中接續進行",
+              "title": "互動式提問：讓 Pi 開口詢問，並在同一次執行中接續進行",
               "content": [
-                "當 Pi CLI 需要你做決定時，可以在執行過程中向你提出結構化的問題。HagiCode 會把問題顯示在會話裡，會話狀態會從執行中變成等待回覆，而你的回答會讓同一次執行繼續往下走。",
+                "當 Pi 需要你做決定時，可以在執行過程中向你提出結構化的問題。HagiCode 會把問題顯示在會話裡，會話狀態會從執行中變成等待回覆，而你的回答會讓同一次執行繼續往下走。",
                 "如果執行已經結束，例如重新啟動或逾時之後，你的回答會以一般訊息的形式送進同一個會話，讓工作得以接續完成。"
               ],
               "bullets": [
@@ -258,7 +258,7 @@
           "id": "pi-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Pi CLI 是一個灵活、以 provider 為中心的 AI 编程入口，HagiCode 是一個完整的 AI 编程工作台。它們的關係是互补：",
+            "Pi 是一個灵活、以 provider 為中心的 AI 编程入口，HagiCode 是一個完整的 AI 编程工作台。它們的關係是互补：",
             "如果你已經在用 Pi，不妨试试把它接入 HagiCode——你會發现 Pi 不再只是一個可配置的終端命令，而是一個運行在結構化工程環境中的全流程 AI 搭檔。"
           ]
         },

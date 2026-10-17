@@ -5,7 +5,7 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Pi CLI vs HagiCode: Features and Comparison",
+    "title": "Pi vs HagiCode: Features and Comparison",
     "description": "Pi is a free, MIT-licensed minimal coding agent you extend yourself; HagiCode is a workbench that runs it. Compare features, pricing and when each fits."
   },
   "summary": "Pi is a minimal, MIT-licensed terminal coding agent that you shape with extensions, skills and packages. HagiCode is a workbench that runs Pi as its executor and adds sessions, proposals and commit tooling around it.",

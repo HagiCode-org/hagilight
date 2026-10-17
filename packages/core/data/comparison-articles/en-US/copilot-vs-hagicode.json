@@ -6,9 +6,9 @@
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "GitHub Copilot vs HagiCode: Features and Comparison",
-    "description": "GitHub Copilot CLI is a terminal agent; HagiCode is a workbench that runs it. Compare features, pricing and fit, and see when to use Copilot CLI alone."
+    "description": "GitHub Copilot is a terminal agent; HagiCode is a workbench that runs it. Compare features, pricing and fit, and see when to use Copilot alone."
   },
-  "summary": "GitHub Copilot CLI is a terminal AI agent that runs on your Copilot subscription; HagiCode is a desktop workbench that uses it as an executor. This page compares what each does, what they cost, and when Copilot CLI alone is enough.",
+  "summary": "GitHub Copilot is a terminal AI agent that runs on your Copilot subscription; HagiCode is a desktop workbench that uses it as an executor. This page compares what each does, what they cost, and when Copilot alone is enough.",
   "sections": [
     {
       "id": "copilot-vs-hagicode-section-1",
@@ -18,22 +18,22 @@
           "id": "copilot-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "GitHub Copilot CLI is GitHub's terminal AI coding agent: you run `copilot` in a repo, and it reads, edits and runs commands using your Copilot subscription. HagiCode is a desktop and web workbench that launches Copilot CLI (or one of 15 other Agent CLIs) as the executor behind its sessions, proposals and commits. It does not replace Copilot CLI and it does not sell models.",
-            "If you want one agent in one terminal, close to GitHub issues and pull requests, stay with Copilot CLI alone. HagiCode earns its place when you run several tasks at once, want spec-driven proposals, or prefer a visual workspace on top of the same Copilot login."
+            "GitHub Copilot is GitHub's terminal AI coding agent: you run `copilot` in a repo, and it reads, edits and runs commands using your Copilot subscription. HagiCode is a desktop and web workbench that launches Copilot (or one of 15 other Agent CLIs) as the executor behind its sessions, proposals and commits. It does not replace Copilot and it does not sell models.",
+            "If you want one agent in one terminal, close to GitHub issues and pull requests, stay with Copilot alone. HagiCode earns its place when you run several tasks at once, want spec-driven proposals, or prefer a visual workspace on top of the same Copilot login."
           ]
         }
       ]
     },
     {
       "id": "copilot-vs-hagicode-section-2",
-      "title": "GitHub Copilot CLI vs HagiCode at a glance",
+      "title": "GitHub Copilot vs HagiCode at a glance",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Dimension",
-            "GitHub Copilot CLI",
+            "GitHub Copilot",
             "HagiCode"
           ],
           "rows": [
@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "Pick models with `/model`, including Claude and GPT families; bring-your-own provider via environment variables",
-                "Hosts no models; uses whatever Copilot CLI is signed in with, so model cost stays on your Copilot plan"
+                "Hosts no models; uses whatever Copilot is signed in with, so model cost stays on your Copilot plan"
               ]
             },
             {
@@ -98,7 +98,7 @@
               "cells": [
                 "Setup effort",
                 "One install command, then `/login` or a token; no extra app",
-                "Install HagiCode Desktop, and have Copilot CLI installed and signed in first"
+                "Install HagiCode Desktop, and have Copilot installed and signed in first"
               ]
             },
             {
@@ -115,7 +115,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-3",
-      "title": "What GitHub Copilot CLI does well",
+      "title": "What GitHub Copilot does well",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-3-capabilities",
@@ -125,7 +125,7 @@
               "id": "copilot-vs-hagicode-section-3-item-1",
               "title": "GitHub-native by design",
               "content": [
-                "Copilot CLI is built by the company that hosts your repository, so asking it about issues, pull requests and GitHub.com is a first-class use rather than a plugin. It signs in with `/login`, or with a fine-grained personal access token that has the \"Copilot Requests\" permission, passed as `GH_TOKEN` or `GITHUB_TOKEN`, which is convenient for scripts."
+                "Copilot is built by the company that hosts your repository, so asking it about issues, pull requests and GitHub.com is a first-class use rather than a plugin. It signs in with `/login`, or with a fine-grained personal access token that has the \"Copilot Requests\" permission, passed as `GH_TOKEN` or `GITHUB_TOKEN`, which is convenient for scripts."
               ]
             },
             {
@@ -155,7 +155,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-4",
-      "title": "When to choose GitHub Copilot CLI, and when to choose HagiCode",
+      "title": "When to choose GitHub Copilot, and when to choose HagiCode",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-4-choose-agent",
@@ -188,7 +188,7 @@
             "Headless CI jobs and scripted one-shot runs: call `copilot -p` directly.",
             "You only want a terminal and no GUI, or a quick question inside an editor you already use.",
             "Your team does not want proposal and spec discipline; HagiCode is built around it.",
-            "HagiCode needs Copilot CLI installed and signed in first, so it adds setup compared with running Copilot CLI alone, and free editions cap concurrent proposals at 3.",
+            "HagiCode needs Copilot installed and signed in first, so it adds setup compared with running Copilot alone, and free editions cap concurrent proposals at 3.",
             "It is not an IDE replacement: deep manual editing beyond the embedded Code Server belongs in your own editor."
           ]
         }
@@ -196,7 +196,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-5",
-      "title": "Using GitHub Copilot CLI together with HagiCode",
+      "title": "Using GitHub Copilot together with HagiCode",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-5-intro",
@@ -210,23 +210,23 @@
           "id": "copilot-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. Install Copilot CLI (`npm install -g @github/copilot`, `brew install copilot-cli`, or `winget install GitHub.Copilot`) and sign in with `/login`.",
+            "1. Install Copilot (`npm install -g @github/copilot`, `brew install copilot-cli`, or `winget install GitHub.Copilot`) and sign in with `/login`.",
             "2. Install HagiCode Desktop (free) for Windows, macOS or Linux.",
             "3. In HagiCode, choose GitHub Copilot as the Agent CLI for a session.",
             "4. Open a repository and start a session or an OpenSpec proposal.",
             "5. Expect the usual Copilot model choices and billing; HagiCode adds the surrounding workflow, not new models.",
-            "6. To go back to plain Copilot CLI, just open a terminal in the same repository."
+            "6. To go back to plain Copilot, just open a terminal in the same repository."
           ]
         },
         {
           "id": "copilot-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "What works for GitHub Copilot CLI inside HagiCode",
+          "title": "What works for GitHub Copilot inside HagiCode",
           "content": [
-            "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Copilot CLI.",
+            "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Copilot.",
             "Does not apply to Copilot: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
-            "HagiCode passes only a verified subset of Copilot startup flags to the CLI, and if your organisation has disabled Copilot CLI, HagiCode cannot use it either."
+            "HagiCode passes only a verified subset of Copilot startup flags to the CLI, and if your organisation has disabled Copilot, HagiCode cannot use it either."
           ]
         }
       ]
@@ -243,7 +243,7 @@
               "id": "copilot-vs-hagicode-section-6-item-1",
               "title": "Parallel sessions and Agents management",
               "content": [
-                "Copilot CLI is one conversation per terminal. In HagiCode you can keep several Copilot sessions running across repositories and follow them from an Agents view, instead of juggling tabs."
+                "Copilot is one conversation per terminal. In HagiCode you can keep several Copilot sessions running across repositories and follow them from an Agents view, instead of juggling tabs."
               ]
             },
             {
@@ -286,8 +286,8 @@
           "id": "copilot-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Copilot CLI is a capable, GitHub-aware terminal agent; if one terminal and one task at a time is your workflow, you do not need anything else.",
-            "HagiCode is a different layer: a workbench for parallel sessions, proposals and commits that runs Copilot CLI underneath.",
+            "Copilot is a capable, GitHub-aware terminal agent; if one terminal and one task at a time is your workflow, you do not need anything else.",
+            "HagiCode is a different layer: a workbench for parallel sessions, proposals and commits that runs Copilot underneath.",
             "Using both costs nothing extra beyond your Copilot plan, since HagiCode's free editions run your existing install.",
             "Skip HagiCode if you need headless automation or dislike spec discipline."
           ]
@@ -297,24 +297,24 @@
   ],
   "faq": [
     {
-      "question": "Is GitHub Copilot CLI free?",
+      "question": "Is GitHub Copilot free?",
       "answer": "There is a free Copilot tier with limited usage, and paid plans from Pro upward; Pro starts at $10/month as of October 2026. Plan names, prices and usage allowances change, so check GitHub's Copilot plans page."
     },
     {
-      "question": "How do I install GitHub Copilot CLI?",
+      "question": "How do I install GitHub Copilot?",
       "answer": "Run `npm install -g @github/copilot`, `brew install copilot-cli`, `winget install GitHub.Copilot`, or `curl -fsSL https://gh.io/copilot-install | bash`. Then start `copilot` and sign in with `/login`."
     },
     {
-      "question": "Can I use GitHub Copilot CLI with HagiCode?",
-      "answer": "Yes. Install and sign in to Copilot CLI first, then pick GitHub Copilot as the Agent CLI in HagiCode. Billing stays with your Copilot plan."
+      "question": "Can I use GitHub Copilot with HagiCode?",
+      "answer": "Yes. Install and sign in to Copilot first, then pick GitHub Copilot as the Agent CLI in HagiCode. Billing stays with your Copilot plan."
     },
     {
-      "question": "Does HagiCode replace GitHub Copilot CLI?",
-      "answer": "No. HagiCode runs Copilot CLI as its executor and adds sessions, proposals, commits and a GUI around it."
+      "question": "Does HagiCode replace GitHub Copilot?",
+      "answer": "No. HagiCode runs Copilot as its executor and adds sessions, proposals, commits and a GUI around it."
     },
     {
-      "question": "GitHub Copilot CLI vs HagiCode: which should I pick?",
-      "answer": "Use Copilot CLI alone for single-terminal work and scripts. Add HagiCode when you run parallel tasks, want OpenSpec proposals, or prefer a visual workspace."
+      "question": "GitHub Copilot vs HagiCode: which should I pick?",
+      "answer": "Use Copilot alone for single-terminal work and scripts. Add HagiCode when you run parallel tasks, want OpenSpec proposals, or prefer a visual workspace."
     }
   ]
 }

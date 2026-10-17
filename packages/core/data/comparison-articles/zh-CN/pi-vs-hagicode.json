@@ -5,7 +5,7 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Pi CLI 对比 HagiCode:功能与差异",
+    "title": "Pi 对比 HagiCode:功能与差异",
     "description": "Pi 是免费、MIT 许可的极简编码 Agent，由你自己扩展；HagiCode 是运行它的工作台。对比功能、价格与适用场景，看各自适合谁。"
   },
   "summary": "Pi 是极简的 MIT 许可终端编码 Agent，靠扩展、Skills 和包按需定制。HagiCode 是把 Pi 当作执行器来运行的工作台，在它外面补上会话、提案和提交工具。",

@@ -5,7 +5,7 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI 对比 HagiCode:功能与差异",
+    "title": "CodeBuddy 对比 HagiCode:功能与差异",
     "description": "CodeBuddy Code 是腾讯云的终端 AI 编程 Agent，HagiCode 是运行它的工作台。对比安装方式、价格、功能和适用场景。"
   },
   "summary": "CodeBuddy Code 是腾讯云的终端编程 Agent，可通过 npm、Homebrew 或原生二进制安装。HagiCode 是桌面工作台，把 CodeBuddy 当作执行器运行，并在外面补上并行会话、提案和 AI 提交。",

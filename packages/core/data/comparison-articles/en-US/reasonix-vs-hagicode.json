@@ -5,7 +5,7 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Reasonix CLI vs HagiCode: Features and Comparison",
+    "title": "Reasonix vs HagiCode: Features and Comparison",
     "description": "Reasonix is a free, MIT-licensed coding agent with a DeepSeek preset; HagiCode is a workbench that runs it. Compare features, pricing, setup and fit."
   },
   "summary": "Reasonix is an MIT-licensed open-source coding agent that runs on your machine, with a DeepSeek preset and support for any OpenAI-compatible model. HagiCode is a workbench that runs Reasonix through its ACP mode and adds sessions, proposals and commit tooling.",

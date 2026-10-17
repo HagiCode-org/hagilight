@@ -5,14 +5,14 @@
   "locale": "es-ES",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Kiro CLI vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de Kiro CLI, sus características técnicas y su experiencia de desarrollador, y ve cómo HagiCode lleva a Kiro CLI al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "title": "Kiro vs HagiCode: funciones y comparación",
+    "description": "Comprende las funciones clave de Kiro, sus características técnicas y su experiencia de desarrollador, y ve cómo HagiCode lleva a Kiro al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
-  "summary": "Kiro CLI es una herramienta CLI de programación IA centrada en la experiencia del desarrollador, diseñada en torno a la simplicidad, el refinamiento y la eficiencia. Con onboarding ultrarrápido, generación de código precisa y feedback de interacción claro, es conocida por una experiencia de codificación agradable. Sin embargo, Kiro CLI es una herramienta de terminal, y HagiCode es un workbench con gestión multi-repo, persistencia de conocimiento y flujo de trabajo visual. Ambos juntos extienden la experiencia refinada de Kiro a un proceso de desarrollo completo. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
+  "summary": "Kiro es una herramienta CLI de programación IA centrada en la experiencia del desarrollador, diseñada en torno a la simplicidad, el refinamiento y la eficiencia. Con onboarding ultrarrápido, generación de código precisa y feedback de interacción claro, es conocida por una experiencia de codificación agradable. Sin embargo, Kiro es una herramienta de terminal, y HagiCode es un workbench con gestión multi-repo, persistencia de conocimiento y flujo de trabajo visual. Ambos juntos extienden la experiencia refinada de Kiro a un proceso de desarrollo completo. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
     {
       "id": "kiro-vs-hagicode-section-1",
-      "title": "Las fortalezas principales de Kiro CLI",
+      "title": "Las fortalezas principales de Kiro",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "kiro-vs-hagicode-section-1-item-1",
               "title": "Funciones clave",
               "content": [
-                "La funcionalidad de Kiro CLI se centra en la simplicidad y la eficiencia:",
+                "La funcionalidad de Kiro se centra en la simplicidad y la eficiencia:",
                 "Onboarding ultrarrápido: el proceso de instalación y configuración de Kiro es extremadamente racionalizado y arranca en unos pocos pasos. Sin configuración compleja ni largo proceso de introducción, los desarrolladores entran rápidamente en el codificación real.",
                 "Generación de código precisa: Kiro se distingue por la precisión de la generación de código. No vomita código masivamente de golpe, sino que genera precisamente las partes necesarias y se caracteriza por la alta calidad y usabilidad del código generado.",
                 "Feedback de interacción claro: el diseño de interacción de Kiro enfatiza la claridad de la transmisión de información. El estado de ejecución, el progreso y los resultados se presentan todos claramente, permitiendo a los desarrolladores captar la situación actual de un vistazo."
@@ -32,7 +32,7 @@
               "id": "kiro-vs-hagicode-section-1-item-2",
               "title": "Características técnicas",
               "content": [
-                "Kiro CLI tiene varias características técnicas notables:",
+                "Kiro tiene varias características técnicas notables:",
                 "Cadena de herramientas eficiente: Kiro se integra automáticamente bien con las cadenas de herramientas de desarrollo comunes y coopera sin configuración manual. Esto aumenta la eficiencia de desarrollo.",
                 "Filtrado de contexto inteligente: Kiro puede juzgar automáticamente qué archivos necesitan cargarse como contexto, evita la carga de archivos irrelevantes y aumenta la velocidad y precisión de respuesta.",
                 "Autenticación simplificada: el diseño de autenticación de Kiro prioriza la amigabilidad al desarrollador y simplifica los flujos de autenticación complejos. Los desarrolladores pueden concentrarse en la codificación en lugar de en la autenticación."
@@ -42,8 +42,8 @@
               "id": "kiro-vs-hagicode-section-1-item-3",
               "title": "Experiencia de desarrollador",
               "content": [
-                "Kiro CLI tiene varios aspectos destacados en la experiencia de desarrollador:",
-                "Soporte ACP nativo: Kiro CLI soporta el protocolo ACP, permitiendo la interoperabilidad con otras herramientas IA, y se adapta a escenarios de colaboración multi-herramienta.",
+                "Kiro tiene varios aspectos destacados en la experiencia de desarrollador:",
+                "Soporte ACP nativo: Kiro soporta el protocolo ACP, permitiendo la interoperabilidad con otras herramientas IA, y se adapta a escenarios de colaboración multi-herramienta.",
                 "Interfaz de terminal moderna: la salida de terminal de Kiro está cuidadosamente diseñada — colores, tipografía y diseño están todos optimizados para una legibilidad agradable. Suaviza la frialdad de las herramientas de línea de comandos.",
                 "Cultura de iteración rápida: el equipo de desarrollo de Kiro responde activamente a los comentarios de la comunidad e itera el producto rápidamente. Las sugerencias de los usuarios se incorporan frecuentemente al producto."
               ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "kiro-vs-hagicode-section-2-item-11",
-              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Kiro CLI con un formato coherente",
+              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Kiro con un formato coherente",
               "content": [
                 "HagiCode asocia un único formato tipado de llamada a herramienta a cada mensaje de uso de herramienta y de resultado. Registra el tipo de herramienta, sus campos de entrada, el estado, el texto o las imágenes del resultado, cualquier error y los tiempos. El formato se calcula a partir de los datos almacenados, así que el historial de la sesión y las actualizaciones en vivo muestran la misma vista.",
-                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Kiro CLI se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
+                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Kiro se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
               ],
               "bullets": [
                 "Un solo formato para todos los proveedores: las llamadas de shell, archivos, búsqueda, fetch y MCP se presentan de forma coherente;",
@@ -244,8 +244,8 @@
           "id": "kiro-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Kiro CLI es una herramienta CLI de codificación IA conocida por su refinamiento y precisión. HagiCode es un workbench de programación IA con todas las funciones. Su relación es complementaria:",
-            "Si ya estás usando Kiro CLI, prueba a conectarlo a HagiCode — descubrirás que la experiencia refinada de Kiro se extiende a un proceso de desarrollo más completo dentro de un workbench con visualización y gestión multi-repo."
+            "Kiro es una herramienta CLI de codificación IA conocida por su refinamiento y precisión. HagiCode es un workbench de programación IA con todas las funciones. Su relación es complementaria:",
+            "Si ya estás usando Kiro, prueba a conectarlo a HagiCode — descubrirás que la experiencia refinada de Kiro se extiende a un proceso de desarrollo más completo dentro de un workbench con visualización y gestión multi-repo."
           ]
         },
         {

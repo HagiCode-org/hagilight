@@ -25,7 +25,7 @@
                 "GitHub Copilot 的功能可以概括為三個層面：",
                 "統一的多模型接入：Copilot 最獨特的能力之一，是透過統一的 CLI 介面支援多種 AI 模型——包括 OpenAI 的 GPT 系列（GPT-4、GPT-5）、Claude 系列以及其他主流模型。你不需要為每個模型單獨實現調用邏輯，一套介面背後可以靈活切換模型供給。",
                 "程式碼生成與補全：Copilot 的核心體驗是根據上下文即時生成程式碼建議。它不只是簡單的補全，而是能理解程式碼庫結構、函數簽名和註釋意圖，給出上下文連貫的程式碼片段。從一行程式碼修復到完整組件生成，Copilot 都能覆蓋。",
-                "工具調用與會話管理：Copilot CLI 支援內建的工具調用能力，包括檔案操作、Git 命令執行和 shell 互動。同時支援流式響應輸出和會話上下文保持，讓多輪程式設計對話成為可能。"
+                "工具調用與會話管理：Copilot 支援內建的工具調用能力，包括檔案操作、Git 命令執行和 shell 互動。同時支援流式響應輸出和會話上下文保持，讓多輪程式設計對話成為可能。"
               ]
             },
             {
@@ -43,7 +43,7 @@
               "title": "插件與工具生態",
               "content": [
                 "Copilot 的生態圍繞三個方向展開：",
-                "ACP（Agent Communication Protocol）支援：Copilot CLI 支援 ACP 協議，允許與其他 AI 工具和平台進行標準化通訊，使其成為多工具協作網路中的一個可對接節點。",
+                "ACP（Agent Communication Protocol）支援：Copilot 支援 ACP 協議，允許與其他 AI 工具和平台進行標準化通訊，使其成為多工具協作網路中的一個可對接節點。",
                 "VS Code 與 JetBrains 整合：Copilot 深度整合主流 IDE，支援在編輯器內直接調用 AI 能力，但 CLI 形態的 Copilot 則為終端工作流提供了獨立入口。",
                 "GitHub Actions 與 CI/CD：Copilot 可以融入 GitHub Actions 流水線中，在程式碼審查、自動化測試等環節發揮 AI 能力。"
               ]

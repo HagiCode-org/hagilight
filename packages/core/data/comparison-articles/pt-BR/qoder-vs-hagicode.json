@@ -5,14 +5,14 @@
   "locale": "pt-BR",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "QoderCLI vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do QoderCLI, suas características técnicas e seu ecossistema de aplicação, e veja como o HagiCode eleva o QoderCLI ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
+    "title": "Qoder vs HagiCode: recursos e comparação",
+    "description": "Entenda as funções principais do Qoder, suas características técnicas e seu ecossistema de aplicação, e veja como o HagiCode eleva o Qoder ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
   },
-  "summary": "O QoderCLI é uma ferramenta CLI de programação com IA moderna com interação fluida, gestão de contexto eficiente e chamadas de ferramentas flexíveis. Com um design que coloca a experiência do desenvolvedor em primeiro lugar, ele oferece conversas multi-turno naturais e fluxos de trabalho eficientes. No entanto, o QoderCLI é uma ferramenta de terminal, e o HagiCode é uma workbench com gestão multi-repo, persistência de conhecimento e fluxo de trabalho visual. Ambos juntos estendem a experiência fluida do QoderCLI a um processo de desenvolvimento completo. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
+  "summary": "O Qoder é uma ferramenta CLI de programação com IA moderna com interação fluida, gestão de contexto eficiente e chamadas de ferramentas flexíveis. Com um design que coloca a experiência do desenvolvedor em primeiro lugar, ele oferece conversas multi-turno naturais e fluxos de trabalho eficientes. No entanto, o Qoder é uma ferramenta de terminal, e o HagiCode é uma workbench com gestão multi-repo, persistência de conhecimento e fluxo de trabalho visual. Ambos juntos estendem a experiência fluida do Qoder a um processo de desenvolvimento completo. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
   "sections": [
     {
       "id": "qoder-vs-hagicode-section-1",
-      "title": "As principais forças do QoderCLI",
+      "title": "As principais forças do Qoder",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "qoder-vs-hagicode-section-1-item-1",
               "title": "Funções principais",
               "content": [
-                "A funcionalidade do QoderCLI se centraliza em experiência do desenvolvedor primeiro:",
+                "A funcionalidade do Qoder se centraliza em experiência do desenvolvedor primeiro:",
                 "Gestão de contexto eficiente: o Qoder se destaca na gestão de contexto de sessão. Ele retém inteligentemente informações relevantes da conversa e filtra as irrelevantes, mantendo o contexto nítido mesmo em conversas longas. Isso eleva a qualidade e eficiência da conversa.",
                 "Chamadas de ferramentas fluidas: a cadeia de chamadas de ferramentas do Qoder é limpa e eficiente. Operações de leitura/escrita de arquivos, execução de comandos e busca se encadeiam sem costuras, oferecendo uma experiência de trabalho sem tropeços.",
                 "Conversa multi-turno natural: o design de conversa do Qoder enfatiza continuidade. Mesmo através de múltiplos turnos, ele mantém naturalmente a conexão do contexto, e os desenvolvedores podem expressar fluentemente seus pensamentos e avançar a codificação."
@@ -32,7 +32,7 @@
               "id": "qoder-vs-hagicode-section-1-item-2",
               "title": "Características técnicas",
               "content": [
-                "O QoderCLI tem várias características técnicas notáveis:",
+                "O Qoder tem várias características técnicas notáveis:",
                 "Gestão inteligente da janela de contexto: o Qoder usa a janela de contexto de forma muito eficiente. Em vez de simplesmente atolar grandes quantidades de informação, ele julga inteligentemente a importância, comprime e organiza, explorando ao máximo o espaço de contexto limitado.",
                 "Arquitetura CLI de alta performance: a arquitetura CLI do Qoder é otimizada para inicialização e resposta rápidas. Ela mantém baixo consumo de recursos enquanto oferece excelente performance.",
                 "Integração de cadeia de ferramentas moderna: o Qoder se integra bem com cadeias de ferramentas frontend modernas (Vite, ESLint, Prettier) e se adapta naturalmente a fluxos de trabalho de desenvolvimento contemporâneos."
@@ -42,8 +42,8 @@
               "id": "qoder-vs-hagicode-section-1-item-3",
               "title": "Ecossistema de aplicação",
               "content": [
-                "O ecossistema do QoderCLI se centraliza em cenários de desenvolvimento modernos:",
-                "Suporte ao protocolo ACP: o QoderCLI suporta o protocolo ACP para comunicação padronizada com outras ferramentas e plataformas de IA.",
+                "O ecossistema do Qoder se centraliza em cenários de desenvolvimento modernos:",
+                "Suporte ao protocolo ACP: o Qoder suporta o protocolo ACP para comunicação padronizada com outras ferramentas e plataformas de IA.",
                 "Adaptação ao stack tecnológico moderno: o suporte do Qoder para JavaScript/TypeScript, Python e outros stacks tecnológicos modernos corresponde às necessidades mainstream da comunidade de desenvolvedores de hoje.",
                 "Experiência Quick Start: o Qoder fornece um processo de onboarding minimalista e inicia quase sem configuração. Ele minimiza os custos de entrada e torna os desenvolvedores rapidamente produtivos."
               ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "qoder-vs-hagicode-section-2-item-11",
-              "title": "Visão unificada de chamadas de ferramenta: veja o uso de ferramentas de QoderCLI em um formato consistente",
+              "title": "Visão unificada de chamadas de ferramenta: veja o uso de ferramentas de Qoder em um formato consistente",
               "content": [
                 "O HagiCode anexa um único formato tipado de chamada de ferramenta a cada mensagem de uso e de resultado de ferramenta. Ele registra o tipo da ferramenta, seus campos de entrada, o status, o texto ou as imagens do resultado, qualquer erro e o tempo gasto. O formato é calculado a partir dos dados armazenados, então o histórico da sessão e as atualizações ao vivo mostram a mesma visão.",
-                "O mesmo formato vale para todos os provedores, então as chamadas de ferramenta de QoderCLI ficam parecidas com as de qualquer outro agente do seu workspace. Você lê um único formato em vez de aprender a saída bruta de cada CLI."
+                "O mesmo formato vale para todos os provedores, então as chamadas de ferramenta de Qoder ficam parecidas com as de qualquer outro agente do seu workspace. Você lê um único formato em vez de aprender a saída bruta de cada CLI."
               ],
               "bullets": [
                 "Um formato para todos os provedores: chamadas de shell, arquivos, busca, fetch e MCP são apresentadas de forma consistente;",
@@ -244,8 +244,8 @@
           "id": "qoder-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "O QoderCLI é uma ferramenta CLI de codificação com IA conhecida por sua experiência fluida. O HagiCode é uma plataforma de programação com IA totalmente equipada. A relação deles é complementar:",
-            "Se você já está usando o QoderCLI, tente conectá-lo ao HagiCode — você descobrirá que a experiência fluida do Qoder é estendida a um processo de desenvolvimento mais completo dentro de uma workbench com visualização e gestão multi-repo."
+            "O Qoder é uma ferramenta CLI de codificação com IA conhecida por sua experiência fluida. O HagiCode é uma plataforma de programação com IA totalmente equipada. A relação deles é complementar:",
+            "Se você já está usando o Qoder, tente conectá-lo ao HagiCode — você descobrirá que a experiência fluida do Qoder é estendida a um processo de desenvolvimento mais completo dentro de uma workbench com visualização e gestão multi-repo."
           ]
         },
         {

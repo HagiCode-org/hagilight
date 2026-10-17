@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Kiro CLI 对比 HagiCode:功能与差异",
-    "description": "Kiro CLI 是 Kiro 的终端 Agent,HagiCode 是运行它的工作台。对比功能、按额度计费的价格与适用场景,以及什么时候只用 Kiro CLI 就够。"
+    "title": "Kiro 对比 HagiCode:功能与差异",
+    "description": "Kiro 是 Kiro 的终端 Agent,HagiCode 是运行它的工作台。对比功能、按额度计费的价格与适用场景,以及什么时候只用 Kiro 就够。"
   },
-  "summary": "Kiro CLI 是 Kiro 家族的终端 Agent,按 Kiro 额度计费;HagiCode 是可以把它当执行器运行的工作台。本文对比功能、价格,以及什么时候只用 Kiro CLI 就够。",
+  "summary": "Kiro 是 Kiro 家族的终端 Agent,按 Kiro 额度计费;HagiCode 是可以把它当执行器运行的工作台。本文对比功能、价格,以及什么时候只用 Kiro 就够。",
   "sections": [
     {
       "id": "kiro-vs-hagicode-section-1",
@@ -18,22 +18,22 @@
           "id": "kiro-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Kiro CLI 是 Kiro 的终端 Agent:在项目里运行 `kiro-cli`,它会读取 `.kiro/` 里的 steering 文件和 MCP 配置,再用你的 Kiro 套餐改代码、执行命令。HagiCode 是桌面与 Web 端的工作台,把 `kiro-cli` 作为其中一种 Agent CLI 来运行,并提供并行会话、提案和提交。它不会取代 Kiro,也不出售 Kiro 额度。",
-            "如果你本来就用 Kiro,想在终端里使用它的 Agent、steering 和 hooks,单用 Kiro CLI 就够了。当你要同时推进多个任务,或想要一套不依赖 Kiro 自身的提案流程时,再加上 HagiCode。"
+            "Kiro 是 Kiro 的终端 Agent:在项目里运行 `kiro-cli`,它会读取 `.kiro/` 里的 steering 文件和 MCP 配置,再用你的 Kiro 套餐改代码、执行命令。HagiCode 是桌面与 Web 端的工作台,把 `kiro-cli` 作为其中一种 Agent CLI 来运行,并提供并行会话、提案和提交。它不会取代 Kiro,也不出售 Kiro 额度。",
+            "如果你本来就用 Kiro,想在终端里使用它的 Agent、steering 和 hooks,单用 Kiro 就够了。当你要同时推进多个任务,或想要一套不依赖 Kiro 自身的提案流程时,再加上 HagiCode。"
           ]
         }
       ]
     },
     {
       "id": "kiro-vs-hagicode-section-2",
-      "title": "Kiro CLI 与 HagiCode 对比一览",
+      "title": "Kiro 与 HagiCode 对比一览",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "Kiro CLI",
+            "Kiro",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-3",
-      "title": "Kiro CLI 的强项",
+      "title": "Kiro 的强项",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-3-capabilities",
@@ -155,7 +155,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-4",
-      "title": "什么时候选 Kiro CLI,什么时候选 HagiCode",
+      "title": "什么时候选 Kiro,什么时候选 HagiCode",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-4-choose-agent",
@@ -185,7 +185,7 @@
           "tone": "warning",
           "title": "HagiCode 不适合的场景",
           "content": [
-            "无界面的 CI/CD 任务和脚本化一次性运行:直接用 Kiro CLI 的无界面模式。",
+            "无界面的 CI/CD 任务和脚本化一次性运行:直接用 Kiro 的无界面模式。",
             "你只想要终端,或只想在已有编辑器里问个小问题。",
             "不想引入提案和规范流程的团队,或对 Kiro 自带的 steering 和 spec 功能已经满意的团队;免费版同时最多 3 个提案。",
             "需要先装好并登录 `kiro-cli`,所以比单用 Kiro 多一步准备。",
@@ -196,7 +196,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-5",
-      "title": "把 Kiro CLI 和 HagiCode 一起用",
+      "title": "把 Kiro 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-5-intro",
@@ -210,23 +210,23 @@
           "id": "kiro-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. 安装 Kiro CLI(`curl -fsSL https://cli.kiro.dev/install | bash`;Windows 请看 kiro.dev 上的安装页面)并登录;需要重新认证时运行 `kiro-cli login`。",
+            "1. 安装 Kiro(`curl -fsSL https://cli.kiro.dev/install | bash`;Windows 请看 kiro.dev 上的安装页面)并登录;需要重新认证时运行 `kiro-cli login`。",
             "2. 安装 HagiCode Desktop(免费),支持 Windows、macOS、Linux。",
             "3. 在 HagiCode 中为会话选择 Kiro 作为 Agent CLI。",
             "4. 打开仓库,开始会话或创建 OpenSpec 提案。",
             "5. 模型仍是 Kiro 的,额度消耗与平时一致;HagiCode 增加的是周边工作流。",
-            "6. 想回到纯 Kiro CLI,在同一仓库里打开终端运行 `kiro-cli` 即可。"
+            "6. 想回到纯 Kiro,在同一仓库里打开终端运行 `kiro-cli` 即可。"
           ]
         },
         {
           "id": "kiro-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "Kiro CLI 在 HagiCode 里能用什么",
+          "title": "Kiro 在 HagiCode 里能用什么",
           "content": [
-            "与 Kiro CLI 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
+            "与 Kiro 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
             "不适用于 Kiro:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
-            "云端会话、自定义 Agent 选择等 Kiro 专有功能仍在 Kiro CLI 本身里,HagiCode 通过 ACP 与它通信。"
+            "云端会话、自定义 Agent 选择等 Kiro 专有功能仍在 Kiro 本身里,HagiCode 通过 ACP 与它通信。"
           ]
         }
       ]
@@ -243,7 +243,7 @@
               "id": "kiro-vs-hagicode-section-6-item-1",
               "title": "并行会话与 Agents 管理",
               "content": [
-                "Kiro CLI 是一个终端一个对话。HagiCode 可以让多个 Kiro 会话跨仓库同时运行,并列在同一个 Agents 视图里。"
+                "Kiro 是一个终端一个对话。HagiCode 可以让多个 Kiro 会话跨仓库同时运行,并列在同一个 Agents 视图里。"
               ]
             },
             {
@@ -286,9 +286,9 @@
           "id": "kiro-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Kiro CLI 是能力扎实的终端 Agent,有自定义 Agent、steering、hooks 和无界面模式;一个终端一个任务时单用它就够了。",
+            "Kiro 是能力扎实的终端 Agent,有自定义 Agent、steering、hooks 和无界面模式;一个终端一个任务时单用它就够了。",
             "HagiCode 是在其下运行 `kiro-cli` 的工作台层,增加的是会话、提案和提交,而不是额度或模型。",
-            "CI 里直接用 Kiro CLI;需要并行、可审阅的工作时用 HagiCode。"
+            "CI 里直接用 Kiro;需要并行、可审阅的工作时用 HagiCode。"
           ]
         }
       ]
@@ -296,24 +296,24 @@
   ],
   "faq": [
     {
-      "question": "Kiro CLI 免费吗?",
+      "question": "Kiro 免费吗?",
       "answer": "Kiro 有每月 50 额度的免费档,另有 Pro($20)、Pro+($40)和 Power($200)套餐,按月计,截至 2026 年 10 月。CLI 没有单独定价,使用你的 Kiro 套餐;详见 kiro.dev/pricing。"
     },
     {
-      "question": "Kiro CLI 怎么安装?",
+      "question": "Kiro 怎么安装?",
       "answer": "在 macOS 和 Linux 上运行 `curl -fsSL https://cli.kiro.dev/install | bash`,然后启动 `kiro-cli` 并通过浏览器登录。支持 Windows 11(PowerShell),具体命令见 kiro.dev 的安装页面。"
     },
     {
-      "question": "Kiro CLI 能和 HagiCode 一起用吗?",
+      "question": "Kiro 能和 HagiCode 一起用吗?",
       "answer": "可以。先安装 `kiro-cli` 并登录,然后在 HagiCode 中选择 Kiro 作为 Agent CLI。HagiCode 只接受 `kiro-cli` 可执行文件,不接受通用的 `kiro` 启动器。"
     },
     {
-      "question": "HagiCode 会取代 Kiro CLI 吗?",
-      "answer": "不会。HagiCode 把 Kiro CLI 当执行器运行,并在外围提供会话、提案、提交和图形界面。"
+      "question": "HagiCode 会取代 Kiro 吗?",
+      "answer": "不会。HagiCode 把 Kiro 当执行器运行,并在外围提供会话、提案、提交和图形界面。"
     },
     {
-      "question": "Kiro CLI 和 HagiCode 该选哪个?",
-      "answer": "单终端工作、自定义 Agent 和 CI 场景单用 Kiro CLI。需要并行会话、OpenSpec 提案和可视化工作区时,再加上 HagiCode。"
+      "question": "Kiro 和 HagiCode 该选哪个?",
+      "answer": "单终端工作、自定义 Agent 和 CI 场景单用 Kiro。需要并行会话、OpenSpec 提案和可视化工作区时,再加上 HagiCode。"
     }
   ]
 }

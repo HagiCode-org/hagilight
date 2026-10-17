@@ -5,14 +5,14 @@
   "locale": "de-DE",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Pi CLI vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Pi CLIs Provider-First-Workflow, Session-Kontrollen und Tool-Governance und sehen Sie, wie HagiCode Pi durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute in eine produktionsgrade KI-Programmierwerkbank verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
+    "title": "Pi vs. HagiCode: Funktionen im Vergleich",
+    "description": "Verstehen Sie Pis Provider-First-Workflow, Session-Kontrollen und Tool-Governance und sehen Sie, wie HagiCode Pi durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute in eine produktionsgrade KI-Programmierwerkbank verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
   },
-  "summary": "Pi CLI ist eine flexible KI-Coding-Schnittstelle, gebaut für Provider-agnostischen Modellzugang. Mit konfigurierbaren Denkmodi, Session-Persistenz-Kontrollen und explizitem Tool-Gating gibt es Entwicklern feingranulare Kontrolle darüber, wie sich ein KI-Coding-Assistent verhält. Pi CLI ist jedoch im Wesentlichen noch ein Terminal-Einstiegspunkt, während HagiCode eine vollständige KI-Programmierwerkbank ist. Zusammen verwandeln sie Pi von einer konfigurierbaren CLI in eine vollständige tägliche Entwicklungsumgebung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Pi CLI kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten.",
+  "summary": "Pi ist eine flexible KI-Coding-Schnittstelle, gebaut für Provider-agnostischen Modellzugang. Mit konfigurierbaren Denkmodi, Session-Persistenz-Kontrollen und explizitem Tool-Gating gibt es Entwicklern feingranulare Kontrolle darüber, wie sich ein KI-Coding-Assistent verhält. Pi ist jedoch im Wesentlichen noch ein Terminal-Einstiegspunkt, während HagiCode eine vollständige KI-Programmierwerkbank ist. Zusammen verwandeln sie Pi von einer konfigurierbaren CLI in eine vollständige tägliche Entwicklungsumgebung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Pi kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten.",
   "sections": [
     {
       "id": "pi-vs-hagicode-section-1",
-      "title": "Pi CLIs Kernstärken",
+      "title": "Pis Kernstärken",
       "blocks": [
         {
           "id": "pi-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "pi-vs-hagicode-section-1-item-1",
               "title": "Wichtigste Funktionen",
               "content": [
-                "Pi CLIs Fähigkeiten fokussieren sich auf kontrollierbare KI-Ausführung statt auf eine fest verdrahtete Single-Provider-Erfahrung:",
+                "Pis Fähigkeiten fokussieren sich auf kontrollierbare KI-Ausführung statt auf eine fest verdrahtete Single-Provider-Erfahrung:",
                 "Provider-First-Modellzugang: Pi kann auf verschiedene Modell-Backends zeigen statt einen festen Anbieter-Pfad zu erzwingen. Das macht es attraktiv für Teams, die einen CLI-Workflow bewahren möchten, während sie den zugrunde liegenden Provider oder die Modellstrategie über die Zeit ändern.",
                 "Konfigurierbares Denken und Session-Verhalten: Pi legt Schalter wie Denkmodus, Session-Verzeichnis und No-Session-Ausführung offen. Sie können je nach Aufgabe wählen, ob Sie den Konversationsstatus über Läufe hinweg bewahren oder jeden Turn vollständig zustandslos halten.",
                 "Explizite Tool-Governance: Pi lässt Sie entscheiden, wie viel Tool-Zugang ein KI-Turn erhält. Eingebaute Tools und breitere Tool-Nutzung können deaktiviert werden, wenn Sie engere Sicherheitsgrenzen oder vorhersehbareres Ausführungsverhalten wünschen."
@@ -210,10 +210,10 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-11",
-              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Pi CLI in einer konsistenten Form sehen",
+              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Pi in einer konsistenten Form sehen",
               "content": [
                 "HagiCode hängt an jede Tool-Use- und Tool-Result-Nachricht dieselbe typisierte Tool-Call-Struktur an. Sie erfasst die Tool-Art, die Eingabefelder, den Status, Ergebnistext oder Bilder, einen eventuellen Fehler und die Zeitangaben. Die Struktur wird aus den gespeicherten Daten berechnet, sodass Session-Verlauf und Live-Updates dieselbe Ansicht zeigen.",
-                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Pi CLI genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
+                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Pi genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
               ],
               "bullets": [
                 "Eine Struktur für alle Provider: Shell-, Datei-, Such-, Fetch- und MCP-Aufrufe werden einheitlich dargestellt;",
@@ -236,9 +236,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-13",
-              "title": "Interaktive Fragen: Pi CLI fragen lassen und denselben Lauf fortsetzen",
+              "title": "Interaktive Fragen: Pi fragen lassen und denselben Lauf fortsetzen",
               "content": [
-                "Braucht Pi CLI eine Entscheidung, kann es Ihnen während des Laufs eine strukturierte Frage stellen. HagiCode zeigt die Frage in der Konversation an, der Session-Status wechselt von „Ausführung“ zu „Wartet auf Antwort“, und Ihre Antwort lässt denselben Lauf weiterlaufen.",
+                "Braucht Pi eine Entscheidung, kann es Ihnen während des Laufs eine strukturierte Frage stellen. HagiCode zeigt die Frage in der Konversation an, der Session-Status wechselt von „Ausführung“ zu „Wartet auf Antwort“, und Ihre Antwort lässt denselben Lauf weiterlaufen.",
                 "Ist der Lauf bereits beendet, etwa nach einem Neustart oder einem Timeout, wird Ihre Antwort als normale Nachricht in derselben Session gesendet, damit die Arbeit weitergehen kann."
               ],
               "bullets": [
@@ -259,7 +259,7 @@
           "id": "pi-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Pi CLI ist eine flexible, Provider-bewusste KI-Coding-Schnittstelle, und HagiCode ist eine vollständige KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
+            "Pi ist eine flexible, Provider-bewusste KI-Coding-Schnittstelle, und HagiCode ist eine vollständige KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
             "Wenn Sie bereits Pi verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Pi nicht länger nur ein konfigurierbarer Terminal-Befehl ist, sondern ein vollständiger Workflow-KI-Partner, der innerhalb einer strukturierten Engineering-Umgebung operiert."
           ]
         },

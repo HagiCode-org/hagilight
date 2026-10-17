@@ -5,14 +5,14 @@
   "locale": "de-DE",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Kiro CLI vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Kiro CLIs wichtigsten Funktionen, technische Eigenschaften und Entwicklererfahrung und sehen Sie, wie HagiCode Kiro CLI durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "title": "Kiro vs. HagiCode: Funktionen im Vergleich",
+    "description": "Verstehen Sie Kiros wichtigsten Funktionen, technische Eigenschaften und Entwicklererfahrung und sehen Sie, wie HagiCode Kiro durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
-  "summary": "Kiro CLI ist ein auf Entwicklererfahrung fokussiertes KI-Programmier-CLI-Tool, entworfen um Einfachheit, Verfeinerung und Effizienz. Mit schnellem Onboarding, präziser Code-Generierung und klarem Interaktions-Feedback ist es für ein angenehmes Coding-Erlebnis bekannt. Kiro CLI ist jedoch ein Terminal-Tool, und HagiCode ist eine Werkbank mit Multi-Repo-Management, Wissens-Persistenz und visuellem Workflow. Beide zusammen erweitern Kiros verfeinerte Erfahrung zu einem vollständigen Entwicklungsprozess. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
+  "summary": "Kiro ist ein auf Entwicklererfahrung fokussiertes KI-Programmier-CLI-Tool, entworfen um Einfachheit, Verfeinerung und Effizienz. Mit schnellem Onboarding, präziser Code-Generierung und klarem Interaktions-Feedback ist es für ein angenehmes Coding-Erlebnis bekannt. Kiro ist jedoch ein Terminal-Tool, und HagiCode ist eine Werkbank mit Multi-Repo-Management, Wissens-Persistenz und visuellem Workflow. Beide zusammen erweitern Kiros verfeinerte Erfahrung zu einem vollständigen Entwicklungsprozess. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
     {
       "id": "kiro-vs-hagicode-section-1",
-      "title": "Kiro CLIs Kernstärken",
+      "title": "Kiros Kernstärken",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "kiro-vs-hagicode-section-1-item-1",
               "title": "Wichtigste Funktionen",
               "content": [
-                "Kiro CLIs Funktionalität zentriert sich auf Einfachheit und Effizienz:",
+                "Kiros Funktionalität zentriert sich auf Einfachheit und Effizienz:",
                 "Ultra-schnelles Onboarding: Kiros Installations- und Konfigurationsprozess ist extrem rationalisiert und lässt sich in wenigen Schritten starten. Ohne komplexe Konfiguration oder lange Einführungsprozesse kommen Entwickler schnell zum eigentlichen Codieren.",
                 "Präzise Code-Generierung: Kiro hebt sich durch Genauigkeit der Code-Generierung ab. Es spuckt nicht massenhaft Code auf einmal aus, sondern generiert präzise die benötigten Teile und zeichnet sich durch hohe Qualität und Verwendbarkeit des generierten Codes aus.",
                 "Klares Interaktions-Feedback: Kiros Interaktionsdesign betont Klarheit der Informationsvermittlung. Ausführungsstatus, Fortschritt und Ergebnisse werden alle klar präsentiert, sodass Entwickler die aktuelle Situation auf einen Blick erfassen."
@@ -32,7 +32,7 @@
               "id": "kiro-vs-hagicode-section-1-item-2",
               "title": "Technische Eigenschaften",
               "content": [
-                "Kiro CLI hat mehrere bemerkenswerte technische Eigenschaften:",
+                "Kiro hat mehrere bemerkenswerte technische Eigenschaften:",
                 "Effiziente Tool-Chain: Kiro integriert sich automatisch gut mit gängigen Entwicklungs-Tool-Chains und kooperiert nahtlos ohne manuelle Konfiguration. Das erhöht die Entwicklereffizienz.",
                 "Intelligentes Kontext-Filtering: Kiro kann automatisch beurteilen, welche Dateien als Kontext geladen werden müssen, vermeidet das Laden irrelevanter Dateien und erhöht Antwortgeschwindigkeit und -genauigkeit.",
                 "Vereinfachte Authentifizierung: Kiros Authentifizierungsdesign priorisiert Entwicklerfreundlichkeit und vereinfacht komplexe Authentifizierungs-Flows. Entwickler können sich auf Codieren statt auf Authentifizierung konzentrieren."
@@ -42,8 +42,8 @@
               "id": "kiro-vs-hagicode-section-1-item-3",
               "title": "Entwicklererfahrung",
               "content": [
-                "Kiro CLI hat mehrere Highlights in der Entwicklererfahrung:",
-                "Native ACP-Unterstützung: Kiro CLI unterstützt das ACP-Protokoll und ermöglicht Interoperabilität mit anderen KI-Tools und passt zu Multi-Tool-Kooperations-Szenarien.",
+                "Kiro hat mehrere Highlights in der Entwicklererfahrung:",
+                "Native ACP-Unterstützung: Kiro unterstützt das ACP-Protokoll und ermöglicht Interoperabilität mit anderen KI-Tools und passt zu Multi-Tool-Kooperations-Szenarien.",
                 "Modernes Terminal-Interface: Kiros Terminal-Output ist sorgfältig gestaltet — Farben, Typografie und Layout sind alle für angenehme Lesbarkeit optimiert. Es mildert die Kälte von Kommandozeilen-Tools.",
                 "Schnelle Iterationskultur: Kiros Entwicklungs-Team reagiert aktiv auf Community-Feedback und iteriert das Produkt schnell. Nutzer-Vorschläge werden häufig ins Produkt übernommen."
               ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "kiro-vs-hagicode-section-2-item-11",
-              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Kiro CLI in einer konsistenten Form sehen",
+              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Kiro in einer konsistenten Form sehen",
               "content": [
                 "HagiCode hängt an jede Tool-Use- und Tool-Result-Nachricht dieselbe typisierte Tool-Call-Struktur an. Sie erfasst die Tool-Art, die Eingabefelder, den Status, Ergebnistext oder Bilder, einen eventuellen Fehler und die Zeitangaben. Die Struktur wird aus den gespeicherten Daten berechnet, sodass Session-Verlauf und Live-Updates dieselbe Ansicht zeigen.",
-                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Kiro CLI genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
+                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Kiro genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
               ],
               "bullets": [
                 "Eine Struktur für alle Provider: Shell-, Datei-, Such-, Fetch- und MCP-Aufrufe werden einheitlich dargestellt;",
@@ -244,8 +244,8 @@
           "id": "kiro-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Kiro CLI ist ein für Verfeinerung und Präzision bekanntes KI-Coding-CLI-Tool. HagiCode ist eine voll ausgestattete KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
-            "Wenn Sie bereits Kiro CLI verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Kiros verfeinerte Erfahrung innerhalb einer Werkbank mit Visualisierung und Multi-Repo-Management zu einem vollständigeren Entwicklungsprozess erweitert wurde."
+            "Kiro ist ein für Verfeinerung und Präzision bekanntes KI-Coding-CLI-Tool. HagiCode ist eine voll ausgestattete KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
+            "Wenn Sie bereits Kiro verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Kiros verfeinerte Erfahrung innerhalb einer Werkbank mit Visualisierung und Multi-Repo-Management zu einem vollständigeren Entwicklungsprozess erweitert wurde."
           ]
         },
         {

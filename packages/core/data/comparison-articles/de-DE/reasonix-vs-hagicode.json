@@ -5,14 +5,14 @@
   "locale": "de-DE",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Reasonix CLI vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Reasonix CLIs ACP-Tool-Workflow, explizite Modellreferenzen und Einzelauswahl-Fragen und sehen Sie, wie HagiCode Reasonix durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute in eine produktionsgrade KI-Programmierplattform verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
+    "title": "Reasonix vs. HagiCode: Funktionen im Vergleich",
+    "description": "Verstehen Sie Reasonixs ACP-Tool-Workflow, explizite Modellreferenzen und Einzelauswahl-Fragen und sehen Sie, wie HagiCode Reasonix durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute in eine produktionsgrade KI-Programmierplattform verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
   },
-  "summary": "Reasonix CLI ist eine ACP-basierte KI-Coding-Schnittstelle, gebaut für Entwickler, die explizite Modellreferenzen und einen klaren Ausführungsschalter direkt über die Kommandozeile nutzen möchten. Mit ACP-basierter Tool-Orchestrierung und konfigurierbarem Runtime-Verhalten ist es geeignet für bedachte, inspizierbare Engineering-Arbeit. Reasonix bleibt jedoch ein Terminal-Tool, und HagiCode fügt die Orchestrierung, das Workflow-Gedächtnis und die Multi-Agent-Oberfläche hinzu, die für den täglichen Produktionseinsatz nötig sind. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Reasonix CLI kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten.",
+  "summary": "Reasonix ist eine ACP-basierte KI-Coding-Schnittstelle, gebaut für Entwickler, die explizite Modellreferenzen und einen klaren Ausführungsschalter direkt über die Kommandozeile nutzen möchten. Mit ACP-basierter Tool-Orchestrierung und konfigurierbarem Runtime-Verhalten ist es geeignet für bedachte, inspizierbare Engineering-Arbeit. Reasonix bleibt jedoch ein Terminal-Tool, und HagiCode fügt die Orchestrierung, das Workflow-Gedächtnis und die Multi-Agent-Oberfläche hinzu, die für den täglichen Produktionseinsatz nötig sind. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Reasonix kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten.",
   "sections": [
     {
       "id": "reasonix-vs-hagicode-section-1",
-      "title": "Reasonix CLIs Kernstärken",
+      "title": "Reasonixs Kernstärken",
       "blocks": [
         {
           "id": "reasonix-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "reasonix-vs-hagicode-section-1-item-1",
               "title": "Wichtigste Funktionen",
               "content": [
-                "Reasonix CLIs Stärken drehen sich um explizite Konfiguration und einen klaren Frageablauf:",
+                "Reasonixs Stärken drehen sich um explizite Konfiguration und einen klaren Frageablauf:",
                 "Expliziter Ausführungsschalter: enableYolo ist standardmäßig deaktiviert und wird im primären Beruf gesetzt, sodass die Wahl zwischen vorsichtiger und kühnerer Ausführung bewusst getroffen wird und nicht implizit geschieht.",
                 "Definierte Modellreferenzen: model muss eine Provider- oder Provider/Modell-Referenz sein, die in Ihrer Reasonix-Konfiguration definiert ist. Das Routing bleibt dadurch explizit, und ein nicht definiertes Modell lässt den Turn mit einer klaren Fehlermeldung scheitern.",
                 "Einzelauswahl-Fragen: Stellt Reasonix eine Frage, zeigt HagiCode pro Frage genau eine Antwort an, sodass die Antwort immer einer von Reasonix angebotenen Option entspricht."
@@ -209,10 +209,10 @@
             },
             {
               "id": "reasonix-vs-hagicode-section-2-item-11",
-              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Reasonix CLI in einer konsistenten Form sehen",
+              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Reasonix in einer konsistenten Form sehen",
               "content": [
                 "HagiCode hängt an jede Tool-Use- und Tool-Result-Nachricht dieselbe typisierte Tool-Call-Struktur an. Sie erfasst die Tool-Art, die Eingabefelder, den Status, Ergebnistext oder Bilder, einen eventuellen Fehler und die Zeitangaben. Die Struktur wird aus den gespeicherten Daten berechnet, sodass Session-Verlauf und Live-Updates dieselbe Ansicht zeigen.",
-                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Reasonix CLI genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
+                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Reasonix genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
               ],
               "bullets": [
                 "Eine Struktur für alle Provider: Shell-, Datei-, Such-, Fetch- und MCP-Aufrufe werden einheitlich dargestellt;",
@@ -235,9 +235,9 @@
             },
             {
               "id": "reasonix-vs-hagicode-section-2-item-13",
-              "title": "Interaktive Fragen: Reasonix CLI fragen lassen und denselben Lauf fortsetzen",
+              "title": "Interaktive Fragen: Reasonix fragen lassen und denselben Lauf fortsetzen",
               "content": [
-                "Braucht Reasonix CLI eine Entscheidung, kann es Ihnen während des Laufs eine strukturierte Frage stellen. HagiCode zeigt die Frage in der Konversation an, der Session-Status wechselt von „Ausführung“ zu „Wartet auf Antwort“, und Ihre Antwort lässt denselben Lauf weiterlaufen.",
+                "Braucht Reasonix eine Entscheidung, kann es Ihnen während des Laufs eine strukturierte Frage stellen. HagiCode zeigt die Frage in der Konversation an, der Session-Status wechselt von „Ausführung“ zu „Wartet auf Antwort“, und Ihre Antwort lässt denselben Lauf weiterlaufen.",
                 "Ist der Lauf bereits beendet, etwa nach einem Neustart oder einem Timeout, wird Ihre Antwort als normale Nachricht in derselben Session gesendet, damit die Arbeit weitergehen kann."
               ],
               "bullets": [
@@ -258,7 +258,7 @@
           "id": "reasonix-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Reasonix CLI ist eine Schlussfassungs-First-KI-Coding-Schnittstelle, und HagiCode ist eine vollständige KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
+            "Reasonix ist eine Schlussfassungs-First-KI-Coding-Schnittstelle, und HagiCode ist eine vollständige KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
             "Wenn Sie bereits Reasonix verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Reasonix nicht länger nur eine disziplinierte Terminal-Schlussfassungs-Schleife ist, sondern ein vollständiger Workflow-KI-Partner innerhalb einer strukturierten Entwicklungsumgebung."
           ]
         },

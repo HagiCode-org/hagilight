@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Kimi CLI 对比 HagiCode:功能与差异",
-    "description": "Kimi CLI 现已更名为 Kimi Code CLI,是月之暗面的终端编程 Agent;HagiCode 是运行它的工作台。对比功能、价格与适用场景。"
+    "title": "Kimi 对比 HagiCode:功能与差异",
+    "description": "Kimi 现已更名为 Kimi Code,是月之暗面的终端编程 Agent;HagiCode 是运行它的工作台。对比功能、价格与适用场景。"
   },
-  "summary": "Kimi CLI 现在叫 Kimi Code CLI,是月之暗面的终端编程 Agent;HagiCode 是可以把它当执行器运行的工作台。本文对比功能、访问方式和费用,以及什么时候只用 CLI 就够。",
+  "summary": "Kimi 现在叫 Kimi Code,是月之暗面的终端编程 Agent;HagiCode 是可以把它当执行器运行的工作台。本文对比功能、访问方式和费用,以及什么时候只用 CLI 就够。",
   "sections": [
     {
       "id": "kimi-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "kimi-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Kimi CLI 是月之暗面(Moonshot AI)的终端编程 Agent。最初的 Python 项目已归档,由同一团队的 Kimi Code CLI 接替,安装后仍是 `kimi` 命令。HagiCode 是桌面与 Web 端的工作台,把 `kimi` 作为其中一种 Agent CLI 来运行,并在外围提供并行会话、提案和提交。它不会取代 Kimi,也不出售 Kimi 的使用额度。",
+            "Kimi 是月之暗面(Moonshot AI)的终端编程 Agent。最初的 Python 项目已归档,由同一团队的 Kimi Code 接替,安装后仍是 `kimi` 命令。HagiCode 是桌面与 Web 端的工作台,把 `kimi` 作为其中一种 Agent CLI 来运行,并在外围提供并行会话、提案和提交。它不会取代 Kimi,也不出售 Kimi 的使用额度。",
             "如果你想要终端里一个启动快的单文件 Agent,或者通过 ACP 在 Zed、JetBrains 里使用,单用 Kimi 就够了。当你要同时推进多个任务,或想在同一登录之上有规范化流程时,再加上 HagiCode。"
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "kimi-vs-hagicode-section-2",
-      "title": "Kimi CLI 与 HagiCode 对比一览",
+      "title": "Kimi 与 HagiCode 对比一览",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "Kimi CLI",
+            "Kimi",
             "HagiCode"
           ],
           "rows": [
@@ -41,7 +41,7 @@
               "id": "kimi-vs-hagicode-section-2-row-1",
               "cells": [
                 "定位",
-                "月之暗面的终端编程 Agent;原 Kimi CLI 已归档,由 Kimi Code CLI(MIT)接替",
+                "月之暗面的终端编程 Agent;原 Kimi 已归档,由 Kimi Code(MIT)接替",
                 "桌面/Web 的 AI 编程工作台,驱动你自己安装的 Agent CLI"
               ]
             },
@@ -115,7 +115,7 @@
     },
     {
       "id": "kimi-vs-hagicode-section-3",
-      "title": "Kimi CLI 的强项",
+      "title": "Kimi 的强项",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-3-capabilities",
@@ -132,7 +132,7 @@
               "id": "kimi-vs-hagicode-section-3-item-2",
               "title": "单文件、启动快",
               "content": [
-                "Kimi Code CLI 以单个二进制分发,启动快,界面是专门做的终端 UI,安装脚本不需要 Node.js。Windows 上需要先装 Git for Windows;Git Bash 在自定义位置时用 `KIMI_SHELL_PATH` 指定。"
+                "Kimi Code 以单个二进制分发,启动快,界面是专门做的终端 UI,安装脚本不需要 Node.js。Windows 上需要先装 Git for Windows;Git Bash 在自定义位置时用 `KIMI_SHELL_PATH` 指定。"
               ]
             },
             {
@@ -155,7 +155,7 @@
     },
     {
       "id": "kimi-vs-hagicode-section-4",
-      "title": "什么时候选 Kimi CLI,什么时候选 HagiCode",
+      "title": "什么时候选 Kimi,什么时候选 HagiCode",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-4-choose-agent",
@@ -189,14 +189,14 @@
             "你只想要终端,或只想在已通过 ACP 接入的编辑器里问个小问题。",
             "不想引入提案和规范流程的团队;免费版同时最多 3 个提案。",
             "需要先装好并登录 `kimi`,所以比单用 Kimi 多一步准备。",
-            "如果你还在用已归档的旧版 Kimi CLI,请先迁移到 Kimi Code CLI:官方仓库说明旧安装将无法继续使用。"
+            "如果你还在用已归档的旧版 Kimi,请先迁移到 Kimi Code:官方仓库说明旧安装将无法继续使用。"
           ]
         }
       ]
     },
     {
       "id": "kimi-vs-hagicode-section-5",
-      "title": "把 Kimi CLI 和 HagiCode 一起用",
+      "title": "把 Kimi 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-5-intro",
@@ -210,7 +210,7 @@
           "id": "kimi-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. 安装 Kimi Code CLI(macOS 或 Linux 用 `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`,Windows 用 `irm https://code.kimi.com/kimi-code/install.ps1 | iex`),并运行 `/login`。",
+            "1. 安装 Kimi Code(macOS 或 Linux 用 `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`,Windows 用 `irm https://code.kimi.com/kimi-code/install.ps1 | iex`),并运行 `/login`。",
             "2. 安装 HagiCode Desktop(免费),支持 Windows、macOS、Linux。",
             "3. 在 HagiCode 中为会话选择 Kimi 作为 Agent CLI。",
             "4. 打开仓库,开始会话或创建 OpenSpec 提案。",
@@ -222,11 +222,11 @@
           "id": "kimi-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "Kimi CLI 在 HagiCode 里能用什么",
+          "title": "Kimi 在 HagiCode 里能用什么",
           "content": [
-            "与 Kimi CLI 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
+            "与 Kimi 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
             "不适用于 Kimi:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
-            "HagiCode 依赖 `kimi acp` 接口,Kimi Code CLI 的文档里也有这一接口;只存在于 Kimi 终端界面里的功能仍留在终端里。"
+            "HagiCode 依赖 `kimi acp` 接口,Kimi Code 的文档里也有这一接口;只存在于 Kimi 终端界面里的功能仍留在终端里。"
           ]
         }
       ]
@@ -286,9 +286,9 @@
           "id": "kimi-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Kimi Code CLI 是启动快、可扩展、支持 ACP 编辑器接入的终端 Agent;如果一个终端一个任务就适合你,单用它就够了。",
+            "Kimi Code 是启动快、可扩展、支持 ACP 编辑器接入的终端 Agent;如果一个终端一个任务就适合你,单用它就够了。",
             "HagiCode 是在其下运行 `kimi` 的工作台层,增加的是会话、提案和提交,而不是模型。",
-            "加用 HagiCode 之前,先确认你用的是 Kimi Code CLI,而不是已归档的旧 Kimi CLI。"
+            "加用 HagiCode 之前,先确认你用的是 Kimi Code,而不是已归档的旧 Kimi。"
           ]
         }
       ]
@@ -296,23 +296,23 @@
   ],
   "faq": [
     {
-      "question": "Kimi CLI 免费吗?",
+      "question": "Kimi 免费吗?",
       "answer": "CLI 本身开源,但模型访问并不免费:Kimi Code 包含在 Kimi 会员 Plus 及以上档位(Go 档不含),也可以改用 Moonshot 开放平台 API 密钥。kimi.com 上的套餐和价格会变,请以价格页为准。"
     },
     {
-      "question": "Kimi CLI 还在维护吗?",
-      "answer": "最初的 Kimi CLI 仓库已归档,不再维护。同一团队推出了 Kimi Code CLI(MIT 许可)接替它,仓库说明旧版 Kimi CLI 的现有安装将无法继续使用。"
+      "question": "Kimi 还在维护吗?",
+      "answer": "最初的 Kimi 仓库已归档,不再维护。同一团队推出了 Kimi Code(MIT 许可)接替它,仓库说明旧版 Kimi 的现有安装将无法继续使用。"
     },
     {
-      "question": "Kimi CLI 怎么安装?",
-      "answer": "安装 Kimi Code CLI:macOS/Linux 用 `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`,Windows 用 `irm https://code.kimi.com/kimi-code/install.ps1 | iex`,也可以 `brew install kimi-code` 或 `npm install -g @moonshot-ai/kimi-code`。然后运行 `kimi` 并执行 `/login`。"
+      "question": "Kimi 怎么安装?",
+      "answer": "安装 Kimi Code:macOS/Linux 用 `curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash`,Windows 用 `irm https://code.kimi.com/kimi-code/install.ps1 | iex`,也可以 `brew install kimi-code` 或 `npm install -g @moonshot-ai/kimi-code`。然后运行 `kimi` 并执行 `/login`。"
     },
     {
-      "question": "Kimi CLI 能和 HagiCode 一起用吗?",
+      "question": "Kimi 能和 HagiCode 一起用吗?",
       "answer": "可以。先装好并登录 Kimi,然后在 HagiCode 中选择 Kimi 作为 Agent CLI,HagiCode 会启动 `kimi acp`。费用仍归月之暗面。"
     },
     {
-      "question": "Kimi CLI 和 HagiCode 该选哪个?",
+      "question": "Kimi 和 HagiCode 该选哪个?",
       "answer": "想要快速的终端或编辑器 Agent,就单用 Kimi。需要并行会话、OpenSpec 提案,以及同一个 CLI 之上的图形界面时,再加上 HagiCode。"
     }
   ]

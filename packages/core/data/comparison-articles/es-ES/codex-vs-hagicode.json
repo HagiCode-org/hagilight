@@ -5,7 +5,7 @@
   "locale": "es-ES",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Codex CLI vs HagiCode: funciones y comparación",
+    "title": "Codex vs HagiCode: funciones y comparación",
     "description": "Comprende las funciones clave de OpenAI Codex, su arquitectura técnica y su ecosistema de CLI y herramientas, y ve cómo HagiCode lleva a Codex al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
   "summary": "OpenAI Codex es la herramienta oficial de programación IA de terminal de OpenAI. Con su vinculación natural al ecosistema de modelos de OpenAI, su interacción minimalista de línea de comandos y su eficiente velocidad de generación de código, se ha convertido en la opción preferida de muchos desarrolladores que prefieren el stack tecnológico de OpenAI. Sin embargo, Codex es fundamentalmente un asistente de codificación CLI ligero, mientras que HagiCode es un workbench de programación IA con todas las funciones. Usarlos juntos eleva la codificación rápida de Codex de una utilidad rápida a una experiencia de desarrollo completa. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
@@ -25,7 +25,7 @@
                 "La funcionalidad de OpenAI Codex gira en torno al minimalismo y la eficiencia:",
                 "Generación de código ultrarrápida: Codex es conocido por su velocidad. Describe lo que necesitas en lenguaje natural, y genera fragmentos de código, funciones completas o componentes con una latencia extremadamente baja. Para escenarios de desarrollo que requieren iteración rápida, la velocidad de respuesta de Codex es una ventaja importante.",
                 "Experiencia nativa de terminal: Codex es una herramienta CLI pura — sin GUI, sin plugins, sin necesidad de IDE. Tu terminal lo es todo. Este diseño minimalista es extremadamente amigable para desarrolladores cómodos con flujos de trabajo de terminal.",
-                "Operaciones de archivos y comandos: Codex CLI soporta lectura/escritura directa de archivos, ejecución de comandos shell y operaciones Git. Todo tu flujo de trabajo de desarrollo se puede completar dentro de la terminal — desde análisis de código hasta ejecución de comandos, todo en un solo lugar."
+                "Operaciones de archivos y comandos: Codex soporta lectura/escritura directa de archivos, ejecución de comandos shell y operaciones Git. Todo tu flujo de trabajo de desarrollo se puede completar dentro de la terminal — desde análisis de código hasta ejecución de comandos, todo en un solo lugar."
               ]
             },
             {
@@ -34,7 +34,7 @@
               "content": [
                 "Codex tiene varias características arquitectónicas notables:",
                 "Vinculación profunda al modelo de OpenAI: Codex llama directamente al backend de modelo de OpenAI (GPT-4o, GPT-5, etc.), sin requerir middleware ni adaptación de modelo adicional. Esto significa que tienes acceso a las últimas capacidades de modelo de OpenAI inmediatamente al lanzamiento.",
-                "Diseño ligero: Codex CLI es extremadamente ligero — instala y listo, con dependencias de entorno mínimas. Inicio rápido y bajo uso de recursos — una ventaja de experiencia significativa para desarrolladores que valoran el minimalismo.",
+                "Diseño ligero: Codex es extremadamente ligero — instala y listo, con dependencias de entorno mínimas. Inicio rápido y bajo uso de recursos — una ventaja de experiencia significativa para desarrolladores que valoran el minimalismo.",
                 "Salida en streaming y respuesta en tiempo real: Codex soporta salida en streaming, con el contenido generado por el modelo apareciendo carácter por carácter en la terminal. Esto hace visible el proceso de espera y te permite interrumpir o redirigir a mitad de la generación."
               ]
             },
@@ -45,7 +45,7 @@
                 "El ecosistema de Codex es relativamente ajustado pero enfocado:",
                 "CLI autónoma: Codex es una herramienta CLI independiente lanzada mediante el comando codex. Sin dependencia de IDE o plataforma — el despliegue y uso son extremadamente simples.",
                 "Integración con el ecosistema de API de OpenAI: como herramienta de programación oficial de OpenAI, Codex está naturalmente conectado al ecosistema de API de OpenAI, lo que facilita combinarlo con otras herramientas y servicios de OpenAI.",
-                "Código abierto y impulsado por la comunidad: Codex CLI es de código abierto, alojado en GitHub, donde la comunidad puede contribuir funciones, reportar problemas y participar en la iteración."
+                "Código abierto y impulsado por la comunidad: Codex es de código abierto, alojado en GitHub, donde la comunidad puede contribuir funciones, reportar problemas y participar en la iteración."
               ]
             }
           ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "codex-vs-hagicode-section-2-item-11",
-              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Codex CLI con un formato coherente",
+              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Codex con un formato coherente",
               "content": [
                 "HagiCode asocia un único formato tipado de llamada a herramienta a cada mensaje de uso de herramienta y de resultado. Registra el tipo de herramienta, sus campos de entrada, el estado, el texto o las imágenes del resultado, cualquier error y los tiempos. El formato se calcula a partir de los datos almacenados, así que el historial de la sesión y las actualizaciones en vivo muestran la misma vista.",
-                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Codex CLI se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
+                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Codex se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
               ],
               "bullets": [
                 "Un solo formato para todos los proveedores: las llamadas de shell, archivos, búsqueda, fetch y MCP se presentan de forma coherente;",

@@ -5,7 +5,7 @@
   "locale": "fr-FR",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Codex CLI vs HagiCode : fonctionnalités et comparaison",
+    "title": "Codex vs HagiCode : fonctionnalités et comparaison",
     "description": "Comprenez les fonctions clés d'OpenAI Codex, son architecture technique et son écosystème CLI et outils, et voyez comment HagiCode porte Codex au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
   },
   "summary": "OpenAI Codex est l'outil de programmation IA terminal officiel d'OpenAI. Avec son lien naturel à l'écosystème de modèles OpenAI, son interaction ligne de commande minimaliste et sa vitesse de génération de code efficace, il est devenu le choix de référence pour de nombreux développeurs qui préfèrent la stack technologique OpenAI. Cependant, Codex est fondamentalement un assistant de codage CLI léger, tandis que HagiCode est un atelier de programmation IA entièrement équipé. Les utiliser ensemble élève le codage rapide de Codex d'un utilitaire rapide à une expérience de développement complète. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état.",
@@ -25,7 +25,7 @@
                 "La fonctionnalité d'OpenAI Codex tourne autour du minimalisme et de l'efficacité :",
                 "Génération de code éclair : Codex est connu pour sa vitesse. Décrivez ce dont vous avez besoin en langage naturel, et il génère des fragments de code, fonctions complètes ou composants avec une latence extrêmement faible. Pour les scénarios de développement nécessitant une itération rapide, la vitesse de réponse de Codex est un avantage majeur.",
                 "Expérience native terminal : Codex est un outil CLI pur — pas de GUI, pas de plugins, pas d'IDE nécessaire. Votre terminal est tout. Cette conception minimaliste est extrêmement amicale pour les développeurs à l'aise avec les workflows terminal.",
-                "Opérations de fichiers et de commandes : Codex CLI prend en charge la lecture/écriture directe de fichiers, l'exécution de commandes shell et les opérations Git. Tout votre workflow de développement peut être complété au sein du terminal — de l'analyse de code à l'exécution de commandes, tout au même endroit."
+                "Opérations de fichiers et de commandes : Codex prend en charge la lecture/écriture directe de fichiers, l'exécution de commandes shell et les opérations Git. Tout votre workflow de développement peut être complété au sein du terminal — de l'analyse de code à l'exécution de commandes, tout au même endroit."
               ]
             },
             {
@@ -34,7 +34,7 @@
               "content": [
                 "Codex a plusieurs caractéristiques architecturales notables :",
                 "Liaison profonde au modèle OpenAI : Codex appelle directement le backend de modèle d'OpenAI (GPT-4o, GPT-5, etc.), ne nécessitant aucun middleware ni adaptation de modèle supplémentaire. Cela signifie que vous avez accès aux dernières capacités de modèle d'OpenAI immédiatement à leur sortie.",
-                "Conception légère : Codex CLI est extrêmement léger — installez et c'est parti, avec des dépendances d'environnement minimales. Démarrage rapide et faible utilisation des ressources — un avantage d'expérience significatif pour les développeurs qui valorisent le minimalisme.",
+                "Conception légère : Codex est extrêmement léger — installez et c'est parti, avec des dépendances d'environnement minimales. Démarrage rapide et faible utilisation des ressources — un avantage d'expérience significatif pour les développeurs qui valorisent le minimalisme.",
                 "Sortie en streaming et réponse temps réel : Codex prend en charge la sortie en streaming, avec le contenu généré par le modèle apparaissant caractère par caractère dans le terminal. Cela rend le processus d'attente visible et vous permet d'interrompre ou de rediriger en pleine génération."
               ]
             },
@@ -45,7 +45,7 @@
                 "L'écosystème de Codex est relativement épuré mais focalisé :",
                 "CLI autonome : Codex est un outil CLI indépendant lancé via la commande codex. Aucune dépendance IDE ni plateforme — le déploiement et l'utilisation sont extrêmement simples.",
                 "Intégration à l'écosystème d'API OpenAI : en tant qu'outil de programmation officiel d'OpenAI, Codex est naturellement connecté à l'écosystème d'API d'OpenAI, ce qui le rend facile à combiner avec d'autres outils et services OpenAI.",
-                "Open source et piloté par la communauté : Codex CLI est open source, hébergé sur GitHub, où la communauté peut contribuer des fonctionnalités, signaler des problèmes et participer à l'itération."
+                "Open source et piloté par la communauté : Codex est open source, hébergé sur GitHub, où la communauté peut contribuer des fonctionnalités, signaler des problèmes et participer à l'itération."
               ]
             }
           ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "codex-vs-hagicode-section-2-item-11",
-              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Codex CLI sous une forme cohérente",
+              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Codex sous une forme cohérente",
               "content": [
                 "HagiCode associe une même structure typée d'appel d'outil à chaque message d'utilisation d'outil et de résultat d'outil. Elle consigne le type d'outil, ses champs d'entrée, son statut, le texte ou les images du résultat, l'éventuelle erreur et la durée. Cette structure est calculée à partir des données stockées : l'historique de la session et les mises à jour en direct affichent donc la même vue.",
-                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Codex CLI ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
+                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Codex ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
               ],
               "bullets": [
                 "Une seule structure pour tous les fournisseurs : les appels shell, fichier, recherche, fetch et MCP sont présentés de façon cohérente ;",

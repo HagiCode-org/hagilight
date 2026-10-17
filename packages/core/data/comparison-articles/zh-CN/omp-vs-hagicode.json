@@ -5,7 +5,7 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "OMP CLI 对比 HagiCode:功能与差异",
+    "title": "OMP 对比 HagiCode:功能与差异",
     "description": "omp（oh-my-pi）是免费、MIT 许可的终端编码 Agent，HagiCode 是运行它的工作台。对比功能、价格与适用场景，看清各自该在什么时候用。"
   },
   "summary": "omp 是 oh-my-pi 的命令名，一个从 Pi 分叉出来、内置 LSP、调试器和浏览器工具的 MIT 许可终端编码 Agent。HagiCode 是把 omp 当作执行器来运行的桌面与 Web 工作台，两者是搭配关系，不是替代关系。",

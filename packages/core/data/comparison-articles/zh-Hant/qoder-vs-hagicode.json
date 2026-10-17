@@ -5,14 +5,14 @@
   "locale": "zh-Hant",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "QoderCLI 對比 HagiCode:功能與差異",
-    "description": "了解 QoderCLI 的主要功能、技术特點和应用生态，并從多線程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界麵、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 Qoder 的编碼能力获得工程化工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
+    "title": "Qoder 對比 HagiCode:功能與差異",
+    "description": "了解 Qoder 的主要功能、技术特點和应用生态，并從多線程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界麵、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 Qoder 的编碼能力获得工程化工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
   },
-  "summary": "QoderCLI 是一款現代化的 AI 编程 CLI 工具，以\"流畅的交互體驗、高效的上下文管理和靈活的工具调用\"為核心竞争力。它在開發者體驗上投入了大量打磨——會话流畅度、上下文记忆和工具调用效率都在同類工具中表現优异。不過 QoderCLI 是一個聚焦编碼體驗的工具，而 HagiCode 是一個麵向完整開發工作流的桌麵平台——两者配合，才能把 Qoder 的流畅體驗從\"编碼時很爽\"延伸為\"整個開發過程都很爽\"。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
+  "summary": "Qoder 是一款現代化的 AI 编程 CLI 工具，以\"流畅的交互體驗、高效的上下文管理和靈活的工具调用\"為核心竞争力。它在開發者體驗上投入了大量打磨——會话流畅度、上下文记忆和工具调用效率都在同類工具中表現优异。不過 Qoder 是一個聚焦编碼體驗的工具，而 HagiCode 是一個麵向完整開發工作流的桌麵平台——两者配合，才能把 Qoder 的流畅體驗從\"编碼時很爽\"延伸為\"整個開發過程都很爽\"。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
   "sections": [
     {
       "id": "qoder-vs-hagicode-section-1",
-      "title": "QoderCLI 的核心能力",
+      "title": "Qoder 的核心能力",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "qoder-vs-hagicode-section-1-item-1",
               "title": "主要功能",
               "content": [
-                "QoderCLI 的功能以\"開發者體驗优先\"為核心：",
+                "Qoder 的功能以\"開發者體驗优先\"為核心：",
                 "高效上下文管理：Qoder 在會话上下文管理方麵做得非常出色。它能够智能地選择最相關的代碼文件纳入上下文，而不是简单地把所有文件堆進去。這讓 Qoder 在处理大型項目時仍能保持精准和高效。",
                 "流畅的工具调用：Qoder 的工具调用链路设计简洁高效——文件读寫、shell 命令执行、代碼搜索——每一步的響应都非常迅速。這种\"丝滑\"的體驗讓開發者在高强度编碼時不會因為等待而感到痛苦。",
                 "自然的多轮對话：Qoder 的對话交互设计注重連续性。在多轮讨论中，它能准确记住前後文的语境，不會出現\"刚才還讨论 A，突然跳到 B\"的断裂感。"
@@ -32,7 +32,7 @@
               "id": "qoder-vs-hagicode-section-1-item-2",
               "title": "技术特點",
               "content": [
-                "QoderCLI 在技术层麵有几個值得關注的特點：",
+                "Qoder 在技术层麵有几個值得關注的特點：",
                 "智能上下文窗口管理：Qoder 對上下文窗口的使用非常高效。它不是单纯依赖模型的超大窗口，而是通過智能的文件筛選和上下文壓缩，确保真正重要的信息被保留在上下文中。",
                 "高性能 CLI 架构：Qoder 的 CLI 底层架构经過优化，启動速度快、资源占用低。即使多個實例同時運行，也能保持流畅的響应體驗。",
                 "現代化工具链集成：Qoder 對現代前端工具链（Vite、Next.js、Tailwind 等）和後端框架（FastAPI、Express 等）都有良好的集成支持。"
@@ -42,8 +42,8 @@
               "id": "qoder-vs-hagicode-section-1-item-3",
               "title": "应用生态",
               "content": [
-                "QoderCLI 的生态以現代開發场景為中心：",
-                "ACP 协议支持：QoderCLI 支持 ACP 协议，可以與其他兼容工具進行标准化通信。",
+                "Qoder 的生态以現代開發场景為中心：",
+                "ACP 协议支持：Qoder 支持 ACP 协议，可以與其他兼容工具進行标准化通信。",
                 "現代技术栈适配：Qoder 對 JavaScript/TypeScript、Python 等現代技术栈的支持尤其出色，在 Web 開發和数据科学領域表現突出。",
                 "Quick Start 體驗：Qoder 提供极简的快速入门流程，安装後几乎不需要配置就能立刻開始编碼。"
               ]
@@ -54,7 +54,7 @@
     },
     {
       "id": "qoder-vs-hagicode-section-2",
-      "title": "為什麼 QoderCLI 需要 HagiCode",
+      "title": "為什麼 Qoder 需要 HagiCode",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-2-intro",
@@ -208,10 +208,10 @@
             },
             {
               "id": "qoder-vs-hagicode-section-2-item-11",
-              "title": "統一的工具呼叫檢視：以一致的樣貌查看 QoderCLI 的工具使用",
+              "title": "統一的工具呼叫檢視：以一致的樣貌查看 Qoder 的工具使用",
               "content": [
                 "HagiCode 會為每則工具使用與工具結果訊息附上同一種具型別的工具呼叫結構，內容涵蓋工具類型、輸入欄位、狀態、結果文字或圖片、錯誤訊息與耗時。這個結構是由已儲存的資料即時計算而來，因此會話歷史與即時更新看到的內容完全一致。",
-                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 QoderCLI 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
+                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 Qoder 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
               ],
               "bullets": [
                 "所有供應商共用同一種結構，shell、檔案、搜尋、擷取與 MCP 呼叫的呈現方式一致；",
@@ -244,7 +244,7 @@
           "id": "qoder-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "QoderCLI 是一個以流畅體驗見長的 AI 编碼 CLI 工具，HagiCode 是一個功能完整的 AI 编程工作台。它們的關繫是互补：",
+            "Qoder 是一個以流畅體驗見長的 AI 编碼 CLI 工具，HagiCode 是一個功能完整的 AI 编程工作台。它們的關繫是互补：",
             "如果你已经在用 Qoder，不妨试试把它接入 HagiCode——你會發現 Qoder 的流畅编碼體驗不再只是\"寫着很爽\"，而是\"從提案到提交全過程都很爽\"。"
           ]
         },

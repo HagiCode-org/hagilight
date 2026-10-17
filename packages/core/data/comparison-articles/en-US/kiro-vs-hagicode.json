@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Kiro CLI vs HagiCode: Features and Comparison",
-    "description": "Kiro CLI is Kiro's terminal agent; HagiCode is a workbench that runs it. Compare features, credit pricing and fit, and when Kiro CLI alone is enough."
+    "title": "Kiro vs HagiCode: Features and Comparison",
+    "description": "Kiro is Kiro's terminal agent; HagiCode is a workbench that runs it. Compare features, credit pricing and fit, and when Kiro alone is enough."
   },
-  "summary": "Kiro CLI is the terminal agent in the Kiro family, running on Kiro credits; HagiCode is a workbench that can run it as an executor. This page compares features, pricing and when Kiro CLI alone is enough.",
+  "summary": "Kiro is the terminal agent in the Kiro family, running on Kiro credits; HagiCode is a workbench that can run it as an executor. This page compares features, pricing and when Kiro alone is enough.",
   "sections": [
     {
       "id": "kiro-vs-hagicode-section-1",
@@ -18,22 +18,22 @@
           "id": "kiro-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Kiro CLI is Kiro's terminal agent: you run `kiro-cli` in a project, and it reads your `.kiro/` steering files and MCP config, then edits code and runs commands using your Kiro plan. HagiCode is a desktop and web workbench that launches `kiro-cli` as one of its Agent CLIs, adding parallel sessions, proposals and commits. It does not replace Kiro and it does not sell Kiro credits.",
-            "If you already work in Kiro and want its agents, steering and hooks in a terminal, stay with Kiro CLI alone. Add HagiCode when you run several tasks at once or want a proposal workflow independent of Kiro's own."
+            "Kiro is Kiro's terminal agent: you run `kiro-cli` in a project, and it reads your `.kiro/` steering files and MCP config, then edits code and runs commands using your Kiro plan. HagiCode is a desktop and web workbench that launches `kiro-cli` as one of its Agent CLIs, adding parallel sessions, proposals and commits. It does not replace Kiro and it does not sell Kiro credits.",
+            "If you already work in Kiro and want its agents, steering and hooks in a terminal, stay with Kiro alone. Add HagiCode when you run several tasks at once or want a proposal workflow independent of Kiro's own."
           ]
         }
       ]
     },
     {
       "id": "kiro-vs-hagicode-section-2",
-      "title": "Kiro CLI vs HagiCode at a glance",
+      "title": "Kiro vs HagiCode at a glance",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Dimension",
-            "Kiro CLI",
+            "Kiro",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-3",
-      "title": "What Kiro CLI does well",
+      "title": "What Kiro does well",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-3-capabilities",
@@ -155,7 +155,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-4",
-      "title": "When to choose Kiro CLI, and when to choose HagiCode",
+      "title": "When to choose Kiro, and when to choose HagiCode",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-4-choose-agent",
@@ -185,7 +185,7 @@
           "tone": "warning",
           "title": "Where HagiCode is not the right tool",
           "content": [
-            "Headless CI/CD jobs and scripted one-shot runs: use Kiro CLI's headless mode directly.",
+            "Headless CI/CD jobs and scripted one-shot runs: use Kiro's headless mode directly.",
             "You only want a terminal, or a quick question in an editor you already use.",
             "Teams that do not want proposal and spec discipline, or who are happy with Kiro's own steering and spec features; free editions also cap concurrent proposals at 3.",
             "It needs `kiro-cli` installed and signed in first, so it adds setup compared with Kiro alone.",
@@ -196,7 +196,7 @@
     },
     {
       "id": "kiro-vs-hagicode-section-5",
-      "title": "Using Kiro CLI together with HagiCode",
+      "title": "Using Kiro together with HagiCode",
       "blocks": [
         {
           "id": "kiro-vs-hagicode-section-5-intro",
@@ -210,23 +210,23 @@
           "id": "kiro-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. Install Kiro CLI (`curl -fsSL https://cli.kiro.dev/install | bash`; for Windows see the installation page on kiro.dev) and sign in; `kiro-cli login` re-authenticates.",
+            "1. Install Kiro (`curl -fsSL https://cli.kiro.dev/install | bash`; for Windows see the installation page on kiro.dev) and sign in; `kiro-cli login` re-authenticates.",
             "2. Install HagiCode Desktop (free) for Windows, macOS or Linux.",
             "3. In HagiCode, choose Kiro as the Agent CLI for a session.",
             "4. Open a repository and start a session or an OpenSpec proposal.",
             "5. Expect Kiro models and credit usage as before; HagiCode adds workflow around them.",
-            "6. To go back to plain Kiro CLI, open a terminal in the same repository and run `kiro-cli`."
+            "6. To go back to plain Kiro, open a terminal in the same repository and run `kiro-cli`."
           ]
         },
         {
           "id": "kiro-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "What works for Kiro CLI inside HagiCode",
+          "title": "What works for Kiro inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Kiro.",
             "Does not apply to Kiro: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
-            "Kiro-specific features such as cloud sessions and custom-agent selection live in Kiro CLI itself; HagiCode talks to it over ACP."
+            "Kiro-specific features such as cloud sessions and custom-agent selection live in Kiro itself; HagiCode talks to it over ACP."
           ]
         }
       ]
@@ -243,7 +243,7 @@
               "id": "kiro-vs-hagicode-section-6-item-1",
               "title": "Parallel sessions and Agents management",
               "content": [
-                "Kiro CLI gives you one chat per terminal. HagiCode can keep several Kiro sessions running across repositories and list them in one Agents view."
+                "Kiro gives you one chat per terminal. HagiCode can keep several Kiro sessions running across repositories and list them in one Agents view."
               ]
             },
             {
@@ -286,9 +286,9 @@
           "id": "kiro-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Kiro CLI is a capable terminal agent with custom agents, steering, hooks and headless mode; for one terminal and one task it is enough alone.",
+            "Kiro is a capable terminal agent with custom agents, steering, hooks and headless mode; for one terminal and one task it is enough alone.",
             "HagiCode is a workbench layer that runs `kiro-cli` underneath, adding sessions, proposals and commits rather than credits or models.",
-            "Use Kiro CLI directly for CI; use HagiCode for parallel, reviewed work."
+            "Use Kiro directly for CI; use HagiCode for parallel, reviewed work."
           ]
         }
       ]
@@ -296,24 +296,24 @@
   ],
   "faq": [
     {
-      "question": "Is Kiro CLI free?",
+      "question": "Is Kiro free?",
       "answer": "Kiro has a free plan with 50 credits per month, plus Pro ($20), Pro+ ($40) and Power ($200) plans per month, as of October 2026. The CLI has no separate pricing and uses your Kiro plan; see kiro.dev/pricing."
     },
     {
-      "question": "How do I install Kiro CLI?",
+      "question": "How do I install Kiro?",
       "answer": "On macOS and Linux run `curl -fsSL https://cli.kiro.dev/install | bash`, then start `kiro-cli` and sign in through the browser. Windows 11 (PowerShell) is supported; see the installation page on kiro.dev for the command."
     },
     {
-      "question": "Can I use Kiro CLI with HagiCode?",
+      "question": "Can I use Kiro with HagiCode?",
       "answer": "Yes. Install `kiro-cli` and sign in, then choose Kiro as the Agent CLI in HagiCode. HagiCode accepts only `kiro-cli` binaries, not the generic `kiro` launcher."
     },
     {
-      "question": "Does HagiCode replace Kiro CLI?",
-      "answer": "No. HagiCode runs Kiro CLI as its executor and adds sessions, proposals, commits and a GUI around it."
+      "question": "Does HagiCode replace Kiro?",
+      "answer": "No. HagiCode runs Kiro as its executor and adds sessions, proposals, commits and a GUI around it."
     },
     {
-      "question": "Kiro CLI vs HagiCode: which should I pick?",
-      "answer": "Use Kiro CLI alone for single-terminal work, custom agents and CI. Add HagiCode for parallel sessions, OpenSpec proposals and a visual workspace."
+      "question": "Kiro vs HagiCode: which should I pick?",
+      "answer": "Use Kiro alone for single-terminal work, custom agents and CI. Add HagiCode for parallel sessions, OpenSpec proposals and a visual workspace."
     }
   ]
 }

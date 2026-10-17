@@ -195,7 +195,7 @@
               "id": "claude-vs-hagicode-section-2-item-10",
               "title": "OmniRoute 模型路由：把 CLI 和模型徹底拆開，讓 Claude 更自由",
               "content": [
-                "在傳統的 AI 程式設計工具中，選擇哪個 CLI 就約等於選擇了哪個模型訂閱——用 Claude Code 就綁死了 Anthropic 的計費體系，用 Copilot CLI 就離不開 GitHub 的訂閱方案。這讓開發者的靈活性和成本控制都被鎖死在一個維度上。",
+                "在傳統的 AI 程式設計工具中，選擇哪個 CLI 就約等於選擇了哪個模型訂閱——用 Claude Code 就綁死了 Anthropic 的計費體系，用 Copilot 就離不開 GitHub 的訂閱方案。這讓開發者的靈活性和成本控制都被鎖死在一個維度上。",
                 "HagiCode 整合的 OmniRoute 從根本上解開了這個繫結。它的核心設計理念是「CLI 管互動體驗，模型管能力供給，兩者不再被強行綁成一道選擇題」：",
                 "OmniRoute 對 Claude 使用者的意義尤其直接：你可以始終用 Claude Code 作為互動前端——保留它出色的多輪推理和工具調用體驗——但在模型層自由選擇最具價效比或最符合當前任務需求的模型來源。CLI 和模型的關係，從「婚姻」變成了「合作」。"
               ],

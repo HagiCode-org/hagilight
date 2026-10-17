@@ -18,7 +18,7 @@
           "id": "claude-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Claude Code 是 Anthropic 的编程 Agent：它读取你的代码库、编辑文件、运行命令并配合 Git 工作，可以在终端、VS Code 和 JetBrains、桌面应用或网页里使用。HagiCode 是桌面和网页端的工作台，把 Claude Code CLI 当作执行器来运行。它不替代 Claude Code，也不托管或转售 Claude 模型。",
+            "Claude Code 是 Anthropic 的编程 Agent：它读取你的代码库、编辑文件、运行命令并配合 Git 工作，可以在终端、VS Code 和 JetBrains、桌面应用或网页里使用。HagiCode 是桌面和网页端的工作台，把 Claude Code 当作执行器来运行。它不替代 Claude Code，也不托管或转售 Claude 模型。",
             "Claude Code 自己已经覆盖了很多功能，包括子 Agent、后台 Agent、hooks、skills 和 CI 使用。如果你每次只在一个地方工作，并且对它自带的各种入口满意，那就只用 Claude Code。HagiCode 面向这样的人：希望改动前先有书面提案、在一个工作区里管理多个仓库，并在一个视图里查看众多会话和多种 Agent CLI。"
           ]
         }

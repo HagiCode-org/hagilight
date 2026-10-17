@@ -5,14 +5,14 @@
   "locale": "zh-Hant",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Kimi CLI 對比 HagiCode:功能與差異",
-    "description": "了解 Kimi CLI 的主要功能、中文优化特點和 Moonshot AI 生态，并從多線程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界麵、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 Kimi 的中文编程能力從\"翻译式辅助\"升级為\"母语级開發體驗\"。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
+    "title": "Kimi 對比 HagiCode:功能與差異",
+    "description": "了解 Kimi 的主要功能、中文优化特點和 Moonshot AI 生态，并從多線程并行、OpenSpec 提案、AI 提交、HagiTask、游戏化界麵、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 Kimi 的中文编程能力從\"翻译式辅助\"升级為\"母语级開發體驗\"。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
   },
-  "summary": "Kimi CLI 是 Moonshot AI 推出的终端 AI 编程工具，以\"中文為主、双语兼顧\"的独特定位在 AI 编程工具中独树一帜。Kimi 對中文技术文档、中文代碼注释和中文開發场景的理解深度，是目前全球 AI 编程工具中最突出的之一。不過 Kimi CLI 是一個聚焦中文场景的编程助手，而 HagiCode 是一個麵向完整開發工作流的桌麵平台——两者配合，才能把 Kimi 的中文编程优势從\"语言层麵\"扩展到\"全流程工程层麵\"。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
+  "summary": "Kimi 是 Moonshot AI 推出的终端 AI 编程工具，以\"中文為主、双语兼顧\"的独特定位在 AI 编程工具中独树一帜。Kimi 對中文技术文档、中文代碼注释和中文開發场景的理解深度，是目前全球 AI 编程工具中最突出的之一。不過 Kimi 是一個聚焦中文场景的编程助手，而 HagiCode 是一個麵向完整開發工作流的桌麵平台——两者配合，才能把 Kimi 的中文编程优势從\"语言层麵\"扩展到\"全流程工程层麵\"。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
   "sections": [
     {
       "id": "kimi-vs-hagicode-section-1",
-      "title": "Kimi CLI 的核心能力",
+      "title": "Kimi 的核心能力",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-1-capabilities",
@@ -22,10 +22,10 @@
               "id": "kimi-vs-hagicode-section-1-item-1",
               "title": "主要功能",
               "content": [
-                "Kimi CLI 的功能以\"中文优先的智能编程\"為核心：",
+                "Kimi 的功能以\"中文优先的智能编程\"為核心：",
                 "中文代碼生成與理解：Kimi 對中文技术语境的理解遠超其他 AI 编程工具。你可以用中文描述複杂的业务逻辑——\"實現一個带分布式锁的秒杀繫统\"——Kimi 不仅理解需求，還能生成符合中国開發者习惯的代碼结构和注释。",
                 "中文文档分析與生成：Kimi 可以深度閱读中文技术文档、API 說明和需求文档，并基于此生成對应的代碼實現或技术方案。對于中文為主要工作语言的開發团隊，這是巨大的效率优势。",
-                "终端原生交互：Kimi CLI 提供完整的终端编程體驗，支持文件操作、代碼生成、命令执行和 Git 交互。同時支持 ACP 协议，可以與其他兼容工具互操作。"
+                "终端原生交互：Kimi 提供完整的终端编程體驗，支持文件操作、代碼生成、命令执行和 Git 交互。同時支持 ACP 协议，可以與其他兼容工具互操作。"
               ]
             },
             {
@@ -42,10 +42,10 @@
               "id": "kimi-vs-hagicode-section-1-item-3",
               "title": "Moonshot AI 生态",
               "content": [
-                "Kimi CLI 是 Moonshot AI 生态的一部分：",
-                "Kimi 繫列模型深度集成：Kimi CLI 與 Moonshot AI 的 Kimi 繫列模型深度绑定，能够第一時間使用最新的 Kimi 模型能力。",
+                "Kimi 是 Moonshot AI 生态的一部分：",
+                "Kimi 繫列模型深度集成：Kimi 與 Moonshot AI 的 Kimi 繫列模型深度绑定，能够第一時間使用最新的 Kimi 模型能力。",
                 "中文技术社区連接：Kimi 對中国技术社区的热门框架、工具和實践有更好的理解——Spring Boot、Vue、Flutter 的中文生态項目，Kimi 都能游刃有余。",
-                "ACP 协议支持：Kimi CLI 支持 ACP 协议，可以融入多工具协作生态。"
+                "ACP 协议支持：Kimi 支持 ACP 协议，可以融入多工具协作生态。"
               ]
             }
           ]
@@ -54,13 +54,13 @@
     },
     {
       "id": "kimi-vs-hagicode-section-2",
-      "title": "為什麼 Kimi CLI 需要 HagiCode",
+      "title": "為什麼 Kimi 需要 HagiCode",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-2-intro",
           "type": "rich-text",
           "content": [
-            "Kimi CLI 的中文编程能力在语言层麵非常出色，但作為一個 CLI 工具，它同樣麵临任务管理、工作流编排和知识沉淀的挑战。當你用 Kimi 開發了一個又一個功能後，如何管理這些产出、如何讓团隊共享這些经驗——這些問題需要 HagiCode 来解决。"
+            "Kimi 的中文编程能力在语言层麵非常出色，但作為一個 CLI 工具，它同樣麵临任务管理、工作流编排和知识沉淀的挑战。當你用 Kimi 開發了一個又一個功能後，如何管理這些产出、如何讓团隊共享這些经驗——這些問題需要 HagiCode 来解决。"
           ]
         },
         {
@@ -193,7 +193,7 @@
             },
             {
               "id": "kimi-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute 模型路由：讓 Kimi CLI 有更多模型選择",
+              "title": "OmniRoute 模型路由：讓 Kimi 有更多模型選择",
               "content": [
                 "團隊應該能保留自己喜歡的工作流，而不是被某一個模型供應商或訂閱路徑反向綁死。",
                 "OmniRoute 把互動層和模型路由層拆開，讓 HagiCode 可以繼續把 Kimi 放在工作流裡，同時在底層靈活切換模型來源。",
@@ -208,10 +208,10 @@
             },
             {
               "id": "kimi-vs-hagicode-section-2-item-11",
-              "title": "統一的工具呼叫檢視：以一致的樣貌查看 Kimi CLI 的工具使用",
+              "title": "統一的工具呼叫檢視：以一致的樣貌查看 Kimi 的工具使用",
               "content": [
                 "HagiCode 會為每則工具使用與工具結果訊息附上同一種具型別的工具呼叫結構，內容涵蓋工具類型、輸入欄位、狀態、結果文字或圖片、錯誤訊息與耗時。這個結構是由已儲存的資料即時計算而來，因此會話歷史與即時更新看到的內容完全一致。",
-                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 Kimi CLI 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
+                "不論使用哪個供應商，工具呼叫都採用同一種格式，所以 Kimi 的工具呼叫會和工作區裡其他 Agent 的呼叫長得一樣。你只需要看懂一種格式，不必再逐一熟悉各個 CLI 的原始輸出。"
               ],
               "bullets": [
                 "所有供應商共用同一種結構，shell、檔案、搜尋、擷取與 MCP 呼叫的呈現方式一致；",
@@ -244,8 +244,8 @@
           "id": "kimi-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Kimi CLI 是一個中文能力突出的终端 AI 编程工具，HagiCode 是一個麵向完整工作流的 AI 编程平台。它們的關繫是互补：",
-            "如果你已经在用 Kimi CLI，不妨试试把它接入 HagiCode——你會發現 Kimi 不只是一個\"中文比较友好的编程助手\"，而是一個以中文為母语、被完整工作流平台加持的全栈 AI 開發搭档。"
+            "Kimi 是一個中文能力突出的终端 AI 编程工具，HagiCode 是一個麵向完整工作流的 AI 编程平台。它們的關繫是互补：",
+            "如果你已经在用 Kimi，不妨试试把它接入 HagiCode——你會發現 Kimi 不只是一個\"中文比较友好的编程助手\"，而是一個以中文為母语、被完整工作流平台加持的全栈 AI 開發搭档。"
           ]
         },
         {

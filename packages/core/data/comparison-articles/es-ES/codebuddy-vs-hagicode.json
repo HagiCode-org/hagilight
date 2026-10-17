@@ -5,14 +5,14 @@
   "locale": "es-ES",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de CodeBuddy CLI, sus capacidades de grado empresarial y su ecosistema tecnológico, y ve cómo HagiCode lleva a CodeBuddy al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "title": "CodeBuddy vs HagiCode: funciones y comparación",
+    "description": "Comprende las funciones clave de CodeBuddy, sus capacidades de grado empresarial y su ecosistema tecnológico, y ve cómo HagiCode lleva a CodeBuddy al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
-  "summary": "CodeBuddy CLI es un asistente de codificación IA diseñado para escenarios de desarrollo empresarial, construido sobre los principios de seguridad, compliance y colaboración en equipo. CodeBuddy CLI proporciona robusta protección de código y garantías de compliance, mientras que HagiCode es el workbench que asume áreas más amplias como flujo de trabajo, gestión de conocimiento y coordinación multi-repo. Ambos juntos completan una experiencia de desarrollo IA de grado empresarial. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
+  "summary": "CodeBuddy es un asistente de codificación IA diseñado para escenarios de desarrollo empresarial, construido sobre los principios de seguridad, compliance y colaboración en equipo. CodeBuddy proporciona robusta protección de código y garantías de compliance, mientras que HagiCode es el workbench que asume áreas más amplias como flujo de trabajo, gestión de conocimiento y coordinación multi-repo. Ambos juntos completan una experiencia de desarrollo IA de grado empresarial. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
     {
       "id": "codebuddy-vs-hagicode-section-1",
-      "title": "Las fortalezas principales de CodeBuddy CLI",
+      "title": "Las fortalezas principales de CodeBuddy",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "codebuddy-vs-hagicode-section-1-item-1",
               "title": "Funciones clave",
               "content": [
-                "La funcionalidad de CodeBuddy CLI se centra en la codificación IA de grado empresarial:",
+                "La funcionalidad de CodeBuddy se centra en la codificación IA de grado empresarial:",
                 "Generación de código inteligente y refactorización: CodeBuddy genera implementaciones de código de alta calidad a partir de descripciones en lenguaje natural o contexto de código. Soporta múltiples lenguajes de programación y frameworks, con un rendimiento particularmente fuerte en Java empresarial, C# y otros stacks backend. Las sugerencias de refactorización equilibran rendimiento, mantenibilidad y estándares de codificación del equipo.",
                 "Revisión de código conforme a seguridad: la revisión de código de CodeBuddy va más allá de los bugs funcionales, con énfasis particular en la detección de vulnerabilidades de seguridad y comprobaciones de compliance. Para industrias con requisitos estrictos de seguridad de código como finanzas y salud, este es un diferenciador central.",
                 "Colaboración en equipo y gestión de conocimiento: CodeBuddy soporta la gestión de configuración a nivel de equipo y la sincronización de estándares de codificación. Los líderes de equipo pueden definir estándares de codificación, reglas de seguridad y plantillas de mejores prácticas que son seguidas automáticamente por todos los miembros del equipo que usan CodeBuddy."
@@ -43,7 +43,7 @@
               "title": "Ecosistema tecnológico",
               "content": [
                 "El ecosistema tecnológico de CodeBuddy está construido alrededor de escenarios de desarrollo empresarial:",
-                "Soporte del protocolo ACP: CodeBuddy CLI soporta el protocolo ACP, permitiendo interoperabilidad estandarizada con otras herramientas IA compatibles con ACP.",
+                "Soporte del protocolo ACP: CodeBuddy soporta el protocolo ACP, permitiendo interoperabilidad estandarizada con otras herramientas IA compatibles con ACP.",
                 "Adaptación profunda al stack tecnológico empresarial: CodeBuddy tiene adaptación profunda para stacks empresariales mainstream como Java Spring, .NET y arquitecturas de microservicios, produciendo código que destaca en convenciones de frameworks empresariales.",
                 "Integración CI/CD: CodeBuddy puede integrarse en pipelines CI/CD empresariales existentes, aplicando capacidades IA durante las fases de commit de código, build y despliegue."
               ]
@@ -54,7 +54,7 @@
     },
     {
       "id": "codebuddy-vs-hagicode-section-2",
-      "title": "Por qué CodeBuddy CLI necesita HagiCode",
+      "title": "Por qué CodeBuddy necesita HagiCode",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-2-intro",
@@ -208,10 +208,10 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-11",
-              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de CodeBuddy CLI con un formato coherente",
+              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de CodeBuddy con un formato coherente",
               "content": [
                 "HagiCode asocia un único formato tipado de llamada a herramienta a cada mensaje de uso de herramienta y de resultado. Registra el tipo de herramienta, sus campos de entrada, el estado, el texto o las imágenes del resultado, cualquier error y los tiempos. El formato se calcula a partir de los datos almacenados, así que el historial de la sesión y las actualizaciones en vivo muestran la misma vista.",
-                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de CodeBuddy CLI se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
+                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de CodeBuddy se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
               ],
               "bullets": [
                 "Un solo formato para todos los proveedores: las llamadas de shell, archivos, búsqueda, fetch y MCP se presentan de forma coherente;",
@@ -244,8 +244,8 @@
           "id": "codebuddy-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "CodeBuddy CLI es un asistente de codificación IA de grado empresarial conocido por sus capacidades de seguridad, compliance y colaboración en equipo. HagiCode es un workbench integral de programación IA. Su relación es complementaria:",
-            "Si ya estás usando CodeBuddy CLI, prueba a conectarlo a HagiCode — descubrirás que las ventajas de seguridad y compliance de CodeBuddy ya no son solo 'características destacadas de una sola herramienta', sino parte de un sistema completo de desarrollo IA de grado empresarial impulsado por una plataforma de flujo de trabajo completa."
+            "CodeBuddy es un asistente de codificación IA de grado empresarial conocido por sus capacidades de seguridad, compliance y colaboración en equipo. HagiCode es un workbench integral de programación IA. Su relación es complementaria:",
+            "Si ya estás usando CodeBuddy, prueba a conectarlo a HagiCode — descubrirás que las ventajas de seguridad y compliance de CodeBuddy ya no son solo 'características destacadas de una sola herramienta', sino parte de un sistema completo de desarrollo IA de grado empresarial impulsado por una plataforma de flujo de trabajo completa."
           ]
         },
         {

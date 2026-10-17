@@ -18,7 +18,7 @@
           "id": "deepagents-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "DeepAgents 是 LangChain 基于 LangGraph 开源的 Agent harness。它的终端编码 Agent(HagiCode 里叫 DeepAgents CLI)现在以 Deep Agents Code 之名发布:安装后运行 `dcode`,就是一个在终端里工作的编码 Agent。HagiCode 是桌面与网页端的 AI 编程工作台,把包括 DeepAgents 在内的 Agent CLI 当作执行器来驱动。它不取代这个 CLI,而是以 ACP 模式启动它,并在外层提供会话、提案和提交处理。",
+            "DeepAgents 是 LangChain 基于 LangGraph 开源的 Agent harness。它的终端编码 Agent(HagiCode 里叫 DeepAgents)现在以 Deep Agents Code 之名发布:安装后运行 `dcode`,就是一个在终端里工作的编码 Agent。HagiCode 是桌面与网页端的 AI 编程工作台,把包括 DeepAgents 在内的 Agent CLI 当作执行器来驱动。它不取代这个 CLI,而是以 ACP 模式启动它,并在外层提供会话、提案和提交处理。",
             "如果你在 Deep Agents SDK 上构建自己的 Agent、需要远程沙盒或 LangSmith 追踪,或者只用终端,就单用 DeepAgents。如果想让它与其他 Agent 并排运行,配上提案和并行会话,再加 HagiCode。有一个实际提醒:这个 CLI 改过名,连接之前请先看下面的设置步骤。"
           ]
         }
@@ -203,7 +203,7 @@
           "id": "deepagents-vs-hagicode-section-5-intro",
           "type": "rich-text",
           "content": [
-            "HagiCode 是架在 CLI 之上的工作台。它在你打开的仓库里以 `--acp` 启动 DeepAgents CLI,实际干活的是你自己安装的 CLI 和你的提供商密钥。HagiCode 不增加模型计费。",
+            "HagiCode 是架在 CLI 之上的工作台。它在你打开的仓库里以 `--acp` 启动 DeepAgents,实际干活的是你自己安装的 CLI 和你的提供商密钥。HagiCode 不增加模型计费。",
             "不存在锁定:CLI 仍是一个普通安装,随时可以用 `dcode` 直接运行。"
           ]
         },
@@ -300,11 +300,11 @@
       "answer": "免费。Deep Agents 和 Deep Agents Code 采用 MIT 许可。你向模型提供商付费,LangSmith 追踪是 LangChain 另外的可选服务,方案请看 LangChain 价格页。"
     },
     {
-      "question": "DeepAgents CLI 怎么安装?",
+      "question": "DeepAgents 怎么安装?",
       "answer": "运行 `curl -LsSf https://langch.in/dcode | bash`,然后用 `dcode` 启动。默认含 OpenAI、Anthropic、Gemini 支持,其他提供商通过附加包安装,例如 `DEEPAGENTS_CODE_EXTRAS=\"nvidia,ollama\"`。"
     },
     {
-      "question": "DeepAgents CLI 和 Deep Agents Code 是一回事吗?",
+      "question": "DeepAgents 和 Deep Agents Code 是一回事吗?",
       "answer": "Deep Agents Code(包名 `deepagents-code`)在 2026 年 5 月从 `deepagents-cli` 分叉而来,是现在维护中的终端 Agent。PyPI 上旧的 `deepagents-cli` 包已被弃用。"
     },
     {

@@ -5,7 +5,7 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Reasonix CLI 对比 HagiCode:功能与差异",
+    "title": "Reasonix 对比 HagiCode:功能与差异",
     "description": "Reasonix 是免费、MIT 许可、内置 DeepSeek 预设的编码 Agent，HagiCode 是运行它的工作台。对比功能、价格、上手成本与适用场景。"
   },
   "summary": "Reasonix 是在你本机运行的 MIT 许可开源编码 Agent，内置 DeepSeek 预设，也支持任何 OpenAI 兼容模型。HagiCode 通过 ACP 模式运行 Reasonix，并在外面补上会话、提案和提交工具。",

@@ -25,7 +25,7 @@
                 "GitHub Copilots Fähigkeiten umfassen drei Schichten:",
                 "Einheitlicher Multi-Modell-Zugriff: Eine von Copilots markantesten Stärken ist die Fähigkeit, mehrere KI-Modelle über eine einzige CLI-Schnittstelle zu unterstützen — einschließlich OpenAIs GPT-Serie (GPT-4, GPT-5), der Claude-Familie und anderer Mainstream-Modelle. Sie müssen keine separate Aufruflogik für jedes Modell implementieren. Eine Schnittstelle, darunter flexibler Modellwechsel.",
                 "Code-Generierung und -Vervollständigung: Copilots Kernerfahrung sind Echtzeit-Code-Vorschläge basierend auf Kontext. Es geht über einfache Vervollständigung hinaus — es versteht Codebase-Struktur, Funktionssignaturen und Kommentar-Intention und erzeugt kontextuell kohärente Code-Fragmente. Von Einzeilen-Fixes bis zur Generierung ganzer Komponenten deckt Copilot alles ab.",
-                "Tool-Aufrufe und Session-Management: Copilot CLI unterstützt eingebaute Tool-Aufruf-Fähigkeiten einschließlich Dateioperationen, Git-Befehlen und Shell-Interaktion. Es unterstützt auch Streaming-Output und Session-Kontext-Retention und ermöglicht Multi-Turn-Programmiergespräche."
+                "Tool-Aufrufe und Session-Management: Copilot unterstützt eingebaute Tool-Aufruf-Fähigkeiten einschließlich Dateioperationen, Git-Befehlen und Shell-Interaktion. Es unterstützt auch Streaming-Output und Session-Kontext-Retention und ermöglicht Multi-Turn-Programmiergespräche."
               ]
             },
             {
@@ -43,7 +43,7 @@
               "title": "Plugin- und Tool-Ökosystem",
               "content": [
                 "Copilots Ökosystem umfasst drei Richtungen:",
-                "ACP (Agent Communication Protocol)-Unterstützung: Copilot CLI unterstützt ACP und ermöglicht standardisierte Kommunikation mit anderen KI-Tools und -Plattformen und macht es zu einem interoperablen Knoten in Multi-Tool-Kollaborationsnetzwerken.",
+                "ACP (Agent Communication Protocol)-Unterstützung: Copilot unterstützt ACP und ermöglicht standardisierte Kommunikation mit anderen KI-Tools und -Plattformen und macht es zu einem interoperablen Knoten in Multi-Tool-Kollaborationsnetzwerken.",
                 "VS Code- und JetBrains-Integration: Copilot integriert sich tief mit Mainstream-IDEs und unterstützt direkten KI-Fähigkeits-Aufruf innerhalb von Editoren. Die CLI-Form von Copilot liefert einen unabhängigen Einstiegspunkt für Terminal-Workflows.",
                 "GitHub Actions und CI/CD: Copilot kann in GitHub-Actions-Pipelines integriert werden und KI-Fähigkeiten in Code-Review, automatisiertem Testen und anderen Phasen anwenden."
               ]

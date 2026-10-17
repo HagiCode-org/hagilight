@@ -5,14 +5,14 @@
   "locale": "es-ES",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Kimi CLI vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de Kimi CLI, su optimización china y su ecosistema Moonshot AI, y ve cómo HagiCode lleva a Kimi CLI al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "title": "Kimi vs HagiCode: funciones y comparación",
+    "description": "Comprende las funciones clave de Kimi, su optimización china y su ecosistema Moonshot AI, y ve cómo HagiCode lleva a Kimi al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
-  "summary": "Kimi CLI es la herramienta de programación IA de terminal de Moonshot AI, únicamente posicionada entre las herramientas de programación IA por su enfoque 'chino primero'. Destaca en profunda comprensión de contenidos técnicos en chino, generación y comentario de código en chino y análisis de documentos en chino, y es una herramienta particularmente amigable para desarrolladores sinohablantes. Sin embargo, Kimi CLI es una herramienta de terminal, y HagiCode es un workbench con visualización, gestión multi-repo y persistencia de conocimiento. Ambos juntos extienden la capacidad china de Kimi a una experiencia de desarrollo completa. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
+  "summary": "Kimi es la herramienta de programación IA de terminal de Moonshot AI, únicamente posicionada entre las herramientas de programación IA por su enfoque 'chino primero'. Destaca en profunda comprensión de contenidos técnicos en chino, generación y comentario de código en chino y análisis de documentos en chino, y es una herramienta particularmente amigable para desarrolladores sinohablantes. Sin embargo, Kimi es una herramienta de terminal, y HagiCode es un workbench con visualización, gestión multi-repo y persistencia de conocimiento. Ambos juntos extienden la capacidad china de Kimi a una experiencia de desarrollo completa. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
     {
       "id": "kimi-vs-hagicode-section-1",
-      "title": "Las fortalezas principales de Kimi CLI",
+      "title": "Las fortalezas principales de Kimi",
       "blocks": [
         {
           "id": "kimi-vs-hagicode-section-1-capabilities",
@@ -22,10 +22,10 @@
               "id": "kimi-vs-hagicode-section-1-item-1",
               "title": "Funciones clave",
               "content": [
-                "La funcionalidad de Kimi CLI se centra en la programación inteligente china primero:",
+                "La funcionalidad de Kimi se centra en la programación inteligente china primero:",
                 "Generación y comprensión de código en chino: la comprensión de Kimi para los contenidos técnicos en chino es extremadamente profunda, y puede generar código de alta calidad a partir de descripciones en chino natural. Incluso los complejos requisitos de negocio chinos se captan con precisión y se convierten en implementaciones de código correspondientes.",
                 "Análisis y generación de documentos en chino: Kimi puede leer profundamente documentos técnicos en chino, resumirlos, interpretarlos y reestructurarlos. También destaca en generar documentos y comentarios en chino de alta calidad a partir del código, lo que eficienza enormemente la gestión documental en chino.",
-                "Interacción nativa de terminal: Kimi CLI proporciona una experiencia completa de programación de terminal e integra operaciones de archivos, ejecución de comandos y enlace Git. Sin salir de la terminal, completa el flujo de trabajo de desarrollo."
+                "Interacción nativa de terminal: Kimi proporciona una experiencia completa de programación de terminal e integra operaciones de archivos, ejecución de comandos y enlace Git. Sin salir de la terminal, completa el flujo de trabajo de desarrollo."
               ]
             },
             {
@@ -42,10 +42,10 @@
               "id": "kimi-vs-hagicode-section-1-item-3",
               "title": "Ecosistema Moonshot AI",
               "content": [
-                "Kimi CLI es parte del ecosistema Moonshot AI:",
-                "Integración profunda con la serie de modelos Kimi: Kimi CLI está profundamente vinculado a la serie de modelos Kimi de Moonshot AI y puede utilizar rápidamente las capacidades del último modelo Kimi. Se beneficia inmediatamente de las mejoras de modelo.",
+                "Kimi es parte del ecosistema Moonshot AI:",
+                "Integración profunda con la serie de modelos Kimi: Kimi está profundamente vinculado a la serie de modelos Kimi de Moonshot AI y puede utilizar rápidamente las capacidades del último modelo Kimi. Se beneficia inmediatamente de las mejoras de modelo.",
                 "Conexión con la comunidad técnica china: Kimi tiene una comprensión profunda de los frameworks, herramientas y bibliotecas populares en China, y genera código más adaptado al stack tecnológico de los desarrolladores chinos.",
-                "Soporte del protocolo ACP: Kimi CLI soporta el protocolo ACP, permitiendo la integración en escenarios de colaboración multi-herramienta."
+                "Soporte del protocolo ACP: Kimi soporta el protocolo ACP, permitiendo la integración en escenarios de colaboración multi-herramienta."
               ]
             }
           ]
@@ -60,7 +60,7 @@
           "id": "kimi-vs-hagicode-section-2-intro",
           "type": "rich-text",
           "content": [
-            "La capacidad de programación en chino de Kimi CLI es destacada a nivel lingüístico, pero como herramienta CLI, tiene claros límites en gestión de proyectos, persistencia de conocimiento y coordinación multi-repo. Para que la capacidad china de Kimi cree más valor, necesita un entorno de trabajo más envolvente."
+            "La capacidad de programación en chino de Kimi es destacada a nivel lingüístico, pero como herramienta CLI, tiene claros límites en gestión de proyectos, persistencia de conocimiento y coordinación multi-repo. Para que la capacidad china de Kimi cree más valor, necesita un entorno de trabajo más envolvente."
           ]
         },
         {
@@ -193,7 +193,7 @@
             },
             {
               "id": "kimi-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: dar a Kimi CLI más opciones de modelo",
+              "title": "Enrutamiento de modelo OmniRoute: dar a Kimi más opciones de modelo",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
                 "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Kimi en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
@@ -208,10 +208,10 @@
             },
             {
               "id": "kimi-vs-hagicode-section-2-item-11",
-              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Kimi CLI con un formato coherente",
+              "title": "Vista unificada de llamadas a herramientas: consulta el uso de herramientas de Kimi con un formato coherente",
               "content": [
                 "HagiCode asocia un único formato tipado de llamada a herramienta a cada mensaje de uso de herramienta y de resultado. Registra el tipo de herramienta, sus campos de entrada, el estado, el texto o las imágenes del resultado, cualquier error y los tiempos. El formato se calcula a partir de los datos almacenados, así que el historial de la sesión y las actualizaciones en vivo muestran la misma vista.",
-                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Kimi CLI se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
+                "El mismo formato sirve para todos los proveedores, de modo que las llamadas a herramientas de Kimi se ven igual que las de cualquier otro agente de tu espacio de trabajo. Lees un solo formato en lugar de aprender la salida en bruto de cada CLI."
               ],
               "bullets": [
                 "Un solo formato para todos los proveedores: las llamadas de shell, archivos, búsqueda, fetch y MCP se presentan de forma coherente;",
@@ -244,8 +244,8 @@
           "id": "kimi-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Kimi CLI es una herramienta de programación IA de terminal con destacadas capacidades en chino. HagiCode es un workbench construido a propósito para escenarios de programación IA. Su relación es complementaria:",
-            "Si ya estás usando Kimi CLI, prueba a conectarlo a HagiCode — descubrirás que la capacidad china de Kimi aterriza de forma más ordenada y más duraderamente valuable dentro de un workbench con visualización y persistencia de conocimiento."
+            "Kimi es una herramienta de programación IA de terminal con destacadas capacidades en chino. HagiCode es un workbench construido a propósito para escenarios de programación IA. Su relación es complementaria:",
+            "Si ya estás usando Kimi, prueba a conectarlo a HagiCode — descubrirás que la capacidad china de Kimi aterriza de forma más ordenada y más duraderamente valuable dentro de un workbench con visualización y persistencia de conocimiento."
           ]
         },
         {

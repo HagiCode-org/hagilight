@@ -5,14 +5,14 @@
   "locale": "fr-FR",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Pi CLI vs HagiCode : fonctionnalités et comparaison",
-    "description": "Comprenez le workflow provider-first de Pi CLI, ses contrôles de session et sa gouvernance d'outils, et voyez comment HagiCode transforme Pi en un atelier de programmation IA de grade production via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état. Inclut les questions interactives qui reprennent la même exécution."
+    "title": "Pi vs HagiCode : fonctionnalités et comparaison",
+    "description": "Comprenez le workflow provider-first de Pi, ses contrôles de session et sa gouvernance d'outils, et voyez comment HagiCode transforme Pi en un atelier de programmation IA de grade production via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état. Inclut les questions interactives qui reprennent la même exécution."
   },
-  "summary": "Pi CLI est une interface de codage IA flexible bâtie pour l'accès au modèle agnostique au provider. Avec des modes de pensée configurables, des contrôles de persistance de session et un gating d'outil explicite, il donne aux développeurs un contrôle fin sur la façon dont un assistant de codage IA se comporte. Cependant, Pi CLI est encore fondamentalement un point d'entrée terminal, tandis que HagiCode est un atelier de programmation IA complet. Ensemble, ils transforment Pi d'une CLI configurable en un environnement de développement quotidien complet. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état. Pi CLI peut poser des questions structurées pendant une exécution, qui se poursuit dès que vous répondez.",
+  "summary": "Pi est une interface de codage IA flexible bâtie pour l'accès au modèle agnostique au provider. Avec des modes de pensée configurables, des contrôles de persistance de session et un gating d'outil explicite, il donne aux développeurs un contrôle fin sur la façon dont un assistant de codage IA se comporte. Cependant, Pi est encore fondamentalement un point d'entrée terminal, tandis que HagiCode est un atelier de programmation IA complet. Ensemble, ils transforment Pi d'une CLI configurable en un environnement de développement quotidien complet. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état. Pi peut poser des questions structurées pendant une exécution, qui se poursuit dès que vous répondez.",
   "sections": [
     {
       "id": "pi-vs-hagicode-section-1",
-      "title": "Les forces principales de Pi CLI",
+      "title": "Les forces principales de Pi",
       "blocks": [
         {
           "id": "pi-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "pi-vs-hagicode-section-1-item-1",
               "title": "Fonctions clés",
               "content": [
-                "Les capacités de Pi CLI se focalisent sur l'exécution IA contrôlable plutôt qu'une expérience mono-provider câblée en dur :",
+                "Les capacités de Pi se focalisent sur l'exécution IA contrôlable plutôt qu'une expérience mono-provider câblée en dur :",
                 "Accès au modèle provider-first : Pi peut être pointé vers différents backends de modèle au lieu de forcer un seul chemin fournisseur fixe. Cela le rend attrayant pour les équipes qui veulent préserver un workflow CLI tout en changeant le provider ou la stratégie de modèle sous-jacente au fil du temps.",
                 "Pensée et comportement de session configurables : Pi expose des commutateurs comme le mode de pensée, le répertoire de session et l'exécution sans session. Vous pouvez choisir de préserver l'état de conversation à travers les exécutions ou de garder chaque tour complètement sans état selon la tâche.",
                 "Gouvernance d'outils explicite : Pi vous laisse décider combien d'accès aux outils un tour IA reçoit. Les outils intégrés et l'utilisation plus large des outils peuvent être désactivés quand vous voulez des frontières de sécurité plus serrées ou un comportement d'exécution plus prévisible."
@@ -209,10 +209,10 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-11",
-              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Pi CLI sous une forme cohérente",
+              "title": "Vue unifiée des appels d'outils : consultez l'usage des outils de Pi sous une forme cohérente",
               "content": [
                 "HagiCode associe une même structure typée d'appel d'outil à chaque message d'utilisation d'outil et de résultat d'outil. Elle consigne le type d'outil, ses champs d'entrée, son statut, le texte ou les images du résultat, l'éventuelle erreur et la durée. Cette structure est calculée à partir des données stockées : l'historique de la session et les mises à jour en direct affichent donc la même vue.",
-                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Pi CLI ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
+                "La même structure couvre tous les fournisseurs, de sorte que les appels d'outils de Pi ressemblent à ceux des autres agents de votre espace de travail. Vous lisez un seul format au lieu d'apprendre la sortie brute de chaque CLI."
               ],
               "bullets": [
                 "Une seule structure pour tous les fournisseurs : les appels shell, fichier, recherche, fetch et MCP sont présentés de façon cohérente ;",
@@ -235,9 +235,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-13",
-              "title": "Questions interactives : laissez Pi CLI poser sa question, puis poursuivre la même exécution",
+              "title": "Questions interactives : laissez Pi poser sa question, puis poursuivre la même exécution",
               "content": [
-                "Lorsque Pi CLI a besoin d'une décision, il peut vous poser une question structurée pendant l'exécution. HagiCode affiche la question dans la conversation, le statut de la session passe de « en cours d'exécution » à « en attente de réponse », et votre réponse permet à la même exécution de continuer.",
+                "Lorsque Pi a besoin d'une décision, il peut vous poser une question structurée pendant l'exécution. HagiCode affiche la question dans la conversation, le statut de la session passe de « en cours d'exécution » à « en attente de réponse », et votre réponse permet à la même exécution de continuer.",
                 "Si l'exécution est déjà terminée, par exemple après un redémarrage ou un délai dépassé, votre réponse est envoyée comme un message normal dans la même session afin que le travail puisse se poursuivre."
               ],
               "bullets": [
@@ -258,7 +258,7 @@
           "id": "pi-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Pi CLI est une interface de codage IA flexible et sensible au provider, et HagiCode est un atelier de programmation IA complet. Leur relation est complémentaire :",
+            "Pi est une interface de codage IA flexible et sensible au provider, et HagiCode est un atelier de programmation IA complet. Leur relation est complémentaire :",
             "Si vous utilisez déjà Pi, essayez de le connecter à HagiCode — vous découvrirez que Pi n'est plus seulement une commande terminal configurable, mais un partenaire IA à workflow complet opérant au sein d'un environnement d'ingénierie structuré."
           ]
         },

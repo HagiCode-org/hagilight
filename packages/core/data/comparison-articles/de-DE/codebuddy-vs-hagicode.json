@@ -5,14 +5,14 @@
   "locale": "de-DE",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie CodeBuddy CLIs wichtigsten Funktionen, Enterprise-Grade-Fähigkeiten und Technologie-Ökosystem und sehen Sie, wie HagiCode CodeBuddy durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "title": "CodeBuddy vs. HagiCode: Funktionen im Vergleich",
+    "description": "Verstehen Sie CodeBuddys wichtigsten Funktionen, Enterprise-Grade-Fähigkeiten und Technologie-Ökosystem und sehen Sie, wie HagiCode CodeBuddy durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
-  "summary": "CodeBuddy CLI ist ein für Enterprise-Entwicklungsszenarien entworfener KI-Coding-Assistent, gebaut auf den Prinzipien Sicherheit, Compliance und Teamzusammenarbeit. CodeBuddy CLI bietet robusten Code-Schutz und Compliance-Garantien, während HagiCode die Werkbank ist, die breitere Bereiche wie Workflow, Wissensmanagement und Multi-Repo-Koordination übernimmt. Beide zusammen vervollständigen eine Enterprise-Grade-KI-Entwicklungserfahrung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
+  "summary": "CodeBuddy ist ein für Enterprise-Entwicklungsszenarien entworfener KI-Coding-Assistent, gebaut auf den Prinzipien Sicherheit, Compliance und Teamzusammenarbeit. CodeBuddy bietet robusten Code-Schutz und Compliance-Garantien, während HagiCode die Werkbank ist, die breitere Bereiche wie Workflow, Wissensmanagement und Multi-Repo-Koordination übernimmt. Beide zusammen vervollständigen eine Enterprise-Grade-KI-Entwicklungserfahrung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
     {
       "id": "codebuddy-vs-hagicode-section-1",
-      "title": "CodeBuddy CLIs Kernstärken",
+      "title": "CodeBuddys Kernstärken",
       "blocks": [
         {
           "id": "codebuddy-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "codebuddy-vs-hagicode-section-1-item-1",
               "title": "Wichtigste Funktionen",
               "content": [
-                "CodeBuddy CLIs Funktionalität zentriert sich auf Enterprise-Grade-KI-Coding:",
+                "CodeBuddys Funktionalität zentriert sich auf Enterprise-Grade-KI-Coding:",
                 "Intelligente Code-Generierung und Refaktorisierung: CodeBuddy generiert hochwertige Code-Implementierungen aus natürlichsprachlichen Beschreibungen oder Code-Kontext. Es unterstützt mehrere Programmiersprachen und -Frameworks, mit besonders starker Leistung in Enterprise-Java, C# und anderen Backend-Stacks. Refaktorierungsvorschläge balancieren Leistung, Wartbarkeit und Team-Coding-Standards.",
                 "Security-Compliant Code-Review: CodeBuddys Code-Review geht über funktionale Bugs hinaus und legt besonderen Wert auf Erkennung von Sicherheitslücken und Compliance-Prüfungen. Für Branchen mit strengen Code-Sicherheitsanforderungen wie Finanzwesen und Gesundheitswesen ist dies ein zentraler Differenzierer.",
                 "Teamzusammenarbeit und Wissensmanagement: CodeBuddy unterstützt Team-Level-Konfigurationsmanagement und Coding-Standard-Synchronisation. Team-Leads können Coding-Standards, Sicherheitsregeln und Best-Practice-Templates definieren, denen alle Teammitglieder, die CodeBuddy verwenden, automatisch folgen."
@@ -43,7 +43,7 @@
               "title": "Technologie-Ökosystem",
               "content": [
                 "CodeBuddys Technologie-Ökosystem ist um Enterprise-Entwicklungsszenarien gebaut:",
-                "ACP-Protokoll-Unterstützung: CodeBuddy CLI unterstützt das ACP-Protokoll und ermöglicht standardisierte Interoperabilität mit anderen ACP-kompatiblen KI-Tools.",
+                "ACP-Protokoll-Unterstützung: CodeBuddy unterstützt das ACP-Protokoll und ermöglicht standardisierte Interoperabilität mit anderen ACP-kompatiblen KI-Tools.",
                 "Tiefe Enterprise-Tech-Stack-Adaption: CodeBuddy hat tiefe Adaption für Mainstream-Enterprise-Stacks wie Java Spring, .NET und Microservice-Architekturen und produziert Code, der in Enterprise-Framework-Konventionen glänzt.",
                 "CI/CD-Integration: CodeBuddy kann in bestehende Enterprise-CI/CD-Pipelines integriert werden und KI-Fähigkeiten in Code-Commit-, Build- und Deployment-Phasen anwenden."
               ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-11",
-              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von CodeBuddy CLI in einer konsistenten Form sehen",
+              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von CodeBuddy in einer konsistenten Form sehen",
               "content": [
                 "HagiCode hängt an jede Tool-Use- und Tool-Result-Nachricht dieselbe typisierte Tool-Call-Struktur an. Sie erfasst die Tool-Art, die Eingabefelder, den Status, Ergebnistext oder Bilder, einen eventuellen Fehler und die Zeitangaben. Die Struktur wird aus den gespeicherten Daten berechnet, sodass Session-Verlauf und Live-Updates dieselbe Ansicht zeigen.",
-                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von CodeBuddy CLI genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
+                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von CodeBuddy genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
               ],
               "bullets": [
                 "Eine Struktur für alle Provider: Shell-, Datei-, Such-, Fetch- und MCP-Aufrufe werden einheitlich dargestellt;",
@@ -244,8 +244,8 @@
           "id": "codebuddy-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "CodeBuddy CLI ist ein Enterprise-Grade-KI-Coding-Assistent, bekannt für seine Sicherheits-, Compliance- und Teamzusammenarbeitsfähigkeiten. HagiCode ist eine umfassende KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
-            "Wenn Sie bereits CodeBuddy CLI verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass CodeBuddys Sicherheits- und Compliance-Vorteile nicht länger nur 'herausragende Features eines einzelnen Tools' sind, sondern Teil eines vollständigen Enterprise-Grade-KI-Entwicklungssystems, angetrieben durch eine vollständige Workflow-Plattform."
+            "CodeBuddy ist ein Enterprise-Grade-KI-Coding-Assistent, bekannt für seine Sicherheits-, Compliance- und Teamzusammenarbeitsfähigkeiten. HagiCode ist eine umfassende KI-Programmierwerkbank. Ihre Beziehung ist komplementär:",
+            "Wenn Sie bereits CodeBuddy verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass CodeBuddys Sicherheits- und Compliance-Vorteile nicht länger nur 'herausragende Features eines einzelnen Tools' sind, sondern Teil eines vollständigen Enterprise-Grade-KI-Entwicklungssystems, angetrieben durch eine vollständige Workflow-Plattform."
           ]
         },
         {

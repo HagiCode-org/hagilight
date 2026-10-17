@@ -46,7 +46,7 @@ const INTERACTIVE_QUESTION_SLUGS = new Set([
   'reasonix-vs-hagicode',
 ]);
 
-// Only the Claude CLI publishes agent work snapshots.
+// Only Claude publishes agent work snapshots.
 const AGENT_WORK_SLUGS = new Set(['claude-vs-hagicode']);
 
 // Every supported AIProviderType must map to a slug. Keep in sync with

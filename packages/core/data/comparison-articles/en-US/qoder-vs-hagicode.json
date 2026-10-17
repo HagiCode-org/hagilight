@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "QoderCLI vs HagiCode: Features and Comparison",
-    "description": "QoderCLI is a terminal AI coding agent; HagiCode is a workbench that runs it. Install steps, pricing, features and when to use each, compared."
+    "title": "Qoder vs HagiCode: Features and Comparison",
+    "description": "Qoder is a terminal AI coding agent; HagiCode is a workbench that runs it. Install steps, pricing, features and when to use each, compared."
   },
-  "summary": "QoderCLI is Qoder's terminal coding agent: you install it, sign in, and work in your shell. HagiCode is a desktop workbench that runs QoderCLI for you and adds parallel sessions, OpenSpec proposals and AI commits around it.",
+  "summary": "Qoder is Qoder's terminal coding agent: you install it, sign in, and work in your shell. HagiCode is a desktop workbench that runs Qoder for you and adds parallel sessions, OpenSpec proposals and AI commits around it.",
   "sections": [
     {
       "id": "qoder-vs-hagicode-section-1",
@@ -18,23 +18,23 @@
           "id": "qoder-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "QoderCLI is the command-line coding agent from Qoder. You install it, sign in, start it in a project folder and describe tasks in plain language. HagiCode is a different kind of tool: a desktop and web workbench that runs QoderCLI as its executor. It does not replace QoderCLI, and it does not sell or host models.",
+            "Qoder is the command-line coding agent from Qoder. You install it, sign in, start it in a project folder and describe tasks in plain language. HagiCode is a different kind of tool: a desktop and web workbench that runs Qoder as its executor. It does not replace Qoder, and it does not sell or host models.",
             "A note on names, because people search for \"qodercli\": the npm package is @qoder-ai/qodercli, but the command Qoder's current documentation tells you to run is `qoder`. HagiCode looks for either name, so an older `qodercli` install keeps working.",
-            "If you work alone, prefer a terminal, and one task at a time is enough, stay with QoderCLI. HagiCode starts to pay off when you run several tasks in parallel, want written proposals before code changes, or work across more than one repository."
+            "If you work alone, prefer a terminal, and one task at a time is enough, stay with Qoder. HagiCode starts to pay off when you run several tasks in parallel, want written proposals before code changes, or work across more than one repository."
           ]
         }
       ]
     },
     {
       "id": "qoder-vs-hagicode-section-2",
-      "title": "QoderCLI vs HagiCode at a glance",
+      "title": "Qoder vs HagiCode at a glance",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Aspect",
-            "QoderCLI",
+            "Qoder",
             "HagiCode"
           ],
           "rows": [
@@ -43,7 +43,7 @@
               "cells": [
                 "What it is",
                 "Terminal AI coding assistant from Qoder, part of a family with an IDE, a JetBrains plugin, an Agent SDK and cloud agents",
-                "Desktop and web workbench that runs Agent CLIs, including QoderCLI, as executors; it is not a model or an agent itself"
+                "Desktop and web workbench that runs Agent CLIs, including Qoder, as executors; it is not a model or an agent itself"
               ]
             },
             {
@@ -67,7 +67,7 @@
               "cells": [
                 "Model and provider access",
                 "Qoder's own model tiers (auto, lite, performance) billed in Qoder Credits; bring-your-own-key models on the Individual plan",
-                "Hosts no models; uses whatever your QoderCLI is signed in to; optional OmniRoute model catalog"
+                "Hosts no models; uses whatever your Qoder is signed in to; optional OmniRoute model catalog"
               ]
             },
             {
@@ -99,7 +99,7 @@
               "cells": [
                 "Setup effort",
                 "One install script, then browser or access-token sign-in",
-                "Needs QoderCLI installed and signed in first, then HagiCode Desktop on top"
+                "Needs Qoder installed and signed in first, then HagiCode Desktop on top"
               ]
             },
             {
@@ -116,7 +116,7 @@
     },
     {
       "id": "qoder-vs-hagicode-section-3",
-      "title": "What QoderCLI does well",
+      "title": "What Qoder does well",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-3-capabilities",
@@ -126,7 +126,7 @@
               "id": "qoder-vs-hagicode-section-3-item-1",
               "title": "Install and first run",
               "content": [
-                "QoderCLI installs with a one-line script. On macOS and Linux run `curl -fsSL https://qoder.com/install | bash`; on Windows PowerShell run `irm https://qoder.com/install.ps1 | iex`. Node.js is not needed for these. The npm route, `npm install -g @qoder-ai/qodercli`, needs Node.js 20 or later and is marked as not recommended for new installs.",
+                "Qoder installs with a one-line script. On macOS and Linux run `curl -fsSL https://qoder.com/install | bash`; on Windows PowerShell run `irm https://qoder.com/install.ps1 | iex`. Node.js is not needed for these. The npm route, `npm install -g @qoder-ai/qodercli`, needs Node.js 20 or later and is marked as not recommended for new installs.",
                 "Check it with `qoder --version`, then run `qoder` in a project folder. The first run walks you through sign-in: a browser login, or a personal access token set in the QODER_PERSONAL_ACCESS_TOKEN variable for CI and headless machines. `qoder update` upgrades it, and auto-update is on by default."
               ]
             },
@@ -141,7 +141,7 @@
               "id": "qoder-vs-hagicode-section-3-item-3",
               "title": "Extension points",
               "content": [
-                "You can extend QoderCLI with MCP servers, skills, plugins, subagents, hooks and custom commands. `/init` writes an AGENTS.md memory file for the project. There is also a TypeScript and Python Agent SDK if you want to build your own agents on the same engine."
+                "You can extend Qoder with MCP servers, skills, plugins, subagents, hooks and custom commands. `/init` writes an AGENTS.md memory file for the project. There is also a TypeScript and Python Agent SDK if you want to build your own agents on the same engine."
               ]
             },
             {
@@ -157,14 +157,14 @@
     },
     {
       "id": "qoder-vs-hagicode-section-4",
-      "title": "When to choose QoderCLI, and when to choose HagiCode",
+      "title": "When to choose Qoder, and when to choose HagiCode",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-4-choose-agent",
           "type": "bullet-list",
           "items": [
             "you work in a terminal and one task at a time is enough;",
-            "you want QoderCLI in scripts or CI through `qoder -p` and a personal access token;",
+            "you want Qoder in scripts or CI through `qoder -p` and a personal access token;",
             "you already use Qoder's IDE or JetBrains plugin and want its CLI on the same account;",
             "you want the smallest setup: one installer and no extra application;",
             "you are happy keeping specs and notes in AGENTS.md rather than a proposal workflow."
@@ -174,9 +174,9 @@
           "id": "qoder-vs-hagicode-section-4-choose-hagicode",
           "type": "bullet-list",
           "items": [
-            "you run several QoderCLI tasks at once and want to see all of them in one place;",
+            "you run several Qoder tasks at once and want to see all of them in one place;",
             "you want a written proposal, reviewed before code is changed and archived afterwards;",
-            "your QoderCLI work touches a backend and its client or docs repository in the same change;",
+            "your Qoder work touches a backend and its client or docs repository in the same change;",
             "you want commit messages composed for you and a browser editor next to the conversation;",
             "you use more than one Agent CLI and want one workspace for all of them."
           ]
@@ -187,9 +187,9 @@
           "tone": "warning",
           "title": "Where HagiCode is not the right tool",
           "content": [
-            "Headless or scripted runs belong to QoderCLI itself: use `qoder -p` in CI instead of a desktop workbench.",
+            "Headless or scripted runs belong to Qoder itself: use `qoder -p` in CI instead of a desktop workbench.",
             "If you only want a terminal and no GUI, HagiCode adds nothing you need. The same goes for a single quick question in an editor you already have open.",
-            "HagiCode needs QoderCLI installed and signed in before it can use it, so setup is longer than running Qoder alone. HagiCode starts QoderCLI over ACP with permission prompts bypassed so unattended sessions do not stall; if you want per-action approval, use QoderCLI directly.",
+            "HagiCode needs Qoder installed and signed in before it can use it, so setup is longer than running Qoder alone. HagiCode starts Qoder over ACP with permission prompts bypassed so unattended sessions do not stall; if you want per-action approval, use Qoder directly.",
             "Free editions cap concurrent proposals at 3, teams that do not want a proposal discipline will find it overhead, and the embedded Code Server editor is not a replacement for a full IDE."
           ]
         }
@@ -197,36 +197,36 @@
     },
     {
       "id": "qoder-vs-hagicode-section-5",
-      "title": "Using QoderCLI together with HagiCode",
+      "title": "Using Qoder together with HagiCode",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-5-intro",
           "type": "rich-text",
           "content": [
-            "HagiCode sits on top of the CLI. It starts your QoderCLI install as a subprocess, so the account, credits and settings stay with QoderCLI, and HagiCode does not take over Qoder's sign-in.",
-            "Nothing is locked in. Your repositories, AGENTS.md and QoderCLI configuration stay where they were, and you can open a terminal and run `qoder` on the same project at any time."
+            "HagiCode sits on top of the CLI. It starts your Qoder install as a subprocess, so the account, credits and settings stay with Qoder, and HagiCode does not take over Qoder's sign-in.",
+            "Nothing is locked in. Your repositories, AGENTS.md and Qoder configuration stay where they were, and you can open a terminal and run `qoder` on the same project at any time."
           ]
         },
         {
           "id": "qoder-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "Install QoderCLI with the script for your system, or with npm if you prefer, and confirm it with `qoder --version`.",
+            "Install Qoder with the script for your system, or with npm if you prefer, and confirm it with `qoder --version`.",
             "Run `qoder` once and finish sign-in, so the CLI is authenticated before HagiCode uses it.",
             "Install HagiCode Desktop for Windows, macOS or Linux (or use the Docker Compose or Microsoft Store edition).",
-            "In HagiCode's Agent CLI settings, pick QoderCLI as the executor; HagiCode finds the `qoder` or `qodercli` command on your PATH.",
-            "Open a repository, start a session or a proposal, and watch QoderCLI's tool calls in HagiCode's unified view.",
-            "To go back to plain QoderCLI, close HagiCode and run `qoder` in the same folder; nothing needs to be undone."
+            "In HagiCode's Agent CLI settings, pick Qoder as the executor; HagiCode finds the `qoder` or `qodercli` command on your PATH.",
+            "Open a repository, start a session or a proposal, and watch Qoder's tool calls in HagiCode's unified view.",
+            "To go back to plain Qoder, close HagiCode and run `qoder` in the same folder; nothing needs to be undone."
           ]
         },
         {
           "id": "qoder-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "What works with QoderCLI inside HagiCode",
+          "title": "What works with Qoder inside HagiCode",
           "content": [
-            "Parallel sessions, Agents management, OpenSpec proposals, AI commits, Code Server, Monospecs, Vault and the unified tool-call view work with QoderCLI. HagiCode talks to it over ACP, and you can pass a model override.",
-            "Interactive questions (the agent asking you mid-run) are available only for Claude, Pi, OMP and Reasonix, and the agent work panel only for Claude Code, so neither applies to QoderCLI sessions."
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commits, Code Server, Monospecs, Vault and the unified tool-call view work with Qoder. HagiCode talks to it over ACP, and you can pass a model override.",
+            "Interactive questions (the agent asking you mid-run) are available only for Claude, Pi, OMP and Reasonix, and the agent work panel only for Claude Code, so neither applies to Qoder sessions."
           ]
         }
       ]
@@ -243,35 +243,35 @@
               "id": "qoder-vs-hagicode-section-6-item-1",
               "title": "Parallel sessions and Agents management",
               "content": [
-                "Each QoderCLI session in HagiCode is an Agent with its own context and a status you can scan: running, waiting or done. That replaces a row of terminal tabs, each running its own `qoder` process."
+                "Each Qoder session in HagiCode is an Agent with its own context and a status you can scan: running, waiting or done. That replaces a row of terminal tabs, each running its own `qoder` process."
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-2",
               "title": "OpenSpec proposals",
               "content": [
-                "A task can start as an OpenSpec proposal that you write, validate, apply and archive. QoderCLI does the implementation inside the proposal's constraints, and the proposal stays as the record of why."
+                "A task can start as an OpenSpec proposal that you write, validate, apply and archive. Qoder does the implementation inside the proposal's constraints, and the proposal stays as the record of why."
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-3",
               "title": "AI commit and Code Server",
               "content": [
-                "HagiCode drafts commit messages from the diff QoderCLI produced and locks the repository while it commits. An embedded Code Server editor lets you open the file QoderCLI mentioned without leaving the window."
+                "HagiCode drafts commit messages from the diff Qoder produced and locks the repository while it commits. An embedded Code Server editor lets you open the file Qoder mentioned without leaving the window."
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-4",
               "title": "Monospecs and Vault",
               "content": [
-                "Monospecs describes a multi-repo workspace in one file, so a QoderCLI task knows which repositories exist. Vault keeps reference code and notes available to later sessions, which a fresh `qoder` run would not remember."
+                "Monospecs describes a multi-repo workspace in one file, so a Qoder task knows which repositories exist. Vault keeps reference code and notes available to later sessions, which a fresh `qoder` run would not remember."
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-5",
               "title": "Model routing, tool-call view and usage",
               "content": [
-                "HagiCode shows QoderCLI's tool calls in the same typed shape it uses for every other CLI, in history and live. OmniRoute can supply a model catalog per Agent CLI, and an optional TokenMonitor readout in the status bar shows today's tokens and cost."
+                "HagiCode shows Qoder's tool calls in the same typed shape it uses for every other CLI, in history and live. OmniRoute can supply a model catalog per Agent CLI, and an optional TokenMonitor readout in the status bar shows today's tokens and cost."
               ]
             }
           ]
@@ -286,9 +286,9 @@
           "id": "qoder-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "QoderCLI is the agent: it reads code, edits files and runs commands. HagiCode is the workbench around it.",
-            "Stay with QoderCLI alone for solo, single-task, terminal or CI use; add HagiCode for parallel work, proposals and multi-repo changes.",
-            "Installing QoderCLI first is the one requirement, and you can always go back to running `qoder` directly."
+            "Qoder is the agent: it reads code, edits files and runs commands. HagiCode is the workbench around it.",
+            "Stay with Qoder alone for solo, single-task, terminal or CI use; add HagiCode for parallel work, proposals and multi-repo changes.",
+            "Installing Qoder first is the one requirement, and you can always go back to running `qoder` directly."
           ]
         }
       ]
@@ -296,7 +296,7 @@
   ],
   "faq": [
     {
-      "question": "How do I install QoderCLI?",
+      "question": "How do I install Qoder?",
       "answer": "On macOS or Linux run `curl -fsSL https://qoder.com/install | bash`; on Windows PowerShell run `irm https://qoder.com/install.ps1 | iex`. The npm alternative is `npm install -g @qoder-ai/qodercli` (Node.js 20+). Then run `qoder --version` and `qoder` to sign in. Details are in docs.qoder.com/cli/installation."
     },
     {
@@ -304,20 +304,20 @@
       "answer": "Qoder's current docs say the binary is `qoder`, and `@qoder-ai/qodercli` is only the npm package name. Older material and some setups still use `qodercli`. HagiCode detects both names."
     },
     {
-      "question": "Is QoderCLI free?",
+      "question": "Is Qoder free?",
       "answer": "Qoder has a free plan and paid plans (Pro $20, Pro+ $60, Ultra $200 per month, as of October 2026), with usage counted in credits. The pricing page does not spell out CLI terms, so check Qoder's pricing page before relying on it."
     },
     {
-      "question": "Can I use QoderCLI with HagiCode?",
-      "answer": "Yes. Install and sign in to QoderCLI, then choose it as the Agent CLI in HagiCode. HagiCode runs it over ACP and your Qoder account and credits stay with Qoder."
+      "question": "Can I use Qoder with HagiCode?",
+      "answer": "Yes. Install and sign in to Qoder, then choose it as the Agent CLI in HagiCode. HagiCode runs it over ACP and your Qoder account and credits stay with Qoder."
     },
     {
-      "question": "Does HagiCode replace QoderCLI?",
-      "answer": "No. HagiCode runs QoderCLI as its executor and adds sessions, proposals, commits and multi-repo tools around it. You can still use `qoder` directly on the same repositories."
+      "question": "Does HagiCode replace Qoder?",
+      "answer": "No. HagiCode runs Qoder as its executor and adds sessions, proposals, commits and multi-repo tools around it. You can still use `qoder` directly on the same repositories."
     },
     {
-      "question": "QoderCLI vs HagiCode: which should I pick?",
-      "answer": "Pick QoderCLI alone for terminal, solo or CI work. Add HagiCode when you want parallel sessions, OpenSpec proposals or multi-repo workspaces on top of QoderCLI."
+      "question": "Qoder vs HagiCode: which should I pick?",
+      "answer": "Pick Qoder alone for terminal, solo or CI work. Add HagiCode when you want parallel sessions, OpenSpec proposals or multi-repo workspaces on top of Qoder."
     }
   ]
 }

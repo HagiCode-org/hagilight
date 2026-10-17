@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Junie CLI 对比 HagiCode:功能与差异",
-    "description": "Junie CLI 是 JetBrains 的终端编码 Agent,HagiCode 是运行它的工作台。从功能、价格、上手成本和适用场景对比两者。"
+    "title": "Junie 对比 HagiCode:功能与差异",
+    "description": "Junie 是 JetBrains 的终端编码 Agent,HagiCode 是运行它的工作台。从功能、价格、上手成本和适用场景对比两者。"
   },
-  "summary": "Junie CLI 是 JetBrains 推出的终端编码 Agent,HagiCode 则是把 Junie 当作执行器来运行的桌面与网页工作台。只在终端、IDE 或 CI 里用 Junie 就够了;需要并行会话、规范提案和托管提交时,再加上 HagiCode。",
+  "summary": "Junie 是 JetBrains 推出的终端编码 Agent,HagiCode 则是把 Junie 当作执行器来运行的桌面与网页工作台。只在终端、IDE 或 CI 里用 Junie 就够了;需要并行会话、规范提案和托管提交时,再加上 HagiCode。",
   "sections": [
     {
       "id": "junie-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "junie-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Junie CLI 是 JetBrains 的编码 Agent:在项目目录里运行 `junie`,在终端界面里给它布置任务。HagiCode 是一个桌面与网页端的 AI 编程工作台,把 Junie 这类 Agent CLI 当作执行器来驱动。它不取代 Junie,写代码的仍然是 Junie,HagiCode 负责在外层提供会话管理、提案流程和提交处理。",
+            "Junie 是 JetBrains 的编码 Agent:在项目目录里运行 `junie`,在终端界面里给它布置任务。HagiCode 是一个桌面与网页端的 AI 编程工作台,把 Junie 这类 Agent CLI 当作执行器来驱动。它不取代 Junie,写代码的仍然是 Junie,HagiCode 负责在外层提供会话管理、提案流程和提交处理。",
             "如果你主要在终端、JetBrains IDE 或 CI 里工作,一次做一件事就够用,单用 Junie 更简单。如果你同时处理多个任务或多个仓库,并希望每次改动都对应一份书面提案,可以在外面加上 HagiCode。HagiCode 不卖模型,登录和计费仍然留在 Junie 自己这边。"
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "junie-vs-hagicode-section-2",
-      "title": "Junie CLI 与 HagiCode 对比一览",
+      "title": "Junie 与 HagiCode 对比一览",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "Junie CLI",
+            "Junie",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-3",
-      "title": "Junie CLI 的长处",
+      "title": "Junie 的长处",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-3-capabilities",
@@ -146,7 +146,7 @@
               "id": "junie-vs-hagicode-section-3-item-4",
               "title": "更新通道与状态",
               "content": [
-                "可以只为一次启动切换通道,例如 `junie --eap` 或 `junie --nightly`,不改变已安装的默认版本。JetBrains 在 2026 年 3 月宣布 Junie CLI 进入 beta;当前文档没有写明状态,用于生产 CI 前请到 junie.jetbrains.com 确认。"
+                "可以只为一次启动切换通道,例如 `junie --eap` 或 `junie --nightly`,不改变已安装的默认版本。JetBrains 在 2026 年 3 月宣布 Junie 进入 beta;当前文档没有写明状态,用于生产 CI 前请到 junie.jetbrains.com 确认。"
               ]
             }
           ]
@@ -155,7 +155,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-4",
-      "title": "什么时候选 Junie CLI,什么时候选 HagiCode",
+      "title": "什么时候选 Junie,什么时候选 HagiCode",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-4-choose-agent",
@@ -197,7 +197,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-5",
-      "title": "把 Junie CLI 和 HagiCode 一起用",
+      "title": "把 Junie 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-5-intro",
@@ -286,7 +286,7 @@
           "id": "junie-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Junie CLI 是 JetBrains 出品的终端、IDE 和 CI Agent,单个任务不需要别的东西。",
+            "Junie 是 JetBrains 出品的终端、IDE 和 CI Agent,单个任务不需要别的东西。",
             "HagiCode 在 Junie 外层增加并行 Agent、OpenSpec 提案、AI 提交和共享知识库,代价是多装一个软件,免费版同时只能有 3 个提案。",
             "以终端和 CI 为主就单用 Junie;多任务、多仓库并要求规范可追溯,就用 HagiCode 加 Junie。"
           ]
@@ -296,27 +296,27 @@
   ],
   "faq": [
     {
-      "question": "Junie CLI 免费吗?",
-      "answer": "Junie CLI 通过 JetBrains 订阅计划使用(JetBrains 账号自带免费的 Junie Lite 模型),或使用按量计费的 Junie API key,也可以用自己的提供商密钥并按提供商价格付费。当前方案请看 junie.jetbrains.com 的价格页。"
+      "question": "Junie 免费吗?",
+      "answer": "Junie 通过 JetBrains 订阅计划使用(JetBrains 账号自带免费的 Junie Lite 模型),或使用按量计费的 Junie API key,也可以用自己的提供商密钥并按提供商价格付费。当前方案请看 junie.jetbrains.com 的价格页。"
     },
     {
-      "question": "Junie CLI 怎么安装?",
+      "question": "Junie 怎么安装?",
       "answer": "macOS 或 Linux 运行 `curl -fsSL https://junie.jetbrains.com/install.sh | bash`,然后 `cd` 到项目目录运行 `junie`。Windows 使用 Junie 文档页上的 PowerShell 安装脚本;仓库 README 还列出了 Homebrew 和 npm(`@jetbrains/junie`)两种方式。"
     },
     {
-      "question": "Junie CLI 能和 HagiCode 一起用吗?",
+      "question": "Junie 能和 HagiCode 一起用吗?",
       "answer": "可以。先安装并登录 Junie,再在 HagiCode 里把 Agent CLI 选为 Junie。HagiCode 通过 ACP 运行它,不会向你索要 Junie 凭据。"
     },
     {
-      "question": "HagiCode 会取代 Junie CLI 吗?",
+      "question": "HagiCode 会取代 Junie 吗?",
       "answer": "不会。HagiCode 是 CLI 外层的工作台,写代码的仍是 Junie,你随时可以直接运行它。"
     },
     {
-      "question": "Junie CLI 还在 beta 吗?",
-      "answer": "JetBrains 在 2026 年 3 月宣布 Junie CLI 进入 beta。当前文档没有写明状态,最新情况请查看 junie.jetbrains.com。"
+      "question": "Junie 还在 beta 吗?",
+      "answer": "JetBrains 在 2026 年 3 月宣布 Junie 进入 beta。当前文档没有写明状态,最新情况请查看 junie.jetbrains.com。"
     },
     {
-      "question": "Junie CLI 和 HagiCode 该选哪个?",
+      "question": "Junie 和 HagiCode 该选哪个?",
       "answer": "一次只做一个任务的 CI、终端和 IDE 场景,单用 Junie。需要同时处理多个任务或仓库,并想在一处管理提案、提交和 Agent 时,再加 HagiCode。"
     }
   ]

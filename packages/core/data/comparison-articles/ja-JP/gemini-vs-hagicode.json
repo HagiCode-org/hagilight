@@ -5,14 +5,14 @@
   "locale": "ja-JP",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "Gemini CLI と HagiCode の比較:機能と違い",
-    "description": "Google Gemini CLI の主な機能、マルチモーダル能力、Google エコシステム統合を理解し、マルチスレッド並列、OpenSpec 提案、AI コミット、HagiTask、ゲーム化 UI、Agents 管理、Monospecs、Vault、OmniRoute を通じて HagiCode が Gemini CLI を次のレベルに引き上げる方法をご覧ください。共通のツールコールビューと TokenMonitor のステータスバー使用量表示も解説。"
+    "title": "Gemini と HagiCode の比較:機能と違い",
+    "description": "Google Gemini の主な機能、マルチモーダル能力、Google エコシステム統合を理解し、マルチスレッド並列、OpenSpec 提案、AI コミット、HagiTask、ゲーム化 UI、Agents 管理、Monospecs、Vault、OmniRoute を通じて HagiCode が Gemini を次のレベルに引き上げる方法をご覧ください。共通のツールコールビューと TokenMonitor のステータスバー使用量表示も解説。"
   },
-  "summary": "Google Gemini CLI は Google 公式のターミナル AI プログラミングツールです。Gemini のマルチモーダル理解、超長コンテキスト処理能力、Google エコシステムとの深い統合により、視覚情報を含む複雑なタスクに特に優れています。ただし Gemini CLI は本質的にターミナルツールであり、HagiCode は可視化、管理、知識の永続化を備えたワークベンチです。両者を組み合わせることで、Gemini のマルチモーダル能力を完全な開発体験へと拡張できます。さらに、共通のツールコールビューと、ステータスバーでの任意の TokenMonitor 使用量表示にも対応しています。",
+  "summary": "Google Gemini は Google 公式のターミナル AI プログラミングツールです。Gemini のマルチモーダル理解、超長コンテキスト処理能力、Google エコシステムとの深い統合により、視覚情報を含む複雑なタスクに特に優れています。ただし Gemini は本質的にターミナルツールであり、HagiCode は可視化、管理、知識の永続化を備えたワークベンチです。両者を組み合わせることで、Gemini のマルチモーダル能力を完全な開発体験へと拡張できます。さらに、共通のツールコールビューと、ステータスバーでの任意の TokenMonitor 使用量表示にも対応しています。",
   "sections": [
     {
       "id": "gemini-vs-hagicode-section-1",
-      "title": "Gemini CLI のコアストレングス",
+      "title": "Gemini のコアストレングス",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-1-capabilities",
@@ -22,10 +22,10 @@
               "id": "gemini-vs-hagicode-section-1-item-1",
               "title": "主な機能",
               "content": [
-                "Google Gemini CLI の機能は Gemini モデルならではの優位性を中心に構成されています：",
+                "Google Gemini の機能は Gemini モデルならではの優位性を中心に構成されています：",
                 "マルチモーダルなコード理解：Gemini はコード、スクリーンショット、アーキテクチャ図、設計書を同時に理解できます。テキストだけでなく画像情報も処理できるため、UI のスクリーンショットを貼るだけでコンポーネントコードを生成するといった作業に強みを持ちます。",
                 "超長コンテキスト処理：Gemini は百万レベルのトークンコンテキストウィンドウをサポートします。つまり大規模なコードベース、複数のドキュメント、長い設計資料を一度に読み込ませても、全体を一貫して理解できます。超大規模プロジェクトの分析に有利です。",
-                "ネイティブなコマンドライン統合：Gemini CLI はターミナルにおける完全なプログラミング体験を提供します。ファイル操作、コマンド実行、Git 連携などを統合しており、ターミナルから離れることなく開発ワークフローを完結できます。"
+                "ネイティブなコマンドライン統合：Gemini はターミナルにおける完全なプログラミング体験を提供します。ファイル操作、コマンド実行、Git 連携などを統合しており、ターミナルから離れることなく開発ワークフローを完結できます。"
               ]
             },
             {
@@ -42,10 +42,10 @@
               "id": "gemini-vs-hagicode-section-1-item-3",
               "title": "エコシステムと統合",
               "content": [
-                "Gemini CLI のエコシステムは Google の技術スタックを中心に構成されています：",
-                "Google Cloud 統合：Gemini CLI は Google Cloud の各サービスと自然に繋がっており、Cloud Storage、BigQuery、Vertex AI などに直接アクセスできます。Google Cloud を使うチームにとってシームレスです。",
-                "オープンソースとコミュニティ駆動：Gemini CLI は GitHub でホストされるオープンソースプロジェクトです。コミュニティが機能の提案、バグ報告、コード貢献を通じて反復に参加しています。",
-                "ACP プロトコルのサポート：Gemini CLI は ACP（Agent Communication Protocol）をサポートし、他の AI ツールやプラットフォームとの標準化された通信を可能にします。"
+                "Gemini のエコシステムは Google の技術スタックを中心に構成されています：",
+                "Google Cloud 統合：Gemini は Google Cloud の各サービスと自然に繋がっており、Cloud Storage、BigQuery、Vertex AI などに直接アクセスできます。Google Cloud を使うチームにとってシームレスです。",
+                "オープンソースとコミュニティ駆動：Gemini は GitHub でホストされるオープンソースプロジェクトです。コミュニティが機能の提案、バグ報告、コード貢献を通じて反復に参加しています。",
+                "ACP プロトコルのサポート：Gemini は ACP（Agent Communication Protocol）をサポートし、他の AI ツールやプラットフォームとの標準化された通信を可能にします。"
               ]
             }
           ]
@@ -54,7 +54,7 @@
     },
     {
       "id": "gemini-vs-hagicode-section-2",
-      "title": "なぜGemini CLIにHagiCodeが必要か",
+      "title": "なぜGeminiにHagiCodeが必要か",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-2-intro",
@@ -193,7 +193,7 @@
             },
             {
               "id": "gemini-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute モデルルーティング：Gemini CLI に複数の道を与える",
+              "title": "OmniRoute モデルルーティング：Gemini に複数の道を与える",
               "content": [
                 "チームは、好みのワークフローを維持しつつ、モデルアクセスを一つのベンダーや一つのサブスクリプション経路に縛られるべきではありません。",
                 "OmniRoute はインタラクション層とモデルルーティング層を分離し、HagiCode はワークフローに Gemini を残したまま、その下でモデルソースを切り替えられます。",
@@ -208,10 +208,10 @@
             },
             {
               "id": "gemini-vs-hagicode-section-2-item-11",
-              "title": "統一ツールコールビュー：Gemini CLI のツール利用を一貫した形式で確認",
+              "title": "統一ツールコールビュー：Gemini のツール利用を一貫した形式で確認",
               "content": [
                 "HagiCode は、すべてのツール使用メッセージとツール結果メッセージに、型付きの共通ツールコール形式を付与します。ツールの種類、入力フィールド、ステータス、結果テキストや画像、エラー、所要時間が記録されます。この形式は保存済みデータから算出されるため、セッション履歴とリアルタイム更新で同じ表示になります。",
-                "同じ形式がすべてのプロバイダーに適用されるので、Gemini CLI のツールコールもワークスペース内の他のエージェントと同じ見た目で表示されます。CLI ごとの生の出力を覚えなくても、ひとつの形式を読むだけで済みます。"
+                "同じ形式がすべてのプロバイダーに適用されるので、Gemini のツールコールもワークスペース内の他のエージェントと同じ見た目で表示されます。CLI ごとの生の出力を覚えなくても、ひとつの形式を読むだけで済みます。"
               ],
               "bullets": [
                 "全プロバイダー共通の形式：シェル、ファイル、検索、フェッチ、MCP の各呼び出しを一貫して表示;",
@@ -244,8 +244,8 @@
           "id": "gemini-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "Google Gemini CLI は独自に強力なマルチモーダル能力と超長コンテキストを持つ AI プログラミングツールであり、HagiCode は AI プログラミングシナリオのために特別に作られたワークベンチです。両者の関係は補完的です：",
-            "もし既に Gemini CLI を使っているなら、HagiCode に繋いでみてください。Gemini のマルチモーダル理解が、視覚的な管理と知識の永続化を備えたワークベンチの中で、より整然と、より長く価値を保つものとして着地していることに気づくはずです。"
+            "Google Gemini は独自に強力なマルチモーダル能力と超長コンテキストを持つ AI プログラミングツールであり、HagiCode は AI プログラミングシナリオのために特別に作られたワークベンチです。両者の関係は補完的です：",
+            "もし既に Gemini を使っているなら、HagiCode に繋いでみてください。Gemini のマルチモーダル理解が、視覚的な管理と知識の永続化を備えたワークベンチの中で、より整然と、より長く価値を保つものとして着地していることに気づくはずです。"
           ]
         },
         {

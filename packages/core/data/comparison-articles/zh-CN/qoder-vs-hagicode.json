@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "QoderCLI 对比 HagiCode:功能与差异",
-    "description": "QoderCLI 是终端里的 AI 编程 Agent，HagiCode 是运行它的工作台。对比安装方式、价格、功能，以及各自适合什么场景。"
+    "title": "Qoder 对比 HagiCode:功能与差异",
+    "description": "Qoder 是终端里的 AI 编程 Agent，HagiCode 是运行它的工作台。对比安装方式、价格、功能，以及各自适合什么场景。"
   },
-  "summary": "QoderCLI 是 Qoder 推出的终端编程 Agent：安装、登录后就能在命令行里干活。HagiCode 是桌面工作台，负责运行 QoderCLI，并在外面补上并行会话、OpenSpec 提案和 AI 提交。",
+  "summary": "Qoder 是 Qoder 推出的终端编程 Agent：安装、登录后就能在命令行里干活。HagiCode 是桌面工作台，负责运行 Qoder，并在外面补上并行会话、OpenSpec 提案和 AI 提交。",
   "sections": [
     {
       "id": "qoder-vs-hagicode-section-1",
@@ -18,23 +18,23 @@
           "id": "qoder-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "QoderCLI 是 Qoder 的命令行编程 Agent：装好、登录，在项目目录里启动，用自然语言描述任务即可。HagiCode 是另一类工具，一个桌面和网页端的工作台，把 QoderCLI 当作执行器来运行。它不替代 QoderCLI，也不出售或托管模型。",
+            "Qoder 是 Qoder 的命令行编程 Agent：装好、登录，在项目目录里启动，用自然语言描述任务即可。HagiCode 是另一类工具，一个桌面和网页端的工作台，把 Qoder 当作执行器来运行。它不替代 Qoder，也不出售或托管模型。",
             "顺便说明名字，因为很多人搜的是 \"qodercli\"：npm 包名是 @qoder-ai/qodercli，但 Qoder 现行文档让你输入的命令是 `qoder`。HagiCode 两种名字都会查找，所以旧的 `qodercli` 安装依然可用。",
-            "如果你一个人干活、习惯终端、一次做一件事，只用 QoderCLI 就够了。需要同时跑多个任务、希望改代码前先有书面提案，或者要跨多个仓库改动时，HagiCode 才会体现价值。"
+            "如果你一个人干活、习惯终端、一次做一件事，只用 Qoder 就够了。需要同时跑多个任务、希望改代码前先有书面提案，或者要跨多个仓库改动时，HagiCode 才会体现价值。"
           ]
         }
       ]
     },
     {
       "id": "qoder-vs-hagicode-section-2",
-      "title": "QoderCLI 与 HagiCode 一览",
+      "title": "Qoder 与 HagiCode 一览",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "QoderCLI",
+            "Qoder",
             "HagiCode"
           ],
           "rows": [
@@ -43,7 +43,7 @@
               "cells": [
                 "它是什么",
                 "Qoder 推出的终端 AI 编程助手，同系列还有 IDE、JetBrains 插件、Agent SDK 和云端 Agent",
-                "运行 Agent CLI（包括 QoderCLI）的桌面和网页工作台，本身不是模型也不是 Agent"
+                "运行 Agent CLI（包括 Qoder）的桌面和网页工作台，本身不是模型也不是 Agent"
               ]
             },
             {
@@ -67,7 +67,7 @@
               "cells": [
                 "模型与来源",
                 "使用 Qoder 自己的模型档位（auto、lite、performance），消耗 Qoder 积分；个人版可自带密钥",
-                "不托管模型，用的是你 QoderCLI 已登录的账户；可选 OmniRoute 模型目录"
+                "不托管模型，用的是你 Qoder 已登录的账户；可选 OmniRoute 模型目录"
               ]
             },
             {
@@ -99,7 +99,7 @@
               "cells": [
                 "上手成本",
                 "一条安装脚本，之后用浏览器或访问令牌登录",
-                "要先装好并登录 QoderCLI，再在上面装 HagiCode 桌面版"
+                "要先装好并登录 Qoder，再在上面装 HagiCode 桌面版"
               ]
             },
             {
@@ -116,7 +116,7 @@
     },
     {
       "id": "qoder-vs-hagicode-section-3",
-      "title": "QoderCLI 的长处",
+      "title": "Qoder 的长处",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-3-capabilities",
@@ -126,7 +126,7 @@
               "id": "qoder-vs-hagicode-section-3-item-1",
               "title": "安装与首次运行",
               "content": [
-                "QoderCLI 用一行脚本安装。macOS 和 Linux 运行 `curl -fsSL https://qoder.com/install | bash`；Windows PowerShell 运行 `irm https://qoder.com/install.ps1 | iex`。这两种方式不需要 Node.js。npm 方式 `npm install -g @qoder-ai/qodercli` 需要 Node.js 20 或更高版本，文档标注为不推荐用于新安装。",
+                "Qoder 用一行脚本安装。macOS 和 Linux 运行 `curl -fsSL https://qoder.com/install | bash`；Windows PowerShell 运行 `irm https://qoder.com/install.ps1 | iex`。这两种方式不需要 Node.js。npm 方式 `npm install -g @qoder-ai/qodercli` 需要 Node.js 20 或更高版本，文档标注为不推荐用于新安装。",
                 "用 `qoder --version` 检查，再在项目目录里运行 `qoder`。首次运行会引导登录：可以用浏览器登录，在 CI 或无界面机器上则设置 QODER_PERSONAL_ACCESS_TOKEN 环境变量使用个人访问令牌。`qoder update` 用于升级，自动更新默认开启。"
               ]
             },
@@ -141,7 +141,7 @@
               "id": "qoder-vs-hagicode-section-3-item-3",
               "title": "扩展方式",
               "content": [
-                "QoderCLI 可以通过 MCP 服务器、skills、插件、子 Agent、hooks 和自定义命令扩展。`/init` 会为项目生成 AGENTS.md 记忆文件。如果想在同一引擎上构建自己的 Agent，还有 TypeScript 和 Python 的 Agent SDK。"
+                "Qoder 可以通过 MCP 服务器、skills、插件、子 Agent、hooks 和自定义命令扩展。`/init` 会为项目生成 AGENTS.md 记忆文件。如果想在同一引擎上构建自己的 Agent，还有 TypeScript 和 Python 的 Agent SDK。"
               ]
             },
             {
@@ -157,14 +157,14 @@
     },
     {
       "id": "qoder-vs-hagicode-section-4",
-      "title": "什么时候选 QoderCLI，什么时候选 HagiCode",
+      "title": "什么时候选 Qoder，什么时候选 HagiCode",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-4-choose-agent",
           "type": "bullet-list",
           "items": [
             "你习惯在终端里工作，一次处理一件事就够；",
-            "你想通过 `qoder -p` 和个人访问令牌把 QoderCLI 用进脚本或 CI；",
+            "你想通过 `qoder -p` 和个人访问令牌把 Qoder 用进脚本或 CI；",
             "你已经在用 Qoder 的 IDE 或 JetBrains 插件，想在命令行里用同一个账户；",
             "你想要最小的安装成本：一个安装脚本，不多装应用；",
             "你满足于把规格和笔记写在 AGENTS.md 里，不需要提案流程。"
@@ -174,9 +174,9 @@
           "id": "qoder-vs-hagicode-section-4-choose-hagicode",
           "type": "bullet-list",
           "items": [
-            "你同时跑多个 QoderCLI 任务，希望在一处看到全部进度；",
+            "你同时跑多个 Qoder 任务，希望在一处看到全部进度；",
             "你想在改代码前先写好提案、经过评审，完成后归档；",
-            "你的 QoderCLI 工作一次要同时改动后端以及它的客户端或文档仓库；",
+            "你的 Qoder 工作一次要同时改动后端以及它的客户端或文档仓库；",
             "你想让提交信息自动生成，并在对话旁边直接用浏览器编辑器改文件；",
             "你同时用多个 Agent CLI，想在一个工作区里管理它们。"
           ]
@@ -187,9 +187,9 @@
           "tone": "warning",
           "title": "HagiCode 不太合适的场景",
           "content": [
-            "无界面或脚本化运行应该直接用 QoderCLI：在 CI 里用 `qoder -p`，不需要桌面工作台。",
+            "无界面或脚本化运行应该直接用 Qoder：在 CI 里用 `qoder -p`，不需要桌面工作台。",
             "如果你只想要终端、不要图形界面，HagiCode 帮不上什么；在已打开的编辑器里问一个小问题也一样。",
-            "HagiCode 需要先装好并登录 QoderCLI 才能使用，所以比单独用 Qoder 多一步。HagiCode 通过 ACP 启动 QoderCLI 时会跳过权限确认，避免无人值守的会话卡住；如果你想逐项确认操作，请直接使用 QoderCLI。",
+            "HagiCode 需要先装好并登录 Qoder 才能使用，所以比单独用 Qoder 多一步。HagiCode 通过 ACP 启动 Qoder 时会跳过权限确认，避免无人值守的会话卡住；如果你想逐项确认操作，请直接使用 Qoder。",
             "免费版并发提案上限为 3 个；不想要提案流程的团队会觉得多余；内置的 Code Server 编辑器也不能替代完整 IDE。"
           ]
         }
@@ -197,36 +197,36 @@
     },
     {
       "id": "qoder-vs-hagicode-section-5",
-      "title": "把 QoderCLI 和 HagiCode 一起用",
+      "title": "把 Qoder 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-5-intro",
           "type": "rich-text",
           "content": [
-            "HagiCode 架在 CLI 之上。它把你已安装的 QoderCLI 作为子进程启动，账户、积分和设置都留在 QoderCLI 那边，HagiCode 不会接管 Qoder 的登录。",
-            "没有任何绑定。仓库、AGENTS.md 和 QoderCLI 的配置都还在原处，随时可以打开终端在同一个项目里运行 `qoder`。"
+            "HagiCode 架在 CLI 之上。它把你已安装的 Qoder 作为子进程启动，账户、积分和设置都留在 Qoder 那边，HagiCode 不会接管 Qoder 的登录。",
+            "没有任何绑定。仓库、AGENTS.md 和 Qoder 的配置都还在原处，随时可以打开终端在同一个项目里运行 `qoder`。"
           ]
         },
         {
           "id": "qoder-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "按你的系统运行安装脚本（也可以用 npm）安装 QoderCLI，并用 `qoder --version` 确认。",
+            "按你的系统运行安装脚本（也可以用 npm）安装 Qoder，并用 `qoder --version` 确认。",
             "运行一次 `qoder` 完成登录，让 CLI 在 HagiCode 使用之前就已通过认证。",
             "安装 Windows、macOS 或 Linux 版 HagiCode 桌面端（也可用 Docker Compose 版或微软商店版）。",
-            "在 HagiCode 的 Agent CLI 设置里把 QoderCLI 选为执行器；HagiCode 会在 PATH 中查找 `qoder` 或 `qodercli` 命令。",
-            "打开一个仓库，开始会话或提案，并在 HagiCode 的统一视图里查看 QoderCLI 的工具调用。",
-            "想回到单独使用 QoderCLI，关闭 HagiCode，在同一目录运行 `qoder` 即可，无需任何还原操作。"
+            "在 HagiCode 的 Agent CLI 设置里把 Qoder 选为执行器；HagiCode 会在 PATH 中查找 `qoder` 或 `qodercli` 命令。",
+            "打开一个仓库，开始会话或提案，并在 HagiCode 的统一视图里查看 Qoder 的工具调用。",
+            "想回到单独使用 Qoder，关闭 HagiCode，在同一目录运行 `qoder` 即可，无需任何还原操作。"
           ]
         },
         {
           "id": "qoder-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "QoderCLI 在 HagiCode 里能用什么",
+          "title": "Qoder 在 HagiCode 里能用什么",
           "content": [
-            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 QoderCLI。HagiCode 通过 ACP 与它通信，也可以指定模型。",
-            "交互式提问（Agent 在运行中向你提问）目前只支持 Claude、Pi、OMP 和 Reasonix，Agent 工作面板只支持 Claude Code，所以 QoderCLI 会话里没有这两项。"
+            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 Qoder。HagiCode 通过 ACP 与它通信，也可以指定模型。",
+            "交互式提问（Agent 在运行中向你提问）目前只支持 Claude、Pi、OMP 和 Reasonix，Agent 工作面板只支持 Claude Code，所以 Qoder 会话里没有这两项。"
           ]
         }
       ]
@@ -243,35 +243,35 @@
               "id": "qoder-vs-hagicode-section-6-item-1",
               "title": "并行会话与 Agents 管理",
               "content": [
-                "在 HagiCode 里，每个 QoderCLI 会话就是一个 Agent，有独立上下文和一眼能看清的状态：运行中、等待中或已完成。它替代了一排各自运行 `qoder` 进程的终端标签页。"
+                "在 HagiCode 里，每个 Qoder 会话就是一个 Agent，有独立上下文和一眼能看清的状态：运行中、等待中或已完成。它替代了一排各自运行 `qoder` 进程的终端标签页。"
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-2",
               "title": "OpenSpec 提案",
               "content": [
-                "任务可以从一份 OpenSpec 提案开始，经过提出、校验、应用、归档。QoderCLI 在提案的约束内完成实现，提案则留作“为什么这样改”的记录。"
+                "任务可以从一份 OpenSpec 提案开始，经过提出、校验、应用、归档。Qoder 在提案的约束内完成实现，提案则留作“为什么这样改”的记录。"
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-3",
               "title": "AI 提交与 Code Server",
               "content": [
-                "HagiCode 根据 QoderCLI 产生的 diff 起草提交信息，并在提交期间锁定仓库。内置的 Code Server 编辑器可以直接打开 QoderCLI 提到的文件，不用离开窗口。"
+                "HagiCode 根据 Qoder 产生的 diff 起草提交信息，并在提交期间锁定仓库。内置的 Code Server 编辑器可以直接打开 Qoder 提到的文件，不用离开窗口。"
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-4",
               "title": "Monospecs 与 Vault",
               "content": [
-                "Monospecs 用一个文件描述多仓库工作区，让 QoderCLI 的任务知道有哪些仓库。Vault 把参考代码和笔记留给后续会话使用，而全新运行的 `qoder` 是不会记得这些的。"
+                "Monospecs 用一个文件描述多仓库工作区，让 Qoder 的任务知道有哪些仓库。Vault 把参考代码和笔记留给后续会话使用，而全新运行的 `qoder` 是不会记得这些的。"
               ]
             },
             {
               "id": "qoder-vs-hagicode-section-6-item-5",
               "title": "模型路由、工具调用视图与用量",
               "content": [
-                "HagiCode 用与其他 CLI 相同的结构化形式展示 QoderCLI 的工具调用，历史记录和实时更新一致。OmniRoute 可以为每个 Agent CLI 提供模型目录，可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
+                "HagiCode 用与其他 CLI 相同的结构化形式展示 Qoder 的工具调用，历史记录和实时更新一致。OmniRoute 可以为每个 Agent CLI 提供模型目录，可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
               ]
             }
           ]
@@ -286,9 +286,9 @@
           "id": "qoder-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "QoderCLI 是 Agent：读代码、改文件、跑命令。HagiCode 是围绕它的工作台。",
-            "个人、单任务、终端或 CI 场景只用 QoderCLI；需要并行、提案和多仓库改动时再加上 HagiCode。",
-            "唯一的前提是先装好 QoderCLI，而且随时可以退回直接运行 `qoder`。"
+            "Qoder 是 Agent：读代码、改文件、跑命令。HagiCode 是围绕它的工作台。",
+            "个人、单任务、终端或 CI 场景只用 Qoder；需要并行、提案和多仓库改动时再加上 HagiCode。",
+            "唯一的前提是先装好 Qoder，而且随时可以退回直接运行 `qoder`。"
           ]
         }
       ]
@@ -296,7 +296,7 @@
   ],
   "faq": [
     {
-      "question": "QoderCLI 怎么安装？",
+      "question": "Qoder 怎么安装？",
       "answer": "macOS 或 Linux 运行 `curl -fsSL https://qoder.com/install | bash`；Windows PowerShell 运行 `irm https://qoder.com/install.ps1 | iex`。也可以用 npm：`npm install -g @qoder-ai/qodercli`（需要 Node.js 20+）。然后运行 `qoder --version` 和 `qoder` 完成登录。详见 docs.qoder.com/cli/installation。"
     },
     {
@@ -304,20 +304,20 @@
       "answer": "Qoder 现行文档说二进制命令是 `qoder`，`@qoder-ai/qodercli` 只是 npm 包名。旧资料和部分环境仍用 `qodercli`。HagiCode 两个名字都能识别。"
     },
     {
-      "question": "QoderCLI 免费吗？",
+      "question": "Qoder 免费吗？",
       "answer": "Qoder 有免费套餐和付费套餐（截至 2026 年 10 月为 Pro 20 美元、Pro+ 60 美元、Ultra 200 美元每月），用量按积分计算。定价页没有写明 CLI 的具体条款，使用前请查看 Qoder 定价页。"
     },
     {
-      "question": "QoderCLI 能和 HagiCode 一起用吗？",
-      "answer": "可以。先安装并登录 QoderCLI，再在 HagiCode 里选它作为 Agent CLI。HagiCode 通过 ACP 运行它，你的 Qoder 账户和积分仍由 Qoder 管理。"
+      "question": "Qoder 能和 HagiCode 一起用吗？",
+      "answer": "可以。先安装并登录 Qoder，再在 HagiCode 里选它作为 Agent CLI。HagiCode 通过 ACP 运行它，你的 Qoder 账户和积分仍由 Qoder 管理。"
     },
     {
-      "question": "HagiCode 会取代 QoderCLI 吗？",
-      "answer": "不会。HagiCode 把 QoderCLI 当执行器，在外面补上会话、提案、提交和多仓库工具。你仍可在同样的仓库里直接运行 `qoder`。"
+      "question": "HagiCode 会取代 Qoder 吗？",
+      "answer": "不会。HagiCode 把 Qoder 当执行器，在外面补上会话、提案、提交和多仓库工具。你仍可在同样的仓库里直接运行 `qoder`。"
     },
     {
-      "question": "QoderCLI 和 HagiCode 该选哪个？",
-      "answer": "终端、个人或 CI 场景选 QoderCLI 即可。想在 QoderCLI 之上获得并行会话、OpenSpec 提案或多仓库工作区时，再加上 HagiCode。"
+      "question": "Qoder 和 HagiCode 该选哪个？",
+      "answer": "终端、个人或 CI 场景选 Qoder 即可。想在 Qoder 之上获得并行会话、OpenSpec 提案或多仓库工作区时，再加上 HagiCode。"
     }
   ]
 }

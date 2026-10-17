@@ -6,9 +6,9 @@
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
     "title": "GitHub Copilot 对比 HagiCode:功能与差异",
-    "description": "GitHub Copilot CLI 是终端里的 AI 编程 Agent,HagiCode 是运行它的工作台。对比功能、价格与适用场景,并说明什么时候只用 Copilot CLI 就够。"
+    "description": "GitHub Copilot 是终端里的 AI 编程 Agent,HagiCode 是运行它的工作台。对比功能、价格与适用场景,并说明什么时候只用 Copilot 就够。"
   },
-  "summary": "GitHub Copilot CLI 是基于 Copilot 订阅的终端 AI Agent,HagiCode 是把它当作执行器的桌面工作台。本文对比两者的功能、费用,以及什么时候只用 Copilot CLI 就足够。",
+  "summary": "GitHub Copilot 是基于 Copilot 订阅的终端 AI Agent,HagiCode 是把它当作执行器的桌面工作台。本文对比两者的功能、费用,以及什么时候只用 Copilot 就足够。",
   "sections": [
     {
       "id": "copilot-vs-hagicode-section-1",
@@ -18,22 +18,22 @@
           "id": "copilot-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "GitHub Copilot CLI 是 GitHub 推出的终端 AI 编程 Agent:在仓库里运行 `copilot`,它就用你的 Copilot 订阅来读代码、改文件、执行命令。HagiCode 是桌面与 Web 端的工作台,会把 Copilot CLI(或另外 15 种 Agent CLI 之一)作为会话、提案和提交背后的执行器。它不会取代 Copilot CLI,也不出售模型。",
-            "如果你只想在一个终端里用一个 Agent,并且主要围绕 GitHub 的 issue 和 PR 工作,只用 Copilot CLI 就够了。当你要同时推进多个任务、想用规范化的提案流程,或者希望在同一个 Copilot 登录之上有图形界面时,再加上 HagiCode。"
+            "GitHub Copilot 是 GitHub 推出的终端 AI 编程 Agent:在仓库里运行 `copilot`,它就用你的 Copilot 订阅来读代码、改文件、执行命令。HagiCode 是桌面与 Web 端的工作台,会把 Copilot(或另外 15 种 Agent CLI 之一)作为会话、提案和提交背后的执行器。它不会取代 Copilot,也不出售模型。",
+            "如果你只想在一个终端里用一个 Agent,并且主要围绕 GitHub 的 issue 和 PR 工作,只用 Copilot 就够了。当你要同时推进多个任务、想用规范化的提案流程,或者希望在同一个 Copilot 登录之上有图形界面时,再加上 HagiCode。"
           ]
         }
       ]
     },
     {
       "id": "copilot-vs-hagicode-section-2",
-      "title": "GitHub Copilot CLI 与 HagiCode 对比一览",
+      "title": "GitHub Copilot 与 HagiCode 对比一览",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "GitHub Copilot CLI",
+            "GitHub Copilot",
             "HagiCode"
           ],
           "rows": [
@@ -66,7 +66,7 @@
               "cells": [
                 "模型与服务商",
                 "用 `/model` 切换模型,包含 Claude、GPT 系列;可通过环境变量接入自带的服务商",
-                "不托管模型,沿用 Copilot CLI 已登录的账号,模型费用仍在你的 Copilot 套餐里"
+                "不托管模型,沿用 Copilot 已登录的账号,模型费用仍在你的 Copilot 套餐里"
               ]
             },
             {
@@ -98,7 +98,7 @@
               "cells": [
                 "上手成本",
                 "一条安装命令加 `/login` 或令牌,不需要额外应用",
-                "安装 HagiCode Desktop,并且要先装好、登录 Copilot CLI"
+                "安装 HagiCode Desktop,并且要先装好、登录 Copilot"
               ]
             },
             {
@@ -115,7 +115,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-3",
-      "title": "GitHub Copilot CLI 的强项",
+      "title": "GitHub Copilot 的强项",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-3-capabilities",
@@ -125,7 +125,7 @@
               "id": "copilot-vs-hagicode-section-3-item-1",
               "title": "原生贴近 GitHub",
               "content": [
-                "Copilot CLI 出自托管你仓库的同一家公司,所以查询 issue、PR 和 GitHub.com 是它的一等能力,而不是外挂插件。登录用 `/login`,也可以用带 \"Copilot Requests\" 权限的细粒度个人访问令牌,通过 `GH_TOKEN` 或 `GITHUB_TOKEN` 传入,方便脚本使用。"
+                "Copilot 出自托管你仓库的同一家公司,所以查询 issue、PR 和 GitHub.com 是它的一等能力,而不是外挂插件。登录用 `/login`,也可以用带 \"Copilot Requests\" 权限的细粒度个人访问令牌,通过 `GH_TOKEN` 或 `GITHUB_TOKEN` 传入,方便脚本使用。"
               ]
             },
             {
@@ -155,7 +155,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-4",
-      "title": "什么时候选 GitHub Copilot CLI,什么时候选 HagiCode",
+      "title": "什么时候选 GitHub Copilot,什么时候选 HagiCode",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-4-choose-agent",
@@ -188,7 +188,7 @@
             "无界面的 CI 任务和脚本化一次性运行:直接调用 `copilot -p` 更合适。",
             "你只想要终端、不想要图形界面,或只是在已有编辑器里问一个小问题。",
             "你的团队不想引入提案和规范流程,而这是 HagiCode 的核心做法。",
-            "HagiCode 需要先装好并登录 Copilot CLI,所以比单独用 Copilot CLI 多一步准备;免费版同时最多 3 个提案。",
+            "HagiCode 需要先装好并登录 Copilot,所以比单独用 Copilot 多一步准备;免费版同时最多 3 个提案。",
             "它不是 IDE 的替代品:内置 Code Server 之外的深度手工编辑,仍然应该在你自己的编辑器里完成。"
           ]
         }
@@ -196,7 +196,7 @@
     },
     {
       "id": "copilot-vs-hagicode-section-5",
-      "title": "把 GitHub Copilot CLI 和 HagiCode 一起用",
+      "title": "把 GitHub Copilot 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "copilot-vs-hagicode-section-5-intro",
@@ -210,23 +210,23 @@
           "id": "copilot-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. 安装 Copilot CLI(`npm install -g @github/copilot`、`brew install copilot-cli` 或 `winget install GitHub.Copilot`),并用 `/login` 登录。",
+            "1. 安装 Copilot(`npm install -g @github/copilot`、`brew install copilot-cli` 或 `winget install GitHub.Copilot`),并用 `/login` 登录。",
             "2. 安装 HagiCode Desktop(免费),支持 Windows、macOS、Linux。",
             "3. 在 HagiCode 中为会话选择 GitHub Copilot 作为 Agent CLI。",
             "4. 打开一个仓库,开始会话或创建 OpenSpec 提案。",
             "5. 模型选择和计费与平时一致;HagiCode 增加的是周边工作流,而不是新模型。",
-            "6. 想回到纯 Copilot CLI,只需在同一仓库里打开终端即可。"
+            "6. 想回到纯 Copilot,只需在同一仓库里打开终端即可。"
           ]
         },
         {
           "id": "copilot-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "GitHub Copilot CLI 在 HagiCode 里能用什么",
+          "title": "GitHub Copilot 在 HagiCode 里能用什么",
           "content": [
-            "与 Copilot CLI 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
+            "与 Copilot 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
             "不适用于 Copilot:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
-            "HagiCode 只会向 CLI 传递经过验证的那部分 Copilot 启动参数;如果你的组织已禁用 Copilot CLI,HagiCode 也无法使用它。"
+            "HagiCode 只会向 CLI 传递经过验证的那部分 Copilot 启动参数;如果你的组织已禁用 Copilot,HagiCode 也无法使用它。"
           ]
         }
       ]
@@ -243,7 +243,7 @@
               "id": "copilot-vs-hagicode-section-6-item-1",
               "title": "并行会话与 Agents 管理",
               "content": [
-                "Copilot CLI 是一个终端一个对话。在 HagiCode 里可以让多个 Copilot 会话跨仓库同时运行,并在 Agents 视图里统一查看,不用来回切标签页。"
+                "Copilot 是一个终端一个对话。在 HagiCode 里可以让多个 Copilot 会话跨仓库同时运行,并在 Agents 视图里统一查看,不用来回切标签页。"
               ]
             },
             {
@@ -286,8 +286,8 @@
           "id": "copilot-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Copilot CLI 是一个能力扎实、贴近 GitHub 的终端 Agent;如果你的习惯就是一个终端一次一个任务,不需要别的。",
-            "HagiCode 是另一层:一个用于并行会话、提案和提交的工作台,底层仍运行 Copilot CLI。",
+            "Copilot 是一个能力扎实、贴近 GitHub 的终端 Agent;如果你的习惯就是一个终端一次一个任务,不需要别的。",
+            "HagiCode 是另一层:一个用于并行会话、提案和提交的工作台,底层仍运行 Copilot。",
             "两者一起用,除 Copilot 套餐外没有额外费用,因为 HagiCode 免费版直接运行你现有的安装。",
             "如果你需要无界面自动化,或不喜欢规范流程,可以不用 HagiCode。"
           ]
@@ -297,24 +297,24 @@
   ],
   "faq": [
     {
-      "question": "GitHub Copilot CLI 免费吗?",
+      "question": "GitHub Copilot 免费吗?",
       "answer": "Copilot 有用量受限的免费档,以及从 Pro 起的付费套餐;截至 2026 年 10 月 Pro 为 $10/月起。套餐名称、价格和额度会变化,请以 GitHub 的 Copilot 套餐页面为准。"
     },
     {
-      "question": "GitHub Copilot CLI 怎么安装?",
+      "question": "GitHub Copilot 怎么安装?",
       "answer": "可以运行 `npm install -g @github/copilot`、`brew install copilot-cli`、`winget install GitHub.Copilot`,或 `curl -fsSL https://gh.io/copilot-install | bash`。之后启动 `copilot`,用 `/login` 登录。"
     },
     {
-      "question": "GitHub Copilot CLI 能和 HagiCode 一起用吗?",
-      "answer": "可以。先装好并登录 Copilot CLI,然后在 HagiCode 中选择 GitHub Copilot 作为 Agent CLI。费用仍走你的 Copilot 套餐。"
+      "question": "GitHub Copilot 能和 HagiCode 一起用吗?",
+      "answer": "可以。先装好并登录 Copilot,然后在 HagiCode 中选择 GitHub Copilot 作为 Agent CLI。费用仍走你的 Copilot 套餐。"
     },
     {
-      "question": "HagiCode 会取代 GitHub Copilot CLI 吗?",
-      "answer": "不会。HagiCode 把 Copilot CLI 当执行器运行,并在外围提供会话、提案、提交和图形界面。"
+      "question": "HagiCode 会取代 GitHub Copilot 吗?",
+      "answer": "不会。HagiCode 把 Copilot 当执行器运行,并在外围提供会话、提案、提交和图形界面。"
     },
     {
-      "question": "GitHub Copilot CLI 和 HagiCode 该选哪个?",
-      "answer": "单终端工作和脚本场景用 Copilot CLI 就够;需要并行任务、OpenSpec 提案或可视化工作区时,再加上 HagiCode。"
+      "question": "GitHub Copilot 和 HagiCode 该选哪个?",
+      "answer": "单终端工作和脚本场景用 Copilot 就够;需要并行任务、OpenSpec 提案或可视化工作区时,再加上 HagiCode。"
     }
   ]
 }

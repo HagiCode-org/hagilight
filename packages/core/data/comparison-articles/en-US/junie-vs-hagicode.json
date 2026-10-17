@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Junie CLI vs HagiCode: Features and Comparison",
-    "description": "Junie CLI is JetBrains' terminal coding agent; HagiCode runs it inside a workbench. Compare features, pricing, setup and when each one fits."
+    "title": "Junie vs HagiCode: Features and Comparison",
+    "description": "Junie is JetBrains' terminal coding agent; HagiCode runs it inside a workbench. Compare features, pricing, setup and when each one fits."
   },
-  "summary": "Junie CLI is JetBrains' terminal coding agent, and HagiCode is a desktop and web workbench that runs Junie as its executor. Stay with Junie alone for terminal, IDE and CI work; add HagiCode when you want parallel sessions, spec proposals and managed commits around it.",
+  "summary": "Junie is JetBrains' terminal coding agent, and HagiCode is a desktop and web workbench that runs Junie as its executor. Stay with Junie alone for terminal, IDE and CI work; add HagiCode when you want parallel sessions, spec proposals and managed commits around it.",
   "sections": [
     {
       "id": "junie-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "junie-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Junie CLI is JetBrains' agentic coding tool: you run `junie` in a project directory and give it tasks in a terminal UI. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, Junie among them, as its executor. It does not replace Junie. Junie still does the coding, and HagiCode adds sessions, proposals and commit handling around it.",
+            "Junie is JetBrains' agentic coding tool: you run `junie` in a project directory and give it tasks in a terminal UI. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, Junie among them, as its executor. It does not replace Junie. Junie still does the coding, and HagiCode adds sessions, proposals and commit handling around it.",
             "If you work in a terminal, a JetBrains IDE or CI pipelines and one task at a time is enough, Junie alone is the simpler choice. If you juggle several tasks or repositories and want each change tied to a written proposal, HagiCode is worth adding on top. HagiCode does not sell models; Junie keeps its own sign-in and billing."
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "junie-vs-hagicode-section-2",
-      "title": "Junie CLI vs HagiCode at a glance",
+      "title": "Junie vs HagiCode at a glance",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Dimension",
-            "Junie CLI",
+            "Junie",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-3",
-      "title": "What Junie CLI does well",
+      "title": "What Junie does well",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-3-capabilities",
@@ -146,7 +146,7 @@
               "id": "junie-vs-hagicode-section-3-item-4",
               "title": "Update channels and status",
               "content": [
-                "You can run another channel for a single launch, for example `junie --eap` or `junie --nightly`, without changing your installed default. JetBrains announced Junie CLI as a beta in March 2026; current docs do not state a status, so check junie.jetbrains.com before relying on it for production CI."
+                "You can run another channel for a single launch, for example `junie --eap` or `junie --nightly`, without changing your installed default. JetBrains announced Junie as a beta in March 2026; current docs do not state a status, so check junie.jetbrains.com before relying on it for production CI."
               ]
             }
           ]
@@ -155,7 +155,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-4",
-      "title": "When to choose Junie CLI, and when to choose HagiCode",
+      "title": "When to choose Junie, and when to choose HagiCode",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-4-choose-agent",
@@ -197,7 +197,7 @@
     },
     {
       "id": "junie-vs-hagicode-section-5",
-      "title": "Using Junie CLI together with HagiCode",
+      "title": "Using Junie together with HagiCode",
       "blocks": [
         {
           "id": "junie-vs-hagicode-section-5-intro",
@@ -286,7 +286,7 @@
           "id": "junie-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Junie CLI is a capable terminal, IDE and CI agent from JetBrains; for single tasks it needs nothing else.",
+            "Junie is a capable terminal, IDE and CI agent from JetBrains; for single tasks it needs nothing else.",
             "HagiCode adds parallel Agents, OpenSpec proposals, AI commits and a shared knowledge base around Junie, at the cost of one more install and a 3-proposal cap on free editions.",
             "Pick Junie alone for CI and terminal-first work, HagiCode plus Junie for multi-task, multi-repo work with traceable specs."
           ]
@@ -296,27 +296,27 @@
   ],
   "faq": [
     {
-      "question": "Is Junie CLI free?",
-      "answer": "The Junie CLI itself runs on a JetBrains subscription plan (a free Junie Lite model is included with a JetBrains account), a usage-billed Junie API key, or your own provider keys billed at provider rates. See the pricing page at junie.jetbrains.com for current plans."
+      "question": "Is Junie free?",
+      "answer": "The Junie itself runs on a JetBrains subscription plan (a free Junie Lite model is included with a JetBrains account), a usage-billed Junie API key, or your own provider keys billed at provider rates. See the pricing page at junie.jetbrains.com for current plans."
     },
     {
-      "question": "How do I install Junie CLI?",
+      "question": "How do I install Junie?",
       "answer": "On macOS or Linux run `curl -fsSL https://junie.jetbrains.com/install.sh | bash`, then `cd` into your project and run `junie`. Windows uses a PowerShell installer listed on the Junie docs page; Homebrew and npm (`@jetbrains/junie`) are alternatives in the repository README."
     },
     {
-      "question": "Can I use Junie CLI with HagiCode?",
+      "question": "Can I use Junie with HagiCode?",
       "answer": "Yes. Install and sign in to Junie first, then choose Junie as the Agent CLI in HagiCode. HagiCode runs it over ACP and never asks for Junie credentials."
     },
     {
-      "question": "Does HagiCode replace Junie CLI?",
+      "question": "Does HagiCode replace Junie?",
       "answer": "No. HagiCode is a workbench around the CLI; Junie still writes the code, and you can run it directly at any time."
     },
     {
-      "question": "Is Junie CLI still in beta?",
-      "answer": "JetBrains announced Junie CLI as a beta in March 2026. The current docs do not state a status, so check junie.jetbrains.com for the latest."
+      "question": "Is Junie still in beta?",
+      "answer": "JetBrains announced Junie as a beta in March 2026. The current docs do not state a status, so check junie.jetbrains.com for the latest."
     },
     {
-      "question": "Junie CLI vs HagiCode: which should I pick?",
+      "question": "Junie vs HagiCode: which should I pick?",
       "answer": "Use Junie alone for CI, terminal and IDE work on one task at a time. Add HagiCode when you run several tasks or repositories and want proposals, commits and Agents managed in one place."
     }
   ]

@@ -18,7 +18,7 @@
           "id": "claude-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Claude Code is Anthropic's coding agent: it reads your codebase, edits files, runs commands and works with Git, in the terminal, in VS Code and JetBrains, in a desktop app or on the web. HagiCode is a desktop and web workbench that runs the Claude Code CLI as its executor. It does not replace Claude Code, and it does not host or resell Claude models.",
+            "Claude Code is Anthropic's coding agent: it reads your codebase, edits files, runs commands and works with Git, in the terminal, in VS Code and JetBrains, in a desktop app or on the web. HagiCode is a desktop and web workbench that runs the Claude Code as its executor. It does not replace Claude Code, and it does not host or resell Claude models.",
             "Claude Code already covers a lot on its own, including subagents, background agents, hooks, skills and CI use. If you work in one place at a time and are happy with its own surfaces, stay with Claude Code alone. HagiCode is for people who want written proposals before changes, one workspace across repositories, and one view of many sessions and several different Agent CLIs."
           ]
         }

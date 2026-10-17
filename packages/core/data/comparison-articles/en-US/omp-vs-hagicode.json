@@ -5,7 +5,7 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "OMP CLI vs HagiCode: Features and Comparison",
+    "title": "OMP vs HagiCode: Features and Comparison",
     "description": "omp (oh-my-pi) is a free, MIT-licensed terminal coding agent; HagiCode is a workbench that runs it. Compare features, pricing and fit."
   },
   "summary": "omp, short for oh-my-pi, is an MIT-licensed terminal coding agent forked from Pi, with LSP, debugger and browser tools built in. HagiCode is a desktop and web workbench that runs omp as its executor, so the two work together rather than compete.",

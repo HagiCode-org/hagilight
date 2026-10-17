@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Gemini CLI 对比 HagiCode:功能与差异",
-    "description": "Gemini CLI 是 Google 开源的终端 Agent,2026 年 6 月起个人免费用户已转向 Antigravity CLI。对比功能、价格与适用场景,以及 HagiCode 的定位。"
+    "title": "Gemini 对比 HagiCode:功能与差异",
+    "description": "Gemini 是 Google 开源的终端 Agent,2026 年 6 月起个人免费用户已转向 Antigravity。对比功能、价格与适用场景,以及 HagiCode 的定位。"
   },
-  "summary": "Gemini CLI 是 Google 面向 Gemini 模型的开源终端 Agent,HagiCode 是可以把它当执行器运行的工作台。Google 已在 2026 年 6 月 18 日把个人和免费用户转到 Antigravity CLI,请先确认你还能用哪条登录路径。",
+  "summary": "Gemini 是 Google 面向 Gemini 模型的开源终端 Agent,HagiCode 是可以把它当执行器运行的工作台。Google 已在 2026 年 6 月 18 日把个人和免费用户转到 Antigravity,请先确认你还能用哪条登录路径。",
   "sections": [
     {
       "id": "gemini-vs-hagicode-section-1",
@@ -18,23 +18,23 @@
           "id": "gemini-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Gemini CLI 是 Google 面向 Gemini 模型的开源(Apache 2.0)终端 Agent。HagiCode 是桌面与 Web 端的工作台,把 `gemini` 作为其中一种 Agent CLI 来运行,并在外围提供并行会话、提案和提交。它不会取代 Gemini CLI,也不提供 Gemini 的访问额度。",
-            "先确认一件事:Google 表示,对免费 Code Assist 个人用户以及 Google AI Pro 和 Ultra 用户,Gemini CLI 已在 2026 年 6 月 18 日被 Antigravity CLI 取代。通过付费的 Gemini 或 Gemini Enterprise Agent Platform API 密钥,以及 Gemini Code Assist Standard 或 Enterprise 许可,Gemini CLI 仍可使用。HagiCode 需要一个你仍能完成认证的 `gemini`,它支持的 Agent CLI 列表里没有 Antigravity CLI。",
-            "如果你只要一个终端 Agent,并且现有的 Gemini 路径还能用,单用 Gemini CLI 就够了。"
+            "Gemini 是 Google 面向 Gemini 模型的开源(Apache 2.0)终端 Agent。HagiCode 是桌面与 Web 端的工作台,把 `gemini` 作为其中一种 Agent CLI 来运行,并在外围提供并行会话、提案和提交。它不会取代 Gemini,也不提供 Gemini 的访问额度。",
+            "先确认一件事:Google 表示,对免费 Code Assist 个人用户以及 Google AI Pro 和 Ultra 用户,Gemini 已在 2026 年 6 月 18 日被 Antigravity 取代。通过付费的 Gemini 或 Gemini Enterprise Agent Platform API 密钥,以及 Gemini Code Assist Standard 或 Enterprise 许可,Gemini 仍可使用。HagiCode 需要一个你仍能完成认证的 `gemini`,它支持的 Agent CLI 列表里没有 Antigravity。",
+            "如果你只要一个终端 Agent,并且现有的 Gemini 路径还能用,单用 Gemini 就够了。"
           ]
         }
       ]
     },
     {
       "id": "gemini-vs-hagicode-section-2",
-      "title": "Gemini CLI 与 HagiCode 对比一览",
+      "title": "Gemini 与 HagiCode 对比一览",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "Gemini CLI",
+            "Gemini",
             "HagiCode"
           ],
           "rows": [
@@ -116,7 +116,7 @@
     },
     {
       "id": "gemini-vs-hagicode-section-3",
-      "title": "Gemini CLI 的强项",
+      "title": "Gemini 的强项",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-3-capabilities",
@@ -156,7 +156,7 @@
     },
     {
       "id": "gemini-vs-hagicode-section-4",
-      "title": "什么时候选 Gemini CLI,什么时候选 HagiCode",
+      "title": "什么时候选 Gemini,什么时候选 HagiCode",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-4-choose-agent",
@@ -173,10 +173,10 @@
           "id": "gemini-vs-hagicode-section-4-choose-hagicode",
           "type": "bullet-list",
           "items": [
-            "你同时用 Gemini CLI 跑多个任务或仓库，想把会话并排查看。",
+            "你同时用 Gemini 跑多个任务或仓库，想把会话并排查看。",
             "你希望 Agent 改代码之前先有 OpenSpec 提案、校验和归档。",
             "你更喜欢在图形界面里查看工具调用和 diff,并使用 AI 生成提交和内置 Code Server。",
-            "你想让 Vault 笔记和 Monospecs 在多次 Gemini CLI 会话之间传递上下文。",
+            "你想让 Vault 笔记和 Monospecs 在多次 Gemini 会话之间传递上下文。",
             "你会用多个 Agent CLI,想在同一个工作区里切换。"
           ]
         },
@@ -186,18 +186,18 @@
           "tone": "warning",
           "title": "HagiCode 不适合的场景",
           "content": [
-            "如果你原来用免费 Code Assist 或 Google AI Pro/Ultra 登录 Gemini CLI 的路径已在 2026 年 6 月 18 日结束,HagiCode 无法恢复它:它需要一个你仍能登录的 `gemini` CLI。",
+            "如果你原来用免费 Code Assist 或 Google AI Pro/Ultra 登录 Gemini 的路径已在 2026 年 6 月 18 日结束,HagiCode 无法恢复它:它需要一个你仍能登录的 `gemini` CLI。",
             "无界面的 CI 和脚本化一次性运行:直接调用 `gemini`。",
             "你只想要终端,或只是在已有编辑器里问个小问题。",
             "不想引入提案和规范流程的团队;免费版同时最多 3 个提案。",
-            "相比单用 Gemini CLI 多一步准备,且除内置 Code Server 之外并不替代 IDE。"
+            "相比单用 Gemini 多一步准备,且除内置 Code Server 之外并不替代 IDE。"
           ]
         }
       ]
     },
     {
       "id": "gemini-vs-hagicode-section-5",
-      "title": "把 Gemini CLI 和 HagiCode 一起用",
+      "title": "把 Gemini 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-5-intro",
@@ -211,23 +211,23 @@
           "id": "gemini-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. 安装 Gemini CLI(`npm install -g @google/gemini-cli` 或 `brew install gemini-cli`),并用仍受支持的路径登录,比如 API 密钥。",
+            "1. 安装 Gemini(`npm install -g @google/gemini-cli` 或 `brew install gemini-cli`),并用仍受支持的路径登录,比如 API 密钥。",
             "2. 安装 HagiCode Desktop(免费),支持 Windows、macOS、Linux。",
             "3. 在 HagiCode 中为会话选择 Gemini 作为 Agent CLI。",
             "4. 打开仓库,开始会话或创建 OpenSpec 提案。",
             "5. 模型仍是 Gemini,计费仍归 Google;HagiCode 增加的是周边工作流。",
-            "6. 想回到纯 Gemini CLI,在同一仓库里打开终端运行 `gemini` 即可。"
+            "6. 想回到纯 Gemini,在同一仓库里打开终端运行 `gemini` 即可。"
           ]
         },
         {
           "id": "gemini-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "Gemini CLI 在 HagiCode 里能用什么",
+          "title": "Gemini 在 HagiCode 里能用什么",
           "content": [
-            "与 Gemini CLI 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
+            "与 Gemini 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
             "不适用于 Gemini:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
-            "Antigravity CLI 是另一个产品;HagiCode 的 Gemini 集成只针对 `gemini` 可执行文件。"
+            "Antigravity 是另一个产品;HagiCode 的 Gemini 集成只针对 `gemini` 可执行文件。"
           ]
         }
       ]
@@ -244,7 +244,7 @@
               "id": "gemini-vs-hagicode-section-6-item-1",
               "title": "并行会话与 Agents 管理",
               "content": [
-                "Gemini CLI 是一个终端一个对话。HagiCode 可以让多个 Gemini 会话跨仓库同时运行,并放进同一个 Agents 视图。"
+                "Gemini 是一个终端一个对话。HagiCode 可以让多个 Gemini 会话跨仓库同时运行,并放进同一个 Agents 视图。"
               ]
             },
             {
@@ -287,9 +287,9 @@
           "id": "gemini-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Gemini CLI 是功能齐全的开源终端 Agent,但请先确认你的登录路径没有受到 2026 年 6 月 18 日调整的影响。",
+            "Gemini 是功能齐全的开源终端 Agent,但请先确认你的登录路径没有受到 2026 年 6 月 18 日调整的影响。",
             "HagiCode 是在其下运行 `gemini` 的工作台层:它增加会话、提案和提交,而不是模型。",
-            "单终端和脚本场景只用 Gemini CLI;需要并行、规范化的工作时再加上 HagiCode。"
+            "单终端和脚本场景只用 Gemini;需要并行、规范化的工作时再加上 HagiCode。"
           ]
         }
       ]
@@ -297,24 +297,24 @@
   ],
   "faq": [
     {
-      "question": "Gemini CLI 免费吗?",
-      "answer": "工具本身以 Apache 2.0 开源,但模型用量并非对所有人免费。Google 表示,免费 Code Assist 个人用户以及 Google AI Pro 和 Ultra 用户的 Gemini CLI 已在 2026 年 6 月 18 日被 Antigravity CLI 取代,而付费 API 密钥和 Code Assist Standard/Enterprise 许可仍可使用。"
+      "question": "Gemini 免费吗?",
+      "answer": "工具本身以 Apache 2.0 开源,但模型用量并非对所有人免费。Google 表示,免费 Code Assist 个人用户以及 Google AI Pro 和 Ultra 用户的 Gemini 已在 2026 年 6 月 18 日被 Antigravity 取代,而付费 API 密钥和 Code Assist Standard/Enterprise 许可仍可使用。"
     },
     {
-      "question": "Gemini CLI 停止服务了吗?",
-      "answer": "并没有完全停止。Google 把个人用户(免费 Code Assist、Google AI Pro 和 Ultra)转到了 Antigravity CLI,但表示 Gemini CLI 仍可通过付费的 Gemini 和 Gemini Enterprise Agent Platform API 密钥使用,企业许可不变。"
+      "question": "Gemini 停止服务了吗?",
+      "answer": "并没有完全停止。Google 把个人用户(免费 Code Assist、Google AI Pro 和 Ultra)转到了 Antigravity,但表示 Gemini 仍可通过付费的 Gemini 和 Gemini Enterprise Agent Platform API 密钥使用,企业许可不变。"
     },
     {
-      "question": "Gemini CLI 怎么安装?",
+      "question": "Gemini 怎么安装?",
       "answer": "运行 `npm install -g @google/gemini-cli` 或 `brew install gemini-cli`,也可以用 `npx @google/gemini-cli` 试用。然后启动 `gemini` 并选择认证方式。"
     },
     {
-      "question": "Gemini CLI 能和 HagiCode 一起用吗?",
-      "answer": "可以,前提是你有一个仍能完成认证的 `gemini`。在 HagiCode 中选择 Gemini 作为 Agent CLI;HagiCode 不包含 Antigravity CLI。"
+      "question": "Gemini 能和 HagiCode 一起用吗?",
+      "answer": "可以,前提是你有一个仍能完成认证的 `gemini`。在 HagiCode 中选择 Gemini 作为 Agent CLI;HagiCode 不包含 Antigravity。"
     },
     {
-      "question": "Gemini CLI 和 HagiCode 该选哪个?",
-      "answer": "只想要简单的终端 Agent,就单用 Gemini CLI。需要并行会话、OpenSpec 提案,以及同一个 CLI 之上的图形界面时,再加上 HagiCode。"
+      "question": "Gemini 和 HagiCode 该选哪个?",
+      "answer": "只想要简单的终端 Agent,就单用 Gemini。需要并行会话、OpenSpec 提案,以及同一个 CLI 之上的图形界面时,再加上 HagiCode。"
     }
   ]
 }

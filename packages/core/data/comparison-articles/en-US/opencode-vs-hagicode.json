@@ -196,7 +196,7 @@
           "tone": "warning",
           "title": "Where HagiCode is not the right tool for OpenCode work",
           "content": [
-            "Headless CI and scripted one-shot runs: use the opencode CLI directly. HagiCode is built around interactive sessions.",
+            "Headless CI and scripted one-shot runs: use the opencode directly. HagiCode is built around interactive sessions.",
             "Terminal-only habits, or a quick question in your editor: OpenCode's own terminal UI, desktop app and IDE extension are lighter than adding a workbench.",
             "HagiCode drives OpenCode through its local server, so OpenCode's own UI, share links and slash commands are not reproduced, and interactive questions are not available for OpenCode.",
             "It needs OpenCode installed and a provider connected first. The free editions allow 3 concurrent proposals, and teams without proposal discipline will find it heavier than plain OpenCode."

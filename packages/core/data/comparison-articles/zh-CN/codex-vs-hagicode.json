@@ -5,10 +5,10 @@
   "locale": "zh-CN",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Codex CLI 对比 HagiCode:功能与差异",
-    "description": "Codex CLI 是 OpenAI 的终端编程 Agent，HagiCode 是运行它的工作台。对比安装、ChatGPT 套餐、功能，以及各自适合什么场景。"
+    "title": "Codex 对比 HagiCode:功能与差异",
+    "description": "Codex 是 OpenAI 的终端编程 Agent，HagiCode 是运行它的工作台。对比安装、ChatGPT 套餐、功能，以及各自适合什么场景。"
   },
-  "summary": "Codex CLI 是 OpenAI 的开源终端编程 Agent，用 ChatGPT 账户或 API 密钥登录。HagiCode 是桌面工作台，把 Codex 当作执行器运行，并在外面补上并行会话、提案和 AI 提交。",
+  "summary": "Codex 是 OpenAI 的开源终端编程 Agent，用 ChatGPT 账户或 API 密钥登录。HagiCode 是桌面工作台，把 Codex 当作执行器运行，并在外面补上并行会话、提案和 AI 提交。",
   "sections": [
     {
       "id": "codex-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "codex-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Codex CLI 是 OpenAI 的终端编程 Agent：它会查看你的仓库、修改文件并在本机运行命令。HagiCode 是桌面和网页端的工作台，把 Codex CLI 当作执行器之一来运行。它不替代 Codex，也不出售或托管 OpenAI 的模型。",
+            "Codex 是 OpenAI 的终端编程 Agent：它会查看你的仓库、修改文件并在本机运行命令。HagiCode 是桌面和网页端的工作台，把 Codex 当作执行器之一来运行。它不替代 Codex，也不出售或托管 OpenAI 的模型。",
             "如果你想在 ChatGPT 套餐里用一个快速的终端 Agent，脚本和 CI 用 `codex exec` 处理，那就只用 Codex。想同时跑多个 Codex 任务、每次改动前先有书面提案，或者在一个工作区里管理多个仓库时，再考虑 HagiCode。"
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "codex-vs-hagicode-section-2",
-      "title": "Codex CLI 与 HagiCode 一览",
+      "title": "Codex 与 HagiCode 一览",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "对比项",
-            "Codex CLI",
+            "Codex",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-3",
-      "title": "Codex CLI 的长处",
+      "title": "Codex 的长处",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-3-capabilities",
@@ -155,7 +155,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-4",
-      "title": "什么时候选 Codex CLI，什么时候选 HagiCode",
+      "title": "什么时候选 Codex，什么时候选 HagiCode",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-4-choose-agent",
@@ -195,7 +195,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-5",
-      "title": "把 Codex CLI 和 HagiCode 一起用",
+      "title": "把 Codex 和 HagiCode 一起用",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-5-intro",
@@ -209,7 +209,7 @@
           "id": "codex-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "用 npm、Homebrew 或独立安装器安装 Codex CLI，并用 `codex --version` 确认。",
+            "用 npm、Homebrew 或独立安装器安装 Codex，并用 `codex --version` 确认。",
             "运行一次 `codex`，用 ChatGPT 或 API 密钥登录，让它在 HagiCode 使用之前就已认证。",
             "安装 Windows、macOS 或 Linux 版 HagiCode 桌面端，也可用 Docker Compose 版或微软商店版。",
             "在 HagiCode 的 Agent CLI 设置里把 Codex 选为执行器；HagiCode 会在 PATH 中查找 `codex` 命令。",
@@ -284,7 +284,7 @@
           "id": "codex-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Codex CLI 是终端里的 Agent，HagiCode 是运行它的工作台。",
+            "Codex 是终端里的 Agent，HagiCode 是运行它的工作台。",
             "在 ChatGPT 套餐上做个人、单任务或脚本化工作，只用 Codex；需要并行任务、提案和多仓库改动时再加 HagiCode。",
             "前提是先装好并登录 Codex，而且随时可以退回直接运行 `codex`。"
           ]
@@ -294,27 +294,27 @@
   ],
   "faq": [
     {
-      "question": "Codex CLI 怎么安装？",
+      "question": "Codex 怎么安装？",
       "answer": "运行 `npm install -g @openai/codex` 或 `brew install --cask codex`。macOS 和 Linux 的独立安装器是 `curl -fsSL https://chatgpt.com/codex/install.sh | sh`，Windows 的 PowerShell 安装器见 github.com/openai/codex 的 README。然后运行 `codex` 完成登录。"
     },
     {
-      "question": "Codex CLI 免费吗？",
+      "question": "Codex 免费吗？",
       "answer": "CLI 本身以 Apache-2.0 开源，但使用需要 ChatGPT 套餐或 API 密钥。截至 2026 年 10 月，OpenAI 把 Codex 列在 ChatGPT 的 Free、Go（8 美元）、Plus（20 美元）及更高套餐里；用 API 密钥则按 API 价格计费。"
     },
     {
-      "question": "Codex CLI 能和 HagiCode 一起用吗？",
-      "answer": "可以。先安装并登录 Codex CLI，再在 HagiCode 里选它作为 Agent CLI。你的 ChatGPT 登录或 API 密钥及其计费仍由 OpenAI 管理。"
+      "question": "Codex 能和 HagiCode 一起用吗？",
+      "answer": "可以。先安装并登录 Codex，再在 HagiCode 里选它作为 Agent CLI。你的 ChatGPT 登录或 API 密钥及其计费仍由 OpenAI 管理。"
     },
     {
-      "question": "HagiCode 会取代 Codex CLI 吗？",
+      "question": "HagiCode 会取代 Codex 吗？",
       "answer": "不会。HagiCode 把 Codex 当执行器，在外面补上会话、提案、提交和多仓库工具。你仍可在同样的仓库里直接运行 `codex`。"
     },
     {
-      "question": "Codex CLI 支持 Windows 吗？",
+      "question": "Codex 支持 Windows 吗？",
       "answer": "OpenAI 在 Codex 的 README 中提供了 Windows 的 PowerShell 安装器。依赖之前请查看 Codex 文档中最新的 Windows 说明。"
     },
     {
-      "question": "Codex CLI 和 HagiCode 该选哪个？",
+      "question": "Codex 和 HagiCode 该选哪个？",
       "answer": "在 ChatGPT 套餐上做终端、个人或 CI 工作，选 Codex 即可。想在 Codex 之上获得并行会话、OpenSpec 提案或多仓库工作区时，再加上 HagiCode。"
     }
   ]

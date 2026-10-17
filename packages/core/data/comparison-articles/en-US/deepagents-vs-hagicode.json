@@ -18,7 +18,7 @@
           "id": "deepagents-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "DeepAgents is LangChain's open-source agent harness, built on LangGraph. Its terminal coding agent, which HagiCode calls DeepAgents CLI, is published as Deep Agents Code: install it, run `dcode`, and it behaves like a coding agent in your terminal. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, DeepAgents among them, as its executor. It does not replace the CLI; it launches it in ACP mode and adds sessions, proposals and commit handling.",
+            "DeepAgents is LangChain's open-source agent harness, built on LangGraph. Its terminal coding agent, which HagiCode calls DeepAgents, is published as Deep Agents Code: install it, run `dcode`, and it behaves like a coding agent in your terminal. HagiCode is a desktop and web AI programming workbench that drives agent CLIs, DeepAgents among them, as its executor. It does not replace the CLI; it launches it in ACP mode and adds sessions, proposals and commit handling.",
             "If you build your own agents on the Deep Agents SDK, want remote sandboxes or LangSmith tracing, or only need a terminal, stay with DeepAgents alone. If you want to run it next to other agents with proposals and parallel sessions, add HagiCode. One practical note: the CLI was renamed, so check the setup steps below before connecting it."
           ]
         }
@@ -203,7 +203,7 @@
           "id": "deepagents-vs-hagicode-section-5-intro",
           "type": "rich-text",
           "content": [
-            "HagiCode is a workbench on top of the CLI. It launches the DeepAgents CLI with `--acp` in the repository you open, so your own install and provider keys do the work. HagiCode adds no model billing.",
+            "HagiCode is a workbench on top of the CLI. It launches the DeepAgents with `--acp` in the repository you open, so your own install and provider keys do the work. HagiCode adds no model billing.",
             "Nothing is locked in: the CLI remains a normal install you can run with `dcode` at any time."
           ]
         },
@@ -300,11 +300,11 @@
       "answer": "Yes. Deep Agents and Deep Agents Code are MIT-licensed. You pay your model provider, and LangSmith tracing is a separate optional LangChain service; see the LangChain pricing page for plans."
     },
     {
-      "question": "How do I install the DeepAgents CLI?",
+      "question": "How do I install the DeepAgents?",
       "answer": "Run `curl -LsSf https://langch.in/dcode | bash`, then start it with `dcode`. OpenAI, Anthropic and Gemini support is included; other providers come as extras, for example `DEEPAGENTS_CODE_EXTRAS=\"nvidia,ollama\"`."
     },
     {
-      "question": "Is DeepAgents CLI the same as Deep Agents Code?",
+      "question": "Is DeepAgents the same as Deep Agents Code?",
       "answer": "Deep Agents Code, package `deepagents-code`, was forked from `deepagents-cli` in May 2026 and is the maintained terminal agent. The old `deepagents-cli` package on PyPI is now deprecated."
     },
     {

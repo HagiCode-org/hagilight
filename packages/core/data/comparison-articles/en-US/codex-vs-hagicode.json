@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Codex CLI vs HagiCode: Features and Comparison",
-    "description": "Codex CLI is OpenAI's terminal coding agent; HagiCode is a workbench that runs it. Compare install, ChatGPT plans, features and when each fits."
+    "title": "Codex vs HagiCode: Features and Comparison",
+    "description": "Codex is OpenAI's terminal coding agent; HagiCode is a workbench that runs it. Compare install, ChatGPT plans, features and when each fits."
   },
-  "summary": "Codex CLI is OpenAI's open-source terminal coding agent, signed in with a ChatGPT account or an API key. HagiCode is a desktop workbench that runs Codex as its executor and adds parallel sessions, proposals and AI commits around it.",
+  "summary": "Codex is OpenAI's open-source terminal coding agent, signed in with a ChatGPT account or an API key. HagiCode is a desktop workbench that runs Codex as its executor and adds parallel sessions, proposals and AI commits around it.",
   "sections": [
     {
       "id": "codex-vs-hagicode-section-1",
@@ -18,7 +18,7 @@
           "id": "codex-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Codex CLI is OpenAI's coding agent for the terminal: it inspects your repository, edits files and runs commands on your machine. HagiCode is a desktop and web workbench that runs Codex CLI as one of its executors. It does not replace Codex, and it does not sell or host OpenAI models.",
+            "Codex is OpenAI's coding agent for the terminal: it inspects your repository, edits files and runs commands on your machine. HagiCode is a desktop and web workbench that runs Codex as one of its executors. It does not replace Codex, and it does not sell or host OpenAI models.",
             "If you want a fast terminal agent on your ChatGPT plan, with scripts and CI handled by `codex exec`, stay with Codex alone. HagiCode is for when you want several Codex tasks side by side, a written proposal before each change, or one workspace across repositories."
           ]
         }
@@ -26,14 +26,14 @@
     },
     {
       "id": "codex-vs-hagicode-section-2",
-      "title": "Codex CLI vs HagiCode at a glance",
+      "title": "Codex vs HagiCode at a glance",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Aspect",
-            "Codex CLI",
+            "Codex",
             "HagiCode"
           ],
           "rows": [
@@ -115,7 +115,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-3",
-      "title": "What Codex CLI does well",
+      "title": "What Codex does well",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-3-capabilities",
@@ -155,7 +155,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-4",
-      "title": "When to choose Codex CLI, and when to choose HagiCode",
+      "title": "When to choose Codex, and when to choose HagiCode",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-4-choose-agent",
@@ -195,7 +195,7 @@
     },
     {
       "id": "codex-vs-hagicode-section-5",
-      "title": "Using Codex CLI together with HagiCode",
+      "title": "Using Codex together with HagiCode",
       "blocks": [
         {
           "id": "codex-vs-hagicode-section-5-intro",
@@ -209,7 +209,7 @@
           "id": "codex-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "Install Codex CLI with npm, Homebrew or the standalone installer, and confirm it with `codex --version`.",
+            "Install Codex with npm, Homebrew or the standalone installer, and confirm it with `codex --version`.",
             "Run `codex` once and sign in with ChatGPT or an API key, so it is authenticated before HagiCode uses it.",
             "Install HagiCode Desktop for Windows, macOS or Linux, or use the Docker Compose or Microsoft Store edition.",
             "In HagiCode's Agent CLI settings, pick Codex as the executor; HagiCode looks for the `codex` command on your PATH.",
@@ -284,7 +284,7 @@
           "id": "codex-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Codex CLI is the agent in your terminal; HagiCode is the workbench that runs it.",
+            "Codex is the agent in your terminal; HagiCode is the workbench that runs it.",
             "Stay with Codex alone for solo, single-task or scripted work on your ChatGPT plan; add HagiCode for parallel tasks, proposals and multi-repo changes.",
             "Codex must be installed and signed in first, and you can go back to running `codex` directly at any time."
           ]
@@ -294,27 +294,27 @@
   ],
   "faq": [
     {
-      "question": "How do I install Codex CLI?",
+      "question": "How do I install Codex?",
       "answer": "Run `npm install -g @openai/codex` or `brew install --cask codex`. The standalone installer for macOS and Linux is `curl -fsSL https://chatgpt.com/codex/install.sh | sh`, and Windows has a PowerShell installer in the repository README at github.com/openai/codex. Then run `codex` and sign in."
     },
     {
-      "question": "Is Codex CLI free?",
+      "question": "Is Codex free?",
       "answer": "The CLI itself is open source under Apache-2.0, but use needs a ChatGPT plan or an API key. As of October 2026 OpenAI lists Codex in ChatGPT Free, Go ($8), Plus ($20) and higher plans; API-key use is billed at API rates."
     },
     {
-      "question": "Can I use Codex CLI with HagiCode?",
-      "answer": "Yes. Install and sign in to Codex CLI, then choose it as the Agent CLI in HagiCode. Your ChatGPT sign-in or API key and its billing stay with OpenAI."
+      "question": "Can I use Codex with HagiCode?",
+      "answer": "Yes. Install and sign in to Codex, then choose it as the Agent CLI in HagiCode. Your ChatGPT sign-in or API key and its billing stay with OpenAI."
     },
     {
-      "question": "Does HagiCode replace Codex CLI?",
+      "question": "Does HagiCode replace Codex?",
       "answer": "No. HagiCode runs Codex as its executor and adds sessions, proposals, commits and multi-repo tools around it. You can still run `codex` on the same repositories."
     },
     {
-      "question": "Does Codex CLI work on Windows?",
+      "question": "Does Codex work on Windows?",
       "answer": "OpenAI provides a PowerShell installer for Windows in the Codex README. Check the Codex documentation for current Windows notes before relying on it."
     },
     {
-      "question": "Codex CLI vs HagiCode: which should I pick?",
+      "question": "Codex vs HagiCode: which should I pick?",
       "answer": "Pick Codex alone for terminal, solo or CI work on your ChatGPT plan. Add HagiCode when you want parallel sessions, OpenSpec proposals or multi-repo workspaces on top of Codex."
     }
   ]

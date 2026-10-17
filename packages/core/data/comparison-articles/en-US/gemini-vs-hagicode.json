@@ -5,10 +5,10 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "Gemini CLI vs HagiCode: Features and Comparison",
-    "description": "Gemini CLI is Google's open-source terminal agent; free and AI Pro access moved to Antigravity in June 2026. Compare features, pricing and fit."
+    "title": "Gemini vs HagiCode: Features and Comparison",
+    "description": "Gemini is Google's open-source terminal agent; free and AI Pro access moved to Antigravity in June 2026. Compare features, pricing and fit."
   },
-  "summary": "Gemini CLI is Google's open-source terminal agent for Gemini models; HagiCode is a workbench that can run it as an executor. Google moved individual and free users to Antigravity CLI on June 18, 2026, so check which route you can still sign in with.",
+  "summary": "Gemini is Google's open-source terminal agent for Gemini models; HagiCode is a workbench that can run it as an executor. Google moved individual and free users to Antigravity on June 18, 2026, so check which route you can still sign in with.",
   "sections": [
     {
       "id": "gemini-vs-hagicode-section-1",
@@ -18,23 +18,23 @@
           "id": "gemini-vs-hagicode-section-1-answer",
           "type": "rich-text",
           "content": [
-            "Gemini CLI is Google's open-source (Apache 2.0) terminal agent for Gemini models. HagiCode is a desktop and web workbench that runs `gemini` as one of its Agent CLIs, adding parallel sessions, proposals and commits around it. It does not replace Gemini CLI and it does not provide Gemini access.",
-            "One thing to check first: Google says Gemini CLI was replaced by Antigravity CLI for free Code Assist for individuals and for Google AI Pro and Ultra users on June 18, 2026. Gemini CLI remains available through paid Gemini or Gemini Enterprise Agent Platform API keys and Gemini Code Assist Standard or Enterprise licences. HagiCode needs a `gemini` install you can still authenticate; its list of Agent CLIs does not include Antigravity CLI.",
-            "If you only want a terminal agent and your Gemini route still works, stay with Gemini CLI alone."
+            "Gemini is Google's open-source (Apache 2.0) terminal agent for Gemini models. HagiCode is a desktop and web workbench that runs `gemini` as one of its Agent CLIs, adding parallel sessions, proposals and commits around it. It does not replace Gemini and it does not provide Gemini access.",
+            "One thing to check first: Google says Gemini was replaced by Antigravity for free Code Assist for individuals and for Google AI Pro and Ultra users on June 18, 2026. Gemini remains available through paid Gemini or Gemini Enterprise Agent Platform API keys and Gemini Code Assist Standard or Enterprise licences. HagiCode needs a `gemini` install you can still authenticate; its list of Agent CLIs does not include Antigravity.",
+            "If you only want a terminal agent and your Gemini route still works, stay with Gemini alone."
           ]
         }
       ]
     },
     {
       "id": "gemini-vs-hagicode-section-2",
-      "title": "Gemini CLI vs HagiCode at a glance",
+      "title": "Gemini vs HagiCode at a glance",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-2-table",
           "type": "comparison-table",
           "headers": [
             "Dimension",
-            "Gemini CLI",
+            "Gemini",
             "HagiCode"
           ],
           "rows": [
@@ -116,7 +116,7 @@
     },
     {
       "id": "gemini-vs-hagicode-section-3",
-      "title": "What Gemini CLI does well",
+      "title": "What Gemini does well",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-3-capabilities",
@@ -156,7 +156,7 @@
     },
     {
       "id": "gemini-vs-hagicode-section-4",
-      "title": "When to choose Gemini CLI, and when to choose HagiCode",
+      "title": "When to choose Gemini, and when to choose HagiCode",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-4-choose-agent",
@@ -173,10 +173,10 @@
           "id": "gemini-vs-hagicode-section-4-choose-hagicode",
           "type": "bullet-list",
           "items": [
-            "You run several Gemini CLI tasks across repositories and want to see their sessions side by side.",
+            "You run several Gemini tasks across repositories and want to see their sessions side by side.",
             "You want an OpenSpec proposal, validation and archive step before the agent edits code.",
             "You prefer reviewing tool calls and diffs in a GUI, with AI-composed commits and an embedded Code Server.",
-            "You want Vault notes and Monospecs to carry context between your Gemini CLI sessions.",
+            "You want Vault notes and Monospecs to carry context between your Gemini sessions.",
             "You use several Agent CLIs and want a single workspace to switch between them."
           ]
         },
@@ -186,18 +186,18 @@
           "tone": "warning",
           "title": "Where HagiCode is not the right tool",
           "content": [
-            "If your free Code Assist or Google AI Pro/Ultra route to Gemini CLI ended on June 18, 2026, HagiCode cannot bring it back: it needs a `gemini` CLI you can still sign in to.",
+            "If your free Code Assist or Google AI Pro/Ultra route to Gemini ended on June 18, 2026, HagiCode cannot bring it back: it needs a `gemini` CLI you can still sign in to.",
             "Headless CI and scripted one-shot runs: call `gemini` directly.",
             "You only want a terminal, or a quick question in an editor you already use.",
             "Teams that do not want proposal and spec discipline; free editions also cap concurrent proposals at 3.",
-            "It adds setup compared with Gemini CLI alone and is not an IDE replacement beyond its embedded Code Server."
+            "It adds setup compared with Gemini alone and is not an IDE replacement beyond its embedded Code Server."
           ]
         }
       ]
     },
     {
       "id": "gemini-vs-hagicode-section-5",
-      "title": "Using Gemini CLI together with HagiCode",
+      "title": "Using Gemini together with HagiCode",
       "blocks": [
         {
           "id": "gemini-vs-hagicode-section-5-intro",
@@ -211,23 +211,23 @@
           "id": "gemini-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "1. Install Gemini CLI (`npm install -g @google/gemini-cli` or `brew install gemini-cli`) and sign in with a route that is still supported, such as an API key.",
+            "1. Install Gemini (`npm install -g @google/gemini-cli` or `brew install gemini-cli`) and sign in with a route that is still supported, such as an API key.",
             "2. Install HagiCode Desktop (free) for Windows, macOS or Linux.",
             "3. In HagiCode, choose Gemini as the Agent CLI for a session.",
             "4. Open a repository and start a session or an OpenSpec proposal.",
             "5. Expect Gemini models and Google billing as before; HagiCode adds workflow around them.",
-            "6. To return to plain Gemini CLI, open a terminal in the same repository and run `gemini`."
+            "6. To return to plain Gemini, open a terminal in the same repository and run `gemini`."
           ]
         },
         {
           "id": "gemini-vs-hagicode-section-5-notes",
           "type": "callout",
           "tone": "info",
-          "title": "What works for Gemini CLI inside HagiCode",
+          "title": "What works for Gemini inside HagiCode",
           "content": [
-            "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Gemini CLI.",
+            "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Gemini.",
             "Does not apply to Gemini: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
-            "Antigravity CLI is a different product; HagiCode's Gemini integration targets the `gemini` executable only."
+            "Antigravity is a different product; HagiCode's Gemini integration targets the `gemini` executable only."
           ]
         }
       ]
@@ -244,7 +244,7 @@
               "id": "gemini-vs-hagicode-section-6-item-1",
               "title": "Parallel sessions and Agents management",
               "content": [
-                "Gemini CLI runs one conversation per terminal. HagiCode can keep several Gemini sessions going across repositories and show them in one Agents view."
+                "Gemini runs one conversation per terminal. HagiCode can keep several Gemini sessions going across repositories and show them in one Agents view."
               ]
             },
             {
@@ -287,9 +287,9 @@
           "id": "gemini-vs-hagicode-section-7-bullets",
           "type": "bullet-list",
           "items": [
-            "Gemini CLI is a well-equipped open-source terminal agent, but check that your sign-in route survived the June 18, 2026 change.",
+            "Gemini is a well-equipped open-source terminal agent, but check that your sign-in route survived the June 18, 2026 change.",
             "HagiCode is a workbench layer that runs `gemini` underneath; it adds sessions, proposals and commits, not models.",
-            "Stay with Gemini CLI alone for one-terminal and scripted work; add HagiCode for parallel, spec-driven work."
+            "Stay with Gemini alone for one-terminal and scripted work; add HagiCode for parallel, spec-driven work."
           ]
         }
       ]
@@ -297,24 +297,24 @@
   ],
   "faq": [
     {
-      "question": "Is Gemini CLI free?",
-      "answer": "The tool is open source under Apache 2.0, but model use is not free for everyone. Google says Gemini CLI was replaced by Antigravity CLI for free Code Assist for individuals and for Google AI Pro and Ultra users on June 18, 2026, while paid API keys and Code Assist Standard or Enterprise licences continue."
+      "question": "Is Gemini free?",
+      "answer": "The tool is open source under Apache 2.0, but model use is not free for everyone. Google says Gemini was replaced by Antigravity for free Code Assist for individuals and for Google AI Pro and Ultra users on June 18, 2026, while paid API keys and Code Assist Standard or Enterprise licences continue."
     },
     {
-      "question": "Is Gemini CLI discontinued?",
-      "answer": "Not entirely. Google moved individual users (free Code Assist, Google AI Pro and Ultra) to Antigravity CLI, but says Gemini CLI remains available through paid Gemini and Gemini Enterprise Agent Platform API keys, and unchanged for enterprise licences."
+      "question": "Is Gemini discontinued?",
+      "answer": "Not entirely. Google moved individual users (free Code Assist, Google AI Pro and Ultra) to Antigravity, but says Gemini remains available through paid Gemini and Gemini Enterprise Agent Platform API keys, and unchanged for enterprise licences."
     },
     {
-      "question": "How do I install Gemini CLI?",
+      "question": "How do I install Gemini?",
       "answer": "Run `npm install -g @google/gemini-cli`, `brew install gemini-cli`, or try it with `npx @google/gemini-cli`. Then start `gemini` and choose an authentication method."
     },
     {
-      "question": "Can I use Gemini CLI with HagiCode?",
-      "answer": "Yes, if you have a `gemini` install that can still authenticate. Pick Gemini as the Agent CLI in HagiCode; HagiCode does not include Antigravity CLI."
+      "question": "Can I use Gemini with HagiCode?",
+      "answer": "Yes, if you have a `gemini` install that can still authenticate. Pick Gemini as the Agent CLI in HagiCode; HagiCode does not include Antigravity."
     },
     {
-      "question": "Gemini CLI vs HagiCode: which should I pick?",
-      "answer": "Use Gemini CLI alone for a simple terminal agent. Add HagiCode for parallel sessions, OpenSpec proposals and a GUI over the same CLI."
+      "question": "Gemini vs HagiCode: which should I pick?",
+      "answer": "Use Gemini alone for a simple terminal agent. Add HagiCode for parallel sessions, OpenSpec proposals and a GUI over the same CLI."
     }
   ]
 }

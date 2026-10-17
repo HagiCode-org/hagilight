@@ -5,7 +5,7 @@
   "locale": "en-US",
   "updatedAt": "2026-10-16T00:00:00.000Z",
   "seo": {
-    "title": "CodeBuddy CLI vs HagiCode: Features and Comparison",
+    "title": "CodeBuddy vs HagiCode: Features and Comparison",
     "description": "CodeBuddy Code is Tencent's terminal AI coding agent; HagiCode is a workbench that runs it. Compare install, pricing, features and fit."
   },
   "summary": "CodeBuddy Code is Tencent Cloud's terminal coding agent, installed from npm, Homebrew or a native binary. HagiCode is a desktop workbench that runs CodeBuddy as its executor and adds parallel sessions, proposals and AI commits around it.",

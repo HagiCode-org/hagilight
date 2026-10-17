@@ -5,14 +5,14 @@
   "locale": "de-DE",
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
-    "title": "QoderCLI vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie QoderCLIs wichtigsten Funktionen, technische Eigenschaften und Anwendungs-Ökosystem und sehen Sie, wie HagiCode QoderCLI durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "title": "Qoder vs. HagiCode: Funktionen im Vergleich",
+    "description": "Verstehen Sie Qoders wichtigsten Funktionen, technische Eigenschaften und Anwendungs-Ökosystem und sehen Sie, wie HagiCode Qoder durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
-  "summary": "QoderCLI ist ein modernes KI-Programmier-CLI-Tool mit flüssiger Interaktion, effizientem Kontext-Management und flexiblen Tool-Aufrufen. Mit einem Entwurf, der Entwicklererfahrung an erste Stelle setzt, bietet es natürliche Multi-Turn-Gespräche und effiziente Arbeits-Flows. QoderCLI ist jedoch ein Terminal-Tool, und HagiCode ist eine Werkbank mit Multi-Repo-Management, Wissens-Persistenz und visuellem Workflow. Beide zusammen erweitern QoderCLIs flüssige Erfahrung zu einem vollständigen Entwicklungsprozess. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
+  "summary": "Qoder ist ein modernes KI-Programmier-CLI-Tool mit flüssiger Interaktion, effizientem Kontext-Management und flexiblen Tool-Aufrufen. Mit einem Entwurf, der Entwicklererfahrung an erste Stelle setzt, bietet es natürliche Multi-Turn-Gespräche und effiziente Arbeits-Flows. Qoder ist jedoch ein Terminal-Tool, und HagiCode ist eine Werkbank mit Multi-Repo-Management, Wissens-Persistenz und visuellem Workflow. Beide zusammen erweitern Qoders flüssige Erfahrung zu einem vollständigen Entwicklungsprozess. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
     {
       "id": "qoder-vs-hagicode-section-1",
-      "title": "QoderCLIs Kernstärken",
+      "title": "Qoders Kernstärken",
       "blocks": [
         {
           "id": "qoder-vs-hagicode-section-1-capabilities",
@@ -22,7 +22,7 @@
               "id": "qoder-vs-hagicode-section-1-item-1",
               "title": "Wichtigste Funktionen",
               "content": [
-                "QoderCLIs Funktionalität zentriert sich auf Entwicklererfahrung zuerst:",
+                "Qoders Funktionalität zentriert sich auf Entwicklererfahrung zuerst:",
                 "Effizientes Kontext-Management: Qoder glänzt im Session-Kontext-Management. Es behält intelligent relevante Gesprächsinformationen und filtert irrelevante Informationen, sodass auch in langen Gesprächen der Kontext klar bleibt. Das erhöht die Qualität und Effizienz der Konversation.",
                 "Flüssige Tool-Aufrufe: Qoders Tool-Aufruf-Kette ist sauber und effizient. Datei-Lese-/Schreib-, Befehlsausführungs- und Suchoperationen lassen sich nahtlos verketten und liefern ein reibungsloses Arbeitserlebnis.",
                 "Natürliche Multi-Turn-Gespräche: Qoders Konversationsdesign betont Kontinuität. Auch über mehrere Turns hinweg bewahrt es die Verbindung des Kontexts natürlich, und Entwickler können ihre Gedanken flüssig ausdrücken und das Codieren vorantreiben."
@@ -32,9 +32,9 @@
               "id": "qoder-vs-hagicode-section-1-item-2",
               "title": "Technische Eigenschaften",
               "content": [
-                "QoderCLI hat mehrere bemerkenswerte technische Eigenschaften:",
+                "Qoder hat mehrere bemerkenswerte technische Eigenschaften:",
                 "Smartes Kontextfenster-Management: Qoder nutzt das Kontextfenster sehr effizient. Statt einfach große Informationsmengen zu stopfen, beurteilt es intelligent die Wichtigkeit, komprimiert und ordnet und macht den begrenzten Kontextraum maximal nutzbar.",
-                "Hochleistungs-CLI-Architektur: Qoders CLI-Architektur ist für schnellen Start und Antwort optimiert. Es hält den Ressourcenverbrauch niedrig und liefert dennoch herausragende Leistung.",
+                "Hochleistungs-CLI-Architektur: Qoders Architektur ist für schnellen Start und Antwort optimiert. Es hält den Ressourcenverbrauch niedrig und liefert dennoch herausragende Leistung.",
                 "Moderne Tool-Chain-Integration: Qoder integriert sich gut mit modernen Frontend-Tool-Chains (Vite, ESLint, Prettier) und passt sich natürlich an moderne Entwicklungs-Workflows an."
               ]
             },
@@ -42,8 +42,8 @@
               "id": "qoder-vs-hagicode-section-1-item-3",
               "title": "Anwendungs-Ökosystem",
               "content": [
-                "QoderCLIs Ökosystem zentriert sich auf moderne Entwicklungsszenarien:",
-                "ACP-Protokoll-Unterstützung: QoderCLI unterstützt das ACP-Protokoll für standardisierte Kommunikation mit anderen KI-Tools und -Plattformen.",
+                "Qoders Ökosystem zentriert sich auf moderne Entwicklungsszenarien:",
+                "ACP-Protokoll-Unterstützung: Qoder unterstützt das ACP-Protokoll für standardisierte Kommunikation mit anderen KI-Tools und -Plattformen.",
                 "Moderne Tech-Stack-Adaption: Qoders Unterstützung für JavaScript/TypeScript, Python und andere moderne Tech-Stacks entspricht den Mainstream-Bedürfnissen der heutigen Entwickler-Community.",
                 "Quick-Start-Erlebnis: Qoder liefert einen minimalistischen Onboarding-Prozess und lässt sich fast ohne Konfiguration starten. Es minimiert die Einstiegskosten und macht Entwickler schnell produktiv."
               ]
@@ -208,10 +208,10 @@
             },
             {
               "id": "qoder-vs-hagicode-section-2-item-11",
-              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von QoderCLI in einer konsistenten Form sehen",
+              "title": "Einheitliche Tool-Call-Ansicht: Die Tool-Nutzung von Qoder in einer konsistenten Form sehen",
               "content": [
                 "HagiCode hängt an jede Tool-Use- und Tool-Result-Nachricht dieselbe typisierte Tool-Call-Struktur an. Sie erfasst die Tool-Art, die Eingabefelder, den Status, Ergebnistext oder Bilder, einen eventuellen Fehler und die Zeitangaben. Die Struktur wird aus den gespeicherten Daten berechnet, sodass Session-Verlauf und Live-Updates dieselbe Ansicht zeigen.",
-                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von QoderCLI genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
+                "Dieselbe Struktur gilt für jeden Provider, daher sehen die Tool-Aufrufe von Qoder genauso aus wie die jedes anderen Agents in Ihrem Workspace. Sie lesen ein einziges Format, statt die Rohausgabe jeder CLI einzeln lernen zu müssen."
               ],
               "bullets": [
                 "Eine Struktur für alle Provider: Shell-, Datei-, Such-, Fetch- und MCP-Aufrufe werden einheitlich dargestellt;",
@@ -244,8 +244,8 @@
           "id": "qoder-vs-hagicode-section-3-intro",
           "type": "rich-text",
           "content": [
-            "QoderCLI ist ein für flüssige Erfahrung bekanntes KI-Coding-CLI-Tool. HagiCode ist eine voll ausgestattete KI-Programmierplattform. Ihre Beziehung ist komplementär:",
-            "Wenn Sie bereits QoderCLI verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Qoders flüssige Erfahrung innerhalb einer Werkbank mit Visualisierung und Multi-Repo-Management zu einem vollständigeren Entwicklungsprozess erweitert wurde."
+            "Qoder ist ein für flüssige Erfahrung bekanntes KI-Coding-CLI-Tool. HagiCode ist eine voll ausgestattete KI-Programmierplattform. Ihre Beziehung ist komplementär:",
+            "Wenn Sie bereits Qoder verwenden, versuchen Sie, es mit HagiCode zu verbinden — Sie werden feststellen, dass Qoders flüssige Erfahrung innerhalb einer Werkbank mit Visualisierung und Multi-Repo-Management zu einem vollständigeren Entwicklungsprozess erweitert wurde."
           ]
         },
         {
