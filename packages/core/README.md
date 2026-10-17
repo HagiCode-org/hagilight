@@ -117,6 +117,57 @@ After trimming, `HAGILIGHT_BUILD_BRANCH` must be nonblank and free of control ch
 
 The footer shows the commit as its first seven characters, with the full hash in the `title` attribute. The core `Footer` renders this line only when it receives a `buildInfo` prop or the `hagilight()` integration from `@hagicode/hagilight/integration` is registered; otherwise it renders no build text.
 
+## Site metadata file
+
+The integrations write `.well-known/hagilight.metadata.json` into the build output. This module owns the contract, so the three packages cannot drift apart.
+
+- `@hagicode/hagilight-core/site-metadata` is browser-safe. It exports `SITE_METADATA_PATH` (`.well-known/hagilight.metadata.json`, the only place the path is spelled), `buildSiteMetadata`, `validateSiteMetadata` (returns a list of problems; empty means valid), `serializeSiteMetadata` (fixed key order, two-space indent, trailing newline), `detectAnalyticsLoaders` (checks built HTML for each provider's loader markers), `ANALYTICS_LOADER_MARKERS`, and `resolveSiteMetadataOption` (the shared `metadata` option resolver).
+- `@hagicode/hagilight-core/site-metadata-writer` is Node-only. `findDiscoveryOutputs(outDir)` reports which discovery files the build produced, and `writeSiteMetadata({ outDir, metadata, siteOwnedFiles, logger })` writes the file through a temporary file and a rename. An existing file, in the output or in `siteOwnedFiles`, is kept and reported.
+- `@hagicode/hagilight-core/site-metadata-ownership` decides which integration writes the file when plain Astro and Starlight are both registered. Starlight claims at plugin creation, plain Astro defers, and the owner's write runs after every deferring peer has reported its build step.
+
+The file follows `schemaVersion: 1`. Fields may be added within version 1. Renaming, removing, or re-typing a field requires a new version.
+
+```json
+{
+  "schemaVersion": 1,
+  "generator": { "name": "@hagicode/hagilight-starlight", "version": "0.1.0" },
+  "site": {
+    "name": "HagiCode Docs",
+    "url": "https://docs.hagicode.com/",
+    "base": "/",
+    "description": "Documentation for HagiCode."
+  },
+  "languages": {
+    "default": "en-US",
+    "locales": [
+      { "code": "en-US", "lang": "en-US", "path": "/" },
+      { "code": "zh-CN", "lang": "zh-CN", "path": "/zh-CN/" }
+    ]
+  },
+  "build": {
+    "branch": "main",
+    "commit": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "builtAt": "2026-10-17T08:12:34Z"
+  },
+  "discovery": {
+    "sitemap": "/sitemap-index.xml",
+    "robots": "/robots.txt",
+    "rss": "/rss.xml",
+    "llms": "/llms.txt"
+  },
+  "analytics": { "googleAnalytics": true, "fiftyOneLa": false, "posthog": true },
+  "features": { "seo": true, "promoto": true }
+}
+```
+
+Rules that every writer applies:
+
+- `site.name` comes from the `name` option, then the site's own title, then the home page name, then the URL hostname. `site.description` is omitted when no description exists.
+- `build` holds the same branch, commit, and build time as the footer, with `unknown` for any value that cannot be resolved.
+- `discovery` holds site-relative paths, relative to `site.base`, for the artifacts that exist in this build. A key is absent when its file is absent.
+- `analytics` holds three booleans that say whether each provider's loader is in this build. Measurement IDs, 51LA site IDs, and PostHog keys are never written, and neither are environment values, absolute paths, or Git remotes.
+- Only the schema fields are copied from typed inputs, so an extra input field cannot leak into the output.
+
 ## Comparison articles
 
 Core ships the 136 `*-vs-hagicode` comparison articles (10 locales) as JSON under `data/comparison-articles/<locale>/<slug>.json`. The files are the `1.0.0` structured-article schema, unchanged from the source they moved from. Two entry points split the API by runtime, following the build-info split:

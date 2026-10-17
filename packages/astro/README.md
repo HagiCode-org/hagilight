@@ -73,6 +73,51 @@ hagilight({
 
 Pass `llms: false` (or `{ enabled: false }`) to opt out. The file is only as good as the page titles and descriptions it reads, so write a real `description` for important pages.
 
+## Site metadata
+
+`hagilight()` writes `/.well-known/hagilight.metadata.json` after the build, next to `llms.txt`. A consumer that needs one machine-readable description of the site reads this file. The schema and its privacy rules are in `@hagicode/hagilight-core`'s README.
+
+```json
+{
+  "schemaVersion": 1,
+  "generator": { "name": "@hagicode/hagilight-starlight", "version": "0.1.0" },
+  "site": {
+    "name": "HagiCode Docs",
+    "url": "https://docs.hagicode.com/",
+    "base": "/",
+    "description": "Documentation for HagiCode."
+  },
+  "languages": {
+    "default": "en-US",
+    "locales": [
+      { "code": "en-US", "lang": "en-US", "path": "/" },
+      { "code": "zh-CN", "lang": "zh-CN", "path": "/zh-CN/" }
+    ]
+  },
+  "build": {
+    "branch": "main",
+    "commit": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+    "builtAt": "2026-10-17T08:12:34Z"
+  },
+  "discovery": {
+    "sitemap": "/sitemap-index.xml",
+    "robots": "/robots.txt",
+    "rss": "/rss.xml",
+    "llms": "/llms.txt"
+  },
+  "analytics": { "googleAnalytics": true, "fiftyOneLa": false, "posthog": true },
+  "features": { "seo": true, "promoto": true }
+}
+```
+
+- The file is served under the site's base path, at `<site URL><base>.well-known/hagilight.metadata.json`. A site under `/docs/` gets `/docs/.well-known/hagilight.metadata.json`. An origin-level `/.well-known/` path needs a proxy or a second deployment; a hagilight build controls only its own output.
+- Name and description come from the `name` and `description` options, then the home page `og:site_name` or title and description. Locales come from Astro `i18n`. Analytics flags are `true` only when the built pages contain that provider's loader.
+- The file needs an absolute `site` URL. Without one, the build warns and skips the file; it does not fail.
+- Sitemap and `llms.txt` are checked after they are written, so `discovery` lists what this build actually produced.
+- Pass `metadata: false` to opt out, or `metadata: { name, description }` to set the values. The `enabled` option does not turn it off. A `public/.well-known/hagilight.metadata.json` file is copied as the site's own and kept byte for byte.
+- Hosts that drop dot-directories need an explicit opt-in. GitHub Pages' Jekyll step skips `.well-known` unless the published root contains an empty `.nojekyll` file.
+- When the Starlight plugin is also registered with metadata enabled, the Starlight plugin writes the file, and this integration defers to it. Registration order does not change the output.
+
 ## Body images
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.

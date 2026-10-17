@@ -147,6 +147,16 @@ Written per locale, into that locale's output directory, when feed items exist. 
 - The `<link rel="alternate">` head tag is added when feed items exist or the site owns `rss.xml`.
 - With no items, the build logs an info message and writes nothing.
 
+### .well-known/hagilight.metadata.json
+
+Written by the default-locale build, as the last discovery step. It lists every configured locale, the discovery files this build wrote, and build facts. The schema is in `@hagicode/hagilight-core`'s README.
+
+- `metadata: false` opts out. `metadata: { name, description }` overrides the site name, which defaults to `title`, and the description, which defaults to `tagline`.
+- Analytics flags are `true` only in production builds that load the provider. Non-production builds report `false`.
+- A build of a non-default locale writes nothing and warns when the default-locale build has not written the file, the same rule as `robots.txt`.
+- A site-owned `static/.well-known/hagilight.metadata.json` takes precedence, and this plugin keeps it untouched.
+- GitHub Pages needs a `.nojekyll` file in the published root, or the `.well-known` directory is dropped.
+
 ## Configuration warnings
 
 The plugin prints a `[@hagicode/hagilight-docusaurus]` warning during the build when:
