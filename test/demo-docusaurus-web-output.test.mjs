@@ -81,6 +81,30 @@ test('production head loads Google Analytics and 51LA with their configured ids'
   assert.ok(html.includes('L6b88a5yK4h2Xnci'), 'the 51LA id is configured');
 });
 
+test('the metadata file is written once by the default locale build, lists every locale, and its analytics flags match the built pages', () => {
+  const metadata = JSON.parse(read(enabledDist, '.well-known/hagilight.metadata.json'));
+  assert.equal(metadata.schemaVersion, 1);
+  assert.equal(metadata.generator.name, '@hagicode/hagilight-docusaurus');
+  assert.equal(metadata.generator.version, pluginVersion);
+  assert.equal(metadata.languages.default, defaultLocale);
+  assert.deepEqual(metadata.languages.locales.map(({ code }) => code), [...locales]);
+  assert.equal(metadata.discovery.sitemap, '/sitemap.xml');
+  assert.equal(metadata.discovery.robots, '/robots.txt');
+  assert.equal(metadata.discovery.rss, '/rss.xml');
+  assert.equal(metadata.build.commit.length, 40);
+  const home = read(enabledDist, 'index.html');
+  assert.equal(metadata.analytics.googleAnalytics, home.includes('https://www.googletagmanager.com/gtag/js'));
+  assert.equal(metadata.analytics.fiftyOneLa, home.includes('https://sdk.51.la/js-sdk-pro.min.js'));
+  assert.equal(metadata.analytics.posthog, home.includes('__hagilightPosthogInitialized'));
+  assert.deepEqual(metadata.analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
+  assert.deepEqual(metadata.features, { seo: true, promoto: true });
+});
+
+test('the analytics-disabled build reports every analytics flag false', () => {
+  const metadata = JSON.parse(read(disabledDist, '.well-known/hagilight.metadata.json'));
+  assert.deepEqual(metadata.analytics, { googleAnalytics: false, fiftyOneLa: false, posthog: false });
+});
+
 test('analytics disabled emits no tracker loader or analytics id in any page script or bundle', () => {
   const emitted = filesUnder(disabledDist).filter((file) => /\.(?:html|js)$/u.test(file));
   assert.ok(emitted.length > 0, 'the disabled build emits pages');

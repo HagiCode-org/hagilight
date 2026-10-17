@@ -41,6 +41,9 @@ const rssRoutes = (routes) => routes
   .map(({ pattern }) => pattern)
   .sort();
 
+// The metadata finalizer is an integration too, so sitemap assertions look for the sitemap by name.
+const sitemapUpdates = (updated) => updated.filter((entry) => entry.integrations?.some(({ name }) => name === '@astrojs/sitemap'));
+
 const rssMiddlewares = (middlewares) => middlewares
   .filter(({ entrypoint }) => entrypoint.endsWith('rss-middleware.js'));
 
@@ -48,8 +51,8 @@ test('registers sitemap, robots, and RSS feeds by default', (t) => {
   const result = runSetup({ site: new URL('https://example.test') });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-  assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
-  assert.equal(result.updated.find((entry) => entry.integrations).integrations[0].name, '@astrojs/sitemap');
+  assert.equal(sitemapUpdates(result.updated).length, 1);
+  assert.equal(sitemapUpdates(result.updated)[0].integrations[0].name, '@astrojs/sitemap');
   assert.ok(result.routes.some((route) => route.pattern === '/robots.txt' && route.prerender));
   assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
   const rssMiddleware = rssMiddlewares(result.middlewares);
@@ -86,7 +89,7 @@ test('disables both generated outputs without requiring a site', (t) => {
   const result = runSetup({ enabled: false });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-  assert.ok(!result.updated.some((entry) => entry.integrations));
+  assert.equal(sitemapUpdates(result.updated).length, 0);
   assert.deepEqual(result.routes, []);
   assert.deepEqual(rssMiddlewares(result.middlewares), []);
 });
@@ -99,7 +102,7 @@ test('leaves sitemap generation to existing sitemap and Starlight integrations w
     });
     t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-    assert.ok(!result.updated.some((entry) => entry.integrations));
+    assert.equal(sitemapUpdates(result.updated).length, 0);
     assert.ok(result.routes.some((route) => route.pattern === '/robots.txt'));
     assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
   }
@@ -113,7 +116,7 @@ test('preserves consumer-owned robots routes and public files', (t) => {
     });
     t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-    assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
+    assert.equal(sitemapUpdates(result.updated).length, 1);
     assert.ok(!result.routes.some((route) => route.pattern === '/robots.txt'));
     assert.deepEqual(rssRoutes(result.routes), ['/rss.[language].xml', '/rss.xml']);
   }
@@ -123,7 +126,7 @@ test('disables RSS when rss: false', (t) => {
   const result = runSetup({ site: 'https://example.test', rss: false });
   t.after(() => rmSync(result.root, { recursive: true, force: true }));
 
-  assert.equal(result.updated.filter((entry) => entry.integrations).length, 1);
+  assert.equal(sitemapUpdates(result.updated).length, 1);
   assert.ok(result.routes.some((route) => route.pattern === '/robots.txt'));
   assert.deepEqual(rssRoutes(result.routes), []);
   assert.deepEqual(rssMiddlewares(result.middlewares), []);

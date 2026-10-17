@@ -308,6 +308,13 @@ test('the plain-Astro demo build writes the site metadata file with llms discove
   assert.equal(metadata.analytics.posthog, loaderPresent((html) => html.includes('__hagilightPosthogInitialized')));
   assert.equal(metadata.analytics.posthog, true, 'the demo enables PostHog');
   assert.deepEqual(metadata.languages.locales.map(({ code }) => code), ['en-US', 'zh-CN']);
+  // The schema example in the core README has the same keys, in the same order, as this build writes.
+  const readme = readFileSync(join(root, 'packages/core/README.md'), 'utf8');
+  const example = JSON.parse(readme.slice(readme.indexOf('## Site metadata file')).match(/```json\n([\s\S]*?)```/u)[1]);
+  assert.deepEqual(Object.keys(metadata), Object.keys(example));
+  assert.deepEqual(Object.keys(metadata.site), Object.keys(example.site));
+  assert.deepEqual(Object.keys(metadata.build), Object.keys(example.build));
+  assert.deepEqual(Object.keys(metadata.languages.locales[0]), Object.keys(example.languages.locales[0]));
 });
 
 test('development pages emit no executable PostHog initialization or loader', async () => {

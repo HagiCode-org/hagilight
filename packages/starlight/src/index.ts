@@ -513,12 +513,14 @@ ${serializedOptions.posthogApiKey ? '<PostHog apiKey={options.posthogApiKey} />'
             prerender: true,
           });
         }
-        updateConfig({ vite: { plugins: [vitePlugin] } });
-        if (siteMetadata.enabled) {
-          // Starlight splices its own sitemap into the integration list before this setup runs,
-          // so an integration appended here runs after the sitemap has written its index.
-          updateConfig({ integrations: [createStarlightMetadataFinalizer(siteMetadata, () => buildInfo)] });
-        }
+        // Starlight splices its own sitemap into the integration list before this setup runs, so
+        // the finalizer appended in the same update runs after the sitemap has written its index.
+        updateConfig({
+          vite: { plugins: [vitePlugin] },
+          ...(siteMetadata.enabled
+            ? { integrations: [createStarlightMetadataFinalizer(siteMetadata, () => buildInfo)] }
+            : {}),
+        });
       },
       'astro:config:done'({ config, logger }) {
         unregisterRssOwner();

@@ -55,6 +55,8 @@ function reporter() {
   };
 }
 
+const BUILD_INFO = { branch: 'main', commit: 'a1b2c3d4e5f6071829304a5b6c7d8e9f01234567', builtAt: '2026-10-17T08:12:34Z' };
+
 async function run({ options = {}, siteOverrides = {}, outDir, siteDir, production = true, plugins = [], routesPaths = ['/'], routesBuildMetadata = {}, feedItems = [] } = {}) {
   const resolvedSiteDir = siteDir ?? (await tempDir());
   const resolvedOutDir = outDir ?? (await tempDir());
@@ -62,6 +64,8 @@ async function run({ options = {}, siteOverrides = {}, outDir, siteDir, producti
   await discovery.writeDiscoveryOutputs({
     options: resolveOptions(options),
     site: site(resolvedSiteDir, siteOverrides),
+    generatorVersion: '0.1.0',
+    buildInfo: BUILD_INFO,
     outDir: resolvedOutDir,
     production,
     plugins,
@@ -71,6 +75,11 @@ async function run({ options = {}, siteOverrides = {}, outDir, siteDir, producti
     report,
   });
   return messages;
+}
+
+const METADATA = '.well-known/hagilight.metadata.json';
+async function readMetadata(outDir) {
+  return JSON.parse(await readFile(join(outDir, METADATA), 'utf8'));
 }
 
 const doc = (title, permalink, extra = {}) => ({ title, permalink, description: `About ${title}`, ...extra });
@@ -165,12 +174,14 @@ test('a non-default locale build leaves robots.txt to the default build and warn
 
   const missing = await run({ outDir: zhOut, siteOverrides: zh });
   assert.equal(await exists(join(zhOut, 'robots.txt')), false);
-  assert.equal(missing.warn.length, 1);
-  assert.match(missing.warn[0], /default locale/u);
+  // The metadata file also warns in a non-default build; this test is about robots.txt only.
+  const robotsWarnings = missing.warn.filter((message) => /robots\.txt/u.test(message));
+  assert.equal(robotsWarnings.length, 1);
+  assert.match(robotsWarnings[0], /default locale/u);
 
   await writeFile(join(root, 'robots.txt'), 'User-agent: *\n');
   const present = await run({ outDir: zhOut, siteOverrides: zh });
-  assert.deepEqual(present.warn, []);
+  assert.equal(present.warn.some((message) => /robots\.txt/u.test(message)), false);
 });
 
 test('a site-owned static/robots.txt takes precedence over the generated file', async () => {
@@ -241,7 +252,7 @@ test('RSS is skipped with a message when there is no content, and when the site 
   const outDir = await tempDir();
   const empty = await run({ outDir, feedItems: [] });
   assert.equal(await exists(join(outDir, 'rss.xml')), false);
-  assert.equal(empty.info.length, 1);
+  assert.equal(empty.info.filter((message) => /RSS feed/u.test(message)).length, 1);
 
   const siteDir = await tempDir();
   await mkdir(join(siteDir, 'static'));
@@ -252,7 +263,9 @@ test('RSS is skipped with a message when there is no content, and when the site 
     feedItems: [{ title: 'Launch', link: 'https://example.com/blog/launch' }],
   });
   assert.equal(await exists(join(outDir, 'rss.xml')), false);
-  assert.deepEqual(owned.info, []);
+  // The first run already wrote the metadata file into this output, so the owned RSS check only
+  // concerns rss.xml: no RSS message is expected, and the metadata file is kept as written.
+  assert.equal(owned.info.filter((message) => /rss/iu.test(message)).length, 0);
 });
 
 test('unexpected content shapes degrade to warnings instead of failing the build', () => {
@@ -347,4 +360,78 @@ test('the plugin lifecycle captures feed items, writes outputs in postBuild, and
     if (previousEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = previousEnv;
   }
+});
+
+test('the metadata file is written last, lists the discovery artifacts present, and reports production analytics', async () => {
+  const outDir = await tempDir();
+  await run({ outDir, feedItems: [{ title: 'Post', link: 'https://example.com/post/' }] });
+  const metadata = await readMetadata(outDir);
+  assert.equal(metadata.schemaVersion, 1);
+  assert.equal(metadata.generator.name, '@hagicode/hagilight-docusaurus');
+  assert.equal(metadata.generator.version, '0.1.0');
+  assert.deepEqual(metadata.site, {
+    name: 'HagiCode',
+    url: 'https://example.com/',
+    base: '/',
+    description: 'Docs for HagiCode',
+  });
+  assert.deepEqual(metadata.languages, {
+    default: 'en-US',
+    locales: [
+      { code: 'en-US', lang: 'en-US', path: '/' },
+      { code: 'zh-CN', lang: 'zh-CN', path: '/zh-CN/' },
+    ],
+  });
+  assert.deepEqual(metadata.build, BUILD_INFO);
+  assert.deepEqual(metadata.discovery, { sitemap: '/sitemap.xml', robots: '/robots.txt', rss: '/rss.xml' });
+  assert.deepEqual(metadata.analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
+  assert.deepEqual(metadata.features, { seo: true, promoto: true });
+});
+
+test('metadata options override the name and description, and metadata: false writes nothing', async () => {
+  const outDir = await tempDir();
+  await run({ outDir, options: { metadata: { name: 'Docs Hub', description: 'Manual description' } } });
+  const metadata = await readMetadata(outDir);
+  assert.equal(metadata.site.name, 'Docs Hub');
+  assert.equal(metadata.site.description, 'Manual description');
+
+  const off = await tempDir();
+  await run({ outDir: off, options: { metadata: false } });
+  assert.equal(await exists(join(off, METADATA)), false);
+});
+
+test('analytics flags are false outside production builds, and no analytics identifiers are written', async () => {
+  const outDir = await tempDir();
+  await run({ outDir, production: false });
+  const metadata = await readMetadata(outDir);
+  assert.deepEqual(metadata.analytics, { googleAnalytics: false, fiftyOneLa: false, posthog: false });
+  const serialized = await readFile(join(outDir, METADATA), 'utf8');
+  for (const secret of ['G-EN03FMT2Q4', 'L6b88a5yK4h2Xnci', 'phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5']) {
+    assert.equal(serialized.includes(secret), false, secret);
+  }
+});
+
+test('a non-default locale build skips the metadata file and warns when the default build has none', async () => {
+  const root = await tempDir();
+  const zhOut = join(root, 'zh-CN');
+  await mkdir(zhOut);
+  const missing = await run({ outDir: zhOut, siteOverrides: zh });
+  assert.equal(await exists(join(zhOut, METADATA)), false);
+  assert.ok(missing.warn.some((message) => /hagilight\.metadata\.json is written only by the default locale build/u.test(message)));
+
+  await mkdir(join(root, '.well-known'));
+  await writeFile(join(root, METADATA), '{}\n');
+  const present = await run({ outDir: zhOut, siteOverrides: zh });
+  assert.equal(await exists(join(zhOut, METADATA)), false);
+  assert.equal(present.warn.some((message) => message.includes(METADATA)), false);
+});
+
+test('a site-owned static/.well-known metadata file is kept untouched', async () => {
+  const siteDir = await tempDir();
+  await mkdir(join(siteDir, 'static', '.well-known'), { recursive: true });
+  await writeFile(join(siteDir, 'static', METADATA), '{"site":"owned"}\n');
+  const outDir = await tempDir();
+  const messages = await run({ outDir, siteDir });
+  assert.equal(await exists(join(outDir, METADATA)), false);
+  assert.ok(messages.info.some((message) => /already exists.*untouched/u.test(message)));
 });

@@ -41,7 +41,8 @@ function build(env, outputDir) {
   const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
   assert.ok(pages.some((file) => /404(?:\.html|[\\/]index\.html)$/u.test(file)), 'PostHog checks cover the 404 page');
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover localized pages');
-  for (const file of pages) verifyPostHog(read(file), file);
+  // The analytics-off variant disables PostHog on purpose, so no page is expected to initialize it.
+  if (env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off') for (const file of pages) verifyPostHog(read(file), file);
   read.bytes = (filename) => readFileSync(join(outputDir, filename));
   return read;
 }
@@ -49,8 +50,6 @@ function build(env, outputDir) {
 function readSiteMetadata(read) {
   const metadata = JSON.parse(read('.well-known/hagilight.metadata.json'));
   assert.equal(metadata.schemaVersion, 1);
-  assert.equal(metadata.discovery.sitemap, '/sitemap-index.xml', 'the sitemap exists when metadata is written');
-  assert.equal(metadata.discovery.llms, '/llms.txt', 'llms.txt exists when metadata is written');
   return metadata;
 }
 
@@ -59,7 +58,14 @@ function verifySiteMetadataCoexistence(afterStarlight, beforeStarlight) {
   const after = readSiteMetadata(afterStarlight);
   const before = readSiteMetadata(beforeStarlight);
   assert.equal(after.generator.name, '@hagicode/hagilight-starlight');
+  assert.equal(after.languages.default, 'en-US');
+  assert.ok(after.languages.locales.some(({ code, path }) => code === 'zh-CN' && path === '/zh-CN/'), 'the demo locales are listed');
   assert.equal(before.generator.name, '@hagicode/hagilight-starlight');
+  // Both integrations are registered, so the sitemap and llms.txt exist before the single write.
+  for (const metadata of [after, before]) {
+    assert.equal(metadata.discovery.sitemap, '/sitemap-index.xml');
+    assert.equal(metadata.discovery.llms, '/llms.txt');
+  }
   assert.deepEqual(normalize(before), normalize(after));
 }
 

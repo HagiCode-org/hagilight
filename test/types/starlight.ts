@@ -66,3 +66,12 @@ hagilight({ analytics: { posthog: { enabled: 'yes' } } });
 hagilight({ analytics: { posthog: { apiKey: 42 } } });
 // @ts-expect-error The PostHog key field is apiKey.
 hagilight({ analytics: { posthog: { key: 'phc_Test' } } });
+
+hagilight({ metadata: false });
+hagilight({ metadata: { name: 'HagiCode Docs', description: 'Documentation for HagiCode.' } });
+// @ts-expect-error The metadata option is a boolean or an options object.
+hagilight({ metadata: 'yes' });
+// @ts-expect-error The metadata description is a string.
+hagilight({ metadata: { description: 42 } });
+// @ts-expect-error Misspelled metadata fields are rejected.
+hagilight({ metadata: { site: 'HagiCode Docs' } });

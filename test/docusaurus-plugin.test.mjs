@@ -341,3 +341,14 @@ test('PostHog emits one shared head script only in production and stays independ
   const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
   assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML === posthogInitScript('phc_Custom123')).length, 1);
 });
+
+test('the metadata option defaults on, opts out, and rejects invalid values with the option named', async () => {
+  const { resolveOptions } = await import(new URL('../packages/docusaurus/dist/options.js', import.meta.url).href);
+  assert.deepEqual(resolveOptions(undefined).metadata, { enabled: true });
+  assert.deepEqual(resolveOptions({ metadata: false }).metadata, { enabled: false });
+  assert.deepEqual(resolveOptions({ metadata: { enabled: false } }).metadata, { enabled: false });
+  assert.deepEqual(resolveOptions({ metadata: { name: 'Docs' } }).metadata, { enabled: true, name: 'Docs' });
+  assert.throws(() => resolveOptions({ metadata: 'yes' }), /metadata/u);
+  assert.throws(() => resolveOptions({ metadata: { name: '' } }), /metadata name/u);
+  assert.throws(() => resolveOptions({ metadata: { enabled: 'no' } }), /metadata enabled/u);
+});

@@ -17,6 +17,7 @@ export type {
   FeatureToggle,
   FiftyOneLaOptions,
   GoogleAnalyticsOptions,
+  MetadataOptions,
   PostHogOptions,
   HagilightDocusaurusOptions,
   ResolvedHagilightOptions,
@@ -98,6 +99,8 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
       await writeDiscoveryOutputs({
         options,
         site,
+        generatorVersion: PACKAGE_VERSION,
+        buildInfo: globalData.buildInfo,
         outDir: props.outDir,
         production: process.env.NODE_ENV === 'production',
         plugins: props.plugins,

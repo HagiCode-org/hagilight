@@ -2,7 +2,14 @@ import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import type { HtmlTagObject, LoadContext } from '@docusaurus/types';
+import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { generateRssFeed, resolveRssLocales, type RssFeedItem } from '@hagicode/hagilight-core/rss';
+import {
+  buildSiteMetadata,
+  SITE_METADATA_PATH,
+  type SiteMetadataLocale,
+} from '@hagicode/hagilight-core/site-metadata';
+import { findDiscoveryOutputs, writeSiteMetadata } from '@hagicode/hagilight-core/site-metadata-writer';
 import type { ResolvedHagilightOptions, ResolvedRssOptions } from './options.js';
 
 type Warn = (message: string) => void;
@@ -24,6 +31,9 @@ export interface DiscoverySite {
 export interface DiscoveryOutputs {
   options: ResolvedHagilightOptions;
   site: DiscoverySite;
+  /** Version of this package, recorded as the metadata generator. */
+  generatorVersion: string;
+  buildInfo: BuildInfo;
   outDir: string;
   production: boolean;
   plugins: readonly { name: string }[];
@@ -220,6 +230,64 @@ async function renderFeed(site: DiscoverySite, items: readonly RssFeedItem[]): P
   return response.text();
 }
 
+/** A locale's base path relative to the site base, with leading and trailing slashes. */
+function localePathFromBase(localeBaseUrl: string, siteBaseUrl: string): string {
+  const relative = localeBaseUrl.startsWith(siteBaseUrl) ? localeBaseUrl.slice(siteBaseUrl.length) : localeBaseUrl;
+  const trimmed = relative.replace(/^\/+|\/+$/gu, '');
+  return trimmed ? `/${trimmed}/` : '/';
+}
+
+function metadataLocales(site: DiscoverySite): SiteMetadataLocale[] {
+  return site.i18n.locales.map((locale) => {
+    const config = site.i18n.localeConfigs[locale];
+    return { code: locale, lang: config.htmlLang, path: localePathFromBase(config.baseUrl, site.baseUrl) };
+  });
+}
+
+/**
+ * Write the site metadata file as the last discovery step, so `sitemap.xml`, `robots.txt`
+ * and `rss.xml` are already in the output. Only the default locale build writes it, the same
+ * rule as `robots.txt`. Analytics flags are true only for production builds that load the provider.
+ */
+async function writeSiteMetadataFile(outputs: DiscoveryOutputs): Promise<void> {
+  const { options, site, outDir, report } = outputs;
+  if (!options.metadata.enabled) return;
+  if (site.i18n.currentLocale !== site.i18n.defaultLocale) {
+    if (!existsSync(join(defaultLocaleOutDir(outDir, site.i18n), SITE_METADATA_PATH))) {
+      report.warn(
+        `${SITE_METADATA_PATH} is written only by the default locale build (${site.i18n.defaultLocale}); build that locale to include it.`,
+      );
+    }
+    return;
+  }
+  const production = outputs.production;
+  const metadata = buildSiteMetadata({
+    generator: { name: '@hagicode/hagilight-docusaurus', version: outputs.generatorVersion },
+    site: {
+      name: options.metadata.name ?? site.title,
+      url: site.url,
+      base: site.baseUrl,
+      description: options.metadata.description ?? site.tagline,
+    },
+    locales: metadataLocales(site),
+    defaultLocale: site.i18n.defaultLocale,
+    build: outputs.buildInfo,
+    discovery: findDiscoveryOutputs(outDir),
+    analytics: {
+      googleAnalytics: production && options.googleAnalyticsId !== undefined,
+      fiftyOneLa: production && options.fiftyOneLaId !== undefined,
+      posthog: production && options.posthogApiKey !== undefined,
+    },
+    features: { seo: options.seo.enabled, promoto: options.promoto },
+  });
+  writeSiteMetadata({
+    outDir,
+    metadata,
+    siteOwnedFiles: [join(site.siteDir, 'static', SITE_METADATA_PATH)],
+    logger: report,
+  });
+}
+
 export async function writeDiscoveryOutputs(outputs: DiscoveryOutputs): Promise<void> {
   const { options, site, outDir, report } = outputs;
   const noIndex = options.noIndex;
@@ -251,4 +319,6 @@ export async function writeDiscoveryOutputs(outputs: DiscoveryOutputs): Promise<
       await writeFile(join(outDir, 'rss.xml'), await renderFeed(site, outputs.feedItems));
     }
   }
+
+  await writeSiteMetadataFile(outputs);
 }

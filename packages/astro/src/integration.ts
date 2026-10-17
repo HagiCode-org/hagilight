@@ -180,6 +180,9 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
     name: '@hagicode/hagilight:discovery',
     hooks: {
       'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig, logger }) {
+        // Integrations added by this hook go in one update, in order: the sitemap first, then the
+        // metadata finalizer, so the finalizer's build hook runs after the sitemap has written its index.
+        let sitemapNeeded = false;
         try {
           registerContentImages({ config, logger, enabled: contentImagesEnabled });
           const buildInfo = resolveBuildInfo({ root: fileURLToPath(config.root) });
@@ -191,12 +194,10 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
           resolveDiscoverySite(config.site);
 
           const integrations: readonly unknown[] = config.integrations ?? [];
-          if (!integrations.some((integration) => {
+          sitemapNeeded = !integrations.some((integration) => {
             const name = integrationName(integration);
             return name === '@astrojs/sitemap' || name === '@astrojs/starlight';
-          })) {
-            updateConfig({ integrations: [sitemap()] });
-          }
+          });
 
           const pageRoot = resolve(fileURLToPath(config.srcDir), 'pages');
           const publicRoot = fileURLToPath(config.publicDir);
@@ -242,11 +243,14 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
             },
           });
         } finally {
-          // Appended after this integration's own sitemap, so the metadata write runs after
-          // `@astrojs/sitemap` has written its index. Skipped when a Starlight owner writes the file.
-          if (metadataPeerToken === undefined && metadataOptions.enabled) {
-            updateConfig({ integrations: [createMetadataFinalizer(() => ({ config: resolvedConfig, build: resolvedBuildInfo, options: metadataOptions }))] });
-          }
+          // The finalizer is skipped when a Starlight owner writes the file.
+          const appended: AstroIntegration[] = [
+            ...(sitemapNeeded ? [sitemap()] : []),
+            ...(metadataPeerToken === undefined && metadataOptions.enabled
+              ? [createMetadataFinalizer(() => ({ config: resolvedConfig, build: resolvedBuildInfo, options: metadataOptions }))]
+              : []),
+          ];
+          if (appended.length > 0) updateConfig({ integrations: appended });
         }
       },
       'astro:config:done'({ config, logger }) {

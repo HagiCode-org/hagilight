@@ -24,6 +24,12 @@ const plugins: PluginModule[] = [hagilightDocusaurus(), hagilightDocusaurus(opti
 const siteConfig: Pick<Config, 'plugins'> = { plugins: [hagilightDocusaurus(options)] };
 const localeCatalog: I18nConfig = i18n;
 
+hagilightDocusaurus({ metadata: false });
+hagilightDocusaurus({ metadata: { name: 'HagiCode Docs', description: 'Documentation for HagiCode.' } });
+// @ts-expect-error The metadata option is a boolean or an options object.
+hagilightDocusaurus({ metadata: 'yes' });
+// @ts-expect-error Misspelled metadata fields are rejected.
+hagilightDocusaurus({ metadata: { title: 'HagiCode Docs' } });
 // @ts-expect-error Feature toggles are objects, so a bare boolean is rejected.
 hagilightDocusaurus({ sitemap: true });
 // @ts-expect-error Misspelled top-level option names are rejected.

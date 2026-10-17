@@ -38,5 +38,17 @@ const missingDescription: RssFeedCallback = () => ({ title: 'Feed', items: [] })
 hagilight({ contentImages: 'yes' });
 // @ts-expect-error The content-image enabled switch is a boolean.
 hagilight({ contentImages: { enabled: 'yes' } });
+hagilight({ metadata: false });
+hagilight({ metadata: true });
+hagilight({ metadata: { name: 'HagiCode Docs', description: 'Documentation for HagiCode.' } });
+hagilight({ metadata: { enabled: false } });
+// @ts-expect-error The metadata option is a boolean or an options object.
+hagilight({ metadata: 'yes' });
+// @ts-expect-error The metadata name is a string.
+hagilight({ metadata: { name: 42 } });
+// @ts-expect-error The metadata enabled switch is a boolean.
+hagilight({ metadata: { enabled: 'yes' } });
+// @ts-expect-error Misspelled metadata fields are rejected.
+hagilight({ metadata: { title: 'HagiCode Docs' } });
 
 export { integrations, missingDescription };

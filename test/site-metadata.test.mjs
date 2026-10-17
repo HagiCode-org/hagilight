@@ -290,3 +290,11 @@ test('the owner write runs once for both registration orders, after the deferrin
   reportSiteMetadataBuilt(secondPeer);
   assert.deepEqual(peerFirst, ['owner'], 'a repeated report does not write again');
 });
+
+test('the schema example in the core README validates against the contract', () => {
+  const readme = readFileSync(join(root, 'packages/core/README.md'), 'utf8');
+  const section = readme.slice(readme.indexOf('## Site metadata file'), readme.indexOf('## Comparison articles'));
+  const example = JSON.parse(section.match(/```json\n([\s\S]*?)```/u)[1]);
+  assert.deepEqual(validateSiteMetadata(example), []);
+  assert.equal(serializeSiteMetadata(example), `${JSON.stringify(example, null, 2)}\n`, 'the example already uses canonical key order');
+});

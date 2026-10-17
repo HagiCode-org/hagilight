@@ -1,6 +1,7 @@
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import { isValidSeoImageReference, resolveAbsoluteHttpUrl } from '@hagicode/hagilight-core/seo';
+import { resolveSiteMetadataOption, type SiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
 import {
   DEFAULT_FIFTY_ONE_LA_ID,
   DEFAULT_GOOGLE_ANALYTICS_ID,
@@ -46,7 +47,20 @@ export interface RssOptions extends FeatureToggle {
   includeBlog?: boolean;
 }
 
+export interface MetadataOptions extends FeatureToggle {
+  /** Site name. Defaults to `siteConfig.title`. */
+  name?: string;
+  /** Site description. Defaults to `siteConfig.tagline`. */
+  description?: string;
+}
+
 export interface HagilightDocusaurusOptions {
+  /**
+   * Write `.well-known/hagilight.metadata.json` at the end of the build. Defaults to `true`;
+   * `false` opts out, and an object may set `name` and `description`. A site-owned file in
+   * `static/.well-known/` is kept. Only the default locale build writes the file.
+   */
+  metadata?: boolean | MetadataOptions;
   footer?: FeatureToggle;
   links?: SiteLinksOptions;
   analytics?: AnalyticsOptions;
@@ -84,6 +98,7 @@ export interface ResolvedHagilightOptions {
   robots: boolean;
   rss: ResolvedRssOptions;
   noIndex: boolean;
+  metadata: SiteMetadataOption;
 }
 
 function invalid(path: string, reason: string): TypeError {
@@ -211,5 +226,6 @@ export function resolveOptions(input: HagilightDocusaurusOptions | undefined): R
     robots: featureEnabled(options.robots, 'robots'),
     rss: resolveRss(options.rss),
     noIndex: booleanOption(options.noIndex, 'noIndex') ?? false,
+    metadata: resolveSiteMetadataOption(options.metadata),
   };
 }
