@@ -2,6 +2,7 @@
 import Footer from '@hagicode/hagilight/Footer';
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
+import PostHog from '@hagicode/hagilight-core/PostHog';
 import { Picture } from 'astro:assets';
 import logo from '@hagicode/hagilight-core/logo.png';
 import favicon from '@hagicode/hagilight-core/favicon.ico';
@@ -92,6 +93,7 @@ const structuredData = [
 <!doctype html>
 <html lang={locale}>
   <head>
+    <PostHog />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
@@ -112,7 +114,7 @@ const structuredData = [
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href={isChinese ? `${basePath}zh-CN/` : basePath} aria-label="Hagilight">
+      <a class="brand" href={`${basePath}${isChinese ? 'zh-CN/' : 'en-US/'}`} aria-label="Hagilight">
         <Picture src={logo} formats={['avif', 'webp']} alt="" width={34} height={34} loading="eager" />
         <span>Hagilight</span>
         <span class="package-name">@hagicode/hagilight</span>
@@ -120,7 +122,7 @@ const structuredData = [
       <nav aria-label={languageLabel} class="header-actions">
         <a class="feed-link" href={feedPath}>{feedLabel}</a>
         <div class="language-nav">
-          <a href={basePath} lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
+          <a href={`${basePath}en-US/`} lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
           <a
             href={`${basePath}zh-CN/`}
             lang="zh-CN"

@@ -15,7 +15,7 @@ const viewports = [
   { width: 2560, height: 1440 },
 ];
 const routes = [
-  { site: 'core', path: '/', kind: 'core' },
+  { site: 'core', path: '/en-US/', kind: 'core' },
   { site: 'core', path: '/zh-CN/', kind: 'core' },
   { site: 'starlight', path: '/zh-CN/', kind: 'starlight' },
   { site: 'starlight', path: '/zh-Hant/', kind: 'starlight' },

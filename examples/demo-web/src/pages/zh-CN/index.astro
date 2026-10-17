@@ -9,6 +9,14 @@ const sections = [
     description: '以下展示的是实际加载的包组件，而不是仿制的静态界面。',
     features: [
       {
+        id: 'root-transit',
+        title: '根路径中转页',
+        kind: '可选页面 · 内置样式和动画',
+        summary: '根路径通过 @hagicode/hagilight-core/RootTransit 展示中转动画，然后进入英文页面。组件包含默认样式、路由光束、静态继续链接和自动导航。@hagicode/hagilight-core/root-transit 提供经过测试的 URL 和生命周期辅助函数。',
+        evidence: '访问根路径查看中转效果，也可以立即点击继续链接；中文深层链接仍直接打开本页。',
+        example: "import RootTransit from '@hagicode/hagilight-core/RootTransit';\n\n<RootTransit destination=\"/en-US/\" siteName=\"Hagilight\" />",
+      },
+      {
         id: 'footer',
         title: '本地化页脚',
         kind: '实时组件',
@@ -130,15 +138,15 @@ const sections = [
   {
     id: 'optional-integrations',
     title: '可选集成',
-    description: '以下仅为导入示例；本展示页不会加载分析脚本或发送访客数据。',
+    description: '本展示页在生产环境启用 PostHog；Google Analytics 与 51LA 保留为可选导入示例。',
     features: [
       {
         id: 'analytics',
-        title: 'Google Analytics 与 51LA',
+        title: 'PostHog、Google Analytics 与 51LA',
         kind: '可选 · 仅生产环境加载脚本',
-        summary: '两个组件都需要 ID，并且只会在生产构建中输出第三方跟踪脚本。GoogleAnalytics 还会把已标记链接的点击作为 link_click 或 download_click 事件上报；@hagicode/hagilight-core/analytics-events 提供带类型的标记构造函数。',
-        evidence: '本页没有挂载任一组件，因此构建后的示例不会跟踪访客。',
-        example: "import GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight-core/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}\n\nimport { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';\n\n<a href=\"/download\" {...gaEventAttributes({ category: 'download', label: 'customDownload', location: 'footer' })}>Download</a>",
+        summary: 'PostHog 无需传入参数，使用内置项目 key；Google Analytics 与 51LA 需要 ID。三个组件都只在生产构建中输出第三方跟踪脚本。GoogleAnalytics 还会把已标记链接的点击作为 link_click 或 download_click 事件上报；@hagicode/hagilight-core/analytics-events 提供带类型的标记构造函数。',
+        evidence: 'PostHog 在共享文档 head 中挂载一次，生产环境访问会向 HagiCode 的共享项目发送活动数据。',
+        example: "import PostHog from '@hagicode/hagilight-core/PostHog';\nimport { posthogInitScript } from '@hagicode/hagilight-core/posthog';\n\n<PostHog />\n\nimport GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight-core/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}\n\nimport { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';\n\n<a href=\"/download\" {...gaEventAttributes({ category: 'download', label: 'customDownload', location: 'footer' })}>Download</a>",
       },
     ],
   },

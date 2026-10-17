@@ -8,6 +8,7 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 import { verifyBuildInfo } from './build-info-assertions.mjs';
+import { verifyPostHog } from './posthog-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -37,6 +38,10 @@ function build(env, outputDir) {
     shell: process.platform === 'win32',
   });
   const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
+  assert.ok(pages.some((file) => /404(?:\.html|[\\/]index\.html)$/u.test(file)), 'PostHog checks cover the 404 page');
+  assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover localized pages');
+  for (const file of pages) verifyPostHog(read(file), file);
   read.bytes = (filename) => readFileSync(join(outputDir, filename));
   return read;
 }
@@ -246,7 +251,7 @@ function verifySeoOutput(read, basePath = '/') {
 
 function verifyCoreFooterOutput(read) {
   for (const [filename, expectedCanonical, sitemapLabel] of [
-    ['index.html', 'https://hagilight.hagicode.com/', 'Sitemap'],
+    ['en-US/index.html', 'https://hagilight.hagicode.com/en-US/', 'Sitemap'],
     ['zh-CN/index.html', 'https://hagilight.hagicode.com/zh-CN/', '站点地图'],
   ]) {
     const html = read(filename);
@@ -262,7 +267,7 @@ function verifyCoreFooterOutput(read) {
     assert.ok(footer, `${filename} has a core Footer`);
     const rssLinks = [...footer.matchAll(/<a\b[^>]*href="([^"]*rss[^"]*)"[^>]*>([^<]*)<\/a>/giu)]
       .map(([, href, label]) => [href, label]);
-    assert.deepEqual(rssLinks, filename === 'index.html'
+    assert.deepEqual(rssLinks, filename === 'en-US/index.html'
       ? [['https://hagilight.hagicode.com/rss.xml', 'RSS Feed']]
       : [
         ['https://hagilight.hagicode.com/rss.xml', 'RSS 订阅'],
@@ -278,8 +283,8 @@ function verifyCoreFooterOutput(read) {
   assert.match(english, /<language>en-US<\/language>/u);
   assert.match(chinese, /<language>zh-CN<\/language>/u);
   assert.deepEqual(itemLinks(english), [
-    'https://hagilight.hagicode.com/',
-    'https://hagilight.hagicode.com/#live-footer-example',
+    'https://hagilight.hagicode.com/en-US/',
+    'https://hagilight.hagicode.com/en-US/#live-footer-example',
   ]);
   assert.deepEqual(itemLinks(chinese), [
     'https://hagilight.hagicode.com/zh-CN/',
@@ -606,7 +611,7 @@ function verifyMarkdownPicture(picture, filename) {
 }
 
 function verifyMarkdownPictures(read) {
-  for (const filename of ['index.html', 'zh-CN/index.html']) {
+  for (const filename of ['en-US/index.html', 'zh-CN/index.html']) {
     const pictures = markdownPictures(read(filename));
     assert.equal(pictures.length, 2, `${filename} wraps both Markdown snippet images`);
     for (const picture of pictures) verifyMarkdownPicture(picture, filename);
@@ -684,6 +689,7 @@ verifyBodyImages(defaultFeeds);
 verifyMarkdownPage(defaultFeeds);
 verifyMdxPage(defaultFeeds);
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
+assert.doesNotMatch(englishHome, /data-root-transit/u, 'the non-opted-in Starlight consumer keeps its root content');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
 const traditionalChineseHome = readFileSync(
   join(root, 'examples/demo-starlight-web/dist/zh-Hant/index.html'),
@@ -731,6 +737,6 @@ verifyMarkdownPage(disabledFeeds, false);
 verifyMdxPage(disabledFeeds, false);
 const coreFooterFeeds = buildCoreFooter();
 verifyCoreFooterOutput(coreFooterFeeds);
-for (const page of ['index.html', 'zh-CN/index.html']) verifyBuildInfo(coreFooterFeeds(page), `core footer ${page}`);
+for (const page of ['en-US/index.html', 'zh-CN/index.html']) verifyBuildInfo(coreFooterFeeds(page), `core footer ${page}`);
 verifyMarkdownPictures(coreFooterFeeds);
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

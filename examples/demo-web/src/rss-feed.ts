@@ -9,12 +9,12 @@ const getFeed: RssFeedCallback = async ({ lang }) => {
         {
           title: 'Explore Hagilight core, without Starlight.',
           description: 'A standalone Astro tour of the shared components and integrations.',
-          link: '/',
+          link: '/en-US/',
         },
         {
           title: 'Review generated Footer feed links.',
           description: 'The English site pages use the integration-generated default feed.',
-          link: '/#live-footer-example',
+          link: '/en-US/#live-footer-example',
         },
       ],
     };
