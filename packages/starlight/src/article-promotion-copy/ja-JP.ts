@@ -4,13 +4,13 @@ const workbenchAlt = 'HagiCode のワークベンチ。保留中・進行中・�
 
 export default {
   title: 'HagiCode',
-  lead: 'HagiCode はエージェント型コーディングワークスペースです。OpenSpec ワークフローで変更を計画し、マルチエージェント実行で進め、Hero Dungeon で長い作業の進み具合を見える化して、アイデアを出荷できるソフトウェアにします。',
-  subheadline: 'よりスマートで速く、楽しいエージェント型ワークフローで、使いやすいソフトウェアを形にします。',
+  lead: 'HagiCode はエージェント型コーディングワークスペースです。豊富で便利な UI インタラクションにより、計画・エージェント実行・プロジェクト作業を始めやすく、進めやすくし、開発をより魅力的な体験にします。',
+  subheadline: '豊富で便利な UI インタラクションで、計画からプロジェクト作業までを分かりやすく進められます。',
   imageAlt: workbenchAlt,
   features: [
     { id: 'smart', label: 'スマート', description: 'OpenSpec ワークフローが意図を、提案・設計・タスクから変更のリリースまで実行可能な道筋にします。' },
     { id: 'efficient', label: '効率的', description: 'マルチエージェント実行で調査・実装・レビューを並行して進め、複数リポジトリや使い慣れた Agent CLI にも対応します。' },
-    { id: 'fun', label: '楽しい', description: 'Hero Dungeon が長時間のコーディングを、ヒーロー・進行状況・実績が見える冒険に変えます。' },
+    { id: 'fun', label: '興味深い', description: '豊富で便利な UI インタラクションにより、計画・エージェント実行・プロジェクト作業を始めやすく、進めやすくします。' },
   ],
   visitLabel: 'HagiCode を見る',
   docsLabel: 'ドキュメントを読む',
@@ -37,5 +37,5 @@ export default {
   windowsStoreAriaLabel: 'Microsoft Store で HagiCode を開く',
   allDownloadsLabel: 'すべてのダウンロード',
   shareLabel: 'HagiCode を共有',
-  shareText: 'HagiCode は OpenSpec ワークフロー、マルチエージェント実行、Hero Dungeon を備えたコーディングワークスペースです：https://www.hagicode.com/',
+  shareText: 'HagiCode は豊富で便利な UI インタラクションにより、計画・エージェント実行・プロジェクト作業を進めやすくします：https://www.hagicode.com/',
 } satisfies ArticlePromotionCopy;

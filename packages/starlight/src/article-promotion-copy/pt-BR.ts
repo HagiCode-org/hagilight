@@ -4,13 +4,13 @@ const workbenchAlt = 'Bancada do HagiCode com um quadro kanban de sessões nas c
 
 export default {
   title: 'HagiCode',
-  lead: 'O HagiCode é um ambiente de programação com agentes: os fluxos de trabalho do OpenSpec planejam a mudança, a execução multiagente a realiza e o Hero Dungeon torna o longo percurso visível, para transformar ideias em software entregue.',
-  subheadline: 'Transforme ideias em software útil com um fluxo de trabalho com agentes mais inteligente, rápido e agradável.',
+  lead: 'O HagiCode é um ambiente de programação com agentes. Interações de interface ricas e práticas tornam o planejamento, a execução de agentes e o trabalho em projetos mais acessíveis e fáceis de acompanhar, criando uma experiência de desenvolvimento envolvente.',
+  subheadline: 'Uma experiência de desenvolvimento envolvente, com interações de interface ricas e práticas.',
   imageAlt: workbenchAlt,
   features: [
     { id: 'smart', label: 'Inteligente', description: 'Os fluxos de trabalho do OpenSpec transformam a intenção em um caminho executável, da proposta ao design, às tarefas e à entrega.' },
     { id: 'efficient', label: 'Eficiente', description: 'A execução multiagente mantém pesquisa, implementação e revisão em andamento em paralelo, em vários repositórios e com os Agent CLI que você já usa.' },
-    { id: 'fun', label: 'Divertido', description: 'O Hero Dungeon transforma longas sessões de programação em uma aventura visível, com heróis, progresso e conquistas.' },
+    { id: 'fun', label: 'Interessante', description: 'Interações de interface ricas e práticas tornam o planejamento, a execução de agentes e o trabalho em projetos mais acessíveis e fáceis de acompanhar.' },
   ],
   visitLabel: 'Acessar HagiCode',
   docsLabel: 'Ler a documentação',
@@ -37,5 +37,5 @@ export default {
   windowsStoreAriaLabel: 'Abrir o HagiCode na Microsoft Store',
   allDownloadsLabel: 'Todos os downloads',
   shareLabel: 'Compartilhar o HagiCode',
-  shareText: 'O HagiCode é um ambiente de programação com agentes, com fluxos de trabalho do OpenSpec, execução multiagente e Hero Dungeon: https://www.hagicode.com/',
+  shareText: 'O HagiCode torna o planejamento, a execução de agentes e o trabalho em projetos mais acessíveis por meio de interações de interface ricas e práticas: https://www.hagicode.com/',
 } satisfies ArticlePromotionCopy;

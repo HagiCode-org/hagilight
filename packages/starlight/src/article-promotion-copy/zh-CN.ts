@@ -4,13 +4,13 @@ const workbenchAlt = 'HagiCode 工作台截图，会话看板分为待处理、�
 
 export default {
   title: 'HagiCode',
-  lead: 'HagiCode 是面向项目开发的 AI 编码工作台：用 OpenSpec 工作流规划变更，多 Agent 并行执行，再由 Hero Dungeon 让进度一目了然，把想法变成真正交付的软件。',
-  subheadline: '让想法更快变成好用的软件，让智能编码更聪明、更高效，也更有趣。',
+  lead: 'HagiCode 是面向项目开发的 AI 编码工作台：丰富、便捷的界面交互让规划、Agent 执行与项目工作更容易上手和跟进，带来更投入的开发体验。',
+  subheadline: '丰富、便捷的界面交互，让规划、Agent 执行与项目工作更容易上手和跟进。',
   imageAlt: workbenchAlt,
   features: [
     { id: 'smart', label: '智能', description: 'OpenSpec 工作流把意图转化为从提案、设计、任务到交付的可执行路径。' },
     { id: 'efficient', label: '高效', description: '多 Agent 并行推进调研、实现与审阅，并支持多仓库变更和你熟悉的 Agent CLI。' },
-    { id: 'fun', label: '有趣', description: 'Hero Dungeon 让长时间编码协作变成看得见的冒险：英雄、进度与成就一目了然。' },
+    { id: 'fun', label: '有趣', description: '丰富、便捷的界面交互让规划、Agent 执行与项目工作更容易上手和跟进，带来更投入的开发体验。' },
   ],
   visitLabel: '访问 HagiCode',
   docsLabel: '阅读文档',
@@ -37,5 +37,5 @@ export default {
   windowsStoreAriaLabel: '在 Microsoft Store 中打开 HagiCode',
   allDownloadsLabel: '全部下载',
   shareLabel: '分享 HagiCode',
-  shareText: 'HagiCode 是一套集 OpenSpec 工作流、多 Agent 并行执行与 Hero Dungeon 于一体的编码工作台：https://www.hagicode.com/',
+  shareText: 'HagiCode 通过丰富、便捷的界面交互，让规划、Agent 执行与项目工作更容易上手和跟进：https://www.hagicode.com/',
 } satisfies ArticlePromotionCopy;

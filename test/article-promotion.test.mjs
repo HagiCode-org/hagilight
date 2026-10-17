@@ -76,11 +76,11 @@ test('showcase copy covers all ten locales with identical structure and no empty
 
 test('showcase copy keeps brand and product terms untranslated in every locale', () => {
   for (const [locale, copy] of Object.entries(COPY)) {
-    for (const term of ['HagiCode', 'OpenSpec', 'Hero Dungeon']) {
-      assert.ok(copy.lead.includes(term), `${locale} lead names ${term}`);
-    }
+    assert.ok(copy.lead.includes('HagiCode'), `${locale} lead names HagiCode`);
     assert.ok(copy.features[0].description.includes('OpenSpec'), `${locale} smart card names OpenSpec`);
-    assert.ok(copy.features[2].description.includes('Hero Dungeon'), `${locale} fun card names Hero Dungeon`);
+    assert.ok(copy.features[1].description.toLowerCase().includes(GLOSSARY[locale].multiAgent.toLowerCase()), `${locale} efficient card names multi-agent work`);
+    assert.ok(copy.gallery.find(({ id }) => id === 'heroes')?.caption.includes('Hero Dungeon'), `${locale} feature gallery names Hero Dungeon`);
+    assert.ok(!copy.features[2].description.includes('Hero Dungeon'), `${locale} Interesting card leads with UI interactions`);
     assert.ok(copy.windowsLabel.includes('Windows'), `${locale} Windows label`);
     assert.ok(copy.windowsStoreLabel.includes('Microsoft Store'), `${locale} Store fallback label`);
     assert.ok(copy.windowsStoreAriaLabel.includes('Microsoft Store'), `${locale} Store accessible name`);
@@ -102,12 +102,10 @@ test('showcase copy follows the per-locale glossary', () => {
       [glossary.pillars.smart, glossary.pillars.efficient, glossary.pillars.fun],
       `${locale} pillar labels`,
     );
-    assert.ok(includes(copy.lead, glossary.multiAgent), `${locale} lead uses the multi-agent term`);
     assert.ok(includes(copy.features[1].description, glossary.multiAgent), `${locale} efficient card uses the multi-agent term`);
-    assert.ok(includes(copy.lead, glossary.workflow), `${locale} lead uses the workflow term`);
     assert.ok(includes(copy.features[0].description, glossary.workflow), `${locale} smart card uses the workflow term`);
     assert.ok(includes(copy.docsLabel, glossary.documentation), `${locale} docs label uses the documentation term`);
-    assert.ok(includes(copy.shareText, glossary.multiAgent), `${locale} share text uses the multi-agent term`);
+    assert.ok(copy.shareText.includes(copy.title), `${locale} share text names the product`);
     for (const [field, text] of visibleStrings(copy)) {
       for (const variant of glossary.avoid) {
         assert.ok(!includes(text, variant), `${locale} ${field} uses the avoided variant ${variant}`);

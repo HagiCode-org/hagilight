@@ -4,13 +4,13 @@ const workbenchAlt = 'HagiCode workbench showing a session kanban board with Pen
 
 export default {
   title: 'HagiCode',
-  lead: 'HagiCode is an agentic coding workspace. OpenSpec workflows plan the change, multi-agent execution carries it out, and Hero Dungeon makes the long run visible, so ideas become shipped software.',
-  subheadline: 'Turn ideas into polished, usable software with a smarter, faster, and more enjoyable agentic coding workflow.',
+  lead: 'HagiCode is an agentic coding workspace. Rich, convenient UI interactions make planning, agent execution, and project work approachable and easy to navigate, creating an engaging development experience.',
+  subheadline: 'Explore an engaging development experience through rich, convenient UI interactions.',
   imageAlt: workbenchAlt,
   features: [
     { id: 'smart', label: 'Smart', description: 'OpenSpec workflows turn intent into an executable path, from proposal to design, tasks, and a shipped change.' },
     { id: 'efficient', label: 'Efficient', description: 'Multi-agent execution keeps research, implementation, and review moving in parallel, across several repositories and the Agent CLIs you already use.' },
-    { id: 'fun', label: 'Fun', description: 'Hero Dungeon turns long coding sessions into a visible, collaborative adventure with heroes, progress, and achievements.' },
+    { id: 'fun', label: 'Interesting', description: 'Rich, convenient UI interactions make planning, agent execution, and project work approachable and easy to navigate.' },
   ],
   visitLabel: 'Visit HagiCode',
   docsLabel: 'Read the documentation',
@@ -37,5 +37,5 @@ export default {
   windowsStoreAriaLabel: 'Open HagiCode on Microsoft Store',
   allDownloadsLabel: 'All downloads',
   shareLabel: 'Share HagiCode',
-  shareText: 'HagiCode is an agentic coding workspace with OpenSpec workflows, multi-agent execution, and Hero Dungeon: https://www.hagicode.com/',
+  shareText: 'HagiCode makes planning, agent execution, and project work approachable through rich, convenient UI interactions: https://www.hagicode.com/',
 } satisfies ArticlePromotionCopy;
