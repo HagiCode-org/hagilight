@@ -26,7 +26,7 @@ test('the footer product statement covers every locale with all three pillars', 
     }
     assert.match(brand.summary, /HagiCode|Hagi/u);
     assert.match(brand.summary, /OpenSpec/u);
-    assert.match(brand.summary, /Hero Dungeon/u);
+    assert.match(brand.summary, /Hero Scenario/u);
   }
 });
 
