@@ -1,0 +1,11 @@
+# Explore Hagilight core, without Starlight. — Hagilight
+
+> A bilingual, standalone Astro tour of the shared components and build integrations in @hagicode/hagilight.
+
+## Overview
+
+- [Explore Hagilight core, without Starlight. — Hagilight](https://hagilight.hagicode.com/en-US/): A bilingual, standalone Astro tour of the shared components and build integrations in @hagicode/hagilight.
+
+## Optional
+
+- [zh-CN](https://hagilight.hagicode.com/zh-CN/)
