@@ -29,6 +29,43 @@ export default defineConfig({
 
 The plugin also exposes `@hagicode/hagilight-starlight/schema` for optional SEO frontmatter and individual Astro components such as `/Header` and `/MarkdownContent` for custom Starlight overrides. Configure features through the typed `HagilightStarlightOptions` passed to `hagilight()`.
 
+### Analytics
+
+`hagilight()` enables PostHog without analytics configuration, an enabled flag, or a consumer project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. Google Analytics and PostHog render together in the generated global Head; 51LA stays in the Footer. PostHog covers all production pages, including localized and 404 pages, independently of Google's existing 404 exclusion. Development pages emit no PostHog loader.
+
+PostHog options follow the Google Analytics provider convention:
+
+| PostHog input | Behavior |
+| --- | --- |
+| Plugin options omitted, `analytics: {}`, or `posthog` omitted | Enabled with the supplied default key |
+| `posthog: {}` | Disabled, like an empty Google Analytics provider |
+| `posthog: { apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true, apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true }` | Configuration error: `apiKey` required |
+| `posthog: { enabled: false }` | Disabled independently of Google Analytics and 51LA |
+
+Keys must match `^phc_[A-Za-z0-9]+$`; enabled providers reject missing or malformed keys. Provider options must be objects and `enabled` must be boolean.
+
+```js
+hagilight(); // shared analytics defaults
+hagilight({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
+hagilight({ analytics: { posthog: { enabled: false } } });
+```
+
+A site-owned `components.Head` conflicts with enabled SEO, Google Analytics, or PostHog. To retain it, disable all three head features and explicitly compose the desired metadata and `@hagicode/hagilight-core/GoogleAnalytics` / `@hagicode/hagilight-core/PostHog` components in that Head:
+
+```js
+hagilight({
+  seo: { enabled: false },
+  analytics: {
+    googleAnalytics: { enabled: false },
+    posthog: { enabled: false },
+  },
+});
+```
+
+The shared component initializes once per document; SDK defaults own PostHog navigation behavior. Choose one initialization owner and disable this provider when the site already initializes PostHog. Google Analytics and 51LA keep their configured behavior when PostHog is disabled.
+
 ### Theme picker
 
 By default the plugin replaces Starlight's light/dark toggle with a theme picker offering nine choices: the default theme plus the Ocean, Sakura, and Forest themes in light and dark, and a "Default" choice that follows the visitor's system color scheme and renders the Forest theme. First-time visitors, and visitors with an invalid saved choice, therefore see Forest; the other themes appear only after an explicit selection, which is remembered in `localStorage`.

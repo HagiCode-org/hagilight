@@ -14,10 +14,17 @@ npm run build:core-footer-example
 node --test test/demo-web-output.test.mjs
 ```
 
+The root `/` explicitly adopts `@hagicode/hagilight-core/RootTransit` and forwards
+in 1,570 ms to `/en-US/`, where the original English showcase now lives. The
+initial continuation link works without scripts; the Chinese link goes directly
+to `/zh-CN/`. No other demo or consumer adopts this automatically. See the core
+README for destination validation, deployment bases and query/fragment behavior.
+
 ## Export-to-example map
 
 | Export | Where to see it |
 | --- | --- |
+| `@hagicode/hagilight-core/RootTransit`, `/root-transit` | The root page imports only the public component; the English and Chinese feature lists show the minimal import, with all styles and effects bundled |
 | `@hagicode/hagilight-core/Footer` | The rendered localized footer at the bottom of either page |
 | `@hagicode/hagilight/SEOHead` | Canonical URL and Open Graph/Twitter metadata in each page head |
 | `@hagicode/hagilight/integration` | Registered `hagilight()` generates a sitemap, robots.txt, and RSS feeds by default; `rss: { getFeed: './src/rss-feed.ts' }` registers localized routes and Footer feed URLs from the typed `src/rss-feed.ts`; `hagilightFavicon()` is registered in `astro.config.mjs` |
@@ -44,10 +51,10 @@ node --test test/demo-web-output.test.mjs
   origin root (`/robots.txt`) when deployed under a base path.
 - Hagilight does not generate `llms.txt`; add a consumer-owned file with
   localized links only when wanted, or omit it to publish no AI discovery file.
-- Use the feature index to navigate to each live or instructional example. Switch between `/` and `/zh-CN/` to compare localized page content and footer links.
+- Use the feature index to navigate to each live or instructional example. Switch between `/en-US/` and `/zh-CN/` to compare localized page content and footer links.
 - The logo is in the header; scroll to the bottom to inspect the real Footer and Copyright. The promotion component may show an eligible remote campaign instead of the local fallback. When the fallback is used, its link jumps to the footer and the banner yields that area.
 - Inspect the built page source or document head for each route's canonical URL, sharing metadata, JSON-LD, favicon link, and RSS alternate. The favicon and localized RSS integrations are registered in the Astro config; the layout also imports the exported `.ico` asset for a deterministic static `<link>`.
-- Follow the RSS link in the page header or footer, or open `/rss.xml`, `/rss.en.xml`, or `/rss.zh-CN.xml`. The per-language metadata and entries come from `src/rss-feed.mjs`; the integration owns the generated routes and Footer links.
+- Follow the RSS link in the page header or footer, or open `/rss.xml`, `/rss.en.xml`, or `/rss.zh-CN.xml`. The per-language metadata and entries come from `src/rss-feed.ts`; the integration owns the generated routes and Footer links.
 - Analytics components emit scripts only in production and require `measurementId` (`GoogleAnalytics`) or `siteId` (`Analytics51LA`). Add the documented component to a consumer layout only when intentionally opting in with the site's IDs. This showcase does not mount them or load tracking scripts.
 - The focused output test builds the demo and checks both locale pages, all package exports, head/feed output, and the absence of analytics tracking scripts. Its CSS assertions cover narrow-layout, keyboard focus, and reduced-motion rules.
 

@@ -50,6 +50,7 @@ Every option is optional. Feature toggles take an object with `enabled`, which d
 | `footer` | `{ enabled: true }` | Replaces the Docusaurus footer with the Hagilight footer. Uses `links`. |
 | `links` | `{}` | Site link configuration from `@hagicode/hagilight-core`: `overrides`, `extraLinks`, `removeLinks`, `relatedSites`, `rssFeedUrl`, `rssLocaleFeedUrl`, `siteId`, `siteUrl`. |
 | `analytics.googleAnalytics` | built-in ID, enabled | `{ enabled, measurementId }`. Loads gtag in production builds only. |
+| `analytics.posthog` | built-in key, enabled | `{ enabled, apiKey }`. Loads PostHog in the global head in production builds only. |
 | `analytics.fiftyOneLa` | built-in ID, enabled | `{ enabled, siteId }`. Loads 51LA in production builds only. |
 | `promoto` | `{ enabled: true }` | Shows the promotion banner and its styles. |
 | `languageSelector` | `{ enabled: true }` | Controls the locale configuration warnings. It does not render a dropdown. Add `{ type: 'localeDropdown' }` to `themeConfig.navbar.items` for the switcher. |
@@ -61,9 +62,37 @@ Every option is optional. Feature toggles take an object with `enabled`, which d
 
 ### Analytics defaults
 
-The built-in analytics IDs (`G-EN03FMT2Q4` and 51LA `L6b88a5yK4h2Xnci`) belong to HagiCode. A site that omits `analytics` sends its traffic to HagiCode's properties. Set your own IDs, or disable each provider with `enabled: false`.
+The built-in analytics IDs (`G-EN03FMT2Q4`, 51LA `L6b88a5yK4h2Xnci`, and PostHog `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`) belong to HagiCode. A site that omits `analytics` sends its traffic to HagiCode's properties. Set your own IDs, or disable each provider with `enabled: false`.
 
 An analytics object enables its provider when it contains an ID. Set `enabled` explicitly to override that. `enabled: true` with no ID is a configuration error.
+
+PostHog needs no configuration or consumer project key when registering `hagilightDocusaurus()`. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. Its single inline initialization shares the global head with Google Analytics on every production HTML page, including localized docs, blogs and not-found pages. No PostHog loader is emitted outside production.
+
+| PostHog input | Behavior |
+| --- | --- |
+| Plugin options omitted, `analytics: {}`, or `posthog` omitted | Enabled with the supplied default key |
+| `posthog: {}` | Disabled, like an empty Google Analytics provider |
+| `posthog: { apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true, apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true }` | Configuration error: `apiKey` required |
+| `posthog: { enabled: false }` | Disabled independently of Google Analytics and 51LA |
+
+Keys must match `^phc_[A-Za-z0-9]+$`; enabled providers reject missing or malformed keys. Provider options must be objects and `enabled` must be boolean.
+
+```js
+hagilightDocusaurus(); // shared analytics defaults
+hagilightDocusaurus({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
+hagilightDocusaurus({ analytics: { posthog: { enabled: false } } });
+hagilightDocusaurus({
+  analytics: {
+    googleAnalytics: { enabled: false },
+    fiftyOneLa: { enabled: false },
+    posthog: { enabled: false },
+  },
+}); // all analytics disabled
+```
+
+Each provider is independent: disabling Google Analytics and 51LA alone leaves PostHog enabled. Choose one PostHog initialization owner and opt out here if the site already supplies it. The loader initializes once per document, and the supplied SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. The existing analytics client module remains registered only for Google Analytics and 51LA, preserving their navigation behavior.
 
 ### SEO
 

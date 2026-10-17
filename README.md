@@ -55,9 +55,10 @@ Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Ast
 | `@hagicode/hagilight-core/rss-ownership` | Coordination that keeps one integration as the RSS route owner |
 | `@hagicode/hagilight-core/promotions` | Typed promotion campaign loader |
 | `@hagicode/hagilight-core/promoto-banner` | `definePromotoBannerElement()`, the promotion banner custom element used by the Docusaurus package |
+| `@hagicode/hagilight-core/posthog` | Browser-safe `posthogInitScript()` with typed defaults and validated custom keys |
 | `@hagicode/hagilight-core/analytics-events` | Google Analytics click-event tags (`gaEventAttributes()`, `siteLinkGaAttributes()`) and the tracked-link table |
 | `@hagicode/hagilight-core/Footer` | Localized footer with generated RSS and sitemap links |
-| `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/Analytics51LA` | Astro components |
+| `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/PostHog`, `/Analytics51LA` | Astro components |
 | `@hagicode/hagilight-core/logo.png`, `/favicon.ico` | Brand assets |
 
 ## `@hagicode/hagilight`
@@ -82,7 +83,7 @@ A Starlight plugin (`@astrojs/starlight` `^0.42.4`, `astro` `^7.3.5`) that adds
 the localized header, language chooser, and footer links; content-width toggle;
 custom 404 page; end-of-article HagiCode introduction; floating promotion
 banner; AI translation or authorship disclosures; SEO metadata and multilingual
-page discovery; RSS feeds; Google Analytics and 51LA; and the shared favicon.
+page discovery; RSS feeds; Google Analytics, PostHog and 51LA; and the shared favicon.
 Its Footer appends `Powered By hagilight-starlight@<version>` using the exact
 build-time version from the `@hagicode/hagilight-starlight` manifest, not the
 Astro or Starlight dependency version.
@@ -145,6 +146,14 @@ export default {
 ```
 
 The built-in analytics IDs belong to HagiCode, so set your own IDs or disable each provider. Every option, its default, and the sitemap, `robots.txt`, and RSS rules are in the [package README](packages/docusaurus/README.md). The demo in `examples/demo-docusaurus-web` is published at https://docusaurus.hagicode.com/.
+
+## PostHog analytics
+
+Starlight's `hagilight()` and Docusaurus's `hagilightDocusaurus()` enable PostHog without configuration or a consumer key. The supplied defaults are `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It loads asynchronously from `https://us-assets.i.posthog.com/static/array.js`, only in production, once per document.
+
+For plain Astro, compose `import PostHog from '@hagicode/hagilight-core/PostHog'` and `<PostHog />` once in the common layout's `<head>`, alongside `@hagicode/hagilight-core/GoogleAnalytics` when configured. The demo also composes it in its transit page's head slot. The integration does not inject it automatically. Non-Astro consumers use `posthogInitScript()` from `@hagicode/hagilight-core/posthog` without requiring Astro.
+
+Both plugins accept `analytics.posthog: { enabled?, apiKey? }`, like Google Analytics: omitted options use the shared default; `{}` disables the provider; an explicit `enabled: true` requires a valid key. Use `{ apiKey: 'phc_Custom123' }` for another project or `{ enabled: false }` to opt out independently. The built-in project belongs to HagiCode. SDK defaults own PostHog navigation behavior. Keep one initialization owner; disable the provider if the site supplies PostHog itself. Starlight's generated Head owns SEO, GA and PostHog; preserving a custom Head requires disabling these features and composing them explicitly. See the [core](packages/core/README.md#posthog), [Starlight](packages/starlight/README.md#analytics), and [Docusaurus](packages/docusaurus/README.md#analytics-defaults) usage.
 
 ## First-party links and campaign tags
 

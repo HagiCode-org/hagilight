@@ -29,13 +29,77 @@ attribution by itself. Plain-Astro sites that want the literal
 `@hagicode/hagilight/Footer`; that component reads the exact build-time version
 from `@hagicode/hagilight`'s own manifest, not from Astro.
 
-Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, and `Analytics51LA` Astro components; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, and `analytics-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
+Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, and `analytics-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
 
 ```ts
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 
 const links = resolveSiteLinks('en-US');
 ```
+
+## Root transit (explicit opt-in)
+
+Use this full-page component in an Astro root route (`src/pages/index.astro`):
+
+```astro
+---
+import RootTransit from '@hagicode/hagilight-core/RootTransit';
+---
+<RootTransit destination="/en-US/" siteName="My site" />
+```
+
+Create the destination page first, for example `src/pages/en-US/index.astro`.
+The component includes the official root transit's layout, dark/light colors,
+system font stacks, outline-to-solid route sweep, beam, staggered trace and
+continuation chip. It bundles its logo and favicon locally; no custom CSS,
+animation setup, feature package, third-party resource or analytics is required.
+The trace shows the actual configured destination, base and origin rather than
+performing the official website's locale detection. Installing core alone never
+changes routes. Consumers that do not import this page keep their current root.
+
+`destination` and nonblank `siteName` are required. Optional `locale` (default
+`en-US`), `heading`, `message`, and `continueLabel` supply the site's translated
+copy. `links={[{ destination: '/zh-CN/', label: '简体中文', lang: 'zh-CN' }]}`
+adds native alternative-language links without introducing locale selection or
+storage rules. Named `head` and `footer` slots accept site-owned metadata and
+quick links. Hagilight's demo is an adoption example with English at `/en-US/`
+and Chinese at `/zh-CN/`; its separate Starlight demo does not opt in.
+
+The deployment base comes from Astro's `BASE_URL`. Local `en-US/` or `/en-US/`
+is relative to that base; an already based `/manual/en-US/` stays unchanged.
+An absolute HTTP(S) URL must match `Astro.site` (or the request origin if absent)
+and already lie within the base. Missing/blank destinations, external origins,
+unsupported schemes, traversal outside the base and root aliases (including
+`index.html`) throw `TypeError` prefixed `Hagilight RootTransit` during rendering
+or static generation. Choose a supported content route, not the transit root.
+The browser-safe `@hagicode/hagilight-core/root-transit` entry point exposes the
+same destination resolver, navigation resolver, mount helper and interval.
+
+After mounting, the page replaces the current history entry after **1,570 ms**:
+the reference's 1,250 ms sweep plus 320 ms hold. Motion preferences suppress
+animation without changing forwarding. The clock does not wait for animation
+events, fonts or images. A normal continuation activation replaces immediately;
+modified clicks retain native behavior. Leaving the document or an Astro
+`astro:before-swap` event cancels the timer; `astro:page-load` mounts a newly
+rendered transit page once. Back therefore does not re-enter an automatic loop.
+
+With scripting, incoming search and fragment replace their configured counterparts
+when nonempty, and the continuation anchor and timer share the resulting URL.
+For example, `/manual/?utm=a#features` forwards to
+`/manual/en-US/?utm=a#features`. A `?lang=` or `?next=` value is preserved as data
+and never selects the destination. Without JavaScript (or if the script fails),
+initial HTML still contains the heading, message and a working native link to the
+configured landing page. Static HTML cannot carry a browser-only fragment or
+request query into that link; automatic forwarding requires scripting.
+
+Run `node --test test/root-transit.test.mjs` after building for URL/timer checks,
+and `node test/root-transit-browser.mjs` for the minimal-consumer, responsive,
+no-script, reduced-motion, base and history checks.
+The latter also runs through `npm run test:viewport`. To compare a locally built
+reference without changing it, set `HAGILIGHT_TRANSIT_REFERENCE_DIR` to the
+official site's `dist` directory. Matching 1440/375 px captures at 625/1,250 ms
+are written to `HAGILIGHT_ARTIFACT_DIR` (default `/tmp/hagilight-root-transit`),
+alongside 320/375/1440 px light/dark, minimal-consumer and base-path captures.
 
 ## Build info
 
@@ -167,6 +231,44 @@ Decision, recorded 2026-10-15 under the `first-party-link-policy-and-attribution
 - Other hosts that appear in the sites, such as `hagicode-org.github.io` and Azure blob storage, are third-party under this policy and are outside the decision.
 - Constraints that any future linker must respect: one `gtag('config', id)` call per page, so a `linker` setting is added to that single call in `GoogleAnalytics.astro`; the sites with their own inline `gtag` copies would each need the same change; and `_gl` must never reach canonical or sitemap URLs.
 - Revisit this decision when a HagiCode-owned site runs the shared `gtag` on a registrable domain other than `hagicode.com`, or when a first-party destination on another domain also runs HagiCode's `gtag` and needs session continuity. Then list the host, add it to the linker in the single `config` call, and update the GA reference document, which lives in the monorepo root and needs its owner's follow-up edit.
+
+## PostHog
+
+Render the component once in the global layout's `<head>`, alongside Google Analytics when configured:
+
+```astro
+---
+import PostHog from '@hagicode/hagilight-core/PostHog';
+import GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';
+---
+<html>
+  <head>
+    <PostHog />
+    <GoogleAnalytics measurementId="G-EN03FMT2Q4" />
+  </head>
+  <body><slot /></body>
+</html>
+```
+
+`<PostHog />` needs no enabled flag or project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It emits no loader or initialization outside production. The SDK is loaded asynchronously with anonymous cross-origin mode from `https://us-assets.i.posthog.com/static/array.js`.
+
+For a different project, pass `<PostHog apiKey="phc_Custom123" />`. Keys must match `^phc_[A-Za-z0-9]+$`; invalid values fail rendering before a script is emitted. The host and defaults version stay fixed.
+
+Non-Astro integrations can import the browser-safe ESM generator and its declarations without installing Astro:
+
+```ts
+import {
+  posthogInitScript,
+  DEFAULT_POSTHOG_API_KEY,
+  POSTHOG_API_HOST,
+  POSTHOG_DEFAULTS,
+  POSTHOG_API_KEY_PATTERN,
+} from '@hagicode/hagilight-core/posthog';
+
+const script = posthogInitScript(); // optional custom key as the only argument
+```
+
+Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro integration does not inject analytics automatically; the demo composes this component in its shared head (and in its transit page's head slot).
 
 ## Google Analytics click events
 
