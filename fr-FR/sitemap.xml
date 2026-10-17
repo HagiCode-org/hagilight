@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/blog</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/blog/archive</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/blog/introducing-hagilight-docusaurus</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/docs/features</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/docs/intro</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/docs/options</loc>
+  </url>
+  <url>
+    <loc>https://docusaurus.hagicode.com/fr-FR/</loc>
+  </url>
+</urlset>
