@@ -1,4 +1,9 @@
 import type { HtmlTagObject } from '@docusaurus/types';
+import { posthogInitScript } from '@hagicode/hagilight-core/posthog';
+
+export function posthogHeadTags(apiKey: string): HtmlTagObject[] {
+  return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey) }];
+}
 
 export const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';
 export const DEFAULT_FIFTY_ONE_LA_ID = 'L6b88a5yK4h2Xnci';

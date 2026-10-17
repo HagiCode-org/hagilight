@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { defaultLocale, locales } from '../packages/docusaurus/dist/locales.js';
 import { verifyBuildInfo } from '../scripts/build-info-assertions.mjs';
+import { executableScripts, verifyPostHog } from '../scripts/posthog-assertions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const variants = join(root, 'examples/demo-docusaurus-web/node_modules/.hagilight-variants');
@@ -86,6 +87,7 @@ test('analytics disabled emits no tracker loader or analytics id in any page scr
   for (const file of emitted) {
     const text = readFileSync(file, 'utf8');
     const name = relative(disabledDist, file);
+    assert.doesNotMatch(file.endsWith('.html') ? executableScripts(text) : text, /posthog\.init|posthog\.com|__hagilightPosthogInitialized/u, `${name} has no executable PostHog`);
     assert.doesNotMatch(text, /googletagmanager\.com\/gtag\/js|sdk\.51\.la\//u, `${name} loads no analytics script`);
     for (const [, body] of text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gu)) {
       assert.ok(
@@ -94,6 +96,14 @@ test('analytics disabled emits no tracker loader or analytics id in any page scr
       );
     }
   }
+});
+
+test('every production HTML page initializes PostHog once in its head, including localized docs, blogs and 404', () => {
+  const htmlFiles = filesUnder(enabledDist).filter((file) => file.endsWith('.html'));
+  for (const expected of ['docs/', 'blog/', 'zh-CN/', '404.html']) {
+    assert.ok(htmlFiles.some((file) => relative(enabledDist, file).replaceAll('\\', '/').includes(expected)), `covers ${expected}`);
+  }
+  for (const file of htmlFiles) verifyPostHog(readFileSync(file, 'utf8'), relative(enabledDist, file));
 });
 
 test('client bundle mounts the promote banner', () => {

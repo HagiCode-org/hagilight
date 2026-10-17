@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, test } from 'node:test';
+import { DEFAULT_POSTHOG_API_KEY, posthogInitScript } from '@hagicode/hagilight-core/posthog';
 
 const { hagilightDocusaurus, default: defaultExport } = await import(
   new URL('../packages/docusaurus/dist/index.js', import.meta.url).href
@@ -83,6 +84,7 @@ test('registering with no options enables every standard feature', () => {
   assert.equal(options.footer, true);
   assert.equal(options.googleAnalyticsId, 'G-EN03FMT2Q4');
   assert.equal(options.fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+  assert.equal(options.posthogApiKey, DEFAULT_POSTHOG_API_KEY);
   assert.equal(options.promoto, true);
   assert.equal(options.languageSelector, true);
   assert.equal(options.seo.enabled, true);
@@ -137,7 +139,7 @@ test('valid overrides replace the default analytics IDs', () => {
 
 test('a disabled analytics provider resolves to no ID', () => {
   const { options } = capturedGlobalData(
-    createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } } }),
+    createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } } }),
   );
   assert.equal(options.googleAnalyticsId, undefined);
   assert.equal(options.fiftyOneLaId, undefined);
@@ -252,7 +254,7 @@ test('analytics head tags appear only in production builds', () => {
 
 test('a disabled provider leaves no head tags behind', () => {
   process.env.NODE_ENV = 'production';
-  const plugin = createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } } });
+  const plugin = createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } } });
   assert.deepEqual(nonSeoHeadTags(plugin), []);
   assert.deepEqual(plugin.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css']);
 });
@@ -285,4 +287,57 @@ test('the theme path is omitted when the footer and SEO are both disabled', () =
 test('the theme path stays while only the footer is disabled, for the SEO sharing wrapper', () => {
   const plugin = createPlugin({ footer: { enabled: false } });
   assert.ok(plugin.getThemePath, 'theme path is exposed while SEO is enabled');
+});
+
+test('PostHog defaults and supplied options follow the Google Analytics convention', () => {
+  for (const input of [undefined, {}, { analytics: {} }, {
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  }]) {
+    assert.equal(capturedGlobalData(createPlugin(input)).options.posthogApiKey, DEFAULT_POSTHOG_API_KEY);
+  }
+  for (const posthog of [{}, { enabled: false }, { enabled: false, apiKey: 'bad' }]) {
+    const { options } = capturedGlobalData(createPlugin({ analytics: { posthog } }));
+    assert.equal(options.posthogApiKey, undefined);
+    assert.equal(options.googleAnalyticsId, 'G-EN03FMT2Q4');
+    assert.equal(options.fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+  }
+  for (const posthog of [{ apiKey: 'phc_Custom123' }, { enabled: true, apiKey: 'phc_Custom123' }]) {
+    assert.equal(capturedGlobalData(createPlugin({ analytics: { posthog } })).options.posthogApiKey, 'phc_Custom123');
+  }
+  assert.throws(() => hagilightDocusaurus({ analytics: { posthog: { enabled: true } } }), /analytics\.posthog\.apiKey.*required/u);
+  for (const posthog of [null, [], true, 'key']) {
+    assert.throws(() => hagilightDocusaurus({ analytics: { posthog } }), /analytics\.posthog.*object/u);
+  }
+  for (const enabled of ['yes', 1, null]) {
+    assert.throws(() => hagilightDocusaurus({ analytics: { posthog: { enabled } } }), /analytics\.posthog\.enabled.*boolean/u);
+  }
+  for (const apiKey of ['', 'bad', 'phc_', 'phc_Test-1', '</script>', 42, null]) {
+    assert.throws(() => hagilightDocusaurus({ analytics: { posthog: { enabled: true, apiKey } } }), /analytics\.posthog\.apiKey/u);
+  }
+});
+
+test('PostHog emits one shared head script only in production and stays independent of client modules', () => {
+  const plugin = createPlugin();
+  process.env.NODE_ENV = 'production';
+  const tags = nonSeoHeadTags(plugin);
+  assert.equal(tags.filter((tag) => tag.innerHTML === posthogInitScript()).length, 1);
+  assert.ok(tags.some((tag) => tag.attributes?.src?.includes('googletagmanager')));
+  assert.ok(tags.some((tag) => tag.attributes?.src?.includes('sdk.51.la')));
+  for (const mode of ['development', 'test', undefined]) {
+    if (mode === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = mode;
+    assert.deepEqual(nonSeoHeadTags(plugin), []);
+  }
+  process.env.NODE_ENV = 'production';
+  const onlyPosthog = createPlugin({ analytics: {
+    googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false },
+  } });
+  assert.deepEqual(nonSeoHeadTags(onlyPosthog), [{ tagName: 'script', innerHTML: posthogInitScript() }]);
+  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css']);
+  const noPosthog = createPlugin({ analytics: { posthog: { enabled: false } } });
+  assert.equal(nonSeoHeadTags(noPosthog).length, 4);
+  assert.ok(nonSeoHeadTags(noPosthog).every((tag) => !tag.innerHTML?.includes('posthog.init')));
+  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css']);
+  const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
+  assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML === posthogInitScript('phc_Custom123')).length, 1);
 });

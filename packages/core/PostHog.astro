@@ -1,0 +1,11 @@
+---
+import { posthogInitScript } from './dist/posthog.js';
+
+interface Props {
+  apiKey?: string;
+}
+
+const script = posthogInitScript(Astro.props.apiKey);
+---
+
+{import.meta.env.PROD && <script is:inline set:html={script}></script>}

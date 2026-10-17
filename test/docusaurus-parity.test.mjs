@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { DEFAULT_POSTHOG_API_KEY, posthogInitScript } from '@hagicode/hagilight-core/posthog';
 
 const starlightSource = readFileSync(new URL('../packages/starlight/src/index.ts', import.meta.url), 'utf8');
 const { locales: starlightLocales } = await import(new URL('../packages/starlight/dist/locales.js', import.meta.url).href);
@@ -23,6 +24,14 @@ function starlightPatternConstant(name) {
 test('default analytics IDs match the Starlight package', () => {
   assert.equal(analytics.DEFAULT_GOOGLE_ANALYTICS_ID, starlightStringConstant('DEFAULT_GOOGLE_ANALYTICS_ID'));
   assert.equal(analytics.DEFAULT_FIFTY_ONE_LA_ID, starlightStringConstant('DEFAULT_51LA_ID'));
+});
+
+test('PostHog shares its loader and default key between plugins', () => {
+  assert.deepEqual(analytics.posthogHeadTags(DEFAULT_POSTHOG_API_KEY), [
+    { tagName: 'script', innerHTML: posthogInitScript() },
+  ]);
+  assert.match(starlightSource, /import \{ DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN \} from '@hagicode\/hagilight-core\/posthog'/u);
+  assert.match(starlightSource, /coreExport\('PostHog'\)/u);
 });
 
 test('analytics ID patterns match the Starlight package', () => {

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import hagilight from '@hagicode/hagilight-starlight';
+import { DEFAULT_POSTHOG_API_KEY } from '@hagicode/hagilight-core/posthog';
 import {
   getNotFoundHomeHref,
   getNotFoundHomeLabel,
@@ -24,7 +25,7 @@ function configure(options = {}, components = {}, logo, additionalConfig = {}, a
 test('registers a configured footer without discarding an opted-out header override', () => {
   const { updated, integrations } = configure({
     header: { enabled: false },
-    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } },
   }, { Header: './Header.astro' });
 
   assert.equal(updated.components.Header, './Header.astro');
@@ -97,7 +98,7 @@ test('preserves a site-defined Starlight logo', () => {
 test('passes disabled promotion configuration to the footer wrapper', () => {
   const { updated, integrations } = configure({
     promoto: { enabled: false },
-    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } },
   });
 
   assert.match(updated.components.Footer, /\/Footer\.astro$/);
@@ -204,7 +205,7 @@ test('requires valid IDs when analytics providers are enabled', () => {
 test('rejects an existing head override when SEO or Google Analytics owns the head', () => {
   assert.doesNotThrow(() => configure({
     seo: { enabled: false },
-    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } },
   }, { Head: './CustomHead.astro' }));
   assert.throws(
     () => configure(
@@ -254,6 +255,7 @@ test('validates SEO defaults, organization identity, site URL, and unambiguous l
     analytics: {
       googleAnalytics: { enabled: false },
       fiftyOneLa: { enabled: false },
+      posthog: { enabled: false },
     },
   }, {}, undefined, {}, { site: undefined });
   assert.equal(optedOut.updated.components.Head, undefined);
@@ -290,6 +292,7 @@ test('uses Docs analytics IDs by default and allows overriding or disabling prov
     analytics: {
       googleAnalytics: { enabled: false },
       fiftyOneLa: { enabled: false },
+      posthog: { enabled: false },
     },
   });
   const [disabledVite] = integrationVitePlugins(disabled.integrations[0]);
@@ -524,7 +527,7 @@ function runConfigDone(integration, config) {
 
 test('warns once for the passthrough image service without touching the config', () => {
   const { integrations } = configure({
-    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } },
   });
   const config = { image: { service: { entrypoint: 'astro/assets/services/noop', config: {} } } };
   const before = structuredClone(config);
@@ -572,3 +575,60 @@ function integrationVitePlugins(integration, routes = []) {
 function optionsModuleId(componentId) {
   return `${componentId.slice(0, componentId.lastIndexOf('/'))}/options`;
 }
+
+function configuredOptions(result) {
+  const [vite] = integrationVitePlugins(result.integrations[0]);
+  const source = vite.load(vite.resolveId(optionsModuleId(result.updated.components.Footer)));
+  return JSON.parse(source.match(/^export default (.*);$/mu)[1]);
+}
+
+test('PostHog defaults and supplied options follow the Google Analytics convention', () => {
+  for (const options of [undefined, {}, { analytics: {} }, {
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } },
+  }]) {
+    assert.equal(configuredOptions(configure(options)).posthogApiKey, DEFAULT_POSTHOG_API_KEY);
+  }
+  for (const posthog of [{}, { enabled: false }, { enabled: false, apiKey: 'invalid' }]) {
+    assert.equal(configuredOptions(configure({ analytics: { posthog } })).posthogApiKey, undefined);
+  }
+  for (const posthog of [{ apiKey: 'phc_Custom123' }, { enabled: true, apiKey: 'phc_Custom123' }]) {
+    const options = configuredOptions(configure({ analytics: { posthog } }));
+    assert.equal(options.posthogApiKey, 'phc_Custom123');
+    assert.equal(options.googleAnalyticsMeasurementId, 'G-EN03FMT2Q4');
+    assert.equal(options.fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+  }
+  assert.throws(() => configure({ analytics: { posthog: { enabled: true } } }), /PostHog.*apiKey is missing/u);
+  for (const posthog of [null, [], true, 'key']) {
+    assert.throws(() => configure({ analytics: { posthog } }), /PostHog analytics options must be an object/u);
+  }
+  for (const enabled of ['yes', 1, null]) {
+    assert.throws(() => configure({ analytics: { posthog: { enabled } } }), /PostHog.*enabled.*boolean/u);
+  }
+  for (const apiKey of ['', 'bad', 'phc_', 'phc_Test-1', '</script>', 42, null]) {
+    assert.throws(() => configure({ analytics: { posthog: { enabled: true, apiKey } } }), /PostHog.*apiKey/u);
+  }
+});
+
+test('PostHog owns Head independently of Google Analytics and its 404 exclusion', () => {
+  const options = { seo: { enabled: false }, analytics: { googleAnalytics: { enabled: false } } };
+  const result = configure(options);
+  assert.ok(result.updated.components.Head);
+  const [vite] = integrationVitePlugins(result.integrations[0]);
+  const head = vite.load(vite.resolveId(result.updated.components.Head));
+  assert.match(head, /import PostHog from .*PostHog\.astro/u);
+  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} \/>$/mu);
+  assert.match(head, /!isNotFound && options.googleAnalyticsMeasurementId/u);
+  assert.equal(configuredOptions(result).fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+  assert.throws(() => configure(options, { Head: './CustomHead.astro' }), /PostHog.*analytics\.posthog: \{ enabled: false \}.*core\/PostHog/u);
+
+  const custom = configure({ ...options, analytics: {
+    ...options.analytics, posthog: { enabled: false },
+  } }, { Head: './CustomHead.astro' });
+  assert.equal(custom.updated.components.Head, './CustomHead.astro');
+
+  const disabled = configure({ analytics: { posthog: { enabled: false } } });
+  const [disabledVite] = integrationVitePlugins(disabled.integrations[0]);
+  assert.doesNotMatch(disabledVite.load(disabledVite.resolveId(disabled.updated.components.Head)), /PostHog/u);
+  assert.equal(configuredOptions(disabled).googleAnalyticsMeasurementId, 'G-EN03FMT2Q4');
+  assert.equal(configuredOptions(disabled).fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+});

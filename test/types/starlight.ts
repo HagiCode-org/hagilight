@@ -1,6 +1,6 @@
 // Type fixture for @hagicode/hagilight-starlight. Each `@ts-expect-error` line must stay an error.
 import starlight from '@astrojs/starlight';
-import hagilight, { type HagilightStarlightOptions } from '@hagicode/hagilight-starlight';
+import hagilight, { type HagilightStarlightOptions, type HagilightPostHogOptions } from '@hagicode/hagilight-starlight';
 import { locales, type LocaleDefinition } from '@hagicode/hagilight-starlight/locales';
 import {
   aiDisclosureSchema,
@@ -52,3 +52,17 @@ hagilight({ contentImages: false });
 hagilight({ contentImages: { enabled: 'yes' } });
 
 export { english, frontmatter, integration, shapes };
+
+const posthog: HagilightPostHogOptions = { apiKey: 'phc_Custom123' };
+hagilight({ analytics: { posthog } });
+hagilight({ analytics: {} });
+hagilight({ analytics: { posthog: {} } });
+hagilight({ analytics: { posthog: { enabled: false } } });
+// @ts-expect-error PostHog options are an object.
+hagilight({ analytics: { posthog: true } });
+// @ts-expect-error PostHog enabled is boolean.
+hagilight({ analytics: { posthog: { enabled: 'yes' } } });
+// @ts-expect-error PostHog project keys are strings.
+hagilight({ analytics: { posthog: { apiKey: 42 } } });
+// @ts-expect-error The PostHog key field is apiKey.
+hagilight({ analytics: { posthog: { key: 'phc_Test' } } });

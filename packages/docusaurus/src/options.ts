@@ -1,4 +1,5 @@
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import { isValidSeoImageReference, resolveAbsoluteHttpUrl } from '@hagicode/hagilight-core/seo';
 import {
   DEFAULT_FIFTY_ONE_LA_ID,
@@ -22,6 +23,11 @@ export interface FiftyOneLaOptions extends FeatureToggle {
 export interface AnalyticsOptions {
   googleAnalytics?: GoogleAnalyticsOptions;
   fiftyOneLa?: FiftyOneLaOptions;
+  posthog?: PostHogOptions;
+}
+
+export interface PostHogOptions extends FeatureToggle {
+  apiKey?: string;
 }
 
 export interface SeoOrganizationOptions {
@@ -70,6 +76,7 @@ export interface ResolvedHagilightOptions {
   links: SiteLinksOptions;
   googleAnalyticsId: string | undefined;
   fiftyOneLaId: string | undefined;
+  posthogApiKey: string | undefined;
   promoto: boolean;
   languageSelector: boolean;
   seo: ResolvedSeoOptions;
@@ -110,7 +117,7 @@ function featureEnabled(value: unknown, path: string): boolean {
 function resolveProvider(
   value: unknown,
   path: string,
-  idKey: 'measurementId' | 'siteId',
+  idKey: 'measurementId' | 'siteId' | 'apiKey',
   pattern: RegExp,
   defaultId: string,
 ): string | undefined {
@@ -189,6 +196,13 @@ export function resolveOptions(input: HagilightDocusaurusOptions | undefined): R
       'siteId',
       FIFTY_ONE_LA_ID_PATTERN,
       DEFAULT_FIFTY_ONE_LA_ID,
+    ),
+    posthogApiKey: resolveProvider(
+      analytics.posthog,
+      'analytics.posthog',
+      'apiKey',
+      POSTHOG_API_KEY_PATTERN,
+      DEFAULT_POSTHOG_API_KEY,
     ),
     promoto: featureEnabled(options.promoto, 'promoto'),
     languageSelector: featureEnabled(options.languageSelector, 'languageSelector'),

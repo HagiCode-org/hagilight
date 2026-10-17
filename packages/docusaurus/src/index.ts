@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import type { RssFeedItem } from '@hagicode/hagilight-core/rss';
 import type { HtmlTagObject, LoadContext, Plugin, PluginModule } from '@docusaurus/types';
-import { fiftyOneLaHeadTags, googleAnalyticsHeadTags } from './analytics.js';
+import { fiftyOneLaHeadTags, googleAnalyticsHeadTags, posthogHeadTags } from './analytics.js';
 import { collectFeedItems, feedHeadTags, writeDiscoveryOutputs, type DiscoverySite } from './discovery.js';
 import { PLUGIN_NAME, type HagilightGlobalData } from './global-data.js';
 import { resolveOptions, type HagilightDocusaurusOptions, type ResolvedHagilightOptions } from './options.js';
@@ -17,6 +17,7 @@ export type {
   FeatureToggle,
   FiftyOneLaOptions,
   GoogleAnalyticsOptions,
+  PostHogOptions,
   HagilightDocusaurusOptions,
   ResolvedHagilightOptions,
   RssOptions,
@@ -37,6 +38,7 @@ function analyticsHeadTags(options: ResolvedHagilightOptions): HtmlTagObject[] {
   return [
     ...(options.googleAnalyticsId === undefined ? [] : googleAnalyticsHeadTags(options.googleAnalyticsId)),
     ...(options.fiftyOneLaId === undefined ? [] : fiftyOneLaHeadTags(options.fiftyOneLaId)),
+    ...(options.posthogApiKey === undefined ? [] : posthogHeadTags(options.posthogApiKey)),
   ];
 }
 

@@ -1,6 +1,6 @@
 // Type fixture for @hagicode/hagilight-docusaurus. Each `@ts-expect-error` line must stay an error.
 import type { Config, I18nConfig, PluginModule } from '@docusaurus/types';
-import { hagilightDocusaurus, type HagilightDocusaurusOptions } from '@hagicode/hagilight-docusaurus';
+import { hagilightDocusaurus, type HagilightDocusaurusOptions, type PostHogOptions } from '@hagicode/hagilight-docusaurus';
 import { i18n } from '@hagicode/hagilight-docusaurus/locales';
 
 const options: HagilightDocusaurusOptions = {
@@ -50,3 +50,17 @@ hagilightDocusaurus({ analytics: { googleAnalytics: { measurementId: 1 } } });
 hagilightDocusaurus({ analytics: { fiftyOneLa: { id: 'L6b88a5yK4h2Xnci' } } });
 
 export { localeCatalog, plugins, siteConfig };
+
+const posthog: PostHogOptions = { apiKey: 'phc_Custom123' };
+hagilightDocusaurus({ analytics: { posthog } });
+hagilightDocusaurus({ analytics: {} });
+hagilightDocusaurus({ analytics: { posthog: {} } });
+hagilightDocusaurus({ analytics: { posthog: { enabled: false } } });
+// @ts-expect-error PostHog options are an object.
+hagilightDocusaurus({ analytics: { posthog: true } });
+// @ts-expect-error PostHog enabled is boolean.
+hagilightDocusaurus({ analytics: { posthog: { enabled: 'yes' } } });
+// @ts-expect-error PostHog project keys are strings.
+hagilightDocusaurus({ analytics: { posthog: { apiKey: 42 } } });
+// @ts-expect-error The PostHog key field is apiKey.
+hagilightDocusaurus({ analytics: { posthog: { key: 'phc_Test' } } });

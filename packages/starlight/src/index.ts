@@ -7,6 +7,7 @@ import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
 import {
   RSS_OWNER,
@@ -40,6 +41,13 @@ export interface HagilightFiftyOneLaOptions {
 export interface HagilightAnalyticsOptions {
   googleAnalytics?: HagilightGoogleAnalyticsOptions;
   fiftyOneLa?: HagilightFiftyOneLaOptions;
+  posthog?: HagilightPostHogOptions;
+}
+
+export interface HagilightPostHogOptions {
+  /** Defaults to true when the provider options are omitted, otherwise to whether apiKey is set. */
+  enabled?: boolean;
+  apiKey?: string;
 }
 
 export interface HagilightSeoOptions {
@@ -113,6 +121,7 @@ interface SerializedOptions {
   links: SiteLinksOptions;
   googleAnalyticsMeasurementId: string | undefined;
   fiftyOneLaId: string | undefined;
+  posthogApiKey: string | undefined;
   aiDisclosures: AIDisclosureDefaults;
   seoEnabled: boolean;
   seo: ResolvedSeoOptions;
@@ -424,11 +433,13 @@ import options from '${optionsId}';
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
 import SEOHead from ${JSON.stringify(seoHeadPath)};
 import GoogleAnalytics from ${JSON.stringify(coreExport('GoogleAnalytics'))};
+${serializedOptions.posthogApiKey ? `import PostHog from ${JSON.stringify(coreExport('PostHog'))};` : ''}
 import options from '${optionsId}';
 const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 ---
 
 {options.seoEnabled ? <SEOHead options={options} /> : <DefaultHead />}
+${serializedOptions.posthogApiKey ? '<PostHog apiKey={options.posthogApiKey} />' : ''}
 {!isNotFound && options.googleAnalyticsMeasurementId && (
   <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId} />
 )}
@@ -532,6 +543,14 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     pattern: FIFTY_ONE_LA_ID_PATTERN,
     defaultId: DEFAULT_51LA_ID,
   });
+  const posthog = optionalRecord(analytics.posthog, 'PostHog analytics');
+  optionalBoolean(posthog, 'enabled', 'PostHog analytics enabled');
+  const posthogApiKey = resolveProvider(analytics.posthog, {
+    name: 'PostHog',
+    idKey: 'apiKey',
+    pattern: POSTHOG_API_KEY_PATTERN,
+    defaultId: DEFAULT_POSTHOG_API_KEY,
+  });
   const promoto = optionalRecord(input.promoto, 'promoto');
   const promotoEnabled = optionalBoolean(promoto, 'enabled', 'promoto enabled') !== false;
   const contentImages = optionalRecord(input.contentImages, 'contentImages');
@@ -549,7 +568,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     markdownContent: markdownContentEnabled
       ? `virtual:hagilight-starlight/${instanceId}/MarkdownContent.astro`
       : undefined,
-    head: seo.enabled || googleAnalyticsMeasurementId
+    head: seo.enabled || googleAnalyticsMeasurementId || posthogApiKey
       ? `virtual:hagilight-starlight/${instanceId}/Head.astro`
       : undefined,
     themeSelect: themesEnabled ? packageFile('ThemeSelect.astro') : undefined,
@@ -560,6 +579,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     links: options.links ?? {},
     googleAnalyticsMeasurementId,
     fiftyOneLaId,
+    posthogApiKey,
     aiDisclosures,
     seoEnabled: seo.enabled,
     seo,
@@ -590,9 +610,9 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
         }
         if (componentIds.head && config.components?.Head) {
           if (seo.enabled) {
-            throw new Error('Hagilight SEO cannot replace an existing Starlight Head override. Set seo: { enabled: false } and disable Google Analytics to keep your Head, or compose your site metadata explicitly.');
+            throw new Error('Hagilight SEO cannot replace an existing Starlight Head override. Set seo: { enabled: false }, analytics.googleAnalytics: { enabled: false }, and analytics.posthog: { enabled: false } to keep your Head, or compose SEO, @hagicode/hagilight-core/GoogleAnalytics and @hagicode/hagilight-core/PostHog explicitly.');
           }
-          throw new Error('Hagilight Google Analytics cannot replace an existing Starlight Head override. Disable Google Analytics or compose @hagicode/hagilight-core/GoogleAnalytics in your Head instead.');
+          throw new Error('Hagilight Google Analytics or PostHog cannot replace an existing Starlight Head override. Set analytics.googleAnalytics: { enabled: false } and analytics.posthog: { enabled: false } to keep it, or compose @hagicode/hagilight-core/GoogleAnalytics and @hagicode/hagilight-core/PostHog in your Head.');
         }
 
         let seoSite: string | undefined;
