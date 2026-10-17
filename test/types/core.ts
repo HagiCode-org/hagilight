@@ -1,4 +1,12 @@
 // Type fixture for @hagicode/hagilight-core. Each `@ts-expect-error` line must stay an error.
+import { resolveTransitDestination, resolveTransitNavigation } from '@hagicode/hagilight-core/root-transit';
+
+const transitPath: string = resolveTransitDestination('/en-US/', { site: 'https://example.test', base: '/manual/' });
+resolveTransitNavigation(transitPath, new URL('https://example.test/manual/'), '/manual/');
+// @ts-expect-error A destination is a configured string, not incoming URL state.
+resolveTransitDestination(42, { site: 'https://example.test' });
+// @ts-expect-error Validation needs the consuming site origin.
+resolveTransitDestination('/en-US/', {});
 import {
   gaEventAttributes,
   handleGaClick,
@@ -37,6 +45,14 @@ import {
   type SeoMetadata,
 } from '@hagicode/hagilight-core/seo';
 import { seoSchema, type SeoFrontmatter } from '@hagicode/hagilight-core/seo-schema';
+import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_HOST, POSTHOG_DEFAULTS, POSTHOG_API_KEY_PATTERN, posthogInitScript } from '@hagicode/hagilight-core/posthog';
+
+const posthogScript: string = posthogInitScript();
+posthogInitScript('phc_Custom123');
+POSTHOG_API_KEY_PATTERN.test(DEFAULT_POSTHOG_API_KEY);
+// @ts-expect-error Project keys must be strings.
+posthogInitScript(42);
+export { posthogScript, POSTHOG_API_HOST, POSTHOG_DEFAULTS };
 
 const linkOptions: SiteLinksOptions = {
   rssFeedUrl: '/rss.xml',

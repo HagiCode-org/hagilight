@@ -17,6 +17,11 @@
     "prepack": "tsc -b"
   },
   "exports": {
+    "./RootTransit": "./RootTransit.astro",
+    "./root-transit": {
+      "types": "./dist/root-transit.d.ts",
+      "default": "./dist/root-transit.js"
+    },
     "./Footer": "./Footer.astro",
     "./links": {
       "types": "./dist/links.d.ts",
@@ -83,6 +88,11 @@
     "./FooterBrand": "./FooterBrand.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
+    "./PostHog": "./PostHog.astro",
+    "./posthog": {
+      "types": "./dist/posthog.d.ts",
+      "default": "./dist/posthog.js"
+    },
     "./Analytics51LA": "./Analytics51LA.astro",
     "./logo.png": "./logo.png",
     "./favicon.ico": "./favicon.ico"

@@ -47,6 +47,7 @@ const config: Config = {
       analytics: {
         googleAnalytics: { enabled: !analyticsDisabled, measurementId: 'G-EN03FMT2Q4' },
         fiftyOneLa: { enabled: !analyticsDisabled, siteId: 'L6b88a5yK4h2Xnci' },
+        ...(analyticsDisabled ? { posthog: { enabled: false } } : {}),
       },
     }),
   ],

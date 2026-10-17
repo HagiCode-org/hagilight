@@ -11,7 +11,7 @@
     "typecheck": "tsc -b && tsc -p tsconfig.routes.json && tsc -p test/types/tsconfig.json",
     "pretest": "npm run build",
     "test": "node --test test/*.test.mjs",
-    "test:viewport": "node test/viewport-regression.mjs",
+    "test:viewport": "node test/viewport-regression.mjs && node test/root-transit-browser.mjs",
     "build:example": "node scripts/build-example.mjs",
     "build:starlight-example": "npm run build && npm run build --workspace=hagilight-example",
     "build:core-footer-example": "npm run build && npm run build --workspace=hagilight-core-footer-example",

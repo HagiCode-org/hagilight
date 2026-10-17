@@ -26,12 +26,18 @@ function comparisonArticleDataFiles() {
 
 const REQUIRED_FILES = {
   '@hagicode/hagilight-core': [
+    'RootTransit.astro',
+    'dist/root-transit.js',
+    'dist/root-transit.d.ts',
     'Footer.astro',
     'FooterBrand.astro',
     'dist/footer-brand.js',
     'Copyright.astro',
     'PromotoBanner.astro',
     'GoogleAnalytics.astro',
+    'PostHog.astro',
+    'dist/posthog.js',
+    'dist/posthog.d.ts',
     'Analytics51LA.astro',
     'logo.png',
     'favicon.ico',

@@ -12,6 +12,8 @@ const packages = ['core', 'astro', 'starlight'].map((directory) => ({
 }));
 
 const expectedExports = {
+  '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
+  '@hagicode/hagilight-core/posthog': ['DEFAULT_POSTHOG_API_KEY', 'POSTHOG_API_HOST', 'POSTHOG_DEFAULTS', 'POSTHOG_API_KEY_PATTERN', 'posthogInitScript'],
   '@hagicode/hagilight-core/links': ['resolveSiteLinks'],
   '@hagicode/hagilight-core/favicon': ['getHagilightFaviconDataUri', 'resolveFaviconHeadEntry'],
   '@hagicode/hagilight-core/seo': ['composeCanonicalSeoHead', 'composeSeoHead', 'resolveSeoMetadata', 'serializeJsonLd'],
@@ -141,6 +143,9 @@ test('feature packages depend on the matching shared core and not on each other'
   assert.equal(core.dependencies['@hagicode/hagilight'], undefined);
   assert.equal(core.dependencies['@hagicode/hagilight-starlight'], undefined);
   assert.equal(core.peerDependencies['@astrojs/starlight'], undefined);
+  assert.equal(core.peerDependenciesMeta.astro.optional, true);
+  assert.equal(core.dependencies.astro, undefined);
+  assert.match(import.meta.resolve('@hagicode/hagilight-core/PostHog'), /\/PostHog\.astro$/u);
 });
 
 test('typed consumer fixtures accept the documented APIs and reject invalid options', () => {
