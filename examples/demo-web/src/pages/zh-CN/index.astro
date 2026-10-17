@@ -12,9 +12,9 @@ const sections = [
         id: 'footer',
         title: '本地化页脚',
         kind: '实时组件',
-        summary: '功能包页脚会解析本地化链接，并附加 @hagicode/hagilight 自身的精确构建版本。',
-        evidence: '滚动到页面底部即可查看真实页脚和包版本标识。',
-        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter 仍可单独使用，且不会显示功能包标识。 */}\n<CoreFooter locale=\"zh-CN\" />",
+        summary: '功能包页脚以产品介绍开场（标题、简介、下载与产品文档按钮，以及智能、高效、有趣三个特点），再解析本地化链接，并附加 @hagicode/hagilight 自身的精确构建版本。介绍文案来自 @hagicode/hagilight-core/footer-brand，由 @hagicode/hagilight-core/FooterBrand 渲染。',
+        evidence: '滚动到页面底部：页脚进入视野时，标题逐行显现、三条特点分隔线依次画出，其下是真实链接和包版本标识。',
+        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter 仍可单独使用，且不会显示功能包标识。 */}\n<CoreFooter locale=\"zh-CN\" />\n\nimport FooterBrand from '@hagicode/hagilight-core/FooterBrand';\nimport { resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';\n\nconst { headline, pillars } = resolveFooterBrand('zh-CN');",
       },
       {
         id: 'copyright',

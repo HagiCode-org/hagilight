@@ -21,6 +21,8 @@ import Footer from '@hagicode/hagilight-core/Footer';
 ```
 
 `Footer` renders localized site links and, when configured by a Hagilight RSS integration, feed links. Its `locale` and `links` props allow customization.
+
+Above the links the footer states what HagiCode is: a one-line headline, the product summary, the Download and Product Docs calls to action, and the three pillars (smart, efficient, fun) in all ten locales. The calls to action are the `downloadClient` and `productDocs` quick links, so `overrides`, `removeLinks` and `siteId` apply to them and a removed link leaves no button behind; both report as `footer_brand` clicks with those ids, so the product statement can be told apart from the link lists. The block lays out by the width it is given (container queries), so it holds in a narrow Starlight content pane. As the footer scrolls into view the headline is uncovered and the pillar rules draw in, using scroll-driven animation; browsers without it, and visitors who prefer reduced motion, see the finished state. Copy comes from `@hagicode/hagilight-core/footer-brand` (`resolveFooterBrand`, `pickFooterBrandLinks`), and the Astro markup is exported as `@hagicode/hagilight-core/FooterBrand`.
 The core Footer stays independent of feature packages and does not add
 attribution by itself. Plain-Astro sites that want the literal
 `Powered By hagilight@<version>` package attribution can replace this import with
@@ -115,6 +117,8 @@ The banner is a fixed card at most `42rem` wide, centered between two insets: `-
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.
 
+The card rises into place when it first appears and when it returns from the Footer or the page top, and sinks away when dismissed; browsers without `@starting-style` or `linear()` get the same movement with a plain ease-out or none, and `prefers-reduced-motion` turns all of it off along with automatic rotation. With more than one promotion, a thin line along the card's bottom edge fills over eight seconds and the next promotion arrives when it completes; hovering the card, tabbing into it, or pressing pause holds the line where it is. Slide content settles in the direction of travel (Previous reverses it). The call to action, muted copy and hover colors read Starlight tokens (`--sl-color-text-accent` on `--sl-color-black`, `--sl-color-gray-2`, `--sl-color-text-high`) and fall back to values derived from the card's own text color, so themes that map only part of the ramp stay legible on dark cards. Override `--promoto-cta-bg`, `--promoto-cta-fg`, `--promoto-muted`, `--promoto-strong` or `--promoto-rotation` on `.hagilight-promoto` to retune them.
+
 The banner stays hidden while the page is at the top during a domain's first 30 visits, and while the Footer is in view. Every page load, refresh, and page-to-page navigation counts as a visit; scrolling and hash changes do not. The per-domain counter is stored in the visitor's browser under `hagilight:promoto-banner:visit-count:<hostname>` and is never sent anywhere.
 
 A promotion's `image` may also carry `sources`, the alternative image files that Index publishes in the order AVIF, WebP, then the original. The banner renders them as a `<picture>` in that order, with the original as its `<img>`, and skips any entry whose `type` is not an `image/*` media type or whose URL is unsafe. Each `src` is resolved against `https://index.hagicode.com` when the promotion documents load. If the browser fails to load a tier, the banner removes it and the next tier is used. A card without `sources` renders the plain `<img>` as before, and `sources` never affect the dismissal signature, so a dismissed banner stays dismissed when only its image chain changes.
@@ -175,7 +179,7 @@ A click on a tagged link calls `gtag('event', <action>, …)` once:
 | Event name (action) | `download_click` for the `download` category, `store_visit` for the `store` category, `link_click` for every other category |
 | `event_category` | `download`, `store`, `navigation`, `community`, or `promotion` |
 | `event_label` | The link's stable id (for example `downloadClient`), never its localized text |
-| `link_location` | Where the link sits: `header`, `footer`, `article_promotion`, `promoto_banner`, or your own value |
+| `link_location` | Where the link sits: `header`, `footer`, `footer_brand`, `article_promotion`, `promoto_banner`, or your own value |
 | `link_url` | The destination at click time |
 | `transport_type` | `beacon`, so same-tab navigations still deliver |
 

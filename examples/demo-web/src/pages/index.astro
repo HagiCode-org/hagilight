@@ -12,9 +12,9 @@ const sections = [
         id: 'footer',
         title: 'Localized footer',
         kind: 'Live component',
-        summary: 'The feature footer resolves localized links and appends its exact build-time @hagicode/hagilight version.',
-        evidence: 'Scroll to the bottom for the real footer and its package attribution.',
-        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter remains available without feature-package attribution. */}\n<CoreFooter locale=\"en-US\" />",
+        summary: 'The feature footer opens with a product statement (headline, summary, Download and Product Docs, and the smart, efficient and fun pillars), then resolves localized links and appends its exact build-time @hagicode/hagilight version. The statement comes from @hagicode/hagilight-core/footer-brand and renders through @hagicode/hagilight-core/FooterBrand.',
+        evidence: 'Scroll to the bottom: the headline is uncovered and the pillar rules draw in as the footer arrives, above the real links and package attribution.',
+        example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter remains available without feature-package attribution. */}\n<CoreFooter locale=\"en-US\" />\n\nimport FooterBrand from '@hagicode/hagilight-core/FooterBrand';\nimport { resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';\n\nconst { headline, pillars } = resolveFooterBrand('en-US');",
       },
       {
         id: 'copyright',
