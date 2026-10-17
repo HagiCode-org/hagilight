@@ -47,6 +47,12 @@ const REQUIRED_FILES = {
     'dist/comparison-articles.d.ts',
     'dist/comparison-articles-source.js',
     'dist/comparison-articles-source.d.ts',
+    'dist/site-metadata.js',
+    'dist/site-metadata.d.ts',
+    'dist/site-metadata-writer.js',
+    'dist/site-metadata-writer.d.ts',
+    'dist/site-metadata-ownership.js',
+    'dist/site-metadata-ownership.d.ts',
     ...comparisonArticleDataFiles(),
   ],
   '@hagicode/hagilight-docusaurus': [

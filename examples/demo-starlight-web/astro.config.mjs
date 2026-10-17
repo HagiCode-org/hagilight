@@ -11,7 +11,9 @@ const rssOption = (name) => {
 const markdown = process.env.HAGILIGHT_EXAMPLE_MARKDOWN_PROCESSOR === 'unified'
   ? { markdown: { processor: (await import('@astrojs/markdown-remark')).unified() } }
   : {};
-const discovery = process.env.HAGILIGHT_EXAMPLE_DISCOVERY === 'true'
+// 'true' registers plain-Astro hagilight() after the Starlight plugin, 'first' before it.
+const discoveryMode = process.env.HAGILIGHT_EXAMPLE_DISCOVERY;
+const discovery = discoveryMode === 'true' || discoveryMode === 'first'
   ? [(await import('@hagicode/hagilight/integration')).hagilight()]
   : [];
 const contentImages = process.env.HAGILIGHT_EXAMPLE_CONTENT_IMAGES === 'off'
@@ -23,12 +25,14 @@ export default defineConfig({
   base,
   ...markdown,
   integrations: [
+    ...(discoveryMode === 'first' ? discovery : []),
     starlight({
       title: 'Hagilight example',
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
       locales,
       plugins: [hagilight({
         ...contentImages,
+        ...(process.env.HAGILIGHT_EXAMPLE_METADATA === 'false' ? { metadata: false } : {}),
         seo: {
           enabled: true,
           image: '/share-card.svg',
@@ -43,9 +47,11 @@ export default defineConfig({
         },
         hagicodePromotion: { enabled: process.env.HAGILIGHT_EXAMPLE_PROMOTION !== 'false' },
         promoto: { enabled: true },
-        analytics: process.env.HAGILIGHT_VIEWPORT_TEST === 'true'
-          ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }
-          : undefined,
+        analytics: process.env.HAGILIGHT_EXAMPLE_ANALYTICS === 'off'
+          ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } }
+          : process.env.HAGILIGHT_VIEWPORT_TEST === 'true'
+            ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }
+            : undefined,
         aiDisclosures: {
           isAITranslation: true,
           isAIAuthor: true,
@@ -57,6 +63,6 @@ export default defineConfig({
         },
       })],
     }),
-    ...discovery,
+    ...(discoveryMode === 'first' ? [] : discovery),
   ],
 });

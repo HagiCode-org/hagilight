@@ -47,6 +47,18 @@
       "types": "./dist/rss-ownership.d.ts",
       "default": "./dist/rss-ownership.js"
     },
+    "./site-metadata": {
+      "types": "./dist/site-metadata.d.ts",
+      "default": "./dist/site-metadata.js"
+    },
+    "./site-metadata-writer": {
+      "types": "./dist/site-metadata-writer.d.ts",
+      "default": "./dist/site-metadata-writer.js"
+    },
+    "./site-metadata-ownership": {
+      "types": "./dist/site-metadata-ownership.d.ts",
+      "default": "./dist/site-metadata-ownership.js"
+    },
     "./promotions": {
       "types": "./dist/promotions.d.ts",
       "default": "./dist/promotions.js"
