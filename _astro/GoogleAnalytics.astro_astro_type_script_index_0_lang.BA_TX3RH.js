@@ -1,0 +1,1 @@
+import{n as e}from"./analytics-events.D2pFpYy-.js";e();
