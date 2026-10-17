@@ -43,10 +43,23 @@
     "@hagicode/hagilight-core": "0.1.0"
   },
   "keywords": [
+    "hagicode",
+    "hagicode-org",
+    "hagilight",
     "astro-component",
     "astro-integration",
     "withastro",
     "astro-components",
-    "documentation-components"
-  ]
+    "documentation-components",
+    "seo"
+  ],
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme",
+  "bugs": {
+    "url": "https://github.com/HagiCode-org/hagilight/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "HagiCode",
+    "url": "https://github.com/HagiCode-org"
+  }
 }

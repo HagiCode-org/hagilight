@@ -64,6 +64,9 @@
     "astro": "^7.3.5"
   },
   "keywords": [
+    "hagicode",
+    "hagicode-org",
+    "hagilight",
     "astro-component",
     "withastro",
     "astro-seo",
@@ -72,5 +75,14 @@
     "multilingual-documentation",
     "hreflang",
     "structured-data"
-  ]
+  ],
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme",
+  "bugs": {
+    "url": "https://github.com/HagiCode-org/hagilight/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "HagiCode",
+    "url": "https://github.com/HagiCode-org"
+  }
 }

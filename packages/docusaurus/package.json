@@ -57,6 +57,9 @@
     "react-helmet-async": "^3.0.0"
   },
   "keywords": [
+    "hagicode",
+    "hagicode-org",
+    "hagilight",
     "docusaurus",
     "docusaurus-plugin",
     "multilingual-documentation",
@@ -64,5 +67,14 @@
     "structured-data",
     "rss",
     "sitemap"
-  ]
+  ],
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme",
+  "bugs": {
+    "url": "https://github.com/HagiCode-org/hagilight/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "HagiCode",
+    "url": "https://github.com/HagiCode-org"
+  }
 }
