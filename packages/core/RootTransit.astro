@@ -1,0 +1,552 @@
+---
+import logo from './logo.png';
+import favicon from './favicon.ico';
+import { resolveTransitDestination } from './dist/root-transit.js';
+
+interface Props {
+  destination: string;
+  siteName: string;
+  locale?: string;
+  heading?: string;
+  message?: string;
+  continueLabel?: string;
+  links?: { destination: string; label: string; lang?: string }[];
+}
+
+const {
+  destination, siteName, locale = 'en-US',
+  heading = `Opening ${siteName}`,
+  message = 'You will continue automatically. You can also continue now.',
+  continueLabel = `Continue to ${siteName}`,
+  links = [],
+} = Astro.props;
+if (!siteName?.trim()) throw new TypeError('Hagilight RootTransit: siteName is required.');
+const base = import.meta.env.BASE_URL;
+const site = Astro.site ?? Astro.url;
+const href = resolveTransitDestination(destination, { site, base });
+const localeLinks = links.map((link) => ({ ...link, href: resolveTransitDestination(link.destination, { site, base }) }));
+const route = new URL(href, site).pathname;
+const trace = [
+  ['destination', route],
+  ['base', base],
+  ['origin', new URL(site).origin],
+  ['source', 'site configuration'],
+];
+---
+
+<!doctype html>
+<html lang={locale} data-hagilight-transit>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{heading} — {siteName}</title>
+    <meta name="description" content={message} />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href={new URL(href, site).href} />
+    <link rel="icon" type="image/x-icon" href={favicon} />
+    <slot name="head" />
+    <script is:inline>
+      (() => {
+        let stored = null;
+        try { stored = localStorage.getItem('starlight-theme'); } catch {}
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', stored || system);
+      })();
+    </script>
+    <script>
+      import { mountRootTransit } from './dist/root-transit.js';
+      mountRootTransit();
+      document.addEventListener('astro:page-load', () => mountRootTransit());
+    </script>
+    <style>
+      :global(:root[data-hagilight-transit]) {
+        color-scheme: dark;
+        --bg: #030712;
+        --ink: #f8fafc;
+        --muted: #94a3b8;
+        --line: rgba(255, 255, 255, 0.12);
+        --line-strong: rgba(255, 255, 255, 0.28);
+        --accent: #00cccc;
+        --accent-ink: #031316;
+        --beam-a: #0080ff;
+        --beam-b: #00cccc;
+        --beam-c: #22c55e;
+        --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "WenQuanYi Micro Hei", "Segoe UI", system-ui, sans-serif;
+        --font-mono: "SF Mono", Menlo, "Cascadia Code", Consolas, "Roboto Mono", "JetBrains Mono", monospace;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      :global(:root[data-hagilight-transit][data-theme='light']) {
+        color-scheme: light;
+        --bg: #f5f5f7;
+        --ink: #0f172a;
+        --muted: #475569;
+        --line: rgba(0, 0, 0, 0.12);
+        --line-strong: rgba(0, 0, 0, 0.3);
+        --accent: #0060cc;
+        --accent-ink: #ffffff;
+      }
+
+      /* 提案 → 执行：--run (0 → 1) 同时驱动轮廓、实心字、光束，三层不会错位 */
+      @property --run {
+        syntax: '<number>';
+        inherits: true;
+        initial-value: 1;
+      }
+
+      @property --chip-fill {
+        syntax: '<number>';
+        inherits: true;
+        initial-value: 1;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      :global(html[data-hagilight-transit]) {
+        background: var(--bg);
+        scrollbar-color: var(--line-strong) transparent;
+      }
+
+      :global(body:has([data-root-transit])) {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      ::selection {
+        background: color-mix(in srgb, var(--accent) 34%, transparent);
+        color: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      /* ── 页面骨架 ── */
+      .page {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: clamp(1.5rem, 5vh, 3rem);
+        width: min(100%, 78rem);
+        min-height: 100dvh;
+        margin-inline: auto;
+        padding: clamp(1.25rem, 4vw, 3rem);
+        transition: opacity 180ms cubic-bezier(0.4, 0, 1, 1);
+      }
+
+      :global(html[data-transit-state='leaving']) .page {
+        opacity: 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        font-size: 1.0625rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      .brand img {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+
+      .stage {
+        display: grid;
+        align-self: center;
+        gap: clamp(2rem, 5vh, 3.5rem);
+      }
+
+      @media (min-width: 64rem) {
+        .stage {
+          grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+          column-gap: clamp(3rem, 6vw, 6rem);
+          align-items: end;
+        }
+
+        .locales {
+          grid-column: 1 / -1;
+        }
+      }
+
+      /* Route sweep copied from the official root transit. */
+      .route {
+        margin: 0 0 0.12em;
+        font-size: clamp(2.75rem, 7.2vw, 6rem);
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.03em;
+        overflow-wrap: anywhere;
+      }
+
+      .route-origin {
+        color: var(--ink);
+      }
+
+      .route-target {
+        display: inline-block;
+        max-width: calc(100% - 0.5em);
+      }
+
+      .run {
+        --run: 1;
+        --edge: 0.1em;
+        position: relative;
+        display: inline-grid;
+        max-width: 100%;
+        min-width: 0;
+        vertical-align: top;
+        padding-bottom: 0.12em;
+      }
+
+      :global(html[data-transit-ready]) .run {
+        animation: routeRun var(--run-dur, 1250ms) cubic-bezier(0.3, 0.55, 0.15, 1) both;
+      }
+
+      @keyframes routeRun {
+        from {
+          --run: 0;
+        }
+        to {
+          --run: 1;
+        }
+      }
+
+      .run-ghost,
+      .run-solid {
+        grid-area: 1 / 1;
+        display: block;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .run-solid {
+        color: var(--accent);
+        clip-path: inset(-0.3em calc((1 - var(--run)) * 100% - var(--run) * var(--edge)) -0.3em -0.3em);
+      }
+
+      /* 尚未执行的字形：只有轮廓，光束走过后消失 */
+      .run-ghost {
+        color: transparent;
+        user-select: none;
+        -webkit-text-stroke: max(1.5px, 0.012em) color-mix(in srgb, var(--accent) 82%, transparent);
+        clip-path: inset(-0.3em -0.3em -0.3em calc(var(--run) * (100% + var(--edge))));
+        opacity: min(1, calc((1 - var(--run)) * 10));
+      }
+
+      .run-beam {
+        position: absolute;
+        top: -0.04em;
+        bottom: 0.1em;
+        left: calc(var(--run) * (100% + var(--edge)));
+        width: max(2px, 0.02em);
+        margin-left: calc(max(2px, 0.02em) / -2);
+        background: linear-gradient(180deg, var(--beam-a), var(--beam-b) 52%, var(--beam-c));
+        opacity: min(1, calc(var(--run) * 14), calc((1 - var(--run)) * 14));
+        pointer-events: none;
+      }
+
+      /* 光束尾迹：刚刚执行过的地方 */
+      .run-beam::before {
+        content: '';
+        position: absolute;
+        inset: 0 100% 0 auto;
+        width: 0.7em;
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--beam-b) 24%, transparent));
+        mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+        -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+      }
+
+      /* ── 标题与状态 ── */
+      .headline {
+        margin: 1rem 0 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-wrap: balance;
+      }
+
+      .status {
+        max-width: 38ch;
+        /* 两行的高度：提示与「已停止」文案互换时，整个版面不跳动 */
+        min-height: 3em;
+        margin: 0.75rem 0 0;
+        color: var(--muted);
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        text-wrap: pretty;
+      }
+
+      :global(html[data-transit-state='paused']) .status {
+        color: var(--ink);
+      }
+
+      /* ── 解析过程：每一行都是真实输入 ── */
+      .trace {
+        margin: 0;
+        border-bottom: 1px solid var(--line);
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.4;
+      }
+
+      .trace-row {
+        display: grid;
+        grid-template-areas: 'label verdict' 'value value';
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.125rem 1rem;
+        padding: 0.75rem 0;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+      }
+
+      @media (min-width: 40rem) {
+        .trace-row {
+          grid-template-areas: 'label value verdict';
+          grid-template-columns: minmax(0, 11.5rem) minmax(0, 1fr) 4.5rem;
+          gap: 0 1rem;
+          align-items: baseline;
+        }
+      }
+
+      .trace-row dt {
+        grid-area: label;
+        overflow-wrap: anywhere;
+      }
+
+      .trace-value {
+        grid-area: value;
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .trace-verdict {
+        grid-area: verdict;
+        margin: 0;
+        font-family: var(--font-sans);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .trace-verdict:empty {
+        display: none;
+      }
+
+      .trace-row[data-state='used'] {
+        color: var(--ink);
+      }
+
+      .trace-row[data-state='used'] .trace-value {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .trace-row[data-state='used'] .trace-verdict {
+        color: var(--accent);
+      }
+
+      .trace-row[data-state='used'] .trace-verdict::before {
+        content: '';
+        display: inline-block;
+        width: 0.4375rem;
+        height: 0.4375rem;
+        margin-right: 0.4375rem;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      :global(html[data-transit-ready]) .trace-row {
+        animation: traceIn 520ms var(--ease-out) both;
+        animation-delay: calc(var(--run-dur, 1250ms) * 0.12 * var(--i, 0));
+      }
+
+      :global(html[data-transit-ready]) .trace-row[data-state='used'] .trace-verdict {
+        animation: verdictIn 360ms var(--ease-out) both;
+        animation-delay: calc(var(--run-dur, 1250ms) * 0.78);
+      }
+
+      @keyframes traceIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+
+      @keyframes verdictIn {
+        from {
+          opacity: 0;
+          transform: translateX(-6px);
+        }
+      }
+
+      /* ── 语言列表：真实链接，也是手动选择入口 ── */
+      .locales-label {
+        margin: 0 0 0.75rem;
+        color: var(--muted);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .locales ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .locales a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+        padding: 0 1rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 9999px;
+        background: linear-gradient(var(--accent), var(--accent)) no-repeat left / 0% 100%;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.3;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        transition:
+          border-color 150ms ease,
+          transform 150ms ease;
+      }
+
+      .locales a:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      .locales a[aria-current='true'] {
+        --chip-fill: 1;
+        display: inline-grid;
+        border-color: var(--accent);
+        background-size: calc(var(--chip-fill) * 100%) 100%;
+      }
+
+      .chip-label, .chip-filled {
+        grid-area: 1 / 1;
+      }
+
+      .chip-label {
+        color: var(--accent);
+      }
+
+      /* Keep each text color over its matching surface while the chip fills. */
+      .chip-filled {
+        color: var(--accent-ink);
+        clip-path: inset(-0.2em calc((1 - var(--chip-fill)) * (100% + 2rem) - 1rem) -0.2em -1rem);
+      }
+
+      /* 选中的语言在光束走完时被填满：同一次执行的落点 */
+      :global(html[data-transit-ready]) .locales a[aria-current='true'] {
+        animation: chipFill 420ms var(--ease-out) both;
+        animation-delay: calc(var(--run-dur, 1250ms) * 0.92);
+      }
+
+      @keyframes chipFill {
+        from {
+          --chip-fill: 0;
+        }
+        to {
+          --chip-fill: 1;
+        }
+      }
+
+      /* ── 页脚 ── */
+      .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 1.5rem;
+        font-size: 0.8125rem;
+      }
+
+      .quick-links :global(a) {
+        padding: 0.5rem 0;
+        color: var(--muted);
+        text-underline-offset: 0.2em;
+        text-decoration-color: transparent;
+        transition: color 150ms ease, text-decoration-color 150ms ease;
+      }
+
+      .quick-links :global(a:hover) {
+        color: var(--ink);
+        text-decoration-color: currentColor;
+      }
+
+      .quick-links :global(a:focus-visible) {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        .run { --run: 1; }
+        .locales a:hover {
+          transform: none;
+        }
+      }
+
+      @media (forced-colors: active) {
+        .locales a[aria-current='true'] {
+          outline: 2px solid Highlight;
+          forced-color-adjust: none;
+          color: HighlightText;
+          background: Highlight;
+        }
+        .chip-label, .chip-filled { color: HighlightText; }
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="page" data-root-transit data-base={base}>
+      <header>
+        <span class="brand"><img src={logo.src} width="28" height="28" alt="" />{siteName}</span>
+      </header>
+      <main class="stage">
+        <div class="intro">
+          <p class="route" aria-hidden="true"><span class="route-origin">/</span><span class="route-target"><span class="run"><span class="run-ghost">{route.slice(1)}</span><span class="run-solid">{route.slice(1)}</span><span class="run-beam"></span></span></span></p>
+          <h1 class="headline">{heading}</h1>
+          <p class="status">{message}</p>
+        </div>
+        <dl class="trace" aria-hidden="true">
+          {trace.map(([label, value], index) => (
+            <div class="trace-row" data-state={index === 0 ? 'used' : 'idle'} style={`--i: ${index}`}>
+              <dt>{label}</dt><dd class="trace-value">{value}</dd><dd class="trace-verdict">{index === 0 ? 'configured' : ''}</dd>
+            </div>
+          ))}
+        </dl>
+        <nav class="locales" aria-label={continueLabel}>
+          <ul>
+            <li><a href={href} data-transit-continue aria-current="true"><span class="chip-label">{continueLabel}</span><span class="chip-filled" aria-hidden="true">{continueLabel}</span></a></li>
+            {localeLinks.map((link) => <li><a href={link.href} lang={link.lang} data-transit-alternative>{link.label}</a></li>)}
+          </ul>
+        </nav>
+      </main>
+      <footer><nav class="quick-links"><slot name="footer" /></nav></footer>
+    </div>
+  </body>
+</html>
