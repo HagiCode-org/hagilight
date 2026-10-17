@@ -58,6 +58,10 @@
       "types": "./dist/content-images.d.ts",
       "default": "./dist/content-images.js"
     },
+    "./footer-brand": {
+      "types": "./dist/footer-brand.d.ts",
+      "default": "./dist/footer-brand.js"
+    },
     "./build-info": {
       "types": "./dist/build-info.d.ts",
       "default": "./dist/build-info.js"
@@ -76,6 +80,7 @@
     },
     "./comparison-articles-data/*.json": "./data/comparison-articles/*.json",
     "./Copyright": "./Copyright.astro",
+    "./FooterBrand": "./FooterBrand.astro",
     "./PromotoBanner": "./PromotoBanner.astro",
     "./GoogleAnalytics": "./GoogleAnalytics.astro",
     "./Analytics51LA": "./Analytics51LA.astro",

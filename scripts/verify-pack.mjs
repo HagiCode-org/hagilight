@@ -27,6 +27,8 @@ function comparisonArticleDataFiles() {
 const REQUIRED_FILES = {
   '@hagicode/hagilight-core': [
     'Footer.astro',
+    'FooterBrand.astro',
+    'dist/footer-brand.js',
     'Copyright.astro',
     'PromotoBanner.astro',
     'GoogleAnalytics.astro',
