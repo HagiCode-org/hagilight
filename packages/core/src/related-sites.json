@@ -318,5 +318,33 @@
     },
     "url": "https://omniroute.hagicode.com/",
     "supportsLocalePath": true
+  },
+  {
+    "id": "fullstack-tutorial",
+    "name": {
+      "zh-CN": "HagiCode Fullstack",
+      "zh-Hant": "HagiCode Fullstack",
+      "en-US": "HagiCode Fullstack",
+      "ja-JP": "HagiCode Fullstack",
+      "ko-KR": "HagiCode Fullstack",
+      "de-DE": "HagiCode Fullstack",
+      "fr-FR": "HagiCode Fullstack",
+      "es-ES": "HagiCode Fullstack",
+      "pt-BR": "HagiCode Fullstack",
+      "ru-RU": "HagiCode Fullstack"
+    },
+    "description": {
+      "zh-CN": "面向想成为 AI 时代全栈工程师的人的分步教程。",
+      "zh-Hant": "給想成為 AI 時代全端工程師的人的分步教學。",
+      "en-US": "A step-by-step tutorial for becoming a fullstack engineer in the AI era.",
+      "ja-JP": "AI 時代のフルスタックエンジニアを目指す人のためのステップ・バイ・ステップの教材です。",
+      "ko-KR": "AI 시대에 풀스택 엔지니어가 되고자 하는 사람을 위한 단계별 튜토리얼입니다.",
+      "de-DE": "Eine Schritt-für-Schritt-Anleitung, um im KI-Zeitalter Fullstack-Entwickler zu werden.",
+      "fr-FR": "Un tutoriel pas à pas pour devenir ingénieur full stack à l'ère de l'IA.",
+      "es-ES": "Un tutorial paso a paso para convertirse en ingeniero full stack en la era de la IA.",
+      "pt-BR": "Um tutorial passo a passo para se tornar engenheiro full stack na era da IA.",
+      "ru-RU": "Пошаговое руководство по становлению full-stack инженером в эпоху ИИ."
+    },
+    "url": "https://fullstack.hagicode.com/"
   }
 ]

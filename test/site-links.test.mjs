@@ -46,6 +46,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'hagitask', 'costCalculator',
     'hagicode-main', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
+    'fullstack-tutorial',
   ]);
   assert.equal(links.quick[0].label, 'Download Hagicode');
   assert.equal(links.quick[1].label, 'Download Hagicode for Windows');
@@ -86,6 +87,37 @@ test('includes Awesome Sites in the shared footer links for every locale', () =>
     assert.equal(sites[0].target, '_blank');
     assert.equal(sites[0].rel, 'noopener');
   }
+});
+
+test('includes the Fullstack tutorial site with a localized description for every locale', () => {
+  for (const locale of [
+    'zh-CN', 'zh-Hant', 'en-US', 'ja-JP', 'ko-KR',
+    'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+  ]) {
+    const sites = resolveSiteLinks(locale).relatedSites.filter(({ id }) => id === 'fullstack-tutorial');
+    assert.equal(sites.length, 1);
+    assert.equal(sites[0].name, 'HagiCode Fullstack');
+    assert.equal(sites[0].href, 'https://fullstack.hagicode.com/');
+    assert.equal(sites[0].target, '_blank');
+    assert.equal(sites[0].rel, 'noopener');
+    assert.ok(sites[0].description.length > 0);
+  }
+  const english = resolveSiteLinks('en-US').relatedSites.find(({ id }) => id === 'fullstack-tutorial');
+  const chinese = resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'fullstack-tutorial');
+  assert.notEqual(english.description, chinese.description);
+  assert.equal(resolveSiteLinks('en-US').relatedSites.at(-1).id, 'fullstack-tutorial');
+});
+
+test('the Fullstack entry can be removed, replaced, or excluded on its own site', () => {
+  assert.ok(!resolveSiteLinks('en-US', {
+    removeLinks: { relatedSites: ['fullstack-tutorial'] },
+  }).relatedSites.some(({ id }) => id === 'fullstack-tutorial'));
+  assert.ok(!resolveSiteLinks('en-US', {
+    relatedSites: [{ id: 'custom', name: 'Custom', url: 'https://custom.example/' }],
+  }).relatedSites.some(({ id }) => id === 'fullstack-tutorial'));
+  assert.ok(!resolveSiteLinks('en-US', {
+    siteUrl: 'https://fullstack.hagicode.com',
+  }).relatedSites.some(({ id }) => id === 'fullstack-tutorial'));
 });
 
 test('renders localized filing labels while keeping the canonical filing numbers', () => {
