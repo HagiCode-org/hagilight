@@ -19,6 +19,8 @@ const buildItems = buildInfoItems(propBuildInfo ?? buildInfoFromLocals(Astro.loc
 const sitemapOverride = footerLinks.overrides?.sitemap;
 const resolvedLinks = resolveSiteLinks(locale, {
   ...footerLinks,
+  // Without a declared siteUrl, the page's own Astro site excludes its catalog entry.
+  siteUrl: footerLinks.siteUrl ?? Astro.site?.href,
   overrides: {
     ...footerLinks.overrides,
     sitemap: {
