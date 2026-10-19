@@ -270,6 +270,7 @@ resolveSiteLinks('en-US', { siteId: 'docs' });
 ### Options
 
 - `links.siteId` (Starlight, Docusaurus, and the `Footer`/`Header` components) enables footer tags. The Starlight and Docusaurus promotion banners read this same value.
+- `links.siteUrl` names the hosting site's URL for same-origin classification and for excluding its own Ecosystem Sites entry. When it is not set, the core `Footer` uses the page's Astro `site` (`Astro.site`) instead, so a site built for `https://fullstack.hagicode.com` does not list the HagiCode Fullstack entry on its own footer. An explicit `siteUrl` wins, and with neither value the footer behaves as before. The fallback never sets `siteId`, so no campaign tags are added.
 - `PromotoBanner` accepts an optional `siteId` prop, written to `data-site-id`. Without it the banner keeps the class-based `rel` and leaves destinations unchanged.
 - Each slide is classified and tagged on its own when it renders, so a rotation from a third-party campaign to a first-party one gets the first-party `rel` and tags.
 
