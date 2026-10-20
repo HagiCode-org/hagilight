@@ -13,6 +13,16 @@ const packages = ['core', 'astro', 'starlight'].map((directory) => ({
 
 const expectedExports = {
   '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
+  '@hagicode/hagilight-core/splash-images': [
+    'SPLASH_IMAGE_DEFAULTS',
+    'loadSplashImage',
+    'pickSplashIndex',
+    'resolveSplashConfig',
+    'splashImagePath',
+    'splashImageUrl',
+    'splashKey',
+    'storeSplashImage',
+  ],
   '@hagicode/hagilight-core/posthog': ['DEFAULT_POSTHOG_API_KEY', 'POSTHOG_API_HOST', 'POSTHOG_DEFAULTS', 'POSTHOG_API_KEY_PATTERN', 'posthogInitScript'],
   '@hagicode/hagilight-core/links': ['resolveSiteLinks'],
   '@hagicode/hagilight-core/favicon': ['getHagilightFaviconDataUri', 'resolveFaviconHeadEntry'],
