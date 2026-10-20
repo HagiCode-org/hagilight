@@ -52,7 +52,9 @@ Create the destination page first, for example `src/pages/en-US/index.astro`.
 The component includes the official root transit's layout, dark/light colors,
 system font stacks, outline-to-solid route sweep, beam, staggered trace and
 continuation chip. It bundles its logo and favicon locally; no custom CSS,
-animation setup, feature package, third-party resource or analytics is required.
+animation setup, feature package or analytics is required. By default it also
+requests one image from `img-gen.hagicode.com`; the [splash image](#splash-image)
+section describes that request and how to switch it off.
 The trace shows the actual configured destination, base and origin rather than
 performing the official website's locale detection. Installing core alone never
 changes routes. Consumers that do not import this page keep their current root.
@@ -100,6 +102,100 @@ reference without changing it, set `HAGILIGHT_TRANSIT_REFERENCE_DIR` to the
 official site's `dist` directory. Matching 1440/375 px captures at 625/1,250 ms
 are written to `HAGILIGHT_ARTIFACT_DIR` (default `/tmp/hagilight-root-transit`),
 alongside 320/375/1440 px light/dark, minimal-consumer and base-path captures.
+
+### Splash image
+
+While the page forwards, `RootTransit` shows one image picked at random from the
+img-gen `startup-splash` collection (`hagicode-splash-001` to `hagicode-splash-600`,
+see [Image paths from img-gen](#image-paths-from-img-gen)). It is on by default. A
+visit makes one request to `img-gen.hagicode.com` for an AVIF of about 20 to 50 KB,
+after the page has mounted. The image is decorative, sits behind the content and takes
+no layout space, so the heading, trace and links stay where they are. The splash never
+delays the forward timer or a continuation click.
+
+If the chosen image fails, one other key is tried. A second failure hides the image
+with no visible message. A cache read waits at most 100 ms, and the page then
+requests the network URL. The loaded image is stored in the Cache API for later
+visits when the host sends CORS headers; without them the image still displays.
+
+Pass `splash` to change it. `splash={false}` renders no splash markup and makes no request to
+the image host. An object overrides any of these keys; other keys are rejected.
+
+| Key | Default | Accepted values |
+| --- | --- | --- |
+| `baseUrl` | `https://img-gen.hagicode.com` | An HTTPS URL without credentials, query or fragment. A trailing slash is removed. |
+| `prefix` | `startup-splash` | Letters, digits, `.`, `_` and `-` segments joined by `/`. No empty, `.` or `..` segment. |
+| `count` | `600` | An integer from 1 to 9999. Keys are `hagicode-splash-001` upward. |
+| `cacheName` | `hagilight.rootTransit.splash` | A non-empty string. |
+
+The key pattern is the img-gen contract and cannot be changed. An invalid value throws a
+`TypeError` prefixed `Hagilight RootTransit` during rendering.
+
+```astro
+<RootTransit destination="/en-US/" siteName="My site" splash={false} />
+<RootTransit destination="/en-US/" siteName="My site" splash={{ count: 120 }} />
+```
+
+A site whose Content Security Policy blocks the image host should either set
+`splash={false}` or allow `img-src https://img-gen.hagicode.com` and
+`connect-src https://img-gen.hagicode.com`.
+
+## Image paths from img-gen
+
+<!--
+Checked 2026-10-20 (OpenSpec task 1.1): `https://img-gen.hagicode.com/startup-splash/manifest.json` lists 600
+entries, `hagicode-splash-001` to `hagicode-splash-600`, all unique and all 1232 x 704. The manifest and an AVIF
+response both send no `Access-Control-Allow-Origin` header. A Cache API write downloads with CORS, so it fails
+until img-gen sends that header. `<img>` display needs no CORS and is unaffected.
+-->
+
+`@hagicode/hagilight-core/splash-images` gives other HagiCode sites the image paths of the img-gen
+`startup-splash` collection. img-gen is read only here: the host serves what img-gen publishes.
+
+| Part | Value |
+| --- | --- |
+| Base URL | `https://img-gen.hagicode.com` |
+| Prefix | `startup-splash` |
+| File name | `hagicode-splash-NNN.avif`, with NNN padded to three digits |
+| Range | 1 to 600 |
+| Size | 1232 x 704 AVIF |
+| Authoritative list | `https://img-gen.hagicode.com/startup-splash/manifest.json` |
+
+The manifest lists `entries[]`, each with `key`, `file`, `width`, `height` and `bytes`. A site that needs only the
+images that exist should read it. A site that can tolerate a failed image may build paths from the key pattern
+directly, as the relay page does. The key pattern is the img-gen contract, so `SPLASH_IMAGE_DEFAULTS` does not
+change it.
+
+Worked example: index 7 becomes key `hagicode-splash-007`, then the URL
+`https://img-gen.hagicode.com/startup-splash/hagicode-splash-007.avif`.
+
+```js
+import { pickSplashIndex, splashImageUrl } from '@hagicode/hagilight-core/splash-images';
+
+splashImageUrl(7); // https://img-gen.hagicode.com/startup-splash/hagicode-splash-007.avif
+splashImageUrl(pickSplashIndex()); // one of the 600 keys, at random
+```
+
+Cache API example for another site. The loader reads the Cache API within 100 ms and never rejects. A miss or an
+unavailable cache means the caller shows the network URL. A stored image is keyed by its full URL.
+
+```js
+import { loadSplashImage, splashImageUrl, storeSplashImage } from '@hagicode/hagilight-core/splash-images';
+
+const url = splashImageUrl(pickSplashIndex());
+const loaded = await loadSplashImage(url);
+if (loaded.source === 'cache') {
+  img.src = URL.createObjectURL(loaded.blob);
+} else {
+  img.src = url;
+  img.addEventListener('load', () => storeSplashImage(url), { once: true });
+}
+```
+
+`storeSplashImage` downloads with a CORS `fetch` and keeps the 30 newest entries. It returns `false` when the host
+sends no CORS header or the cache is unavailable, and the page still shows the image. A site with a Content
+Security Policy needs `img-src https://img-gen.hagicode.com` to show the images, and `connect-src
+https://img-gen.hagicode.com` for the store step.
 
 ## Build info
 
