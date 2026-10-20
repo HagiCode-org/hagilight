@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "packages/core/RootTransit.astro"
+        ],
+        "createdAt": "2026-10-20T23:30:57.224Z",
+        "reason": "Confident false positive, decided by the spec for this change: the splash <img> must have no src in the initial HTML (design decision 7.1, spec scenario 'Scripting is off'). mountSplash sets src after mount, and the figure stays at opacity 0 until then, so no broken box is shown. Not a user confirmation."
+      }
+    ]
+  }
+}
