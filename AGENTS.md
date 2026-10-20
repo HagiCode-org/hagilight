@@ -39,7 +39,7 @@ npm run test:viewport      # Playwright desktop viewport regression plus RootTra
 - `examples/demo-starlight-web/` — private Starlight demo exercising both package entry points.
 - `examples/demo-web/` — private core Astro demo without Starlight.
 - `examples/demo-docusaurus-web/` — private Docusaurus 3 demo exercising the plugin and the locale catalog; its build output is `build/`.
-- `scripts/` — `packages.mjs` (package order and version-graph checks), `verify-pack.mjs`, `integration-installed.mjs`, `publish.mjs`, `release.mjs` (publishing/release helpers).
+- `scripts/` — `packages.mjs` (package order and version-graph checks), `verify-pack.mjs`, `integration-installed.mjs`, `publish.mjs`, `release.mjs` (publishing/release helpers), `build-example.mjs` (the `build:example` driver) with its `build-info-assertions.mjs` and `posthog-assertions.mjs` output checks.
 - `test/` — node:test suites covering exports, site links, header, language chooser, promotions, RSS ownership, AI disclosures, article promotion, Docusaurus options and discovery, and release logic; `test/types/` holds typed consumer fixtures with `@ts-expect-error` negative cases.
 
 ## Conventions
