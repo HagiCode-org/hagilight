@@ -37,20 +37,58 @@ test('browser search and fragment are carried without allowing incoming paramete
   assert.equal(resolveTransitNavigation('/en-US/?default=1#intro', new URL(site)), '/en-US/?default=1#intro');
 });
 
-function harness(t) {
+function harness(t, splash = null) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const anchor = Object.assign(new EventTarget(), { href: '/en-US/', getAttribute() { return this.href; } });
   const alternative = Object.assign(new EventTarget(), { href: '/zh-CN/', getAttribute() { return this.href; } });
   const page = { dataset: { base: '/' }, querySelector: () => anchor, querySelectorAll: () => [alternative] };
-  const doc = Object.assign(new EventTarget(), { querySelector: () => page, documentElement: { dataset: {} } });
+  const doc = Object.assign(new EventTarget(), {
+    querySelector: (selector) => (selector === '[data-splash]' ? splash?.figure ?? null : page),
+    documentElement: { dataset: {} },
+  });
   const navigations = [];
   const win = Object.assign(new EventTarget(), {
     document: doc,
     location: { href: `${site}/?utm=test#deep`, replace: (url) => navigations.push(url) },
     setTimeout, clearTimeout,
+    caches: splash?.caches,
+    fetch: splash?.fetch,
+    requestIdleCallback: splash?.requestIdleCallback,
   });
   return { win, anchor, alternative, page, navigations };
 }
+
+/** A splash figure with its image and the data attributes that RootTransit.astro renders. */
+function splashFigure() {
+  const img = Object.assign(new EventTarget(), {
+    src: undefined,
+    removeAttribute(name) { if (name === 'src') this.src = undefined; },
+  });
+  const figure = Object.assign(new EventTarget(), {
+    dataset: { splashBase: 'https://img-gen.hagicode.com', splashPrefix: 'startup-splash', splashCount: '600', splashCache: 'hagilight.rootTransit.splash' },
+    querySelector: (selector) => (selector === 'img' ? img : null),
+    remove() { this.removed = true; },
+    removed: false,
+  });
+  return { figure, img };
+}
+
+function fakeCaches(entries = new Map()) {
+  const cache = {
+    entries,
+    match: async (url) => entries.get(url)?.clone(),
+    put: async (url, response) => { entries.set(url, response); },
+    delete: async (url) => entries.delete(typeof url === 'string' ? url : url.url),
+    keys: async () => [...entries.keys()].map((url) => new Request(url)),
+  };
+  return { open: async () => cache, cache };
+}
+
+// Response bodies are read across several macrotasks, so one turn is not enough to let a load finish.
+const settle = async () => { for (let turn = 0; turn < 20; turn += 1) await new Promise((resolve) => setImmediate(resolve)); };
+const never = () => new Promise(() => {});
+const SPLASH_READ_BUDGET_MS = 100;
+const splashPattern = /^https:\/\/img-gen\.hagicode\.com\/startup-splash\/hagicode-splash-\d{3}\.avif$/u;
 
 test('the reference timer replaces once, is independent of effects, and mounts once per page', (t) => {
   const { win, anchor, navigations } = harness(t);
@@ -100,4 +138,137 @@ test('manual language alternatives preserve their configured route and also repl
   assert.deepEqual(navigations, ['/zh-CN/?utm=test#deep']);
   t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
   assert.equal(navigations.length, 1);
+});
+
+test('a splash that never settles leaves the forward timer and the continuation click on time', async (t) => {
+  const { figure, img } = splashFigure();
+  const { win, anchor, navigations } = harness(t, { figure, caches: { open: never }, fetch: never, requestIdleCallback: undefined });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  t.mock.timers.tick(SPLASH_READ_BUDGET_MS);
+  await settle();
+  assert.match(img.src, splashPattern, 'the network image is requested once the read budget ends');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1 - SPLASH_READ_BUDGET_MS);
+  assert.deepEqual(navigations, []);
+  t.mock.timers.tick(1);
+  assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
+  assert.equal(anchor.href, '/en-US/?utm=test#deep');
+});
+
+test('a continuation click forwards at once while the splash is still pending', async (t) => {
+  const { figure } = splashFigure();
+  const { win, anchor, navigations } = harness(t, { figure, caches: { open: never }, fetch: never });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  anchor.dispatchEvent(Object.assign(new Event('click', { cancelable: true }), { button: 0 }));
+  assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.equal(navigations.length, 1);
+});
+
+test('a throwing cache and a failing image never delay forwarding and raise no rejection', async (t) => {
+  const { figure, img } = splashFigure();
+  const { win, navigations } = harness(t, { figure, caches: { open: async () => { throw new Error('denied'); } }, fetch: async () => { throw new TypeError('Failed to fetch'); } });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  await settle();
+  img.dispatchEvent(new Event('error'));
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1);
+  assert.deepEqual(navigations, []);
+  t.mock.timers.tick(1);
+  assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
+});
+
+test('a cached image is shown from an object URL, with no network request', async (t) => {
+  const { figure, img } = splashFigure();
+  const cache = fakeCaches(new Map([['https://img-gen.hagicode.com/startup-splash/hagicode-splash-001.avif', new Response(new Blob(['cached']))]]));
+  t.mock.method(Math, 'random', () => 0);
+  let fetches = 0;
+  const { win } = harness(t, { figure, caches: cache, fetch: async () => { fetches += 1; return new Response(new Blob(['x'])); } });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  await settle();
+  assert.match(img.src, /^blob:/u);
+  img.dispatchEvent(new Event('load'));
+  assert.equal(figure.dataset.state, 'shown');
+  assert.equal(fetches, 0);
+});
+
+test('a network image is shown, then stored under its URL when idle, and a second failure removes the figure', async (t) => {
+  const { figure, img } = splashFigure();
+  const cache = fakeCaches();
+  t.mock.method(Math, 'random', () => 0);
+  const idle = [];
+  const fetched = [];
+  const { win } = harness(t, {
+    figure,
+    caches: cache,
+    fetch: async (url, init) => { fetched.push([url, init]); return new Response(new Blob(['avif-bytes'])); },
+    requestIdleCallback: (task) => idle.push(task),
+  });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  await settle();
+  const first = 'https://img-gen.hagicode.com/startup-splash/hagicode-splash-001.avif';
+  assert.equal(img.src, first);
+  img.dispatchEvent(new Event('load'));
+  assert.equal(figure.dataset.state, 'shown');
+  assert.equal(idle.length, 1);
+  idle[0]();
+  await settle();
+  assert.deepEqual(fetched, [[first, { mode: 'cors', credentials: 'omit' }]]);
+  assert.ok(cache.cache.entries.has(first));
+});
+
+test('one failed image retries with another key, and a second failure removes the figure', async (t) => {
+  const { figure, img } = splashFigure();
+  t.mock.method(Math, 'random', () => 0);
+  const { win } = harness(t, { figure, caches: fakeCaches() });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  await settle();
+  assert.equal(img.src, 'https://img-gen.hagicode.com/startup-splash/hagicode-splash-001.avif');
+  img.dispatchEvent(new Event('error'));
+  assert.equal(img.src, 'https://img-gen.hagicode.com/startup-splash/hagicode-splash-002.avif');
+  assert.equal(figure.removed, false);
+  img.dispatchEvent(new Event('error'));
+  assert.equal(figure.removed, true);
+  assert.equal(img.src, undefined);
+});
+
+test('pagehide detaches the splash and mounting one page still returns one cleanup', async (t) => {
+  const { figure, img } = splashFigure();
+  const { win } = harness(t, { figure, caches: { open: never }, fetch: never });
+  const cleanup = mountRootTransit(win);
+  assert.equal(mountRootTransit(win), cleanup);
+  t.mock.timers.tick(0);
+  t.mock.timers.tick(SPLASH_READ_BUDGET_MS);
+  await settle();
+  assert.ok(img.src);
+  win.dispatchEvent(new Event('pagehide'));
+  assert.equal(img.src, undefined);
+  img.dispatchEvent(new Event('load'));
+  assert.equal(figure.dataset.state, undefined);
+});
+
+test('without a splash figure the mount is unchanged', (t) => {
+  const { win, navigations } = harness(t);
+  mountRootTransit(win);
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
+});
+
+test('a store that never settles after a loaded image does not move forwarding', async (t) => {
+  const { figure, img } = splashFigure();
+  t.mock.method(Math, 'random', () => 0);
+  const { win, navigations } = harness(t, { figure, caches: fakeCaches(), fetch: never, requestIdleCallback: (task) => task() });
+  mountRootTransit(win);
+  t.mock.timers.tick(0);
+  await settle();
+  img.dispatchEvent(new Event('load'));
+  assert.equal(figure.dataset.state, 'shown');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1);
+  assert.deepEqual(navigations, []);
+  t.mock.timers.tick(1);
+  assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
 });

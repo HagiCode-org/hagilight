@@ -12,7 +12,7 @@ const sections = [
         id: 'root-transit',
         title: '根路径中转页',
         kind: '可选页面 · 内置样式和动画',
-        summary: '根路径通过 @hagicode/hagilight-core/RootTransit 展示中转动画，然后进入英文页面。组件包含默认样式、路由光束、静态继续链接和自动导航。@hagicode/hagilight-core/root-transit 提供经过测试的 URL 和生命周期辅助函数。',
+        summary: '根路径通过 @hagicode/hagilight-core/RootTransit 展示中转动画，然后进入英文页面。组件包含默认样式、路由光束、静态继续链接和自动导航；转场时还会随机显示一张 img-gen 启动图（@hagicode/hagilight-core/splash-images 提供图片路径，splash={false} 可关闭）。@hagicode/hagilight-core/root-transit 提供经过测试的 URL 和生命周期辅助函数。',
         evidence: '访问根路径查看中转效果，也可以立即点击继续链接；中文深层链接仍直接打开本页。',
         example: "import RootTransit from '@hagicode/hagilight-core/RootTransit';\n\n<RootTransit destination=\"/en-US/\" siteName=\"Hagilight\" />",
       },

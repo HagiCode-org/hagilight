@@ -1,5 +1,12 @@
+import {
+  SPLASH_IMAGE_DEFAULTS, loadSplashImage, pickSplashIndex, splashImageUrl, storeSplashImage, type SplashConfig,
+} from './splash-images.js';
+
 /** The reference route sweep (1,250 ms) and finished-state hold (320 ms). */
 export const ROOT_TRANSIT_DELAY_MS = 1570;
+
+/** Idle-time limit for storing a loaded splash image, so the store never waits on the page. */
+const SPLASH_STORE_IDLE_TIMEOUT_MS = 1000;
 
 export interface TransitDestinationOptions {
   site: string | URL;
@@ -47,6 +54,102 @@ export function resolveTransitNavigation(destination: string, current: URL, base
 
 const mounted = new WeakMap<HTMLElement, () => void>();
 
+/**
+ * The decorative splash: one random image, started from a macrotask after the page is mounted. Nothing awaits it.
+ * A failed first image is retried once with another key; a second failure removes the figure. Every path ends in
+ * `release`, which drops the handlers, revokes any object URL and detaches the image.
+ */
+function mountSplash(win: Window, doc: Document): () => void {
+  const figure = doc.querySelector<HTMLElement>('[data-splash]');
+  const img = figure?.querySelector<HTMLImageElement>('img');
+  if (!figure || !img) return () => {};
+  const config: SplashConfig = {
+    baseUrl: figure.dataset.splashBase ?? '',
+    prefix: figure.dataset.splashPrefix ?? '',
+    count: Number(figure.dataset.splashCount),
+    cacheName: figure.dataset.splashCache ?? '',
+  };
+  const storage = win.caches ?? null;
+  const fetchImage = (target: string) => win.fetch(target, { mode: 'cors', credentials: 'omit' });
+  let active = true;
+  let index = 0;
+  let retried = false;
+  let networkUrl: string | undefined;
+  let objectUrl: string | undefined;
+  let startTimer: number | undefined;
+
+  const forgetObjectUrl = () => {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = undefined;
+  };
+  const release = () => {
+    if (!active) return;
+    active = false;
+    win.clearTimeout(startTimer);
+    img.removeEventListener('load', onLoad);
+    img.removeEventListener('error', onError);
+    forgetObjectUrl();
+    img.removeAttribute('src');
+  };
+  const attempt = (step: () => void) => {
+    try {
+      step();
+    } catch {
+      figure.remove();
+      release();
+    }
+  };
+  const whenIdle = (task: () => void) => {
+    if (typeof win.requestIdleCallback === 'function') win.requestIdleCallback(task, { timeout: SPLASH_STORE_IDLE_TIMEOUT_MS });
+    else win.setTimeout(task, 0);
+  };
+  const onLoad = () => attempt(() => {
+    if (!active) return;
+    figure.dataset.state = 'shown';
+    const url = networkUrl;
+    if (url) whenIdle(() => { if (active) void storeSplashImage(url, { storage, fetchImage, cacheName: config.cacheName }); });
+  });
+  const onError = () => attempt(() => {
+    if (!active) return;
+    if (!retried && config.count > 1) {
+      retried = true;
+      const next = pickSplashIndex(Math.random, config.count - 1);
+      index = next >= index ? next + 1 : next;
+      forgetObjectUrl();
+      networkUrl = splashImageUrl(index, config);
+      img.src = networkUrl;
+      return;
+    }
+    figure.remove();
+    release();
+  });
+  const load = async (picked: number) => {
+    index = picked;
+    const url = splashImageUrl(picked, config);
+    const loaded = await loadSplashImage(url, { storage, cacheName: config.cacheName, budgetMs: SPLASH_IMAGE_DEFAULTS.readBudgetMs });
+    if (!active) return;
+    if (loaded.source === 'cache') {
+      objectUrl = URL.createObjectURL(loaded.blob);
+      img.src = objectUrl;
+    } else {
+      networkUrl = url;
+      img.src = url;
+    }
+  };
+
+  img.addEventListener('load', onLoad);
+  img.addEventListener('error', onError);
+  startTimer = win.setTimeout(() => {
+    startTimer = undefined;
+    try {
+      load(pickSplashIndex(Math.random, config.count)).catch(release);
+    } catch {
+      release();
+    }
+  }, 0);
+  return release;
+}
+
 /** Mount once per rendered root; decoration never controls the navigation clock. */
 export function mountRootTransit(win: Window = window): () => void {
   const doc = win.document;
@@ -64,9 +167,11 @@ export function mountRootTransit(win: Window = window): () => void {
   }
   let finished = false;
   let timer: number;
+  let releaseSplash = () => {};
   const cleanup = () => {
     finished = true;
     win.clearTimeout(timer);
+    releaseSplash();
     win.removeEventListener('pagehide', cleanup);
     doc.removeEventListener('astro:before-swap', cleanup);
     for (const link of links) link.removeEventListener('click', continueNow);
@@ -86,6 +191,11 @@ export function mountRootTransit(win: Window = window): () => void {
   for (const link of links) link.addEventListener('click', continueNow);
   win.addEventListener('pagehide', cleanup);
   doc.addEventListener('astro:before-swap', cleanup);
+  try {
+    releaseSplash = mountSplash(win, doc);
+  } catch {
+    releaseSplash = () => {};
+  }
   doc.documentElement.dataset.transitReady = 'true';
   return cleanup;
 }
