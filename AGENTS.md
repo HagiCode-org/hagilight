@@ -8,7 +8,6 @@ Four publishable, TypeScript-authored npm packages that provide shared Astro, St
 - `@hagicode/hagilight` — plain-Astro integration (`hagilight`, which generates sitemap, robots.txt, and RSS feeds by default, plus the `rss` option for customization), `hagilightFavicon`, `Footer`, `SEOHead`, and generated routes. Depends on core only.
 - `@hagicode/hagilight-starlight` — Starlight plugin (header, footer links, locale chooser, content-width control, theme picker with three extra light/dark themes and a Forest first-visit default, 404 hero, RSS, analytics, AI disclosures). Depends on core only.
 - `@hagicode/hagilight-docusaurus` — Docusaurus 3 plugin (`hagilightDocusaurus()`): footer, promotion banner, analytics, SEO head tags and JSON-LD, sitemap/robots/RSS discovery, and the locale catalog at `./locales`. Depends on core only; peers `@docusaurus/core` and `@docusaurus/theme-classic` `^3.9.2`.
-- By default this repository is **documentation-maintenance scope** for agent edits: modify `AGENTS.md` as instructed and treat source, generated, and cache files as read-only unless the user expands scope.
 
 ## Commands
 
