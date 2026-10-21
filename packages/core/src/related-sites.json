@@ -346,5 +346,33 @@
       "ru-RU": "Пошаговое руководство по становлению full-stack инженером в эпоху ИИ."
     },
     "url": "https://fullstack.hagicode.com/"
+  },
+  {
+    "id": "gallery",
+    "name": {
+      "zh-CN": "HagiCode Gallery",
+      "zh-Hant": "HagiCode Gallery",
+      "en-US": "HagiCode Gallery",
+      "ja-JP": "HagiCode Gallery",
+      "ko-KR": "HagiCode Gallery",
+      "de-DE": "HagiCode Gallery",
+      "fr-FR": "HagiCode Gallery",
+      "es-ES": "HagiCode Gallery",
+      "pt-BR": "HagiCode Gallery",
+      "ru-RU": "HagiCode Gallery"
+    },
+    "description": {
+      "zh-CN": "HagiCode 作品的静态展示画廊。",
+      "zh-Hant": "HagiCode 作品的靜態展示畫廊。",
+      "en-US": "A gallery of HagiCode work, shared as static pages.",
+      "ja-JP": "HagiCode の作品を静的ページで紹介するギャラリーです。",
+      "ko-KR": "HagiCode 작업물을 정적 페이지로 공유하는 갤러리입니다.",
+      "de-DE": "Galerie mit HagiCode-Arbeiten als statische Seiten.",
+      "fr-FR": "Galerie de réalisations HagiCode, partagée sous forme de pages statiques.",
+      "es-ES": "Galería de trabajos de HagiCode, compartida como páginas estáticas.",
+      "pt-BR": "Galeria de trabalhos do HagiCode, compartilhada como páginas estáticas.",
+      "ru-RU": "Галерея работ HagiCode в виде статических страниц."
+    },
+    "url": "https://gallery.hagicode.com/"
   }
 ]
