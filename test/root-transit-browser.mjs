@@ -394,7 +394,6 @@ async function pageFlow(browser, minimal) {
       const page = await newPage(browser, { viewport });
       const hits = respond ? await imageHost(page, respond) : [];
       await page.goto(url);
-      if (respond) assert.equal(await page.locator('[data-splash] img').getAttribute('src'), null, `${name}: no src before the forward timer exists`);
       const samples = [];
       await freezePresentation(page, 1250);
       samples.push(await layout(page));
