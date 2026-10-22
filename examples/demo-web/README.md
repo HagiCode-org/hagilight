@@ -34,7 +34,7 @@ README for destination validation, deployment bases and query/fragment behavior.
 | `@hagicode/hagilight-core/links` | Resolver usage snippet; the live Footer receives generated RSS URLs from the integration |
 | `@hagicode/hagilight-core/logo.png` | Hagilight logo in the page header |
 | `@hagicode/hagilight-core/favicon`, `/favicon.ico` | Favicon helper snippet; the `.ico` asset is imported into the page head |
-| `@hagicode/hagilight-core/seo`, `/seo-schema` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
+| `@hagicode/hagilight-core/seo`, `/seo-schema`, `/og-image` | Usage snippets; the page head contains factual WebSite and WebPage JSON-LD |
 | `@hagicode/hagilight-core/rss`, `/rss-ownership` | RSS rendering API used by the generated routes, and route-owner coordination with Starlight |
 | `@hagicode/hagilight-core/GoogleAnalytics`, `/Analytics51LA` | Opt-in usage snippets only; neither integration is mounted here |
 

@@ -49,6 +49,62 @@ The values come from `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then
 
 `github.head_ref` is set on pull requests and `github.ref_name` on pushes. A shallow clone still reports its commit, because `git rev-parse HEAD` reads the checkout.
 
+## SEO head
+
+`@hagicode/hagilight/SEOHead` writes the canonical link, the title, description and image tags, and these generated tags. Each appears once, and a tag is left out when its value cannot be determined:
+
+- `og:url` is the canonical URL.
+- `og:type` is `website`, or the `ogType` prop.
+- `og:site_name` is the `siteSeo.title`.
+- `og:locale` comes from the `locale` prop, else `Astro.currentLocale`, in `ll_CC` form: `zh-CN` gives `zh_CN`, `zh-Hant` gives `zh_TW`, and a bare `en` gives `en_US`. A tag with no unambiguous region gets no `og:locale`.
+- `twitter:card` is `summary_large_image` when an image resolves, otherwise `summary`.
+
+It also writes a default `WebSite` and `Organization` JSON-LD block, built from the site title and the site URL with its base path. The `Organization` name defaults to the site title.
+
+```astro
+<SEOHead
+  site={site}
+  siteSeo={{ title: 'Example Docs' }}
+  page={{ url: pageUrl, title, description }}
+  locale="zh-CN"
+  ogType="article"
+  organization={{ name: 'Example Labs', logo: 'https://example.com/logo.png', alternateName: 'EL' }}
+  structuredData={pageStructuredData}
+/>
+```
+
+Your own tags win. A managed tag you pass in `head` keeps your value, and the generated twin is not written. Open Graph and Twitter keys match whether you write them as `property` or `name`, so `<meta name="og:type">` also suppresses the generated `og:type`. A default `WebSite` or `Organization` block is skipped when your `structuredData`, or a `script[type="application/ld+json"]` head entry, declares that `@type` at the top level or inside `@graph`. Unparseable JSON-LD does not stop the page and does not suppress a default block.
+
+To turn the default structured data off, pass `defaultStructuredData={false}`. Your own `structuredData` is still rendered.
+
+### Preview image format
+
+Social crawlers cannot read every image format, so `SEOHead` checks the preview image at build time. The image is `page.image`, or `siteSeo.image` when the page declares none. Its format is read from the extension of its path, ignoring case, query and fragment; the image bytes are not read.
+
+| Format | Extensions | Result |
+| --- | --- | --- |
+| Crawler-compatible | `.jpg`, `.jpeg`, `.png`, `.gif` | Declared exactly as given. Nothing is fetched or re-encoded. |
+| Convertible | `.avif`, `.webp` | A remote `http://` or `https://` image becomes a 1200×630 JPEG at quality 80, cropped to fill the frame, written under the build output. The declared address is that file under the site's own origin. |
+| Unrecognised | anything else, such as `.svg` or no extension | Declared exactly as given, with a build warning. |
+
+A convertible image given as a site-root path is not converted. It is declared as given, with the same kind of warning. Pages that share one convertible image share one converted file.
+
+Convertible images on a remote host need that host in the site's own `image.domains` (or `image.remotePatterns`) in its Astro config:
+
+```js
+// astro.config.mjs
+export default defineConfig({
+  image: { domains: ['images.example.com'] },
+});
+```
+
+A failed conversion fails the build. The unconverted image is never declared in its place. The build fails in these cases:
+
+- The host is not permitted: `Hagilight could not convert the SEO image <address>: its host <host> is not permitted. Add <host> to image.domains in the Astro config.`
+- The image cannot be fetched, returns an error status, or cannot be decoded: Astro reports the failure and names the image address.
+
+The build warning reads `Hagilight SEO image <address> was kept as declared: its format was not checked for crawler compatibility.`, or, for a site-root convertible image, `... site-root images are not converted, so its format was not checked for crawler compatibility.`
+
 ## llms.txt
 
 `hagilight()` writes `/llms.txt` after the build, following the [llms.txt](https://llmstxt.org/) layout: the site name as the H1, the home page description as a blockquote summary, and one H2 section of links per top-level path segment. It is generated from the built HTML, so it works for plain Astro and Starlight sites alike and needs no content collection.
