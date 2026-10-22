@@ -73,19 +73,19 @@
       }
     },
     {
-      "id": "hero-avatar",
+      "id": "cat-head",
       "kind": "sourced",
-      "file": "hero-avatar.webp",
+      "file": "cat-head.webp",
       "width": 1200,
       "height": 1200,
-      "bytes": 89944,
+      "bytes": 80780,
       "source": {
         "repo": "img-gen",
-        "album": "hero-avatars",
-        "objectKey": "hero-avatars/ember-01.avif",
+        "album": "cat-head-gallery",
+        "objectKey": "cat-head-gallery/g067-pixar-style-3d-02.avif",
         "width": 1024,
         "height": 1024,
-        "bytes": 36086
+        "bytes": 31093
       },
       "transforms": [
         "upscale 1024x1024 to 1200x1200 (lanczos3); the R2 source is 1024 px and the showcase minimum is 1200 px",
@@ -93,196 +93,212 @@
       ],
       "audit": {
         "verdict": "pass",
-        "checkedOn": "2026-10-21",
-        "notes": "Crowned eagle illustration, text-free, from the hero-avatars album. Captioned and labeled as an illustration, not a product screenshot. No retired channel, personal data or brand currency seen. The random pool shares the footer pool, excludes both defaults, and is the 46 sampled entries of the lead audit, each at or under 40 KiB."
+        "checkedOn": "2026-10-22",
+        "notes": "Pixar-style 3D cat head, text-free, from cat-head-gallery (style pixar-style-3d). Captioned and labeled as an illustration, not a product screenshot. No visible text, third-party marks, real faces, retired channel or personal data seen. The pool is the same 50 keys as the footer pool; neither default is in it, so the illustration always changes when it swaps."
       },
       "pool": {
-        "album": "hero-avatars",
+        "album": "cat-head-gallery",
         "maxBytes": 204800,
         "entries": [
           {
-            "key": "arctic-expedition-06",
-            "bytes": 40478
+            "key": "g002-ukiyo-e-01",
+            "bytes": 25795
           },
           {
-            "key": "aurora-12",
-            "bytes": 33595
+            "key": "g003-watercolor-wash-02",
+            "bytes": 30932
           },
           {
-            "key": "cat-abstract-08",
-            "bytes": 17354
+            "key": "g004-pixel-art-03",
+            "bytes": 24154
           },
           {
-            "key": "cat-cyber-05",
-            "bytes": 27601
+            "key": "g005-oil-impasto-06",
+            "bytes": 37209
           },
           {
-            "key": "cat-line-01",
-            "bytes": 32825
+            "key": "g006-paper-cut-layers-07",
+            "bytes": 15837
           },
           {
-            "key": "cat-line-11",
-            "bytes": 26030
+            "key": "g008-low-poly-07",
+            "bytes": 17251
           },
           {
-            "key": "cat-oil-08",
-            "bytes": 39849
+            "key": "g009-claymation-07",
+            "bytes": 16599
           },
           {
-            "key": "cat-paper-07",
-            "bytes": 35870
+            "key": "g010-neon-line-07",
+            "bytes": 21312
           },
           {
-            "key": "cat-sticker-03",
-            "bytes": 31789
+            "key": "g016-bauhaus-geometry-06",
+            "bytes": 13663
           },
           {
-            "key": "cat-sticker-11",
-            "bytes": 38976
+            "key": "g017-cyanotype-06",
+            "bytes": 18762
           },
           {
-            "key": "cat-storybook-07",
+            "key": "g020-origami-03",
+            "bytes": 26060
+          },
+          {
+            "key": "g022-blueprint-03",
+            "bytes": 23845
+          },
+          {
+            "key": "g023-chalk-pastel-10",
+            "bytes": 29427
+          },
+          {
+            "key": "g025-voxel-03",
+            "bytes": 8242
+          },
+          {
+            "key": "g031-illuminated-manuscript-04",
+            "bytes": 32530
+          },
+          {
+            "key": "g034-vaporwave-04",
+            "bytes": 36264
+          },
+          {
+            "key": "g035-synthwave-chrome-09",
+            "bytes": 18415
+          },
+          {
+            "key": "g038-frosted-glass-02",
+            "bytes": 28185
+          },
+          {
+            "key": "g039-needle-felt-09",
+            "bytes": 33696
+          },
+          {
+            "key": "g041-glossy-balloon-05",
+            "bytes": 14623
+          },
+          {
+            "key": "g042-blue-white-porcelain-05",
             "bytes": 31257
           },
           {
-            "key": "civic-advocates-02",
-            "bytes": 17846
+            "key": "g043-glazed-ceramic-06",
+            "bytes": 11086
           },
           {
-            "key": "civic-advocates-10",
-            "bytes": 20630
+            "key": "g045-impressionist-08",
+            "bytes": 32479
           },
           {
-            "key": "culinary-brigade-06",
-            "bytes": 24718
+            "key": "g047-fauvist-09",
+            "bytes": 18358
           },
           {
-            "key": "desert-caravan-02",
-            "bytes": 37153
+            "key": "g048-cubist-10",
+            "bytes": 31586
           },
           {
-            "key": "desert-caravan-11",
-            "bytes": 34462
+            "key": "g051-naive-folk-art-07",
+            "bytes": 19613
           },
           {
-            "key": "dream-post-office-01",
-            "bytes": 30637
+            "key": "g056-wax-print-fabric-07",
+            "bytes": 16978
           },
           {
-            "key": "dream-post-office-09",
-            "bytes": 35062
+            "key": "g058-red-paper-cut-10",
+            "bytes": 20948
           },
           {
-            "key": "goblin-market-01",
-            "bytes": 34100
+            "key": "g060-kawaii-pastel-01",
+            "bytes": 12179
           },
           {
-            "key": "goblin-market-10",
-            "bytes": 33729
+            "key": "g061-retro-90s-anime-01",
+            "bytes": 29377
           },
           {
-            "key": "haunted-manor-07",
-            "bytes": 31559
+            "key": "g062-shoujo-sparkle-08",
+            "bytes": 27048
           },
           {
-            "key": "kite-festival-09",
-            "bytes": 39547
+            "key": "g065-saturday-cartoon-09",
+            "bytes": 19421
           },
           {
-            "key": "mecha-academy-06",
-            "bytes": 34814
+            "key": "g067-pixar-style-3d-03",
+            "bytes": 16925
           },
           {
-            "key": "metro-conductors-02",
-            "bytes": 31703
+            "key": "g068-toon-shaded-3d-04",
+            "bytes": 14116
           },
           {
-            "key": "metro-conductors-10",
-            "bytes": 21782
+            "key": "g069-ps1-lowpoly-06",
+            "bytes": 18227
           },
           {
-            "key": "mountain-monastery-11",
-            "bytes": 32466
+            "key": "g070-matte-clay-render-07",
+            "bytes": 12775
           },
           {
-            "key": "nebula-11",
-            "bytes": 38449
+            "key": "g071-y2k-chrome-08",
+            "bytes": 24059
           },
           {
-            "key": "noir-detective-04",
-            "bytes": 21068
+            "key": "g072-glossy-3d-icon-08",
+            "bytes": 13376
           },
           {
-            "key": "olympian-pantheon-01",
-            "bytes": 26515
+            "key": "g073-marble-bust-08",
+            "bytes": 17446
           },
           {
-            "key": "olympian-pantheon-09",
-            "bytes": 32541
+            "key": "g075-wood-carving-10",
+            "bytes": 38433
           },
           {
-            "key": "orbital-station-10",
-            "bytes": 38227
+            "key": "g076-carved-jade-10",
+            "bytes": 14512
           },
           {
-            "key": "orchestral-guild-08",
-            "bytes": 30142
+            "key": "g078-toy-brick-02",
+            "bytes": 11910
           },
           {
-            "key": "porcelain-tea-salon-04",
-            "bytes": 31435
+            "key": "g079-designer-vinyl-toy-02",
+            "bytes": 10594
           },
           {
-            "key": "puppet-theater-02",
-            "bytes": 28303
+            "key": "g081-patchwork-quilt-03",
+            "bytes": 25601
           },
           {
-            "key": "puppet-theater-11",
-            "bytes": 36914
+            "key": "g083-warhol-silkscreen-04",
+            "bytes": 14747
           },
           {
-            "key": "robot-foundry-07",
-            "bytes": 30926
+            "key": "g088-vintage-lithograph-02",
+            "bytes": 27832
           },
           {
-            "key": "royal-03",
-            "bytes": 26449
+            "key": "g090-alcohol-marker-09",
+            "bytes": 34894
           },
           {
-            "key": "royal-11",
-            "bytes": 31173
+            "key": "g091-painterly-concept-art-09",
+            "bytes": 18574
           },
           {
-            "key": "silent-film-studio-07",
-            "bytes": 23298
+            "key": "g092-gradient-minimal-09",
+            "bytes": 14823
           },
           {
-            "key": "storm-01",
-            "bytes": 26413
-          },
-          {
-            "key": "storm-09",
-            "bytes": 33785
-          },
-          {
-            "key": "storm-observatory-05",
-            "bytes": 40593
-          },
-          {
-            "key": "sugar-kingdom-06",
-            "bytes": 28629
-          },
-          {
-            "key": "tide-07",
-            "bytes": 37237
-          },
-          {
-            "key": "vampire-court-09",
-            "bytes": 39294
-          },
-          {
-            "key": "volcanic-rescue-08",
-            "bytes": 31660
+            "key": "g095-constellation-map-09",
+            "bytes": 25940
           }
         ]
       }

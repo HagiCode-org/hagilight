@@ -32,9 +32,9 @@ export default {
       alt: 'HagiCode Hero Scenario 面板畫面，名為 Ember Keep，列出三位執行中的英雄及其等級、進度與劇情文字。',
     },
     {
-      id: 'hero-avatar',
-      caption: '插圖：HagiCode 英雄頭像，是同一套頭像中的一幅，每次造訪會換一幅。',
-      alt: 'HagiCode 英雄頭像插圖，風格化的角色肖像。',
+      id: 'cat-head',
+      caption: '插圖：HagiCode 插畫集中的一幅貓頭像，每次造訪會換一幅。',
+      alt: '風格化的貓頭插圖，來自 HagiCode 插畫集。',
     },
   ],
   windowsLabel: '下載 Windows 版',

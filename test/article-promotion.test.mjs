@@ -269,7 +269,7 @@ test('article promotion renders a themed, accessible showcase after the article 
 
 test('the showcase illustration has a localized caption and alt text that never claims a screenshot', () => {
   for (const [locale, copy] of Object.entries(COPY)) {
-    const item = copy.gallery.find(({ id }) => id === 'hero-avatar');
+    const item = copy.gallery.find(({ id }) => id === 'cat-head');
     assert.ok(item, `${locale} has the illustration caption`);
     assert.ok(item.caption.trim() && item.alt.trim(), `${locale} caption and alt are filled`);
     assert.ok(item.caption.toLowerCase().includes(GLOSSARY[locale].illustration.toLowerCase()), `${locale} caption uses the illustration term`);
@@ -282,9 +282,9 @@ test('only the illustration slot may swap: one pooled figure, a conditional pick
   const markdownContent = await readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8');
   const pooled = component.match(/data-random-pool=/gu) ?? [];
   assert.equal(pooled.length, 1, 'exactly one gallery figure carries a pool');
-  assert.match(component, /<figure data-random-pool=\{item\.id === AVATAR_ID && avatarPool \? randomPoolAttribute\(avatarPool\) : undefined\}>/u);
+  assert.match(component, /<figure data-random-pool=\{item\.id === ILLUSTRATION_ID && avatarPool \? randomPoolAttribute\(avatarPool\) : undefined\}>/u);
   assert.match(component, /\{avatarPool && <ArticlePromotionPicker \/>\}/u);
-  assert.match(component, /const AVATAR_ID = 'hero-avatar';/u);
+  assert.match(component, /const ILLUSTRATION_ID = 'cat-head';/u);
   assert.doesNotMatch(component, /img-gen\.hagicode\.com/u, 'the R2 origin lives in the shared picker, not in the component');
   assert.match(component, /randomAvatar = true/u);
   assert.match(markdownContent, /hagicodePromotionRandomAvatar = true/u);

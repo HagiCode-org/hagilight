@@ -32,9 +32,9 @@ export default {
       alt: 'Ember Keep이라는 이름의 HagiCode Hero Scenario 패널. 실행 중인 영웅 세 명의 레벨, 진행률, 이야기 문구가 표시됩니다.',
     },
     {
-      id: 'hero-avatar',
-      caption: '일러스트: 같은 세트에 포함된 HagiCode 히어로 아바타 중 하나이며, 방문할 때마다 바뀝니다.',
-      alt: 'HagiCode 히어로 아바타 일러스트, 양식화된 캐릭터 초상.',
+      id: 'cat-head',
+      caption: '일러스트: HagiCode 일러스트 세트의 고양이 머리 초상. 방문할 때마다 바뀝니다.',
+      alt: 'HagiCode 일러스트 세트의 양식화된 고양이 머리 일러스트.',
     },
   ],
   windowsLabel: 'Windows용 다운로드',

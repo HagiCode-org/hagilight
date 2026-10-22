@@ -61,17 +61,17 @@ test('the footer avatar files match their manifest: bytes, dimensions and the pe
   }
 });
 
-test('the footer avatar is the audited hero-avatars object, and its pool excludes both defaults', () => {
-  assert.equal(manifest.source.album, 'hero-avatars');
-  assert.equal(manifest.source.objectKey, 'hero-avatars/aurora-04.avif');
-  assert.equal(manifest.source.bytes, 32017);
+test('the footer avatar is the audited cat-head-gallery object, and its pool excludes both defaults', () => {
+  assert.equal(manifest.source.album, 'cat-head-gallery');
+  assert.equal(manifest.source.objectKey, 'cat-head-gallery/g001-flat-vector-01.avif');
+  assert.equal(manifest.source.bytes, 11948);
   const pool = manifest.pool;
-  assert.equal(pool.album, 'hero-avatars');
+  assert.equal(pool.album, 'cat-head-gallery');
   assert.equal(pool.maxBytes, 40 * KIB);
   assert.ok(pool.entries.length >= 12 && pool.entries.length <= 200, 'pool holds 12 to 200 entries');
   const keys = pool.entries.map(({ key }) => key);
   assert.equal(new Set(keys).size, keys.length, 'pool keys are unique');
-  assert.ok(!keys.includes('aurora-04') && !keys.includes('ember-01'), 'the pool excludes both vendored defaults');
+  assert.ok(!keys.includes('g001-flat-vector-01') && !keys.includes('g067-pixar-style-3d-02'), 'the pool excludes both vendored defaults');
   for (const entry of pool.entries) assert.ok(entry.bytes <= pool.maxBytes, `${entry.key} is within the byte cap`);
   assert.equal(randomPoolFromManifest(pool).length, keys.length);
 });

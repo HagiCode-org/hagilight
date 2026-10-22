@@ -32,9 +32,9 @@ export default {
       alt: 'Panneau Hero Scenario de HagiCode nommé Ember Keep, listant trois héros en cours avec leur niveau, leur progression et le texte du récit.',
     },
     {
-      id: 'hero-avatar',
-      caption: 'Illustration : un avatar de héros HagiCode, parmi un ensemble qui change à chaque visite.',
-      alt: 'Illustration stylisée d’un avatar de héros HagiCode : un portrait de personnage.',
+      id: 'cat-head',
+      caption: 'Illustration : un portrait de tête de chat tiré de l’ensemble d’illustrations HagiCode, qui change à chaque visite.',
+      alt: 'Illustration stylisée d’une tête de chat tirée de l’ensemble d’illustrations HagiCode.',
     },
   ],
   windowsLabel: 'Télécharger pour Windows',

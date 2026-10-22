@@ -53,7 +53,7 @@ test('the footer manifest pool builds a validated pool of R2 object paths', () =
   const pool = randomPoolFromManifest(manifest.pool);
   assert.equal(pool.length, manifest.pool.entries.length);
   assert.ok(pool.length >= 12 && pool.length <= 200);
-  assert.ok(pool.every((path) => path.startsWith('hero-avatars/') && path.endsWith('.avif')));
+  assert.ok(pool.every((path) => path.startsWith('cat-head-gallery/') && path.endsWith('.avif')));
   const attribute = randomPoolAttribute(pool);
   assert.deepEqual(JSON.parse(attribute), [...pool]);
 });

@@ -32,9 +32,9 @@ export default {
       alt: 'HagiCode Hero Scenario panel named Ember Keep, listing three running heroes with their level, progress, and story text.',
     },
     {
-      id: 'hero-avatar',
-      caption: 'Illustration: a HagiCode hero avatar, one of a set of portraits that changes between visits.',
-      alt: 'Stylized HagiCode hero avatar illustration: a character portrait.',
+      id: 'cat-head',
+      caption: 'Illustration: a cat-head portrait from the HagiCode illustration set, one of many that change between visits.',
+      alt: 'Stylized cat-head illustration from the HagiCode illustration set.',
     },
   ],
   windowsLabel: 'Download for Windows',

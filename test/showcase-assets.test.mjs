@@ -127,32 +127,32 @@ test('generated and vector illustrations are never captioned as product screensh
 
 const footerManifest = JSON.parse(readFileSync(join(root, '..', 'core', 'assets', 'footer', 'manifest.json'), 'utf8'));
 
-test('the hero-avatar showcase entry records R2 provenance, a bounded pool and a dated audit', () => {
-  const entry = manifest.assets.find(({ id }) => id === 'hero-avatar');
-  assert.ok(entry, 'the hero-avatar entry exists');
+test('the cat-head showcase entry records R2 provenance, a bounded pool and a dated audit', () => {
+  const entry = manifest.assets.find(({ id }) => id === 'cat-head');
+  assert.ok(entry, 'the cat-head entry exists');
   assert.equal(entry.kind, 'sourced');
-  assert.equal(entry.file, 'hero-avatar.webp');
-  assert.deepEqual(entry.source, { repo: 'img-gen', album: 'hero-avatars', objectKey: 'hero-avatars/ember-01.avif', width: 1024, height: 1024, bytes: 36086 });
+  assert.equal(entry.file, 'cat-head.webp');
+  assert.deepEqual(entry.source, { repo: 'img-gen', album: 'cat-head-gallery', objectKey: 'cat-head-gallery/g067-pixar-style-3d-02.avif', width: 1024, height: 1024, bytes: 31093 });
   assert.match(entry.audit.checkedOn, /^\d{4}-\d{2}-\d{2}$/u);
   assert.equal(entry.audit.verdict, 'pass');
   assert.match(entry.audit.notes, /illustration/iu);
   assert.ok(entry.transforms.some((step) => /upscale 1024/u.test(step)), 'the 1024 px source is recorded as upscaled to the 1200 px minimum');
-  assert.equal(entry.pool.album, 'hero-avatars');
+  assert.equal(entry.pool.album, 'cat-head-gallery');
   assert.equal(entry.pool.maxBytes, 200 * KIB);
   const keys = entry.pool.entries.map(({ key }) => key);
   assert.ok(keys.length >= 12 && keys.length <= 200, 'the pool holds 12 to 200 entries');
   assert.equal(new Set(keys).size, keys.length, 'pool keys are unique');
-  assert.ok(!keys.includes('ember-01'), 'the pool excludes this slot\'s default');
-  assert.ok(!keys.includes('aurora-04'), 'the pool excludes the footer default');
+  assert.ok(!keys.includes('g067-pixar-style-3d-02'), 'the pool excludes this slot\'s default');
+  assert.ok(!keys.includes('g001-flat-vector-01'), 'the pool excludes the footer default');
   for (const pooled of entry.pool.entries) assert.ok(pooled.bytes <= entry.pool.maxBytes, `${pooled.key} is within the byte cap`);
   assert.deepEqual(keys, footerManifest.pool.entries.map(({ key }) => key), 'the showcase pool is the audited footer list');
 });
 
-test('the hero-avatar showcase raster is 1200 px wide and inside both budgets', () => {
-  const entry = manifest.assets.find(({ id }) => id === 'hero-avatar');
+test('the cat-head showcase raster is 1200 px wide and inside both budgets', () => {
+  const entry = manifest.assets.find(({ id }) => id === 'cat-head');
   const bytes = readFileSync(join(assetsDir, entry.file));
   assert.equal(bytes.length, entry.bytes, 'recorded bytes match the file');
-  assert.ok(bytes.length <= 200 * KIB, `hero-avatar is ${bytes.length} bytes, over the 200 KiB raster budget`);
+  assert.ok(bytes.length <= 200 * KIB, `cat-head is ${bytes.length} bytes, over the 200 KiB raster budget`);
   assert.deepEqual(webpSize(bytes), { width: 1200, height: 1200 });
   const total = manifest.assets.reduce((sum, asset) => sum + statSync(join(assetsDir, asset.file)).size, 0);
   assert.ok(total <= 768 * KIB, `showcase total ${total} bytes is over the 768 KiB budget`);

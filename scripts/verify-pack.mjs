@@ -110,7 +110,7 @@ const REQUIRED_FILES = {
     'assets/showcase/workbench.webp',
     'assets/showcase/proposal-workflow.webp',
     'assets/showcase/heroes.webp',
-    'assets/showcase/hero-avatar.webp',
+    'assets/showcase/cat-head.webp',
     'ArticlePromotionPicker.astro',
     'assets/showcase/pillar-smart.svg',
     'assets/showcase/pillar-efficient.svg',

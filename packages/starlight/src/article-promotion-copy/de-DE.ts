@@ -32,9 +32,9 @@ export default {
       alt: 'Bereich Hero Scenario von HagiCode namens Ember Keep mit drei laufenden Helden samt Level, Fortschritt und Geschichtstext.',
     },
     {
-      id: 'hero-avatar',
-      caption: 'Illustration: ein HagiCode-Heldenavatar aus einem Satz, der bei jedem Besuch wechselt.',
-      alt: 'Stilisierte Illustration eines HagiCode-Heldenavatars: ein Charakterporträt.',
+      id: 'cat-head',
+      caption: 'Illustration: ein Katzenkopf-Porträt aus dem HagiCode-Illustrationsset, das bei jedem Besuch wechselt.',
+      alt: 'Stilisierte Katzenkopf-Illustration aus dem HagiCode-Illustrationsset.',
     },
   ],
   windowsLabel: 'Für Windows herunterladen',
