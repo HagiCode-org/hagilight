@@ -73,6 +73,221 @@
       }
     },
     {
+      "id": "hero-avatar",
+      "kind": "sourced",
+      "file": "hero-avatar.webp",
+      "width": 1200,
+      "height": 1200,
+      "bytes": 89944,
+      "source": {
+        "repo": "img-gen",
+        "album": "hero-avatars",
+        "objectKey": "hero-avatars/ember-01.avif",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 36086
+      },
+      "transforms": [
+        "upscale 1024x1024 to 1200x1200 (lanczos3); the R2 source is 1024 px and the showcase minimum is 1200 px",
+        "webp quality 88"
+      ],
+      "audit": {
+        "verdict": "pass",
+        "checkedOn": "2026-10-21",
+        "notes": "Crowned eagle illustration, text-free, from the hero-avatars album. Captioned and labeled as an illustration, not a product screenshot. No retired channel, personal data or brand currency seen. The random pool shares the footer pool, excludes both defaults, and is the 46 sampled entries of the lead audit, each at or under 40 KiB."
+      },
+      "pool": {
+        "album": "hero-avatars",
+        "maxBytes": 204800,
+        "entries": [
+          {
+            "key": "arctic-expedition-06",
+            "bytes": 40478
+          },
+          {
+            "key": "aurora-12",
+            "bytes": 33595
+          },
+          {
+            "key": "cat-abstract-08",
+            "bytes": 17354
+          },
+          {
+            "key": "cat-cyber-05",
+            "bytes": 27601
+          },
+          {
+            "key": "cat-line-01",
+            "bytes": 32825
+          },
+          {
+            "key": "cat-line-11",
+            "bytes": 26030
+          },
+          {
+            "key": "cat-oil-08",
+            "bytes": 39849
+          },
+          {
+            "key": "cat-paper-07",
+            "bytes": 35870
+          },
+          {
+            "key": "cat-sticker-03",
+            "bytes": 31789
+          },
+          {
+            "key": "cat-sticker-11",
+            "bytes": 38976
+          },
+          {
+            "key": "cat-storybook-07",
+            "bytes": 31257
+          },
+          {
+            "key": "civic-advocates-02",
+            "bytes": 17846
+          },
+          {
+            "key": "civic-advocates-10",
+            "bytes": 20630
+          },
+          {
+            "key": "culinary-brigade-06",
+            "bytes": 24718
+          },
+          {
+            "key": "desert-caravan-02",
+            "bytes": 37153
+          },
+          {
+            "key": "desert-caravan-11",
+            "bytes": 34462
+          },
+          {
+            "key": "dream-post-office-01",
+            "bytes": 30637
+          },
+          {
+            "key": "dream-post-office-09",
+            "bytes": 35062
+          },
+          {
+            "key": "goblin-market-01",
+            "bytes": 34100
+          },
+          {
+            "key": "goblin-market-10",
+            "bytes": 33729
+          },
+          {
+            "key": "haunted-manor-07",
+            "bytes": 31559
+          },
+          {
+            "key": "kite-festival-09",
+            "bytes": 39547
+          },
+          {
+            "key": "mecha-academy-06",
+            "bytes": 34814
+          },
+          {
+            "key": "metro-conductors-02",
+            "bytes": 31703
+          },
+          {
+            "key": "metro-conductors-10",
+            "bytes": 21782
+          },
+          {
+            "key": "mountain-monastery-11",
+            "bytes": 32466
+          },
+          {
+            "key": "nebula-11",
+            "bytes": 38449
+          },
+          {
+            "key": "noir-detective-04",
+            "bytes": 21068
+          },
+          {
+            "key": "olympian-pantheon-01",
+            "bytes": 26515
+          },
+          {
+            "key": "olympian-pantheon-09",
+            "bytes": 32541
+          },
+          {
+            "key": "orbital-station-10",
+            "bytes": 38227
+          },
+          {
+            "key": "orchestral-guild-08",
+            "bytes": 30142
+          },
+          {
+            "key": "porcelain-tea-salon-04",
+            "bytes": 31435
+          },
+          {
+            "key": "puppet-theater-02",
+            "bytes": 28303
+          },
+          {
+            "key": "puppet-theater-11",
+            "bytes": 36914
+          },
+          {
+            "key": "robot-foundry-07",
+            "bytes": 30926
+          },
+          {
+            "key": "royal-03",
+            "bytes": 26449
+          },
+          {
+            "key": "royal-11",
+            "bytes": 31173
+          },
+          {
+            "key": "silent-film-studio-07",
+            "bytes": 23298
+          },
+          {
+            "key": "storm-01",
+            "bytes": 26413
+          },
+          {
+            "key": "storm-09",
+            "bytes": 33785
+          },
+          {
+            "key": "storm-observatory-05",
+            "bytes": 40593
+          },
+          {
+            "key": "sugar-kingdom-06",
+            "bytes": 28629
+          },
+          {
+            "key": "tide-07",
+            "bytes": 37237
+          },
+          {
+            "key": "vampire-court-09",
+            "bytes": 39294
+          },
+          {
+            "key": "volcanic-rescue-08",
+            "bytes": 31660
+          }
+        ]
+      }
+    },
+    {
       "id": "pillar-smart",
       "kind": "svg",
       "file": "pillar-smart.svg",

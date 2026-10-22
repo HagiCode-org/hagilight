@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario：ヒーローが作業を進め、進行状況・レベル・物語を見守れます。',
       alt: 'HagiCode の Hero Scenario パネル「Ember Keep」。実行中の 3 人のヒーローのレベル、進行状況、物語のテキストが並ぶ。',
     },
+    {
+      id: 'hero-avatar',
+      caption: 'イラスト：同じセットに含まれる HagiCode ヒーローアバターの一つで、訪問するたびに入れ替わります。',
+      alt: 'HagiCode ヒーローアバターのイラスト。様式化されたキャラクターの肖像です。',
+    },
   ],
   windowsLabel: 'Windows 版をダウンロード',
   windowsStoreLabel: 'Microsoft Store で入手',

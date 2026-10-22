@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario：英雄推进工作，你随时查看进度、等级与剧情。',
       alt: 'HagiCode Hero Scenario 面板截图，名为 Ember Keep，列出三位运行中的英雄及其等级、进度与剧情文字。',
     },
+    {
+      id: 'hero-avatar',
+      caption: '插图：HagiCode 英雄头像，是同一套头像中的一幅，每次访问会换一幅。',
+      alt: 'HagiCode 英雄头像插图，风格化的角色肖像。',
+    },
   ],
   windowsLabel: '下载 Windows 版',
   windowsStoreLabel: '从 Microsoft Store 获取',

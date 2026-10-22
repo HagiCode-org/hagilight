@@ -266,3 +266,38 @@ test('article promotion renders a themed, accessible showcase after the article 
   assert.match(floatingBanner, /\.hagilight-promoto__shell\s*\{[\s\S]*?position:\s*fixed/u);
   assert.match(floatingBanner, /\.hagilight-promoto__shell\[hidden\][\s\S]*?display:\s*none/u);
 });
+
+test('the showcase illustration has a localized caption and alt text that never claims a screenshot', () => {
+  for (const [locale, copy] of Object.entries(COPY)) {
+    const item = copy.gallery.find(({ id }) => id === 'hero-avatar');
+    assert.ok(item, `${locale} has the illustration caption`);
+    assert.ok(item.caption.trim() && item.alt.trim(), `${locale} caption and alt are filled`);
+    assert.ok(item.caption.toLowerCase().includes(GLOSSARY[locale].illustration.toLowerCase()), `${locale} caption uses the illustration term`);
+    assert.doesNotMatch(`${item.caption} ${item.alt}`, /screenshot|screen shot|截图|截圖|スクリーンショット|스크린샷|Bildschirmfoto|capture d.écran|captura de pantalla|captura de tela|скриншот/iu);
+  }
+});
+
+test('only the illustration slot may swap: one pooled figure, a conditional picker, and no hard-coded R2 image', async () => {
+  const component = await readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8');
+  const markdownContent = await readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8');
+  const pooled = component.match(/data-random-pool=/gu) ?? [];
+  assert.equal(pooled.length, 1, 'exactly one gallery figure carries a pool');
+  assert.match(component, /<figure data-random-pool=\{item\.id === AVATAR_ID && avatarPool \? randomPoolAttribute\(avatarPool\) : undefined\}>/u);
+  assert.match(component, /\{avatarPool && <ArticlePromotionPicker \/>\}/u);
+  assert.match(component, /const AVATAR_ID = 'hero-avatar';/u);
+  assert.doesNotMatch(component, /img-gen\.hagicode\.com/u, 'the R2 origin lives in the shared picker, not in the component');
+  assert.match(component, /randomAvatar = true/u);
+  assert.match(markdownContent, /hagicodePromotionRandomAvatar = true/u);
+  assert.match(markdownContent, /<ArticlePromotion lang=\{route\.lang\} randomAvatar=\{hagicodePromotionRandomAvatar\} \/>/u);
+  const picker = await readFile(new URL('../packages/starlight/ArticlePromotionPicker.astro', import.meta.url), 'utf8');
+  assert.match(picker, /mountRandomImages\(document\)/u);
+  assert.match(picker, /from '@hagicode\/hagilight-core\/random-image'/u);
+});
+
+test('the showcase randomAvatar option is validated as a boolean and defaults on', async () => {
+  const { default: hagilight } = await import(new URL('../packages/starlight/dist/index.js', import.meta.url).href);
+  assert.throws(() => hagilight({ hagicodePromotion: { randomAvatar: 'yes' } }), /randomAvatar option must be a boolean/u);
+  assert.throws(() => hagilight({ footer: { avatar: 'no' } }), /footer avatar option must be a boolean/u);
+  assert.throws(() => hagilight({ footer: { randomAvatar: 1 } }), /footer randomAvatar option must be a boolean/u);
+  assert.doesNotThrow(() => hagilight({ hagicodePromotion: { randomAvatar: false }, footer: { avatar: true, randomAvatar: false } }));
+});

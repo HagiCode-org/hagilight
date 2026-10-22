@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
+import footerAvatarManifest from '@hagicode/hagilight-core/assets/footer/manifest.json' with { type: 'json' };
+import { randomPoolFromManifest } from '@hagicode/hagilight-core/random-image';
 import type { RssFeedItem } from '@hagicode/hagilight-core/rss';
 import type { HtmlTagObject, LoadContext, Plugin, PluginModule } from '@docusaurus/types';
 import { fiftyOneLaHeadTags, googleAnalyticsHeadTags, posthogHeadTags } from './analytics.js';
@@ -52,10 +54,12 @@ function promotoSiteIdHeadTags(options: ResolvedHagilightOptions): HtmlTagObject
 
 function clientModules(options: ResolvedHagilightOptions): string[] {
   const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined;
+  const footerAvatarPicker = options.footer && options.footerAvatar.randomAvatar;
   return [
     ...(analyticsEnabled ? [packageFile('./client/analytics.js')] : []),
     ...(options.promoto ? [packageFile('./client/promoto.js'), packageFile('../promoto.css')] : []),
     ...(options.footer ? [packageFile('../styles.css')] : []),
+    ...(footerAvatarPicker ? [packageFile('./client/random-image.js')] : []),
   ];
 }
 
@@ -69,6 +73,9 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     options,
     i18n: context.i18n,
     buildInfo: resolveBuildInfo({ root: context.siteDir }),
+    footerAvatarPool: options.footer && options.footerAvatar.randomAvatar
+      ? randomPoolFromManifest(footerAvatarManifest.pool)
+      : undefined,
   };
   const themeEnabled = options.footer || options.seo.enabled;
   const site: DiscoverySite = {

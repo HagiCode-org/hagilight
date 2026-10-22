@@ -10,9 +10,13 @@ interface Props {
   locale?: string;
   links?: SiteLinksOptions;
   buildInfo?: BuildInfo;
+  /** Show the decorative avatar in the brand block. Defaults to `true`. */
+  avatar?: boolean;
+  /** Swap the avatar for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
 }
 
-const { locale: propLocale, links, buildInfo: propBuildInfo } = Astro.props;
+const { locale: propLocale, links, buildInfo: propBuildInfo, avatar, randomAvatar } = Astro.props;
 const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
 const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
 const buildItems = buildInfoItems(propBuildInfo ?? buildInfoFromLocals(Astro.locals));
@@ -32,7 +36,7 @@ const resolvedLinks = resolveSiteLinks(locale, {
 ---
 
 <footer class="hagilight-footer">
-  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} />
+  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} />
   <div class="hagilight-footer__sections">
     {resolvedLinks.relatedSites.length > 0 && (
       <section>

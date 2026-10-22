@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario: los héroes sacan adelante el trabajo mientras sigues el progreso, los niveles y la historia.',
       alt: 'Panel Hero Scenario de HagiCode llamado Ember Keep, con tres héroes en ejecución y su nivel, progreso y texto de la historia.',
     },
+    {
+      id: 'hero-avatar',
+      caption: 'Ilustración: un avatar de héroe de HagiCode, de un conjunto que cambia en cada visita.',
+      alt: 'Ilustración estilizada de un avatar de héroe de HagiCode: un retrato de personaje.',
+    },
   ],
   windowsLabel: 'Descargar para Windows',
   windowsStoreLabel: 'Obtenerlo en Microsoft Store',

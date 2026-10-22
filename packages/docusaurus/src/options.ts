@@ -1,4 +1,5 @@
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
+import { resolveFooterAvatarOptions, type ResolvedFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import { isValidSeoImageReference, resolveAbsoluteHttpUrl } from '@hagicode/hagilight-core/seo';
 import { resolveSiteMetadataOption, type SiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -54,6 +55,13 @@ export interface MetadataOptions extends FeatureToggle {
   description?: string;
 }
 
+export interface FooterOptions extends FeatureToggle {
+  /** The decorative avatar in the brand block. Defaults to `true`; `false` removes it. */
+  avatar?: boolean;
+  /** Swap the avatar for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
+}
+
 export interface HagilightDocusaurusOptions {
   /**
    * Write `.well-known/hagilight.metadata.json` at the end of the build. Defaults to `true`;
@@ -61,7 +69,7 @@ export interface HagilightDocusaurusOptions {
    * `static/.well-known/` is kept. Only the default locale build writes the file.
    */
   metadata?: boolean | MetadataOptions;
-  footer?: FeatureToggle;
+  footer?: FooterOptions;
   links?: SiteLinksOptions;
   analytics?: AnalyticsOptions;
   promoto?: FeatureToggle;
@@ -87,6 +95,7 @@ export interface ResolvedRssOptions {
 
 export interface ResolvedHagilightOptions {
   footer: boolean;
+  footerAvatar: ResolvedFooterAvatarOptions;
   links: SiteLinksOptions;
   googleAnalyticsId: string | undefined;
   fiftyOneLaId: string | undefined;
@@ -122,6 +131,15 @@ function nonEmptyStringOption(value: unknown, path: string): string | undefined 
   if (value === undefined) return undefined;
   if (typeof value !== 'string' || !value.trim()) throw invalid(path, 'must be a non-empty string');
   return value;
+}
+
+function resolveFooterAvatar(value: unknown): ResolvedFooterAvatarOptions {
+  if (value === undefined) return resolveFooterAvatarOptions();
+  const group = objectOption(value, 'footer');
+  return resolveFooterAvatarOptions({
+    avatar: booleanOption(group.avatar, 'footer.avatar'),
+    randomAvatar: booleanOption(group.randomAvatar, 'footer.randomAvatar'),
+  });
 }
 
 function featureEnabled(value: unknown, path: string): boolean {
@@ -197,6 +215,7 @@ export function resolveOptions(input: HagilightDocusaurusOptions | undefined): R
 
   return {
     footer: featureEnabled(options.footer, 'footer'),
+    footerAvatar: resolveFooterAvatar(options.footer),
     links: options.links === undefined ? {} : (objectOption(options.links, 'links') as SiteLinksOptions),
     googleAnalyticsId: resolveProvider(
       analytics.googleAnalytics,

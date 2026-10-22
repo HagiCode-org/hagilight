@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario: heroes run the work while you follow progress, levels, and story.',
       alt: 'HagiCode Hero Scenario panel named Ember Keep, listing three running heroes with their level, progress, and story text.',
     },
+    {
+      id: 'hero-avatar',
+      caption: 'Illustration: a HagiCode hero avatar, one of a set of portraits that changes between visits.',
+      alt: 'Stylized HagiCode hero avatar illustration: a character portrait.',
+    },
   ],
   windowsLabel: 'Download for Windows',
   windowsStoreLabel: 'Get it from Microsoft Store',

@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario: Helden erledigen die Arbeit, Sie behalten Fortschritt, Level und Geschichte im Blick.',
       alt: 'Bereich Hero Scenario von HagiCode namens Ember Keep mit drei laufenden Helden samt Level, Fortschritt und Geschichtstext.',
     },
+    {
+      id: 'hero-avatar',
+      caption: 'Illustration: ein HagiCode-Heldenavatar aus einem Satz, der bei jedem Besuch wechselt.',
+      alt: 'Stilisierte Illustration eines HagiCode-Heldenavatars: ein Charakterporträt.',
+    },
   ],
   windowsLabel: 'Für Windows herunterladen',
   windowsStoreLabel: 'Im Microsoft Store erhalten',

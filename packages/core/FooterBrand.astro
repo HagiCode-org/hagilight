@@ -2,22 +2,43 @@
 import { siteLinkGaAttributes } from './dist/analytics-events.js';
 import type { SiteLink } from './dist/links.js';
 import { pickFooterBrandLinks, resolveFooterBrand } from './dist/footer-brand.js';
+import { footerAvatarImageAttributes, resolveFooterAvatarOptions } from './dist/footer-avatar.js';
+import { randomPoolAttribute, randomPoolFromManifest } from './dist/random-image.js';
+import avatarAvif from './assets/footer/avatar.avif';
+import avatarWebp from './assets/footer/avatar.webp';
+import avatarManifest from './assets/footer/manifest.json';
+import FooterAvatarPicker from './FooterAvatarPicker.astro';
 
 interface Props {
   /** The locale `resolveSiteLinks` returned, so copy and links always agree. */
   locale?: string;
   /** The footer's resolved quick links; the calls to action come from here. */
   links: readonly SiteLink[];
+  /** Show the decorative avatar. Defaults to `true`. */
+  avatar?: boolean;
+  /** Swap the avatar for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
 }
 
-const { locale, links } = Astro.props;
+const { locale, links, avatar, randomAvatar } = Astro.props;
 const brand = resolveFooterBrand(locale);
 const { primary, secondary } = pickFooterBrandLinks(links);
+const avatarOptions = resolveFooterAvatarOptions({ avatar, randomAvatar });
+const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarManifest.pool) : undefined;
 ---
 
 <section class="hagilight-brand" lang={brand.locale} aria-labelledby="hagilight-brand-title">
   <div class="hagilight-brand__lead">
-    <h2 class="hagilight-brand__headline" id="hagilight-brand-title">{brand.headline}</h2>
+    <div class="hagilight-brand__title">
+      {avatarOptions.avatar && (
+        <picture class="hagilight-brand__avatar" data-random-pool={avatarPool && randomPoolAttribute(avatarPool)}>
+          <source type="image/avif" srcset={avatarAvif.src} />
+          <source type="image/webp" srcset={avatarWebp.src} />
+          <img src={avatarWebp.src} {...footerAvatarImageAttributes()} />
+        </picture>
+      )}
+      <h2 class="hagilight-brand__headline" id="hagilight-brand-title">{brand.headline}</h2>
+    </div>
     <div class="hagilight-brand__body">
       <p class="hagilight-brand__summary">{brand.summary}</p>
       {(primary || secondary) && (
@@ -59,6 +80,7 @@ const { primary, secondary } = pickFooterBrandLinks(links);
       </div>
     ))}
   </dl>
+  {avatarOptions.randomAvatar && <FooterAvatarPicker />}
 </section>
 
 <style>
@@ -85,6 +107,36 @@ const { primary, secondary } = pickFooterBrandLinks(links);
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem 3.5rem;
+  }
+
+  .hagilight-brand__title {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  /* The decorative avatar keeps a fixed 64 px box, so a random swap never moves the headline. */
+  .hagilight-brand__avatar {
+    display: block;
+    flex: none;
+    width: 64px;
+    height: 64px;
+  }
+
+  .hagilight-brand__avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+    object-fit: cover;
+  }
+
+  /* Hidden in a brand block narrower than 360 px, where the headline needs the full width. */
+  @container hagilight-brand (max-width: 359.98px) {
+    .hagilight-brand__avatar {
+      display: none;
+    }
   }
 
   .hagilight-brand__headline {

@@ -5,6 +5,7 @@ import type { HookParameters, StarlightPlugin } from '@astrojs/starlight/types';
 import { resolveFaviconHeadEntry } from '@hagicode/hagilight-core/favicon';
 import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
+import { resolveFooterAvatarOptions, type ResolvedFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
@@ -26,6 +27,18 @@ import { THEME_BOOTSTRAP } from './themes.js';
 
 export interface HagilightToggleOptions {
   enabled?: boolean;
+}
+
+export interface HagilightPromotionOptions extends HagilightToggleOptions {
+  /** Swap the showcase illustration for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
+}
+
+export interface HagilightFooterOptions {
+  /** Show the decorative avatar in the footer brand block. Defaults to `true`. */
+  avatar?: boolean;
+  /** Swap the footer avatar for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
 }
 
 export interface HagilightGoogleAnalyticsOptions {
@@ -112,8 +125,10 @@ export interface HagilightStarlightOptions {
   aiDisclosures?: HagilightAIDisclosureOptions;
   /** Theme picker with three extra light/dark themes and a Forest first-visit default. */
   themes?: HagilightThemesOptions;
+  /** Footer brand block options: the decorative avatar and its random pool. */
+  footer?: HagilightFooterOptions;
   /** End-of-article HagiCode introduction. */
-  hagicodePromotion?: HagilightToggleOptions;
+  hagicodePromotion?: HagilightPromotionOptions;
   /** Floating promotion banner rendered after the footer. */
   promoto?: HagilightToggleOptions;
   /** Body-image baseline (`loading`, `decoding`, marker class) for Markdown and MDX. Defaults to enabled. */
@@ -137,6 +152,8 @@ interface ResolvedSeoOptions {
 interface SerializedOptions {
   promotoEnabled: boolean;
   hagicodePromotionEnabled: boolean;
+  hagicodePromotionRandomAvatar: boolean;
+  footerAvatar: ResolvedFooterAvatarOptions;
   links: SiteLinksOptions;
   googleAnalyticsMeasurementId: string | undefined;
   fiftyOneLaId: string | undefined;
@@ -270,6 +287,14 @@ function resolveHagicodePromotion(config: unknown): boolean {
     throw new TypeError('Hagilight hagicodePromotion enabled option must be a boolean.');
   }
   return (config.enabled as boolean | undefined) ?? true;
+}
+
+function resolveHagicodePromotionRandomAvatar(config: unknown): boolean {
+  if (config === undefined || !isRecord(config)) return true;
+  if (config.randomAvatar !== undefined && typeof config.randomAvatar !== 'boolean') {
+    throw new TypeError('Hagilight hagicodePromotion randomAvatar option must be a boolean.');
+  }
+  return (config.randomAvatar as boolean | undefined) ?? true;
 }
 
 function getRssFeedUrl(config: StarlightUserConfig): string | undefined {
@@ -430,6 +455,8 @@ import options from '${optionsId}';
   rssFeedUrl={options.rssFeedUrl}
   rssLocaleFeedUrls={options.rssLocaleFeedUrls}
   buildInfo={options.buildInfo}
+  avatar={options.footerAvatar.avatar}
+  randomAvatar={options.footerAvatar.randomAvatar}
 />
 ${promotionRender}
 ${analyticsRender}
@@ -448,6 +475,7 @@ import options from '${optionsId}';
 <MarkdownContent
   aiDisclosures={options.aiDisclosures}
   hagicodePromotionEnabled={options.hagicodePromotionEnabled}
+  hagicodePromotionRandomAvatar={options.hagicodePromotionRandomAvatar}
 ><slot /></MarkdownContent>
 `;
   const headSource = `---
@@ -560,6 +588,12 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
   ) !== false;
   const aiDisclosures = resolveAIDisclosures(input.aiDisclosures);
   const hagicodePromotionEnabled = resolveHagicodePromotion(input.hagicodePromotion);
+  const hagicodePromotionRandomAvatar = resolveHagicodePromotionRandomAvatar(input.hagicodePromotion);
+  const footerOptions = optionalRecord(input.footer, 'footer');
+  const footerAvatar = resolveFooterAvatarOptions({
+    avatar: optionalBoolean(footerOptions, 'avatar', 'footer avatar'),
+    randomAvatar: optionalBoolean(footerOptions, 'randomAvatar', 'footer randomAvatar'),
+  });
   const googleAnalyticsMeasurementId = resolveProvider(analytics.googleAnalytics, {
     name: 'Google Analytics',
     idKey: 'measurementId',
@@ -605,6 +639,8 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
   const serializedOptions: SerializedOptions = {
     promotoEnabled,
     hagicodePromotionEnabled,
+    hagicodePromotionRandomAvatar,
+    footerAvatar,
     links: options.links ?? {},
     googleAnalyticsMeasurementId,
     fiftyOneLaId,

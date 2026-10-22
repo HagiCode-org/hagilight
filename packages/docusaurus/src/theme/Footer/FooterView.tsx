@@ -2,14 +2,24 @@ import { Fragment, type CSSProperties, type ReactElement } from 'react';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { pickFooterBrandLinks, resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';
+import { footerAvatarImageAttributes } from '@hagicode/hagilight-core/footer-avatar';
+import { randomPoolAttribute } from '@hagicode/hagilight-core/random-image';
 import type { SiteLink } from '@hagicode/hagilight-core/links';
 import type { FooterLinks } from '../../footer.js';
+
+/** The decorative avatar: the vendored default pair and, when the random option is on, the baked pool. */
+export interface FooterAvatar {
+  avif: string;
+  webp: string;
+  randomPool?: readonly string[];
+}
 
 export interface FooterViewProps {
   links: FooterLinks;
   version: string;
   year: number;
   buildInfo?: BuildInfo;
+  avatar?: FooterAvatar;
 }
 
 interface LinkSectionProps {
@@ -44,13 +54,22 @@ function LinkSection({ heading, navLabel, links, tagged }: LinkSectionProps): Re
   );
 }
 
-function FooterBrand({ locale, links }: { locale: string; links: readonly SiteLink[] }): ReactElement {
+function FooterBrand({ locale, links, avatar }: { locale: string; links: readonly SiteLink[]; avatar?: FooterAvatar }): ReactElement {
   const brand = resolveFooterBrand(locale);
   const { primary, secondary } = pickFooterBrandLinks(links);
   return (
     <section className="hagilight-brand" lang={brand.locale} aria-labelledby="hagilight-brand-title">
       <div className="hagilight-brand__lead">
-        <h2 className="hagilight-brand__headline" id="hagilight-brand-title">{brand.headline}</h2>
+        <div className="hagilight-brand__title">
+          {avatar && (
+            <picture className="hagilight-brand__avatar" data-random-pool={avatar.randomPool && randomPoolAttribute(avatar.randomPool)}>
+              <source type="image/avif" srcSet={avatar.avif} />
+              <source type="image/webp" srcSet={avatar.webp} />
+              <img src={avatar.webp} {...footerAvatarImageAttributes()} />
+            </picture>
+          )}
+          <h2 className="hagilight-brand__headline" id="hagilight-brand-title">{brand.headline}</h2>
+        </div>
         <div className="hagilight-brand__body">
           <p className="hagilight-brand__summary">{brand.summary}</p>
           {(primary || secondary) && (
@@ -103,12 +122,12 @@ function FooterBrand({ locale, links }: { locale: string; links: readonly SiteLi
   );
 }
 
-export function FooterView({ links, version, year, buildInfo }: FooterViewProps): ReactElement {
+export function FooterView({ links, version, year, buildInfo, avatar }: FooterViewProps): ReactElement {
   const { labels } = links;
   const buildItems = buildInfoItems(buildInfo);
   return (
     <footer className="hagilight-footer">
-      <FooterBrand locale={links.locale} links={links.quick} />
+      <FooterBrand locale={links.locale} links={links.quick} avatar={avatar} />
       <div className="hagilight-footer__sections">
         {links.relatedSites.length > 0 && (
           <section>

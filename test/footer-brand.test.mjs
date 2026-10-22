@@ -85,9 +85,9 @@ test('the Docusaurus footer drops the buttons but keeps the statement when both 
 });
 
 test('Astro footers mount the shared brand component and ship it in the core package', () => {
-  assert.match(read('../packages/core/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} \/>/u);
+  assert.match(read('../packages/core/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} avatar=\{avatar\} randomAvatar=\{randomAvatar\} \/>/u);
   assert.match(read('../packages/starlight/Footer.astro'), /import FooterBrand from '@hagicode\/hagilight-core\/FooterBrand'/u);
-  assert.match(read('../packages/starlight/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} \/>/u);
+  assert.match(read('../packages/starlight/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} avatar=\{avatar\} randomAvatar=\{randomAvatar\} \/>/u);
   const manifest = JSON.parse(read('../packages/core/package.json'));
   assert.equal(manifest.exports['./FooterBrand'], './FooterBrand.astro');
 });

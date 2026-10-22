@@ -31,6 +31,11 @@ export default {
       caption: 'Hero Scenario: 영웅이 작업을 진행하고, 당신은 진행 상황과 레벨, 이야기를 지켜봅니다.',
       alt: 'Ember Keep이라는 이름의 HagiCode Hero Scenario 패널. 실행 중인 영웅 세 명의 레벨, 진행률, 이야기 문구가 표시됩니다.',
     },
+    {
+      id: 'hero-avatar',
+      caption: '일러스트: 같은 세트에 포함된 HagiCode 히어로 아바타 중 하나이며, 방문할 때마다 바뀝니다.',
+      alt: 'HagiCode 히어로 아바타 일러스트, 양식화된 캐릭터 초상.',
+    },
   ],
   windowsLabel: 'Windows용 다운로드',
   windowsStoreLabel: 'Microsoft Store에서 받기',

@@ -13,6 +13,8 @@ interface Props {
   rssFeedUrl?: string;
   rssLocaleFeedUrls?: Readonly<Record<string, string>>;
   buildInfo?: BuildInfo;
+  avatar?: boolean;
+  randomAvatar?: boolean;
 }
 
 const {
@@ -21,6 +23,8 @@ const {
   rssFeedUrl,
   rssLocaleFeedUrls,
   buildInfo,
+  avatar,
+  randomAvatar,
 } = Astro.props;
 const buildItems = buildInfoItems(buildInfo);
 if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
@@ -46,7 +50,7 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
 
 <DefaultFooter />
 <div class="hagilight-brand-host">
-  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} />
+  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} />
 </div>
 <div class="hagilight-site-links">
   {resolvedLinks.relatedSites.length > 0 && (

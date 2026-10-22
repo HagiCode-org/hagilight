@@ -9,4 +9,6 @@ export interface HagilightGlobalData {
   options: ResolvedHagilightOptions;
   i18n: LoadContext['i18n'];
   buildInfo: BuildInfo;
+  /** The footer avatar's random pool, validated at build time; absent when the random option is off. */
+  footerAvatarPool?: readonly string[];
 }

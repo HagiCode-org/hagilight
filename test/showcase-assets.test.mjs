@@ -48,8 +48,13 @@ test('every manifest entry carries the provenance its kind requires', () => {
     assert.match(asset.audit.checkedOn, /^\d{4}-\d{2}-\d{2}$/u, `${asset.id} audit date`);
     assert.ok(asset.audit.notes.trim(), `${asset.id} audit notes`);
     if (asset.kind === 'sourced') {
-      assert.ok(['web', 'docs'].includes(asset.source?.repo), `${asset.id} source repo`);
-      assert.ok(asset.source?.path?.trim(), `${asset.id} source path`);
+      if (asset.source?.repo === 'img-gen') {
+        assert.match(asset.source.album ?? '', /^[a-z-]+$/u, `${asset.id} source album`);
+        assert.ok(asset.source.objectKey?.startsWith(`${asset.source.album}/`), `${asset.id} object key is in its album`);
+      } else {
+        assert.ok(['web', 'docs'].includes(asset.source?.repo), `${asset.id} source repo`);
+        assert.ok(asset.source?.path?.trim(), `${asset.id} source path`);
+      }
       assert.ok(asset.transforms.length > 0, `${asset.id} records its transcode`);
     }
     if (asset.kind === 'generated') {
@@ -92,7 +97,7 @@ test('shipped showcase source images meet the format, size, and traffic budgets'
 });
 
 test('component registry, copy gallery ids, and manifest ids agree', () => {
-  const imported = [...component.matchAll(/from '\.\/assets\/showcase\/([^']+)'/gu)].map(([, file]) => file).sort();
+  const imported = [...component.matchAll(/from '\.\/assets\/showcase\/([^']+)'/gu)].map(([, file]) => file).filter((file) => !file.endsWith('.json')).sort();
   assert.deepEqual(imported, shippedFiles, 'the component imports every shipped image and nothing else');
 
   const registry = component.match(/const galleryImages[^{]*\{([\s\S]*?)\n\};/u)?.[1] ?? assert.fail('gallery registry');
@@ -118,4 +123,37 @@ test('generated and vector illustrations are never captioned as product screensh
       }
     }
   }
+});
+
+const footerManifest = JSON.parse(readFileSync(join(root, '..', 'core', 'assets', 'footer', 'manifest.json'), 'utf8'));
+
+test('the hero-avatar showcase entry records R2 provenance, a bounded pool and a dated audit', () => {
+  const entry = manifest.assets.find(({ id }) => id === 'hero-avatar');
+  assert.ok(entry, 'the hero-avatar entry exists');
+  assert.equal(entry.kind, 'sourced');
+  assert.equal(entry.file, 'hero-avatar.webp');
+  assert.deepEqual(entry.source, { repo: 'img-gen', album: 'hero-avatars', objectKey: 'hero-avatars/ember-01.avif', width: 1024, height: 1024, bytes: 36086 });
+  assert.match(entry.audit.checkedOn, /^\d{4}-\d{2}-\d{2}$/u);
+  assert.equal(entry.audit.verdict, 'pass');
+  assert.match(entry.audit.notes, /illustration/iu);
+  assert.ok(entry.transforms.some((step) => /upscale 1024/u.test(step)), 'the 1024 px source is recorded as upscaled to the 1200 px minimum');
+  assert.equal(entry.pool.album, 'hero-avatars');
+  assert.equal(entry.pool.maxBytes, 200 * KIB);
+  const keys = entry.pool.entries.map(({ key }) => key);
+  assert.ok(keys.length >= 12 && keys.length <= 200, 'the pool holds 12 to 200 entries');
+  assert.equal(new Set(keys).size, keys.length, 'pool keys are unique');
+  assert.ok(!keys.includes('ember-01'), 'the pool excludes this slot\'s default');
+  assert.ok(!keys.includes('aurora-04'), 'the pool excludes the footer default');
+  for (const pooled of entry.pool.entries) assert.ok(pooled.bytes <= entry.pool.maxBytes, `${pooled.key} is within the byte cap`);
+  assert.deepEqual(keys, footerManifest.pool.entries.map(({ key }) => key), 'the showcase pool is the audited footer list');
+});
+
+test('the hero-avatar showcase raster is 1200 px wide and inside both budgets', () => {
+  const entry = manifest.assets.find(({ id }) => id === 'hero-avatar');
+  const bytes = readFileSync(join(assetsDir, entry.file));
+  assert.equal(bytes.length, entry.bytes, 'recorded bytes match the file');
+  assert.ok(bytes.length <= 200 * KIB, `hero-avatar is ${bytes.length} bytes, over the 200 KiB raster budget`);
+  assert.deepEqual(webpSize(bytes), { width: 1200, height: 1200 });
+  const total = manifest.assets.reduce((sum, asset) => sum + statSync(join(assetsDir, asset.file)).size, 0);
+  assert.ok(total <= 768 * KIB, `showcase total ${total} bytes is over the 768 KiB budget`);
 });

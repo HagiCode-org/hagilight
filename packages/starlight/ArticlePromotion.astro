@@ -3,18 +3,29 @@ import { Picture } from 'astro:assets';
 import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
+import { randomPoolAttribute, randomPoolFromManifest } from '@hagicode/hagilight-core/random-image';
 import {
   resolveMicrosoftStoreBadgeLanguage,
   resolveMicrosoftStoreProductId,
 } from './dist/windows-download.js';
+import heroAvatar from './assets/showcase/hero-avatar.webp';
 import heroes from './assets/showcase/heroes.webp';
 import pillarEfficient from './assets/showcase/pillar-efficient.svg';
 import pillarFun from './assets/showcase/pillar-fun.svg';
 import pillarSmart from './assets/showcase/pillar-smart.svg';
 import proposalWorkflow from './assets/showcase/proposal-workflow.webp';
 import workbench from './assets/showcase/workbench.webp';
+import showcaseManifest from './assets/showcase/manifest.json';
+import ArticlePromotionPicker from './ArticlePromotionPicker.astro';
 
-const { lang } = Astro.props;
+interface Props {
+  lang?: string;
+  /** Swap the illustration for one random pool entry per page view. Defaults to `true`. */
+  randomAvatar?: boolean;
+}
+
+const { lang, randomAvatar = true } = Astro.props;
+if (typeof randomAvatar !== 'boolean') throw new TypeError('Hagilight hagicodePromotion randomAvatar option must be a boolean.');
 const copy = getArticlePromotionCopy(lang);
 const siteLinks = resolveSiteLinks(lang);
 const linkHref = (id: string, fallback: string) =>
@@ -33,7 +44,12 @@ const galleryImages: Record<string, ImageMetadata> = {
   workbench,
   'proposal-workflow': proposalWorkflow,
   heroes,
+  'hero-avatar': heroAvatar,
 };
+// The illustration slot is the only gallery image that may change; its pool lives in the showcase manifest.
+const AVATAR_ID = 'hero-avatar';
+const avatarEntry = showcaseManifest.assets.find(({ id }) => id === AVATAR_ID);
+const avatarPool = randomAvatar && avatarEntry && 'pool' in avatarEntry ? randomPoolFromManifest(avatarEntry.pool) : undefined;
 const pillarIcons: Record<string, ImageMetadata> = {
   smart: pillarSmart,
   efficient: pillarEfficient,
@@ -90,7 +106,7 @@ const gallery = copy.gallery.flatMap((item) => {
     <ul class="hagilight-article-promotion__gallery" aria-labelledby="hagilight-article-promotion-gallery-title">
       {gallery.map((item) => (
         <li>
-          <figure>
+          <figure data-random-pool={item.id === AVATAR_ID && avatarPool ? randomPoolAttribute(avatarPool) : undefined}>
             <Picture
               src={item.image}
               alt={item.alt}
@@ -110,6 +126,8 @@ const gallery = copy.gallery.flatMap((item) => {
       ))}
     </ul>
   </div>
+
+  {avatarPool && <ArticlePromotionPicker />}
 
   <div class="hagilight-article-promotion__closing">
     <div class="hagilight-article-promotion__windows">
@@ -419,6 +437,11 @@ const gallery = copy.gallery.flatMap((item) => {
     line-height: 1.5;
   }
 
+  /* The illustration is a small square with its caption beside it, so it reads as an avatar, not a screenshot. */
+  .hagilight-article-promotion__gallery li:nth-child(4) picture {
+    max-width: 12rem;
+  }
+
   /* Closing: a full-bleed band, the heaviest surface, so "get it" is where the eye lands last. */
   .hagilight-article-promotion__closing {
     display: grid;
@@ -519,6 +542,15 @@ const gallery = copy.gallery.flatMap((item) => {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 2rem;
     }
+
+    .hagilight-article-promotion__gallery li:nth-child(4) {
+      grid-column: 1 / -1;
+    }
+
+    .hagilight-article-promotion__gallery li:nth-child(4) figure {
+      grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+      align-items: end;
+    }
   }
 
   /* Wide: the pitch takes the left column and the pillars stack beside it. */
@@ -574,6 +606,10 @@ const gallery = copy.gallery.flatMap((item) => {
 
       .hagilight-article-promotion__gallery li:nth-child(3) {
         animation-range: entry 19% entry 59%;
+      }
+
+      .hagilight-article-promotion__gallery li:nth-child(4) {
+        animation-range: entry 26% entry 66%;
       }
     }
   }
