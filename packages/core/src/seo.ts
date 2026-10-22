@@ -59,6 +59,36 @@ export interface OrganizationStructuredDataInput {
   alternateName?: string;
 }
 
+export interface WebSiteStructuredDataInput {
+  name: string;
+  url: string | URL;
+  basePath?: string;
+}
+
+export interface DefaultOrganizationOptions {
+  name?: string;
+  logo?: string | URL;
+  alternateName?: string;
+}
+
+export interface DefaultStructuredDataInput {
+  siteName?: string;
+  site?: string | URL;
+  basePath?: string;
+  enabled?: boolean;
+  organization?: DefaultOrganizationOptions;
+  structuredData?: StructuredData | readonly StructuredData[];
+  head?: readonly HeadEntry[];
+}
+
+export interface SocialCardOptions {
+  url?: string;
+  type?: string;
+  siteName?: string;
+  locale?: string;
+  image?: string;
+}
+
 export type StructuredData = Record<string, unknown>;
 
 function normalizeBasePath(basePath: string = '/'): string {
@@ -278,6 +308,78 @@ export function composeCanonicalSeoHead(
   return output;
 }
 
+const OPEN_GRAPH_REGION_BY_LANGUAGE: Readonly<Record<string, string>> = {
+  de: 'DE',
+  en: 'US',
+  es: 'ES',
+  fr: 'FR',
+  ja: 'JP',
+  ko: 'KR',
+  ru: 'RU',
+  zh: 'CN',
+};
+
+/**
+ * Convert a BCP 47 tag to the Open Graph `ll_CC` form. Only explicit mappings are used: a tag
+ * without an unambiguous region yields `undefined` instead of a guessed locale.
+ */
+export function toOpenGraphLocale(tag: string | undefined): string | undefined {
+  if (typeof tag !== 'string') return undefined;
+  const [language = '', second = '', third = ''] = tag.trim().split(/[-_]/u);
+  if (!/^[a-z]{2,3}$/iu.test(language)) return undefined;
+  const code = language.toLowerCase();
+  const script = second.length === 4 ? second.toLowerCase() : undefined;
+  const region = script === undefined ? second : third;
+  if (/^[a-z]{2}$/iu.test(region)) return `${code}_${region.toUpperCase()}`;
+  if (script !== undefined) {
+    if (code === 'zh' && script === 'hant') return 'zh_TW';
+    if (code === 'zh' && script === 'hans') return 'zh_CN';
+    return undefined;
+  }
+  if (second !== '') return undefined;
+  const defaultRegion = OPEN_GRAPH_REGION_BY_LANGUAGE[code];
+  return defaultRegion === undefined ? undefined : `${code}_${defaultRegion}`;
+}
+
+function socialCardKey(entry: HeadEntry | undefined): string | undefined {
+  // Open Graph and Twitter names count under either attribute, so `name="og:type"` also wins.
+  return metaKey(entry)
+    ?.replace(/^name:og:/u, 'property:og:')
+    .replace(/^property:twitter:/u, 'name:twitter:');
+}
+
+/**
+ * Append the Open Graph and Twitter card tags that `composeSeoHead` does not write. A key the
+ * consumer already supplies, under either attribute, is left to the consumer, and no entry the
+ * consumer passed is changed.
+ */
+export function composeSocialCardHead(
+  head: readonly HeadEntry[],
+  card: SocialCardOptions,
+  explicitHead: readonly (readonly HeadEntry[] | undefined)[] = [],
+): HeadEntry[] {
+  const present = new Set(
+    [...head, ...flattenHeads(explicitHead)]
+      .map(socialCardKey)
+      .filter((key): key is string => Boolean(key)),
+  );
+  const siteName = card.siteName?.trim();
+  const values: [string, string | undefined][] = [
+    ['property:og:url', card.url || undefined],
+    ['property:og:type', card.type?.trim() || 'website'],
+    ['property:og:site_name', siteName || undefined],
+    ['property:og:locale', toOpenGraphLocale(card.locale)],
+    ['name:twitter:card', card.image ? 'summary_large_image' : 'summary'],
+  ];
+  const result = [...head];
+  for (const [key, content] of values) {
+    if (content === undefined || present.has(key)) continue;
+    const separator = key.indexOf(':');
+    result.push({ tag: 'meta', attrs: { [key.slice(0, separator)]: key.slice(separator + 1), content } });
+  }
+  return result;
+}
+
 function dateValue(value: unknown, field: string): string | undefined {
   if (value === undefined || value === null) return undefined;
   const date = value instanceof Date ? value : new Date(value as string | number);
@@ -356,6 +458,90 @@ export function buildOrganizationStructuredData({
     organization.alternateName = alternateName.trim();
   }
   return organization;
+}
+
+function siteRootHref(url: string | URL, basePath: string = '/'): string {
+  return new URL(`${normalizeBasePath(basePath)}/`, resolveAbsoluteHttpUrl(url, 'site URL')).href;
+}
+
+export function buildWebSiteStructuredData({ name, url, basePath = '/' }: WebSiteStructuredDataInput): StructuredData {
+  if (typeof name !== 'string' || !name.trim()) {
+    throw new TypeError('Hagilight SEO website name must be a non-empty string.');
+  }
+  const root = siteRootHref(url, basePath);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${root}#website`,
+    name: name.trim(),
+    url: root,
+  };
+}
+
+function addStructuredDataTypes(types: Set<string>, value: unknown): void {
+  if (Array.isArray(value)) {
+    for (const item of value) addStructuredDataTypes(types, item);
+    return;
+  }
+  if (typeof value !== 'object' || value === null) return;
+  const { '@type': type, '@graph': graph } = value as StructuredData;
+  for (const name of Array.isArray(type) ? type : [type]) {
+    if (typeof name === 'string') types.add(name);
+  }
+  addStructuredDataTypes(types, graph);
+}
+
+/**
+ * Collect the `@type` values a page already declares at the top level and inside `@graph`, from
+ * the consumer's structured data and from JSON-LD head scripts. An unparseable script declares
+ * nothing, so it can never suppress a default block.
+ */
+export function collectStructuredDataTypes(
+  structuredData: StructuredData | readonly StructuredData[] = [],
+  head: readonly HeadEntry[] = [],
+): Set<string> {
+  const types = new Set<string>();
+  addStructuredDataTypes(types, structuredData);
+  for (const entry of head) {
+    if (entry.tag !== 'script' || entry.attrs?.type !== 'application/ld+json' || typeof entry.content !== 'string') {
+      continue;
+    }
+    try {
+      addStructuredDataTypes(types, JSON.parse(entry.content));
+    } catch {
+      // Unreadable JSON-LD is ignored; the default block for its types is still emitted.
+    }
+  }
+  return types;
+}
+
+/**
+ * Build the `WebSite` and `Organization` blocks that the page does not already declare. Nothing is
+ * built when disabled, without an absolute site URL, or without a site title.
+ */
+export function buildDefaultStructuredData({
+  siteName,
+  site,
+  basePath,
+  enabled = true,
+  organization = {},
+  structuredData,
+  head,
+}: DefaultStructuredDataInput = {}): StructuredData[] {
+  const name = siteName?.trim();
+  if (!enabled || !name || site === undefined) return [];
+  const declared = collectStructuredDataTypes(structuredData, head);
+  const blocks: StructuredData[] = [];
+  if (!declared.has('WebSite')) blocks.push(buildWebSiteStructuredData({ name, url: site, basePath }));
+  if (!declared.has('Organization')) {
+    blocks.push(buildOrganizationStructuredData({
+      name: organization.name?.trim() || name,
+      url: siteRootHref(site, basePath),
+      logo: organization.logo,
+      alternateName: organization.alternateName,
+    }));
+  }
+  return blocks;
 }
 
 /** Serialize JSON-LD safely for inline `<script type="application/ld+json">`. */

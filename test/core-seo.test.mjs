@@ -4,13 +4,18 @@ import { test } from 'node:test';
 import {
   buildArticleStructuredData,
   buildBreadcrumbStructuredData,
+  buildDefaultStructuredData,
   buildOrganizationStructuredData,
+  buildWebSiteStructuredData,
+  collectStructuredDataTypes,
   composeCanonicalSeoHead,
+  composeSocialCardHead,
   isValidSeoImageReference,
   resolveCanonicalUrl,
   resolveSeoImageUrl,
   resolveSeoMetadata,
   serializeJsonLd,
+  toOpenGraphLocale,
 } from '@hagicode/hagilight-core/seo';
 import { seoSchema } from '@hagicode/hagilight-core/seo-schema';
 
@@ -148,4 +153,152 @@ test('structured-data builders include only supplied facts and safely serialize 
   const serialized = serializeJsonLd({ text: '</script><script>alert(1)</script>' });
   assert.equal(JSON.parse(serialized).text, '</script><script>alert(1)</script>');
   assert.doesNotMatch(serialized, /<\/script/iu);
+});
+
+test('converts locales to Open Graph form only through unambiguous mappings', () => {
+  assert.equal(toOpenGraphLocale('zh-CN'), 'zh_CN');
+  assert.equal(toOpenGraphLocale('en_gb'), 'en_GB');
+  assert.equal(toOpenGraphLocale('zh-Hant'), 'zh_TW');
+  assert.equal(toOpenGraphLocale('zh-Hans'), 'zh_CN');
+  assert.equal(toOpenGraphLocale('zh-Hant-HK'), 'zh_HK');
+  assert.equal(toOpenGraphLocale('en'), 'en_US');
+  assert.equal(toOpenGraphLocale('ja'), 'ja_JP');
+  assert.equal(toOpenGraphLocale('fil'), undefined);
+  assert.equal(toOpenGraphLocale('sr-Latn'), undefined);
+  assert.equal(toOpenGraphLocale('en-029'), undefined);
+  assert.equal(toOpenGraphLocale(''), undefined);
+  assert.equal(toOpenGraphLocale(undefined), undefined);
+});
+
+test('generated card tags carry the canonical URL, type, site name, locale and card kind', () => {
+  const existing = { tag: 'meta', attrs: { name: 'description', content: 'Summary' } };
+  const card = composeSocialCardHead([existing], {
+    url: 'https://docs.example.test/manual/page/',
+    siteName: ' Docs Example ',
+    locale: 'zh-CN',
+    image: 'https://docs.example.test/manual/card.png',
+  });
+  assert.equal(card[0], existing);
+  assert.deepEqual(card.slice(1), [
+    { tag: 'meta', attrs: { property: 'og:url', content: 'https://docs.example.test/manual/page/' } },
+    { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
+    { tag: 'meta', attrs: { property: 'og:site_name', content: 'Docs Example' } },
+    { tag: 'meta', attrs: { property: 'og:locale', content: 'zh_CN' } },
+    { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+  ]);
+
+  const bare = composeSocialCardHead([], { url: 'https://docs.example.test/', type: 'article' });
+  assert.deepEqual(bare.map(({ attrs }) => attrs.property ?? attrs.name), ['og:url', 'og:type', 'twitter:card']);
+  assert.equal(bare[1].attrs.content, 'article');
+  assert.equal(bare[2].attrs.content, 'summary');
+});
+
+test('consumer card tags win over generated ones under either attribute', () => {
+  const consumer = [
+    { tag: 'meta', attrs: { property: 'og:type', content: 'article' } },
+    { tag: 'meta', attrs: { name: 'og:url', content: 'https://docs.example.test/custom/' } },
+    { tag: 'meta', attrs: { property: 'og:site_name', content: 'Consumer name' } },
+    { tag: 'meta', attrs: { property: 'og:locale', content: 'fr_FR' } },
+    { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary' } },
+  ];
+  const card = {
+    url: 'https://docs.example.test/manual/page/',
+    siteName: 'Site',
+    locale: 'en-US',
+    image: 'https://docs.example.test/manual/card.png',
+  };
+  assert.deepEqual(composeSocialCardHead(consumer, card), consumer);
+  assert.deepEqual(composeSocialCardHead([], card, [consumer]), []);
+
+  const partial = composeSocialCardHead([{ tag: 'meta', attrs: { name: 'og:type', content: 'article' } }], {
+    url: 'https://docs.example.test/manual/page/',
+    type: 'website',
+  });
+  assert.deepEqual(partial.filter(({ attrs }) => attrs.property === 'og:type' || attrs.name === 'og:type')
+    .map(({ attrs }) => attrs.content), ['article']);
+  assert.equal(partial.filter(({ attrs }) => attrs.property === 'og:url').length, 1);
+});
+
+test('default WebSite and Organization blocks are built from the site and skip declared types', () => {
+  assert.deepEqual(buildWebSiteStructuredData({
+    name: ' Docs Example ',
+    url: 'https://docs.example.test',
+    basePath: '/manual/',
+  }), {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': 'https://docs.example.test/manual/#website',
+    name: 'Docs Example',
+    url: 'https://docs.example.test/manual/',
+  });
+
+  const both = buildDefaultStructuredData({ siteName: 'Example Docs', site: 'https://docs.example.test/' });
+  assert.deepEqual(both.map(({ '@type': type }) => type), ['WebSite', 'Organization']);
+  assert.deepEqual(both[1], {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Example Docs',
+    url: 'https://docs.example.test/',
+  });
+
+  const consumerWebsite = { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Consumer' };
+  assert.deepEqual(
+    buildDefaultStructuredData({ siteName: 'Example Docs', site: 'https://docs.example.test/', structuredData: consumerWebsite })
+      .map(({ '@type': type }) => type),
+    ['Organization'],
+  );
+
+  const headScripts = [
+    { tag: 'script', attrs: { type: 'application/ld+json' }, content: '{"@type":"WebSite"}' },
+    { tag: 'script', attrs: { type: 'application/ld+json' }, content: '{"@graph":[{"@type":"Organization"}]}' },
+  ];
+  assert.deepEqual(buildDefaultStructuredData({
+    siteName: 'Example Docs',
+    site: 'https://docs.example.test/',
+    head: headScripts,
+  }), []);
+
+  const unreadable = [{ tag: 'script', attrs: { type: 'application/ld+json' }, content: '{not json' }];
+  assert.deepEqual(
+    buildDefaultStructuredData({ siteName: 'Example Docs', site: 'https://docs.example.test/', head: unreadable })
+      .map(({ '@type': type }) => type),
+    ['WebSite', 'Organization'],
+  );
+
+  assert.deepEqual([...collectStructuredDataTypes({ '@graph': [{ '@type': 'Organization' }] })], ['Organization']);
+  assert.equal(collectStructuredDataTypes({
+    '@type': 'WebApplication',
+    publisher: { '@type': 'Organization' },
+  }).has('Organization'), false);
+});
+
+test('default structured data honors the organization override and survives hostile titles', () => {
+  const overridden = buildDefaultStructuredData({
+    siteName: 'Example Docs',
+    site: 'https://docs.example.test/',
+    organization: {
+      name: 'Example Labs',
+      logo: 'https://docs.example.test/logo.png',
+      alternateName: 'EL',
+    },
+  });
+  assert.equal(overridden[1].name, 'Example Labs');
+  assert.equal(overridden[1].logo, 'https://docs.example.test/logo.png');
+  assert.equal(overridden[1].alternateName, 'EL');
+
+  assert.deepEqual(buildDefaultStructuredData({ site: 'https://docs.example.test/' }), []);
+  assert.deepEqual(buildDefaultStructuredData({ siteName: 'Example Docs' }), []);
+  assert.deepEqual(buildDefaultStructuredData({
+    siteName: 'Example Docs',
+    site: 'https://docs.example.test/',
+    enabled: false,
+  }), []);
+
+  const hostile = buildDefaultStructuredData({
+    siteName: 'Docs </script><script>alert(1)</script>',
+    site: 'https://docs.example.test/',
+  });
+  const serialized = serializeJsonLd(hostile[0]);
+  assert.doesNotMatch(serialized, /<\/script/iu);
+  assert.equal(JSON.parse(serialized).name, 'Docs </script><script>alert(1)</script>');
 });

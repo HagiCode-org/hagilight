@@ -99,9 +99,9 @@ const sections = [
         id: 'seo-tools',
         title: 'SEO 工具与 schema',
         kind: '构建时工具',
-        summary: '工具函数可构造安全的 canonical 和 JSON-LD 数据；seoSchema 用于校验可选 frontmatter 字段。',
+        summary: '工具函数可构造安全的 canonical 和 JSON-LD 数据；seoSchema 用于校验可选 frontmatter 字段；classifyOgImage 判断预览图格式是否可被爬虫读取。',
         evidence: '本页 head 中的 JSON-LD 脚本只包含示例站点和页面事实。',
-        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });",
+        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\nimport { classifyOgImage } from '@hagicode/hagilight-core/og-image';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });\nconst imageFormat = classifyOgImage('/social/card.avif'); // 'convertible'",
       },
       {
         id: 'favicon',

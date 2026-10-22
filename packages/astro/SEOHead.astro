@@ -1,10 +1,21 @@
 ---
+import { getImage } from 'astro:assets';
 import {
+  buildDefaultStructuredData,
   composeCanonicalSeoHead,
+  composeSocialCardHead,
   resolveSeoMetadata,
   serializeJsonLd,
+  type DefaultOrganizationOptions,
   type HeadEntry,
 } from '@hagicode/hagilight-core/seo';
+import {
+  OG_IMAGE_FORMAT,
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_QUALITY,
+  OG_IMAGE_WIDTH,
+  classifyOgImage,
+} from '@hagicode/hagilight-core/og-image';
 
 interface Props {
   page?: {
@@ -22,6 +33,10 @@ interface Props {
   basePath?: string;
   head?: HeadEntry[];
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  locale?: string;
+  ogType?: string;
+  organization?: DefaultOrganizationOptions;
+  defaultStructuredData?: boolean;
 }
 
 const {
@@ -31,24 +46,91 @@ const {
   basePath = import.meta.env.BASE_URL,
   head = [],
   structuredData = [],
+  locale = Astro.currentLocale,
+  ogType,
+  organization,
+  defaultStructuredData = true,
 } = Astro.props;
 const site = configuredSite?.toString();
 const currentPageUrl = site
   ? new URL(`${Astro.url.pathname}${Astro.url.search}${Astro.url.hash}`, site).href
   : undefined;
+const CONVERTED_IMAGE_OPTIONS = {
+  width: OG_IMAGE_WIDTH,
+  height: OG_IMAGE_HEIGHT,
+  fit: 'cover',
+  format: OG_IMAGE_FORMAT,
+  quality: OG_IMAGE_QUALITY,
+} as const;
+// getImage returns paths that already include the configured base, and resolveSeoImageUrl adds it again.
+const configuredBase = import.meta.env.BASE_URL;
+
+function isAbsoluteHttpUrl(value: string): boolean {
+  return /^https?:\/\//iu.test(value);
+}
+
+function siteRootPath(src: string): string {
+  return src.startsWith(configuredBase) ? `/${src.slice(configuredBase.length)}` : src;
+}
+
+// Only AVIF and WebP are converted. Anything else is kept as declared, and a failed conversion fails the build.
+async function resolveDeclaredImage(reference: string | undefined): Promise<string | undefined> {
+  if (reference === undefined) return undefined;
+  const classification = classifyOgImage(reference);
+  if (classification === 'compatible') return reference;
+  if (classification === 'unrecognised') {
+    console.warn(`Hagilight SEO image ${reference} was kept as declared: its format was not checked for crawler compatibility.`);
+    return reference;
+  }
+  if (!isAbsoluteHttpUrl(reference)) {
+    console.warn(`Hagilight SEO image ${reference} was kept as declared: site-root images are not converted, so its format was not checked for crawler compatibility.`);
+    return reference;
+  }
+  let image: { src: string };
+  try {
+    image = await getImage({ ...CONVERTED_IMAGE_OPTIONS, src: reference });
+  } catch (error) {
+    throw new Error(`Hagilight could not convert the SEO image ${reference}: ${(error as Error).message}`, { cause: error });
+  }
+  // Astro returns the remote address unchanged, without an error, when the host is not in image.domains.
+  if (isAbsoluteHttpUrl(image.src)) {
+    const host = new URL(reference).hostname;
+    throw new Error(`Hagilight could not convert the SEO image ${reference}: its host ${host} is not permitted. Add ${host} to image.domains in the Astro config.`);
+  }
+  return siteRootPath(image.src);
+}
+
+const declaredImage = await resolveDeclaredImage(page.image ?? siteSeo.image);
 const metadata = {
-  ...resolveSeoMetadata({ pageSeo: page, siteSeo, site, basePath }),
+  ...resolveSeoMetadata({ pageSeo: { ...page, image: declaredImage }, siteSeo, site, basePath }),
   site,
 };
 const canonicalUrl = page.url?.toString() ?? currentPageUrl;
-const composedHead = composeCanonicalSeoHead(head, metadata, {
+const canonicalHead = composeCanonicalSeoHead(head, metadata, {
   canonicalUrl,
   explicitHead: [head],
 });
+const canonicalLink = canonicalHead.find(({ tag, attrs }) => tag === 'link' && attrs?.rel === 'canonical');
+const composedHead = composeSocialCardHead(canonicalHead, {
+  url: typeof canonicalLink?.attrs?.href === 'string' ? canonicalLink.attrs.href : undefined,
+  type: ogType,
+  siteName: siteSeo.title,
+  locale,
+  image: metadata.image,
+}, [head]);
 const dataValues = Array.isArray(structuredData) ? structuredData : [structuredData];
+const defaultValues = buildDefaultStructuredData({
+  siteName: siteSeo.title,
+  site,
+  basePath,
+  enabled: defaultStructuredData,
+  organization,
+  structuredData: dataValues,
+  head,
+});
 ---
 
 {composedHead.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
-{dataValues.map((value) => (
+{[...defaultValues, ...dataValues].map((value) => (
   <script type="application/ld+json" set:html={serializeJsonLd(value)} />
 ))}

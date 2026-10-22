@@ -215,10 +215,18 @@ test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, 
 
     const structuredData = [...head.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gu)]
       .map(([, json]) => JSON.parse(json));
-    assert.deepEqual(structuredData.map(({ '@type': type }) => type), ['WebSite', 'WebPage']);
+    // The default Organization comes first; the consumer's WebSite suppresses the default one.
+    assert.deepEqual(structuredData.map(({ '@type': type }) => type), ['Organization', 'WebSite', 'WebPage']);
     assert.equal(structuredData[0].url, 'https://hagilight.hagicode.com/');
-    assert.equal(structuredData[1].url, page.canonical);
-    assert.equal(typeof structuredData[1].description, 'string');
+    assert.equal(structuredData[1].url, 'https://hagilight.hagicode.com/');
+    assert.equal(structuredData[2].url, page.canonical);
+    assert.equal(typeof structuredData[2].description, 'string');
+    for (const property of ['og:url', 'og:type', 'og:site_name', 'og:locale']) {
+      assert.equal(head.split(`property="${property}"`).length - 1, 1, `${page.file} has one ${property}`);
+    }
+    assert.equal(head.split('name="twitter:card"').length - 1, 1, `${page.file} has one twitter:card`);
+    assert.match(head, new RegExp(`property="og:locale" content="${page.locale.replace('-', '_')}"`, 'u'));
+    assert.match(head, /property="og:site_name" content="Hagilight"/u);
   }
   assert.match(config, /import \{ hagilight, hagilightFavicon \} from '@hagicode\/hagilight\/integration'/u);
   assert.match(config, /hagilightFavicon\(\)/u);

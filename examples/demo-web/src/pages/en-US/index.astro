@@ -99,9 +99,9 @@ const sections = [
         id: 'seo-tools',
         title: 'SEO helpers and schema',
         kind: 'Build-time tools',
-        summary: 'Utilities build safe canonical and JSON-LD data; seoSchema validates optional frontmatter fields.',
+        summary: 'Utilities build safe canonical and JSON-LD data; seoSchema validates optional frontmatter fields; classifyOgImage reports whether a preview image format is crawler-readable.',
         evidence: 'The JSON-LD scripts in this page head contain only the demo site and page facts.',
-        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });",
+        example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\nimport { classifyOgImage } from '@hagicode/hagilight-core/og-image';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });\nconst imageFormat = classifyOgImage('/social/card.avif'); // 'convertible'",
       },
       {
         id: 'favicon',
