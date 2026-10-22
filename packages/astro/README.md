@@ -84,8 +84,10 @@ Social crawlers cannot read every image format, so `SEOHead` checks the preview 
 | Format | Extensions | Result |
 | --- | --- | --- |
 | Crawler-compatible | `.jpg`, `.jpeg`, `.png`, `.gif` | Declared exactly as given. Nothing is fetched or re-encoded. |
-| Convertible | `.avif`, `.webp` | A remote `http://` or `https://` image becomes a 1200×630 JPEG at quality 80, cropped to fill the frame, written under the build output. The declared address is that file under the site's own origin. |
+| Convertible | `.avif`, `.webp` | A remote `http://` or `https://` image becomes a JPEG at quality 80, written under the build output. The declared address is that file under the site's own origin. |
 | Unrecognised | anything else, such as `.svg` or no extension | Declared exactly as given, with a build warning. |
+
+The output is never larger than 1200×630 and is never enlarged, so a smaller image keeps its size: a 640×400 image stays 640×400, a 1024×768 image becomes 1024×630, and a 1600×1000 image becomes 1200×630.
 
 A convertible image given as a site-root path is not converted. It is declared as given, with the same kind of warning. Pages that share one convertible image share one converted file.
 
