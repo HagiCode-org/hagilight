@@ -52,6 +52,9 @@ function promotoSiteIdHeadTags(options: ResolvedHagilightOptions): HtmlTagObject
   return [{ tagName: 'meta', attributes: { name: 'hagilight-site-id', content: siteId } }];
 }
 
+/** The footer avatar pair in the core package; matched by path so the rule holds in any install layout. */
+const FOOTER_AVATAR_ASSET = /[\\/]footer[\\/]avatar\.(?:avif|webp)$/u;
+
 function clientModules(options: ResolvedHagilightOptions): string[] {
   const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined;
   const footerAvatarPicker = options.footer && options.footerAvatar.randomAvatar;
@@ -96,6 +99,18 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     name: PLUGIN_NAME,
     ...(themeEnabled ? { getThemePath: () => packageFile('./theme') } : {}),
     getClientModules: () => clientModules(options),
+    configureWebpack(config: { module?: { rules?: unknown[] } }) {
+      // Docusaurus inlines images under 10 000 bytes as data URIs in every page. The footer avatar is a
+      // shared asset, so its two files are emitted as ordinary images instead, once per build.
+      const rules = config.module?.rules ?? [];
+      for (const rule of rules) {
+        const candidate = rule as { test?: unknown; exclude?: unknown; use?: unknown };
+        if (candidate.test instanceof RegExp && candidate.use && candidate.test.test('avatar.webp')) {
+          candidate.exclude = FOOTER_AVATAR_ASSET;
+        }
+      }
+      rules.push({ test: FOOTER_AVATAR_ASSET, type: 'asset/resource', generator: { filename: 'assets/images/hagilight-footer-[name]-[contenthash:8][ext]' } });
+    },
     contentLoaded({ actions }) {
       actions.setGlobalData(globalData);
     },

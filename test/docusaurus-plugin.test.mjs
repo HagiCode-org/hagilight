@@ -73,11 +73,22 @@ test('the default export is the same factory as the named export', () => {
   assert.equal(defaultExport, hagilightDocusaurus);
 });
 
+test('the footer avatar picker ships only while the footer and its randomAvatar option are on', () => {
+  const picker = (options) => createPlugin(options).getClientModules().map(fileName).includes('random-image.js');
+  assert.equal(picker({ footer: { randomAvatar: false } }), false);
+  assert.equal(picker({ footer: { avatar: false } }), false);
+  assert.equal(picker({ footer: { enabled: false } }), false);
+  assert.equal(picker({ footer: { randomAvatar: true } }), true);
+  assert.throws(() => createPlugin({ footer: { avatar: 'no' } }), /footer\.avatar. must be a boolean/u);
+});
+
 test('registering with no options enables every standard feature', () => {
   const plugin = createPlugin();
   assert.equal(plugin.name, '@hagicode/hagilight-docusaurus');
   assert.ok(plugin.getThemePath, 'theme path is exposed while footer is enabled');
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
+  // The footer avatar picker follows the footer and its randomAvatar option, and only those.
+  assert.ok(plugin.getClientModules().some((path) => fileName(path) === 'random-image.js'));
 
   const { options, version } = capturedGlobalData(plugin);
   assert.match(version, /^\d+\.\d+\.\d+/u);
@@ -256,12 +267,12 @@ test('a disabled provider leaves no head tags behind', () => {
   process.env.NODE_ENV = 'production';
   const plugin = createPlugin({ analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } } });
   assert.deepEqual(nonSeoHeadTags(plugin), []);
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
 });
 
 test('a disabled promote card ships neither its client module nor its stylesheet', () => {
   const plugin = createPlugin({ promoto: { enabled: false } });
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'styles.css']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'styles.css', 'random-image.js']);
 });
 
 test('a sharing image is required by default and the warning is silent when either source sets one', () => {
@@ -333,11 +344,11 @@ test('PostHog emits one shared head script only in production and stays independ
     googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false },
   } });
   assert.deepEqual(nonSeoHeadTags(onlyPosthog), [{ tagName: 'script', innerHTML: posthogInitScript() }]);
-  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css']);
+  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
   const noPosthog = createPlugin({ analytics: { posthog: { enabled: false } } });
   assert.equal(nonSeoHeadTags(noPosthog).length, 4);
   assert.ok(nonSeoHeadTags(noPosthog).every((tag) => !tag.innerHTML?.includes('posthog.init')));
-  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css']);
+  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
   const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
   assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML === posthogInitScript('phc_Custom123')).length, 1);
 });
