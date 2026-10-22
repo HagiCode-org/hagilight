@@ -55,6 +55,10 @@
       "types": "./dist/seo-schema.d.ts",
       "default": "./dist/seo-schema.js"
     },
+    "./og-image": {
+      "types": "./dist/og-image.d.ts",
+      "default": "./dist/og-image.js"
+    },
     "./rss": {
       "types": "./dist/rss.d.ts",
       "default": "./dist/rss.js"

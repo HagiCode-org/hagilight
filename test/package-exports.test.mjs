@@ -29,6 +29,7 @@ const expectedExports = {
   '@hagicode/hagilight-core/favicon': ['getHagilightFaviconDataUri', 'resolveFaviconHeadEntry'],
   '@hagicode/hagilight-core/seo': ['composeCanonicalSeoHead', 'composeSeoHead', 'resolveSeoMetadata', 'serializeJsonLd'],
   '@hagicode/hagilight-core/seo-schema': ['seoSchema'],
+  '@hagicode/hagilight-core/og-image': ['OG_IMAGE_FORMAT', 'OG_IMAGE_HEIGHT', 'OG_IMAGE_QUALITY', 'OG_IMAGE_WIDTH', 'classifyOgImage'],
   '@hagicode/hagilight-core/rss': ['generateRssFeed', 'resolveRssLocales'],
   '@hagicode/hagilight-core/rss-ownership': ['RSS_OWNER', 'registerStarlightRssOwner', 'resolvePlainAstroRssOwner'],
   '@hagicode/hagilight-core/site-metadata': [
