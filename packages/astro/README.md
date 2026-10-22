@@ -118,6 +118,26 @@ Pass `llms: false` (or `{ enabled: false }`) to opt out. The file is only as goo
 - Hosts that drop dot-directories need an explicit opt-in. GitHub Pages' Jekyll step skips `.well-known` unless the published root contains an empty `.nojekyll` file.
 - When the Starlight plugin is also registered with metadata enabled, the Starlight plugin writes the file, and this integration defers to it. Registration order does not change the output.
 
+## PostHog
+
+`hagilight()` injects PostHog into the head of every page of a production build, with no analytics option, enabled flag, or project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`, the same as the Starlight and Docusaurus plugins. `astro dev` pages emit no loader. Injection does not depend on the `enabled` option, which controls only the sitemap and `robots.txt`.
+
+| PostHog input | Behavior |
+| --- | --- |
+| `analytics` omitted, `analytics: {}`, or `posthog` omitted | Enabled with the supplied default key |
+| `posthog: {}` | Disabled, like an empty provider in the Starlight plugin |
+| `posthog: { apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true, apiKey: 'phc_Custom123' }` | Enabled with the custom key |
+| `posthog: { enabled: true }` | Configuration error: `apiKey` required |
+| `posthog: { enabled: false }` | Disabled |
+
+```js
+hagilight({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
+hagilight({ analytics: { posthog: { enabled: false } } });
+```
+
+The built-in key belongs to HagiCode, so a site that omits `analytics` sends its traffic to HagiCode's project. The loader initializes once per document. SDK defaults own navigation tracking; Hagilight adds no capture calls. Choose one initialization owner: a site that already renders `@hagicode/hagilight-core/PostHog` or another PostHog snippet should remove it or set `enabled: false`. When `@astrojs/starlight` is registered, this integration injects nothing and the Starlight plugin owns PostHog. The `analytics.posthog` flag in `hagilight.metadata.json` is `true` when the built pages contain the loader.
+
 ## Body images
 
 `hagilight()` registers the content-image plugin from `@hagicode/hagilight-core/content-images`. Markdown and MDX body images then get `loading="lazy"`, `decoding="async"`, and the class `hagilight-content-image`, with the author's values kept. This registration does not depend on `enabled`, so `hagilight({ enabled: false })` still registers the plugin.

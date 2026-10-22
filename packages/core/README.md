@@ -493,7 +493,7 @@ import {
 const script = posthogInitScript(); // optional custom key as the only argument
 ```
 
-Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro integration does not inject analytics automatically; the demo composes this component in its shared head (and in its transit page's head slot).
+Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro `hagilight()` integration injects the same script into every production head by default (see its README), so render this component only in a custom head where that integration is not the owner, such as a Starlight site that keeps its own `Head` or a site that sets `analytics: { posthog: { enabled: false } }`.
 
 ## Google Analytics click events
 
