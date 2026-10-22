@@ -3,6 +3,7 @@ import logo from './logo.png';
 import favicon from './favicon.ico';
 import { DEFAULT_LOCALE, resolveLocaleMonitor, resolveTransitDestination, type LocaleMonitorOptions } from './dist/root-transit.js';
 import { resolveSplashConfig, type SplashOverrides } from './dist/splash-images.js';
+import { resolveTransitBoard, type TransitBoardOptions } from './dist/root-transit-board.js';
 
 interface Props {
   destination: string;
@@ -16,6 +17,8 @@ interface Props {
   splash?: false | SplashOverrides;
   /** Shows the locale monitor: what the browser inputs resolve to. It never changes the target or the links. */
   localeMonitor?: boolean | LocaleMonitorOptions;
+  /** `false` hides the departures board; an object names this site in the catalog or replaces the bundled sites. */
+  board?: false | TransitBoardOptions;
 }
 
 const {
@@ -26,6 +29,7 @@ const {
   links = [],
   splash,
   localeMonitor,
+  board: boardOption,
 } = Astro.props;
 if (!siteName?.trim()) throw new TypeError('Hagilight RootTransit: siteName is required.');
 const splashConfig = resolveSplashConfig(splash);
@@ -42,12 +46,7 @@ const site = Astro.site ?? Astro.url;
 const href = resolveTransitDestination(destination, { site, base });
 const localeLinks = links.map((link) => ({ ...link, href: resolveTransitDestination(link.destination, { site, base }) }));
 const route = new URL(href, site).pathname;
-const trace = [
-  ['destination', route],
-  ['base', base],
-  ['origin', new URL(site).origin],
-  ['source', 'site configuration'],
-];
+const board = boardOption === false ? null : resolveTransitBoard({ locale, site, siteName, route, ...boardOption });
 ---
 
 <!doctype html>
@@ -116,6 +115,18 @@ const trace = [
         syntax: '<number>';
         inherits: true;
         initial-value: 1;
+      }
+
+      @property --lock {
+        syntax: '<number>';
+        inherits: true;
+        initial-value: 1;
+      }
+
+      @property --reel-blur {
+        syntax: '<number>';
+        inherits: true;
+        initial-value: 0;
       }
 
       *,
@@ -449,6 +460,172 @@ const trace = [
         }
       }
 
+      /* ── 出发看板：生态站点（真实目录数据，随语言本地化）滚过，停在这个站点 ── */
+      .board {
+        --row: 3.5rem;
+        container-type: inline-size;
+        margin: 0;
+      }
+
+      :global(html[data-transit-ready]) .board {
+        animation: boardIn 320ms var(--ease-out) both;
+      }
+
+      @keyframes boardIn {
+        from {
+          opacity: 0;
+        }
+      }
+
+      .board-caption {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.4;
+      }
+
+      /* 窗口只露出几行，上下渐隐；目标行落在正中，不被渐隐遮住 */
+      .board-window {
+        height: calc(var(--shown) * var(--row));
+        overflow: hidden;
+        border-block: 1px solid var(--line);
+        mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+        -webkit-mask-image: linear-gradient(180deg, transparent, #000 20%, #000 80%, transparent);
+      }
+
+      /* --run 与上方路由光束同时长、同缓动：滚动停下的瞬间，目标行正好对齐 */
+      .board-reel {
+        --run: 1;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        transform: translateY(calc(var(--run) * var(--travel) * var(--row) * -1));
+        filter: blur(calc(var(--reel-blur) * 1px));
+      }
+
+      :global(html[data-transit-ready]) .board-reel {
+        animation:
+          routeRun var(--run-dur, 1250ms) cubic-bezier(0.3, 0.55, 0.15, 1) both,
+          reelBlur var(--run-dur, 1250ms) linear both;
+      }
+
+      /* 全速时略微虚化，进站时恢复清晰 */
+      @keyframes reelBlur {
+        0% {
+          --reel-blur: 0;
+        }
+        18% {
+          --reel-blur: 1;
+        }
+        62% {
+          --reel-blur: 0.4;
+        }
+        100% {
+          --reel-blur: 0;
+        }
+      }
+
+      .board-row {
+        position: relative;
+        display: grid;
+        grid-template-areas: 'name aside' 'detail aside';
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: 1fr 1fr;
+        align-items: center;
+        column-gap: 1rem;
+        height: var(--row);
+        padding-inline: 0.75rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+      }
+
+      .board-row:first-child {
+        border-top: 0;
+      }
+
+      .board-name,
+      .board-detail {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .board-name {
+        grid-area: name;
+        align-self: end;
+        color: var(--ink);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      .board-detail {
+        grid-area: detail;
+        align-self: start;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+      }
+
+      .board-aside {
+        grid-area: aside;
+        display: none;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      @container (min-width: 32rem) {
+        .board-aside {
+          display: block;
+        }
+      }
+
+      /* 目标行：背景从左向右填满，和下方「继续」按钮同一种落点语言 */
+      .board-row[data-board-destination] {
+        --lock: 1;
+        isolation: isolate;
+        color: var(--ink);
+      }
+
+      .board-row[data-board-destination]::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(90deg, var(--accent) 0 3px, color-mix(in srgb, var(--accent) 10%, transparent) 3px);
+        transform: scaleX(var(--lock));
+        transform-origin: left;
+      }
+
+      .board-row[data-board-destination] .board-name,
+      .board-row[data-board-destination] .board-aside {
+        color: var(--accent);
+      }
+
+      .board-row[data-board-destination] .board-detail {
+        color: var(--ink);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      :global(html[data-transit-ready]) .board-row[data-board-destination] {
+        animation: boardLock 380ms var(--ease-out) both;
+        animation-delay: calc(var(--run-dur, 1250ms) * 0.8);
+      }
+
+      @keyframes boardLock {
+        from {
+          --lock: 0;
+        }
+        to {
+          --lock: 1;
+        }
+      }
+
       /* ── 语言列表：真实链接，也是手动选择入口 ── */
       .locales-label {
         margin: 0 0 0.75rem;
@@ -573,7 +750,8 @@ const trace = [
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation: none !important; transition: none !important; }
         .splash { transition: none; }
-        .run { --run: 1; }
+        .run, .board-reel { --run: 1; }
+        .board-reel { filter: none; }
         .locales a:hover {
           transform: none;
         }
@@ -581,6 +759,7 @@ const trace = [
 
       @media (forced-colors: active) {
         .splash { display: none; }
+        .board-row[data-board-destination] { outline: 2px solid Highlight; outline-offset: -2px; }
         .locales a[aria-current='true'] {
           outline: 2px solid Highlight;
           forced-color-adjust: none;
@@ -608,13 +787,22 @@ const trace = [
           <h1 class="headline">{heading}</h1>
           <p class="status">{message}</p>
         </div>
-        <dl class="trace" aria-hidden="true">
-          {trace.map(([label, value], index) => (
-            <div class="trace-row" data-state={index === 0 ? 'used' : 'idle'} style={`--i: ${index}`}>
-              <dt>{label}</dt><dd class="trace-value">{value}</dd><dd class="trace-verdict">{index === 0 ? 'configured' : ''}</dd>
+        {board && (
+          <section class="board" data-transit-board aria-hidden="true" style={`--shown: ${board.shown}; --travel: ${board.travel}`}>
+            <p class="board-caption"><span>{board.label}</span><span>{board.count}</span></p>
+            <div class="board-window">
+              <ol class="board-reel">
+                {board.rows.map((row) => (
+                  <li class="board-row" data-board-site={row.id} data-board-destination={row.destination ? '' : undefined}>
+                    <span class="board-name">{row.name}</span>
+                    <span class="board-detail">{row.detail}</span>
+                    <span class="board-aside">{row.aside}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
-          ))}
-        </dl>
+          </section>
+        )}
         <nav class="locales" aria-label={continueLabel}>
           <ul>
             <li><a href={href} data-transit-continue aria-current="true"><span class="chip-label">{continueLabel}</span><span class="chip-filled" aria-hidden="true">{continueLabel}</span></a></li>

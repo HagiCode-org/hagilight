@@ -470,7 +470,7 @@ async function splashContrast(browser, demo) {
   }
 }
 
-const layout = (page) => page.evaluate(() => [...document.querySelectorAll('.headline, .trace-row, .locales a')].map((element) => {
+const layout = (page) => page.evaluate(() => [...document.querySelectorAll('.headline, .board-row, .trace-row, .locales a')].map((element) => {
   const box = element.getBoundingClientRect();
   return [box.x, box.y, box.width, box.height].map((value) => Math.round(value * 100) / 100);
 }));
