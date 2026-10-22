@@ -65,6 +65,8 @@ const REQUIRED_FILES = {
     'dist/site-metadata-writer.d.ts',
     'dist/site-metadata-ownership.js',
     'dist/site-metadata-ownership.d.ts',
+    'dist/og-image.js',
+    'dist/og-image.d.ts',
     ...comparisonArticleDataFiles(),
   ],
   '@hagicode/hagilight-docusaurus': [
@@ -78,8 +80,6 @@ const REQUIRED_FILES = {
     'dist/discovery.js',
     'dist/footer.js',
     'dist/seo.js',
-    'dist/og-image.js',
-    'dist/og-image.d.ts',
     'dist/client/analytics.js',
     'dist/client/promoto.js',
     'dist/client/promoto-markup.js',
