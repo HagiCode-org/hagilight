@@ -26,6 +26,14 @@
       "types": "./dist/splash-images.d.ts",
       "default": "./dist/splash-images.js"
     },
+    "./random-image": {
+      "types": "./dist/random-image.d.ts",
+      "default": "./dist/random-image.js"
+    },
+    "./footer-avatar": {
+      "types": "./dist/footer-avatar.d.ts",
+      "default": "./dist/footer-avatar.js"
+    },
     "./Footer": "./Footer.astro",
     "./links": {
       "types": "./dist/links.d.ts",
@@ -111,7 +119,10 @@
     },
     "./Analytics51LA": "./Analytics51LA.astro",
     "./logo.png": "./logo.png",
-    "./favicon.ico": "./favicon.ico"
+    "./favicon.ico": "./favicon.ico",
+    "./assets/footer/avatar.avif": "./assets/footer/avatar.avif",
+    "./assets/footer/avatar.webp": "./assets/footer/avatar.webp",
+    "./assets/footer/manifest.json": "./assets/footer/manifest.json"
   },
   "files": [
     "README.md",
@@ -119,6 +130,7 @@
     "dist/**/*.d.ts",
     "dist/**/*.json",
     "data/**/*.json",
+    "assets/**/*",
     "*.astro",
     "logo.png",
     "favicon.ico"

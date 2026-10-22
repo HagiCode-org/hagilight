@@ -80,6 +80,19 @@ const expectedExports = {
     'pickFooterBrandLinks',
     'resolveFooterBrand',
   ],
+  '@hagicode/hagilight-core/footer-avatar': [
+    'FOOTER_AVATAR_DISPLAY_PX',
+    'footerAvatarImageAttributes',
+    'resolveFooterAvatarOptions',
+  ],
+  '@hagicode/hagilight-core/random-image': [
+    'RANDOM_IMAGE_TIMEOUT_MS',
+    'mountRandomImages',
+    'pickRandomEntry',
+    'randomPoolAttribute',
+    'randomPoolFromManifest',
+    'validateRandomPool',
+  ],
   '@hagicode/hagilight-core/build-info': [
     'UNKNOWN',
     'buildInfoFromLocals',
