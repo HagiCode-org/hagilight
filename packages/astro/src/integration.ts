@@ -7,6 +7,7 @@ import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
+import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN, posthogInitScript } from '@hagicode/hagilight-core/posthog';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
 import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -57,6 +58,23 @@ export interface HagilightOptions {
    * and generates metadata, the Starlight plugin writes the file.
    */
   metadata?: boolean | HagilightMetadataOptions;
+  /**
+   * Analytics providers this integration injects into every page head of a production build.
+   * Only PostHog is injected here; Starlight sites configure it through the Starlight plugin,
+   * which owns the head, so this integration adds nothing when `@astrojs/starlight` is registered.
+   */
+  analytics?: HagilightAnalyticsOptions;
+}
+
+export interface HagilightAnalyticsOptions {
+  posthog?: HagilightPostHogOptions;
+}
+
+export interface HagilightPostHogOptions {
+  /** Defaults to true when the provider options are omitted, otherwise to whether `apiKey` is set. */
+  enabled?: boolean;
+  /** Project key, `phc_` followed by ASCII letters or digits. Defaults to the HagiCode project key. */
+  apiKey?: string;
 }
 
 export interface HagilightMetadataOptions {
@@ -111,6 +129,29 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+function resolvePostHogApiKey(analytics: unknown): string | undefined {
+  if (analytics !== undefined && !isRecord(analytics)) {
+    throw new TypeError('Hagilight analytics option must be an object.');
+  }
+  const posthog = analytics?.posthog;
+  if (posthog === undefined) return DEFAULT_POSTHOG_API_KEY;
+  if (!isRecord(posthog)) {
+    throw new TypeError('Hagilight PostHog analytics options must be an object.');
+  }
+  if (posthog.enabled !== undefined && typeof posthog.enabled !== 'boolean') {
+    throw new TypeError('Hagilight PostHog analytics enabled option must be a boolean.');
+  }
+  if (!(posthog.enabled ?? Boolean(posthog.apiKey))) return undefined;
+  const apiKey = posthog.apiKey;
+  if (typeof apiKey !== 'string' || !apiKey.trim()) {
+    throw new Error('Hagilight PostHog analytics is enabled but its apiKey is missing.');
+  }
+  if (!POSTHOG_API_KEY_PATTERN.test(apiKey)) {
+    throw new Error('Hagilight PostHog analytics apiKey has an invalid format.');
+  }
+  return apiKey;
+}
+
 function integrationName(integration: unknown): unknown {
   return isRecord(integration) ? integration.name : undefined;
 }
@@ -147,7 +188,7 @@ const BUILTIN_RSS_FEED_SOURCE = BUILTIN_RSS_FEED.toString();
  * owns sitemap generation, a consumer-owned robots page or public file takes
  * precedence, and an enabled Starlight Hagilight integration owns RSS feeds.
  */
-export function hagilight({ enabled = true, rss, contentImages, llms, metadata }: HagilightOptions = {}): AstroIntegration {
+export function hagilight({ enabled = true, rss, contentImages, llms, metadata, analytics }: HagilightOptions = {}): AstroIntegration {
   if (typeof enabled !== 'boolean') {
     throw new TypeError('Hagilight sitemap and robots enabled option must be a boolean.');
   }
@@ -157,6 +198,7 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
   if (isRecord(contentImages) && contentImages.enabled !== undefined && typeof contentImages.enabled !== 'boolean') {
     throw new TypeError('Hagilight content images enabled option must be a boolean.');
   }
+  const posthogApiKey = resolvePostHogApiKey(analytics);
   const llmsOptions = resolveLlmsOptions(llms);
   const metadataOptions = resolveSiteMetadataOption(metadata);
   const contentImagesEnabled = typeof contentImages === 'boolean' ? contentImages : contentImages?.enabled !== false;
@@ -179,7 +221,7 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
   return {
     name: '@hagicode/hagilight:discovery',
     hooks: {
-      'astro:config:setup'({ config, injectRoute, addMiddleware, updateConfig, logger }) {
+      'astro:config:setup'({ command, config, injectRoute, injectScript, addMiddleware, updateConfig, logger }) {
         // Integrations added by this hook go in one update, in order: the sitemap first, then the
         // metadata finalizer, so the finalizer's build hook runs after the sitemap has written its index.
         let sitemapNeeded = false;
@@ -190,6 +232,12 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata }
           metadataPeerToken = resolveSiteMetadataOwner() === 'starlight' ? expectSiteMetadataReport() : undefined;
           updateConfig({ vite: { plugins: [createBuildInfoPlugin(buildInfo)] } });
           addMiddleware({ entrypoint: fileURLToPath(new URL('./build-info-middleware.js', import.meta.url)), order: 'pre' });
+          // Independent of `enabled`. The shared script initializes once per document, and a Starlight
+          // site gets PostHog from the Starlight plugin's generated Head instead.
+          const hasStarlight = (config.integrations ?? []).some((integration) => integrationName(integration) === '@astrojs/starlight');
+          if (posthogApiKey && command === 'build' && !hasStarlight) {
+            injectScript('head-inline', posthogInitScript(posthogApiKey));
+          }
           if (!enabled) return;
           resolveDiscoverySite(config.site);
 
