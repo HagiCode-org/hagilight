@@ -150,6 +150,73 @@ A site whose Content Security Policy blocks the image host should either set
 `splash={false}` or allow `img-src https://img-gen.hagicode.com` and
 `connect-src https://img-gen.hagicode.com`.
 
+### Locale monitor
+
+`localeMonitor` is off unless you set it. It shows what the browser's language inputs would resolve to,
+so a maintainer can see why a visitor lands where they do. It never chooses a route.
+
+```astro
+<RootTransit destination="/en-US/" siteName="My site" localeMonitor />
+<RootTransit destination="/en-US/" siteName="My site" localeMonitor={{ sharedDomain: false }} />
+```
+
+With the monitor on, a caption and five rows appear below the language links. Four rows are detection
+inputs, in the same order as the official website's transit page (`repos/site`, `traceSiteEntryLocale()`):
+
+| Order | Row | Read from | Wins when |
+| --- | --- | --- | --- |
+| 1 | `?lang=` | the page URL | the value is one of the ten supported locales |
+| 2 | `hagicode:site-locale` | `localStorage`, falling back to the legacy `lang` key | the value is supported |
+| 3 | `navigator.languages` | the browser, first supported entry | an entry is supported |
+| 4 | `default` | fixed | nothing above is supported; always `en-US` |
+
+The winning row carries the word **detected**. Unsupported values stay visible and are skipped. A regional
+or legacy form such as `zh-TW`, `zh_CN`, `pt` or `de-AT` resolves to its supported locale, and the row shows
+both, for example `de-AT → de-DE`.
+
+The fifth row, **shared marker**, shows the marker recorded by a HagiCode site on the last visit. It is
+evidence only. It never takes part in detection, and it never changes the target or the links.
+
+Detection and navigation are separate, and the monitor keeps them separate:
+
+| | Target and language links | Locale monitor |
+| --- | --- | --- |
+| Source | `destination` and `links` props | the four inputs above |
+| Changed by a `?lang=` value | no; the forward target and the continue link stay as configured | no; it is reported as detected |
+| Timer | the same 1,570 ms | unchanged; it adds no timer or listener |
+| Marked as | `configured` | `detected` |
+
+With `?lang=zh-CN` on a page configured for `/en-US/`, the page still forwards to `/en-US/?lang=zh-CN`
+after the delay, and the monitor reports `zh-CN` as detected.
+
+#### Cross-site marker
+
+After it resolves the locale, the monitor records one marker: the locale, the winning input, the host and
+the time, for example `zh-CN|query|docs.hagicode.com|1761000000`. It writes only two keys:
+
+- `localStorage` key `hagicode:locale-monitor`, on every host.
+- Cookie `hagicode_locale_monitor`, only when the page host is `hagicode.com` or one of its subdomains. It is
+  written with `Domain=.hagicode.com; Path=/; SameSite=Lax; Secure; Max-Age=15552000` (about 180 days), so
+  every HagiCode subdomain can read it.
+
+`localStorage` is not shared between subdomains, which is why the cookie exists. Reading another site's
+storage would need a hidden iframe bridge, and this component does not add one. The monitor never writes
+`hagicode:site-locale` or `lang`, which belong to the official website.
+
+`localeMonitor={{ sharedDomain }}` sets the cookie domain. The default is `hagicode.com`. Pass `false` for
+same-origin only: no cookie is written anywhere, and the marker stays in `localStorage`. Any other value must
+be a domain such as `example.test`, or the component throws a `TypeError` prefixed `Hagilight RootTransit`
+during rendering.
+
+#### Privacy and failure
+
+The monitor reads the URL, the two storage keys, the marker and `navigator.languages`, and shows them on the
+page. It sends nothing over the network and sends nothing to analytics. A blocked or throwing storage or
+cookie fails only its own row or write, and the page still forwards on time. Without scripting, the five
+rows are present in the HTML with placeholder values, and the continue link works. The cookie is sent with
+every request to every `hagicode.com` subdomain, so it holds only the locale code, the winning input, a host
+and a time, and it is kept small. Listing it in a cookie notice is the site owner's decision.
+
 ## Image paths from img-gen
 
 <!--
