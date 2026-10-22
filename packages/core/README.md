@@ -39,11 +39,11 @@ const links = resolveSiteLinks('en-US');
 
 ## Footer avatar
 
-The footer brand block shows one decorative HagiCode avatar beside the headline. `avatar` defaults to `true`; `avatar={false}` removes the element and its request. The default is `assets/footer/avatar.avif` (128 px, with `avatar.webp` as the fallback) in a 64 px box, hidden below a 360 px container. `randomAvatar` defaults to `true`: each page view swaps the default for one entry of the `cat-head-gallery` pool listed in `assets/footer/manifest.json`. The browser picker is `@hagicode/hagilight-core/random-image` (browser-safe, under 2 KiB minified) and it preloads with a plain `Image()`, not `fetch`, waits up to 3 seconds, and keeps the default on error or timeout. `randomAvatar={false}` ships no pool list and no picker script.
+The footer brand block shows one decorative HagiCode avatar beside the headline. `avatar` defaults to `true`; `avatar={false}` removes the element and its request. The default is `assets/footer/avatar.avif` (128 px, with `avatar.webp` as the fallback) in a 64 px box, hidden below a 360 px container. `randomAvatar` defaults to `true`: the box becomes a 112 × 76 px stage, and once the footer nears the viewport the browser picks 6 distinct entries of the `cat-head-gallery` pool listed in `assets/footer/manifest.json`, preloads them, and deals three as a fan (the default fades out under them). All six loaded: every 3.6 seconds the left card leaves, the others shift left and a waiting card enters on the right, paused while the footer is off screen or the tab is hidden. Fewer than six loaded (or `prefers-reduced-motion: reduce`, which fetches only three) gives a still fan of three; fewer than three keeps the default. The browser picker is `@hagicode/hagilight-core/random-image` (`mountRandomFans`; browser-safe), preloads with a plain `Image()`, not `fetch`, waits up to 3 seconds per image, and makes no request under a data-saver preference. The slot carries `data-random-fan` (the same validated pool list); the single-image swap (`data-random-pool`, `mountRandomImages`) is kept for the showcase illustration. `randomAvatar={false}` ships no pool list and no picker script.
 
 `@hagicode/hagilight-core/footer-avatar` resolves the two options (a non-boolean throws a `TypeError`) and gives the shared image attributes. The Astro footers and the Docusaurus footer render the same `<picture class="hagilight-brand__avatar">` markup.
 
-A site with a strict `img-src` policy must allow `https://img-gen.hagicode.com` for the random swap. Without it the swap fails and the default stays.
+A site with a strict `img-src` policy must allow `https://img-gen.hagicode.com` for the cat fan. Without it the fan fails and the default stays.
 
 **Pool refresh.** The pool is the `pool` object in `assets/footer/manifest.json`: `album`, `maxBytes` (40 KiB) and `entries` (`key`, `bytes`). To change it, take keys from the album's `index.json`, keep 12 to 200 unique keys each at or under `maxBytes`, audit each one as text-free, current and private-data free, and update the list. Then run `npm test`: `test/footer-imagery.test.mjs` fails on a missing file, a size or dimension mismatch, an entry over the cap, or a pool outside 12 to 200. The vendored default is `source.objectKey` in the same manifest.
 
@@ -65,8 +65,8 @@ continuation chip. It bundles its logo and favicon locally; no custom CSS,
 animation setup, feature package or analytics is required. By default it also
 requests one image from `img-gen.hagicode.com`; the [splash image](#splash-image)
 section describes that request and how to switch it off.
-The trace shows the actual configured destination, base and origin rather than
-performing the official website's locale detection. Installing core alone never
+The departures board (see [below](#departures-board)) replaces the old destination/base/origin
+trace; the page does not perform the official website's locale detection itself. Installing core alone never
 changes routes. Consumers that do not import this page keep their current root.
 
 `destination` and nonblank `siteName` are required. Optional `locale` (default
@@ -149,6 +149,35 @@ The key pattern is the img-gen contract and cannot be changed. An invalid value 
 A site whose Content Security Policy blocks the image host should either set
 `splash={false}` or allow `img-src https://img-gen.hagicode.com` and
 `connect-src https://img-gen.hagicode.com`.
+
+### Departures board
+
+Beside the route sweep, the page shows a board that scrolls through the HagiCode ecosystem sites and stops
+on this site. Every row is real catalog data, localized to the `locale` prop: the site name, its
+description (or its host when it has none), and the host. The caption is the localized "Ecosystem Sites"
+label and the number of sites listed. Nothing is invented: the rows come from the same
+`related-sites.json` the footer uses, so a site added there appears on the board.
+
+The reel is driven by the same `--run` variable and easing as the route sweep, so it comes to rest as the
+beam finishes, and this site's row then fills from the left, the same landing as the continue chip. It
+adds no timer and does not move forwarding. The finished state is also the static markup: without
+scripting, or with reduced motion, you see the five-row window already stopped on this site. The board is
+decorative (`aria-hidden`); the heading, message and links carry the page.
+
+```astro
+<RootTransit destination="/en-US/" siteName="My site" board={{ siteId: 'newbe-blog' }} />
+<RootTransit destination="/en-US/" siteName="My site" board={{ relatedSites: [{ id: 'docs', name: 'Docs', url: 'https://docs.example/' }] }} />
+<RootTransit destination="/en-US/" siteName="My site" board={false} />
+```
+
+| Option | Effect |
+| --- | --- |
+| `siteId` | Leaves that catalog id out, as the footer does, so a site is not listed on its own board. A site whose URL equals `Astro.site` is also left out. |
+| `relatedSites` | Replaces the bundled catalog (`id`, localized `name`, optional `description`, `url`). |
+| `false` | No board. |
+
+`@hagicode/hagilight-core/root-transit-board` exposes `resolveTransitBoard()`, the pure function that builds
+the rows. It is build-time only and reads nothing from the browser.
 
 ### Locale monitor
 

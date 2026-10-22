@@ -12,7 +12,7 @@ const sections = [
         id: 'root-transit',
         title: 'Root transit',
         kind: 'Opt-in page · built-in presentation',
-        summary: 'The root opens @hagicode/hagilight-core/RootTransit before forwarding here. Its styling, route sweep, static continuation link and navigation are bundled, and it shows one random image from the img-gen startup splash while it forwards (@hagicode/hagilight-core/splash-images holds the image paths; splash={false} opts out). @hagicode/hagilight-core/root-transit exposes the tested URL and lifecycle helpers.',
+        summary: 'The root opens @hagicode/hagilight-core/RootTransit before forwarding here. Its styling, route sweep, static continuation link and navigation are bundled, and it shows one random image from the img-gen startup splash while it forwards (@hagicode/hagilight-core/splash-images holds the image paths; splash={false} opts out). A departures board scrolls through the HagiCode ecosystem sites in the page language and stops on this site (@hagicode/hagilight-core/root-transit-board builds its rows; board={false} hides it). @hagicode/hagilight-core/root-transit exposes the tested URL and lifecycle helpers.',
         evidence: 'Open the site root to see the transition, or follow its continuation link immediately.',
         example: "import RootTransit from '@hagicode/hagilight-core/RootTransit';\n\n<RootTransit destination=\"/en-US/\" siteName=\"Hagilight\" />",
       },
