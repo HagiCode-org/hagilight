@@ -62,7 +62,7 @@ function FooterBrand({ locale, links, avatar }: { locale: string; links: readonl
       <div className="hagilight-brand__lead">
         <div className="hagilight-brand__title">
           {avatar && (
-            <picture className="hagilight-brand__avatar" data-random-pool={avatar.randomPool && randomPoolAttribute(avatar.randomPool)}>
+            <picture className="hagilight-brand__avatar" data-random-fan={avatar.randomPool && randomPoolAttribute(avatar.randomPool)}>
               <source type="image/avif" srcSet={avatar.avif} />
               <source type="image/webp" srcSet={avatar.webp} />
               <img src={avatar.webp} {...footerAvatarImageAttributes()} />

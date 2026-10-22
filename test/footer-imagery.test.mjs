@@ -104,7 +104,7 @@ test('the Docusaurus footer renders the same avatar attributes and pool markup a
   const html = render({ avif: '/avatar.avif', webp: '/avatar.webp', randomPool: pool });
   const block = picture(html);
   assert.ok(block, 'the avatar picture renders');
-  assert.equal(block.match(/^<picture ([^>]*)>/u)[1].includes(`data-random-pool="${randomPoolAttribute(pool).replace(/"/gu, '&quot;')}"`), true, 'pool attribute');
+  assert.equal(block.match(/^<picture ([^>]*)>/u)[1].includes(`data-random-fan="${randomPoolAttribute(pool).replace(/"/gu, '&quot;')}"`), true, 'pool attribute');
   assert.match(block, /<source type="image\/avif" srcSet="\/avatar\.avif"\/>/u);
   assert.match(block, /<source type="image\/webp" srcSet="\/avatar\.webp"\/>/u);
   const img = block.match(/<img [^>]*\/>/u)[0];
@@ -114,11 +114,11 @@ test('the Docusaurus footer renders the same avatar attributes and pool markup a
   assert.ok(html.indexOf('hagilight-brand__avatar') < html.indexOf('hagilight-brand__headline'), 'the avatar sits beside the headline');
 
   const withoutPool = picture(render({ avif: '/avatar.avif', webp: '/avatar.webp' }));
-  assert.doesNotMatch(withoutPool, /data-random-pool/u, 'no pool markup when the random option is off');
+  assert.doesNotMatch(withoutPool, /data-random-fan/u, 'no pool markup when the random option is off');
   assert.equal(picture(render(undefined)), undefined, 'no avatar element when the avatar option is off');
 });
 
-test('the Astro and Docusaurus footers share one attribute contract and one picker', () => {
+test('the Astro and Docusaurus footers share one attribute contract and one fan picker', () => {
   const astroBrand = read('packages/core/FooterBrand.astro');
   const docusaurusView = read('packages/docusaurus/src/theme/Footer/FooterView.tsx');
   for (const source of [astroBrand, docusaurusView]) {
@@ -126,8 +126,8 @@ test('the Astro and Docusaurus footers share one attribute contract and one pick
     assert.match(source, /footerAvatarImageAttributes\(\)/u);
     assert.match(source, /hagilight-brand__title/u);
   }
-  assert.match(read('packages/docusaurus/src/client/random-image.ts'), /mountRandomImages\(document\)/u);
-  assert.match(read('packages/core/FooterAvatarPicker.astro'), /mountRandomImages\(document\)/u);
+  assert.match(read('packages/docusaurus/src/client/random-image.ts'), /mountRandomFans\(document\)/u);
+  assert.match(read('packages/core/FooterAvatarPicker.astro'), /mountRandomFans\(document\)/u);
   assert.match(astroBrand, /\{avatarOptions\.randomAvatar && <FooterAvatarPicker \/>\}/u);
   assert.match(read('packages/docusaurus/src/index.ts'), /options\.footerAvatar\.randomAvatar \? '\.\/client\/random-image\.js'|client\/random-image\.js/u);
 });

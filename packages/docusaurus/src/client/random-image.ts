@@ -1,6 +1,6 @@
-import { mountRandomImages } from '@hagicode/hagilight-core/random-image';
+import { mountRandomFans } from '@hagicode/hagilight-core/random-image';
 
-/** Picks the footer avatar once per page view, on the first load and after each client-side route change. */
+/** Deals the footer avatar's cat fan once per page view, on the first load and after each client-side route change. */
 export function onRouteDidUpdate(): void {
-  void mountRandomImages(document);
+  void mountRandomFans(document);
 }

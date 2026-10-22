@@ -4,7 +4,12 @@ import { test } from 'node:test';
 const {
   R2_IMAGE_ORIGIN,
   RANDOM_IMAGE_TIMEOUT_MS,
+  FAN_DECK_CARDS,
+  FAN_TURN_MS,
+  fanSlot,
+  mountRandomFans,
   mountRandomImages,
+  pickRandomEntries,
   pickRandomEntry,
   poolImageUrl,
   preloadImage,
@@ -246,4 +251,217 @@ test('each slot is picked once per page view, so a second mount does not re-pick
   await first;
   await mountRandomImages(root, { random: seeded(9), ...images, ...timers, saveData: () => false });
   assert.equal(images.images.length, 1);
+});
+
+/** A `<picture>` slot for the fan: a default `<img>`, an `append` that records the stage and cards the picker builds. */
+function fakeFanSlot(pool) {
+  const slot = fakeElement({ 'data-random-fan': JSON.stringify(pool) });
+  const defaultImg = { ...fakeElement({ width: '64', height: '64', alt: '', 'aria-hidden': 'true', loading: 'lazy' }), src: '/_astro/avatar.webp' };
+  const makeNode = (tag) => {
+    const node = { tag, children: [], ...fakeElement() };
+    node.append = (child) => node.children.push(child);
+    node.cloneNode = () => makeNode('img');
+    return node;
+  };
+  defaultImg.cloneNode = () => makeNode('img');
+  slot.ownerDocument = { createElement: makeNode };
+  slot.stages = [];
+  slot.append = (stage) => slot.stages.push(stage);
+  slot.querySelector = (selector) => (selector === 'img' ? defaultImg : null);
+  slot.defaultImg = defaultImg;
+  slot.offsetWidth = 0;
+  return slot;
+}
+
+function fanRoot(slots) {
+  return {
+    querySelectorAll: () => slots.filter((slot) => slot.getAttribute('data-random-fan') !== null && slot.getAttribute('data-random-state') === null),
+  };
+}
+
+/** A fan environment whose watcher, timer and image loads the test drives. */
+function fanEnvironment(overrides = {}) {
+  const images = fakeImageFactory();
+  const watchers = [];
+  const turns = [];
+  return {
+    images,
+    watchers,
+    turns,
+    env: {
+      random: seeded(7),
+      ...images,
+      ...fakeTimers(),
+      saveData: () => false,
+      reducedMotion: () => false,
+      tabHidden: () => false,
+      watch: (_slot, onChange) => watchers.push(onChange),
+      every: (callback, ms) => {
+        turns.push({ callback, ms });
+        return () => { turns.length = 0; };
+      },
+      ...overrides,
+    },
+  };
+}
+
+const loadAll = (images) => images.images.forEach((image) => image.onload());
+
+test('the fan slot rotates left to right with one card leaving and one entering per turn', () => {
+  assert.deepEqual(Array.from({ length: 6 }, (_, card) => fanSlot(card, 0)), [0, 1, 2, 3, 4, 5]);
+  assert.deepEqual(Array.from({ length: 6 }, (_, card) => fanSlot(card, 1)), [5, 0, 1, 2, 3, 4]);
+  assert.deepEqual(Array.from({ length: 6 }, (_, card) => fanSlot(card, 6)), [0, 1, 2, 3, 4, 5]);
+  for (let turn = 0; turn < 12; turn += 1) {
+    const visible = Array.from({ length: 6 }, (_, card) => fanSlot(card, turn)).filter((slot) => slot < 3).sort();
+    assert.deepEqual(visible, [0, 1, 2], `turn ${turn} shows exactly one card per fan slot`);
+  }
+});
+
+test('pickRandomEntries returns distinct entries, never more than the pool holds, and each run differs by seed', () => {
+  const picked = pickRandomEntries(KEYS, 6, seeded(3));
+  assert.equal(picked.length, 6);
+  assert.equal(new Set(picked).size, 6);
+  assert.ok(picked.every((key) => KEYS.includes(key)));
+  assert.notDeepEqual(picked, pickRandomEntries(KEYS, 6, seeded(4)));
+  assert.equal(pickRandomEntries(KEYS.slice(0, 4), 6).length, 4);
+  assert.deepEqual(pickRandomEntries(KEYS, 0), []);
+  assert.equal(KEYS.length, 46, 'the source list is not shuffled in place');
+  assert.equal(KEYS[0], 'cat-head-gallery/key-00.avif');
+  const tally = new Map(KEYS.map((key) => [key, 0]));
+  const random = seeded(20261022);
+  for (let run = 0; run < 46 * 200; run += 1) for (const key of pickRandomEntries(KEYS, 6, random)) tally.set(key, tally.get(key) + 1);
+  const expected = (46 * 200 * 6) / 46;
+  for (const count of tally.values()) assert.ok(count > expected * 0.85 && count < expected * 1.15, `count ${count} near ${expected}`);
+});
+
+test('the fan waits until the footer nears the viewport before it fetches anything', async () => {
+  const { env, images, watchers } = fanEnvironment();
+  const slot = fakeFanSlot(POOL);
+  const [mounted] = mountRandomFans(fanRoot([slot]), env);
+  await tick();
+  assert.equal(images.images.length, 0, 'no request before the slot is near');
+  watchers[0](false);
+  await tick();
+  assert.equal(images.images.length, 0);
+  watchers[0](true);
+  await tick();
+  assert.equal(images.images.length, FAN_DECK_CARDS, 'six distinct images are preloaded');
+  assert.equal(new Set(images.images.map((image) => image.src)).size, FAN_DECK_CARDS);
+  assert.ok(images.images.every((image) => image.src.startsWith('https://img-gen.hagicode.com/cat-head-gallery/')));
+  loadAll(images);
+  assert.equal(await mounted, true);
+});
+
+test('six loaded images deal a fan of three and turn it on a timer', async () => {
+  const { env, images, watchers, turns } = fanEnvironment();
+  const slot = fakeFanSlot(POOL);
+  const [mounted] = mountRandomFans(fanRoot([slot]), env);
+  watchers[0](true);
+  await tick();
+  loadAll(images);
+  assert.equal(await mounted, true);
+  assert.equal(slot.getAttribute('data-random-state'), 'fan');
+  const [stage] = slot.stages;
+  assert.equal(stage.children.length, 6);
+  assert.deepEqual(stage.children.map((card) => card.getAttribute('data-slot')), ['0', '1', '2', '3', '4', '5']);
+  assert.deepEqual(stage.children.map((card) => card.getAttribute('src')), images.images.map((image) => image.src));
+  assert.ok(stage.children.every((card) => card.getAttribute('class') === 'hagilight-fan__card'));
+  assert.equal(slot.defaultImg.getAttribute('data-fan-out'), '', 'the vendored default fades out');
+  assert.equal(turns.length, 1);
+  assert.equal(turns[0].ms, FAN_TURN_MS);
+  turns[0].callback();
+  assert.deepEqual(stage.children.map((card) => card.getAttribute('data-slot')), ['5', '0', '1', '2', '3', '4']);
+  turns[0].callback();
+  assert.deepEqual(stage.children.map((card) => card.getAttribute('data-slot')), ['4', '5', '0', '1', '2', '3']);
+});
+
+test('the fan pauses off screen and in a hidden tab, and resumes without skipping', async () => {
+  let hidden = false;
+  const { env, images, watchers, turns } = fanEnvironment({ tabHidden: () => hidden });
+  const slot = fakeFanSlot(POOL);
+  const [mounted] = mountRandomFans(fanRoot([slot]), env);
+  watchers[0](true);
+  await tick();
+  loadAll(images);
+  await mounted;
+  const slots = () => slot.stages[0].children.map((card) => card.getAttribute('data-slot')).join('');
+  watchers[0](false);
+  turns[0].callback();
+  assert.equal(slots(), '012345', 'off screen: no turn');
+  watchers[0](true);
+  hidden = true;
+  turns[0].callback();
+  assert.equal(slots(), '012345', 'hidden tab: no turn');
+  hidden = false;
+  turns[0].callback();
+  assert.equal(slots(), '501234');
+});
+
+test('a detached slot stops its own timer', async () => {
+  const { env, images, watchers, turns } = fanEnvironment();
+  const slot = fakeFanSlot(POOL);
+  const [mounted] = mountRandomFans(fanRoot([slot]), env);
+  watchers[0](true);
+  await tick();
+  loadAll(images);
+  await mounted;
+  slot.isConnected = false;
+  turns[0].callback();
+  assert.equal(turns.length, 0, 'the stop function ran');
+});
+
+test('reduced motion or a short deck deals a still fan of three; fewer than three keep the default', async () => {
+  const reduced = fanEnvironment({ reducedMotion: () => true });
+  const stillSlot = fakeFanSlot(POOL);
+  const [still] = mountRandomFans(fanRoot([stillSlot]), reduced.env);
+  reduced.watchers[0](true);
+  await tick();
+  assert.equal(reduced.images.images.length, 3, 'only the three still cards are fetched');
+  loadAll(reduced.images);
+  assert.equal(await still, true);
+  assert.equal(stillSlot.stages[0].children.length, 3);
+  assert.equal(reduced.turns.length, 0, 'no timer under reduced motion');
+
+  const short = fanEnvironment();
+  const shortSlot = fakeFanSlot(POOL);
+  const [partial] = mountRandomFans(fanRoot([shortSlot]), short.env);
+  short.watchers[0](true);
+  await tick();
+  short.images.images.slice(0, 4).forEach((image) => image.onload());
+  short.images.images.slice(4).forEach((image) => image.onerror());
+  assert.equal(await partial, true);
+  assert.equal(shortSlot.stages[0].children.length, 3);
+  assert.equal(short.turns.length, 0, 'a short deck does not turn');
+
+  const failing = fanEnvironment();
+  const failSlot = fakeFanSlot(POOL);
+  const [failed] = mountRandomFans(fanRoot([failSlot]), failing.env);
+  failing.watchers[0](true);
+  await tick();
+  failing.images.images.slice(0, 2).forEach((image) => image.onload());
+  failing.images.images.slice(2).forEach((image) => image.onerror());
+  assert.equal(await failed, false);
+  assert.equal(failSlot.stages.length, 0);
+  assert.equal(failSlot.defaultImg.getAttribute('data-fan-out'), null, 'the default stays');
+  assert.equal(failSlot.getAttribute('data-random-state'), 'default');
+});
+
+test('data saver and a bad pool keep the default without a request, and a slot is dealt once', async () => {
+  const saver = fanEnvironment({ saveData: () => true });
+  const [saved] = mountRandomFans(fanRoot([fakeFanSlot(POOL)]), saver.env);
+  assert.equal(await saved, false);
+  assert.equal(saver.watchers.length, 0);
+  assert.equal(saver.images.images.length, 0);
+
+  const bad = fanEnvironment();
+  const badSlot = fakeFanSlot(POOL);
+  badSlot.setAttribute('data-random-fan', '["cat-head-gallery/only-one.avif"]');
+  assert.equal(await mountRandomFans(fanRoot([badSlot]), bad.env)[0], false);
+  assert.equal(bad.images.images.length, 0);
+
+  const once = fanEnvironment();
+  const slot = fakeFanSlot(POOL);
+  const root = fanRoot([slot]);
+  mountRandomFans(root, once.env);
+  assert.equal(mountRandomFans(root, once.env).length, 0, 'a handled slot is not picked again');
 });

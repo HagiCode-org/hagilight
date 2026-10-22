@@ -16,7 +16,7 @@ interface Props {
   links: readonly SiteLink[];
   /** Show the decorative avatar. Defaults to `true`. */
   avatar?: boolean;
-  /** Swap the avatar for one random pool entry per page view. Defaults to `true`. */
+  /** Deal the avatar as a fan of three random cat heads that turns through six per page view. Defaults to `true`. */
   randomAvatar?: boolean;
 }
 
@@ -31,7 +31,7 @@ const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarMan
   <div class="hagilight-brand__lead">
     <div class="hagilight-brand__title">
       {avatarOptions.avatar && (
-        <picture class="hagilight-brand__avatar" data-random-pool={avatarPool && randomPoolAttribute(avatarPool)}>
+        <picture class="hagilight-brand__avatar" data-random-fan={avatarPool && randomPoolAttribute(avatarPool)}>
           <source type="image/avif" srcset={avatarAvif.src} />
           <source type="image/webp" srcset={avatarWebp.src} />
           <img src={avatarWebp.src} {...footerAvatarImageAttributes()} />
@@ -116,7 +116,7 @@ const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarMan
     min-width: 0;
   }
 
-  /* The decorative avatar keeps a fixed 64 px box, so a random swap never moves the headline. */
+  /* The decorative avatar keeps a fixed box, so neither the fan nor a swap ever moves the headline. */
   .hagilight-brand__avatar {
     display: block;
     flex: none;
@@ -130,6 +130,81 @@ const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarMan
     height: 100%;
     border-radius: 0.5rem;
     object-fit: cover;
+  }
+
+  /*
+   * The fan: three 56 px cards pivot on a point below the stack, so the side cards open like a hand of cards.
+   * The vendored default is the first centre card and fades out as the random cards are dealt over it. Each
+   * turn the left card leaves, the others shift left and a card waiting off stage enters on the right.
+   */
+  .hagilight-brand__avatar[data-random-fan] {
+    --_card-ring: var(--sl-color-bg, var(--ifm-background-color, Canvas));
+    position: relative;
+    width: 112px;
+    height: 76px;
+  }
+
+  .hagilight-brand__avatar[data-random-fan] img,
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card) {
+    position: absolute;
+    top: 10px;
+    left: 28px;
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 0 0 2px var(--_card-ring), 0 3px 8px -2px rgb(0 0 0 / 0.35);
+    transform-origin: 50% 140%;
+    transition: opacity 320ms ease-out, transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan) {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .hagilight-brand__avatar[data-random-fan] img[data-fan-out] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card) {
+    z-index: 0;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="0"]) {
+    z-index: 1;
+    opacity: 1;
+    transform: translate(-6px, 1px) rotate(-17deg);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="1"]) {
+    z-index: 3;
+    opacity: 1;
+    transform: none;
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="2"]) {
+    z-index: 2;
+    opacity: 1;
+    transform: translate(6px, 1px) rotate(17deg);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="3"]),
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="4"]) {
+    transform: translate(10px, 0) rotate(34deg) scale(0.7);
+  }
+
+  .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card[data-slot="5"]) {
+    transform: translate(-10px, 0) rotate(-36deg) scale(0.7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hagilight-brand__avatar[data-random-fan] img,
+    .hagilight-brand__avatar[data-random-fan] :global(.hagilight-fan__card) {
+      transition: none;
+    }
   }
 
   /* Hidden in a brand block narrower than 360 px, where the headline needs the full width. */
