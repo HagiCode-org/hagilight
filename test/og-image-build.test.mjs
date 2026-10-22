@@ -90,7 +90,7 @@ function outputFile(site, address) {
 }
 
 function convertedJpegs(site) {
-  return readdirSync(join(site.dir, 'dist/_astro')).filter((file) => file.startsWith('photo_') && file.endsWith('.jpeg'));
+  return readdirSync(join(site.dir, 'dist/_astro')).filter((file) => file.endsWith('.jpeg'));
 }
 
 // Read the size from the JPEG frame header (SOF0-SOF15, excluding DHT, JPG and DAC markers).
@@ -108,7 +108,8 @@ function jpegSize(buffer) {
   throw new Error('the JPEG has no frame header');
 }
 
-test('an AVIF preview becomes one 1200 by 630 JPEG, and og:image and twitter:image carry the same URL', async () => {
+// Astro never enlarges: a 640 by 400 source keeps its size, so the JPEG is smaller than the 1200 by 630 frame.
+test('an AVIF preview becomes one JPEG at its source size, and og:image and twitter:image carry the same URL', async () => {
   const site = await build('main');
   assert.equal(site.status, 0, site.output);
   const html = pageHtml(site, 'avif');
@@ -120,7 +121,14 @@ test('an AVIF preview becomes one 1200 by 630 JPEG, and og:image and twitter:ima
   assert.match(og, new RegExp(`^${SITE}/_astro/photo_[\\w-]+\\.jpeg$`, 'u'));
   const file = outputFile(site, og);
   assert.ok(existsSync(file), `the converted file ${file} exists`);
-  assert.deepEqual(jpegSize(readFileSync(file)), { width: 1200, height: 630 });
+  assert.deepEqual(jpegSize(readFileSync(file)), { width: 640, height: 400 });
+});
+
+test('a wide AVIF preview is cropped to a 1200 by 630 JPEG', async () => {
+  const site = await build('main');
+  const og = metaContent(pageHtml(site, 'wide'), 'property="og:image"');
+  assert.match(og, new RegExp(`^${SITE}/_astro/wide_[\\w-]+\\.jpeg$`, 'u'));
+  assert.deepEqual(jpegSize(readFileSync(outputFile(site, og))), { width: 1200, height: 630 });
 });
 
 test('a PNG preview keeps its own address and gets no converted file', async () => {
@@ -128,7 +136,7 @@ test('a PNG preview keeps its own address and gets no converted file', async () 
   const html = pageHtml(site, 'png');
   assert.equal(metaContent(html, 'property="og:image"'), `${imageOrigin}/photo.png`);
   assert.equal(metaContent(html, 'name="twitter:image"'), `${imageOrigin}/photo.png`);
-  assert.equal(convertedJpegs(site).length, 1, 'only the AVIF page produced a converted file');
+  assert.equal(convertedJpegs(site).length, 2, 'only the AVIF and wide AVIF pages produced converted files');
 });
 
 test('a page with no preview image has no image tags', async () => {
@@ -144,7 +152,7 @@ test('pages that declare the same AVIF share one file, and a site-wide AVIF is c
   const siteDefault = pageHtml(site, 'site-default');
   assert.equal(metaContent(siteDefault, 'property="og:image"'), avif);
   assert.equal(metaContent(siteDefault, 'name="twitter:image"'), avif);
-  assert.equal(convertedJpegs(site).length, 1, 'the shared AVIF produced one file');
+  assert.equal(convertedJpegs(site).length, 2, 'the shared AVIF and the wide AVIF produced one file each');
 });
 
 test('an SVG preview and a site-root AVIF are kept as declared, with a warning that names each image', async () => {
@@ -163,7 +171,7 @@ test('a non-root base appears once in the declared address and the file is still
   assert.equal(metaContent(html, 'name="twitter:image"'), og);
   assert.match(og, new RegExp(`^${SITE}/docs/_astro/photo_[\\w-]+\\.jpeg$`, 'u'));
   assert.equal(og.split('/docs/').length - 1, 1, 'the base appears once');
-  assert.deepEqual(jpegSize(readFileSync(outputFile(site, og))), { width: 1200, height: 630 });
+  assert.deepEqual(jpegSize(readFileSync(outputFile(site, og))), { width: 640, height: 400 });
 });
 
 test('a host that is not permitted fails the build and the message names the image and the host', async () => {

@@ -1,6 +1,6 @@
-/** Width, in pixels, of the Open Graph preview that a convertible image becomes. */
+/** Largest width, in pixels, of the Open Graph preview that a convertible image becomes. Never enlarged. */
 export const OG_IMAGE_WIDTH = 1200;
-/** Height, in pixels, of the Open Graph preview that a convertible image becomes. */
+/** Largest height, in pixels, of the Open Graph preview that a convertible image becomes. Never enlarged. */
 export const OG_IMAGE_HEIGHT = 630;
 /** Format of the Open Graph preview that a convertible image becomes. */
 export const OG_IMAGE_FORMAT = 'jpeg';
