@@ -22,6 +22,10 @@
       "types": "./dist/root-transit.d.ts",
       "default": "./dist/root-transit.js"
     },
+    "./root-transit-board": {
+      "types": "./dist/root-transit-board.d.ts",
+      "default": "./dist/root-transit-board.js"
+    },
     "./splash-images": {
       "types": "./dist/splash-images.d.ts",
       "default": "./dist/splash-images.js"

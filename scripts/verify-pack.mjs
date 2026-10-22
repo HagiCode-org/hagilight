@@ -29,6 +29,8 @@ const REQUIRED_FILES = {
     'RootTransit.astro',
     'dist/root-transit.js',
     'dist/root-transit.d.ts',
+    'dist/root-transit-board.js',
+    'dist/root-transit-board.d.ts',
     'dist/splash-images.js',
     'dist/splash-images.d.ts',
     'dist/random-image.js',

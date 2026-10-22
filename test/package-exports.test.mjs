@@ -13,6 +13,7 @@ const packages = ['core', 'astro', 'starlight'].map((directory) => ({
 
 const expectedExports = {
   '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
+  '@hagicode/hagilight-core/root-transit-board': ['TRANSIT_BOARD_WINDOW', 'resolveTransitBoard'],
   '@hagicode/hagilight-core/splash-images': [
     'SPLASH_IMAGE_DEFAULTS',
     'loadSplashImage',
