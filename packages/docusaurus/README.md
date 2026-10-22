@@ -60,6 +60,14 @@ Every option is optional. Feature toggles take an object with `enabled`, which d
 | `rss` | `{ enabled: true, includeDocs: true, includeBlog: true }` | Writes `rss.xml` for each locale that has feed items. `includeDocs` and `includeBlog` choose the sources. |
 | `noIndex` | `false` | Stops this plugin from writing `sitemap.xml` and `robots.txt`. |
 
+### Footer avatar
+
+`footer` takes `avatar` and `randomAvatar` next to `enabled`. Both default to `true`. `avatar: false` removes the decorative avatar from the brand block and its request; `randomAvatar: false` keeps the vendored default and ships no pool list and no picker script. The avatar and its pool come from `@hagicode/hagilight-core` (`assets/footer`), and the build emits the AVIF and WebP files as ordinary assets rather than inlining them into every page. A site whose `img-src` policy blocks `https://img-gen.hagicode.com` keeps the default image, and the pool refresh procedure is in the core README.
+
+```js
+hagilightDocusaurus({ footer: { avatar: true, randomAvatar: false } });
+```
+
 ### Analytics defaults
 
 The built-in analytics IDs (`G-EN03FMT2Q4`, 51LA `L6b88a5yK4h2Xnci`, and PostHog `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`) belong to HagiCode. A site that omits `analytics` sends its traffic to HagiCode's properties. Set your own IDs, or disable each provider with `enabled: false`.

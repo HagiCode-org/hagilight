@@ -37,6 +37,16 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 const links = resolveSiteLinks('en-US');
 ```
 
+## Footer avatar
+
+The footer brand block shows one decorative HagiCode avatar beside the headline. `avatar` defaults to `true`; `avatar={false}` removes the element and its request. The default is `assets/footer/avatar.avif` (128 px, with `avatar.webp` as the fallback) in a 64 px box, hidden below a 360 px container. `randomAvatar` defaults to `true`: each page view swaps the default for one entry of the `hero-avatars` pool listed in `assets/footer/manifest.json`. The browser picker is `@hagicode/hagilight-core/random-image` (browser-safe, under 2 KiB minified) and it preloads with a plain `Image()`, not `fetch`, waits up to 3 seconds, and keeps the default on error or timeout. `randomAvatar={false}` ships no pool list and no picker script.
+
+`@hagicode/hagilight-core/footer-avatar` resolves the two options (a non-boolean throws a `TypeError`) and gives the shared image attributes. The Astro footers and the Docusaurus footer render the same `<picture class="hagilight-brand__avatar">` markup.
+
+A site with a strict `img-src` policy must allow `https://img-gen.hagicode.com` for the random swap. Without it the swap fails and the default stays.
+
+**Pool refresh.** The pool is the `pool` object in `assets/footer/manifest.json`: `album`, `maxBytes` (40 KiB) and `entries` (`key`, `bytes`). To change it, take keys from the album's `index.json`, keep 12 to 200 unique keys each at or under `maxBytes`, audit each one as text-free, current and private-data free, and update the list. Then run `npm test`: `test/footer-imagery.test.mjs` fails on a missing file, a size or dimension mismatch, an entry over the cap, or a pool outside 12 to 200. The vendored default is `source.objectKey` in the same manifest.
+
 ## Root transit (explicit opt-in)
 
 Use this full-page component in an Astro root route (`src/pages/index.astro`):
