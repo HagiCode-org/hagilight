@@ -1,6 +1,17 @@
 import {
   SPLASH_IMAGE_DEFAULTS, loadSplashImage, pickSplashIndex, splashImageUrl, storeSplashImage, type SplashConfig,
 } from './splash-images.js';
+import { mountLocaleMonitor } from './root-transit-monitor.js';
+
+export {
+  DEFAULT_LOCALE, LEGACY_SITE_LOCALE_STORAGE_KEY, SITE_LOCALE_STORAGE_KEY, SITE_LOCALES, normalizeTransitLocale,
+  resolveTransitLocale,
+  type LocaleInputEvidence, type LocaleResolution, type LocaleResolutionOptions, type LocaleSource, type SiteLocale,
+} from './root-transit-locale.js';
+export {
+  LOCALE_MONITOR_COOKIE, LOCALE_MONITOR_STORAGE_KEY, formatLocaleMarker, parseLocaleMarker, type LocaleMarker,
+} from './root-transit-marker.js';
+export { mountLocaleMonitor, resolveLocaleMonitor, type LocaleMonitorOptions } from './root-transit-monitor.js';
 
 /** The reference route sweep (1,250 ms) and finished-state hold (320 ms). */
 export const ROOT_TRANSIT_DELAY_MS = 1570;
@@ -195,6 +206,11 @@ export function mountRootTransit(win: Window = window): () => void {
     releaseSplash = mountSplash(win, doc);
   } catch {
     releaseSplash = () => {};
+  }
+  try {
+    mountLocaleMonitor(win, doc);
+  } catch {
+    // The monitor only observes; a failure here never changes forwarding.
   }
   doc.documentElement.dataset.transitReady = 'true';
   return cleanup;

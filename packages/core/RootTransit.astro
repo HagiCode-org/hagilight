@@ -1,7 +1,7 @@
 ---
 import logo from './logo.png';
 import favicon from './favicon.ico';
-import { resolveTransitDestination } from './dist/root-transit.js';
+import { DEFAULT_LOCALE, resolveLocaleMonitor, resolveTransitDestination, type LocaleMonitorOptions } from './dist/root-transit.js';
 import { resolveSplashConfig, type SplashOverrides } from './dist/splash-images.js';
 
 interface Props {
@@ -14,6 +14,8 @@ interface Props {
   links?: { destination: string; label: string; lang?: string }[];
   /** `false` turns the splash off; an object overrides its base URL, prefix, collection size or cache name. */
   splash?: false | SplashOverrides;
+  /** Shows the locale monitor: what the browser inputs resolve to. It never changes the target or the links. */
+  localeMonitor?: boolean | LocaleMonitorOptions;
 }
 
 const {
@@ -23,9 +25,18 @@ const {
   continueLabel = `Continue to ${siteName}`,
   links = [],
   splash,
+  localeMonitor,
 } = Astro.props;
 if (!siteName?.trim()) throw new TypeError('Hagilight RootTransit: siteName is required.');
 const splashConfig = resolveSplashConfig(splash);
+const monitor = resolveLocaleMonitor(localeMonitor);
+/** Detection rows in the reference order; the default row is fixed, the rest fill in from the browser. */
+const monitorRows = [
+  ['query', '?lang=', '—'],
+  ['stored', 'hagicode:site-locale', '—'],
+  ['browser', 'navigator.languages', '—'],
+  ['default', 'default', DEFAULT_LOCALE],
+] as const;
 const base = import.meta.env.BASE_URL;
 const site = Astro.site ?? Astro.url;
 const href = resolveTransitDestination(destination, { site, base });
@@ -541,6 +552,24 @@ const trace = [
         outline-offset: 3px;
       }
 
+      /* ── 语言监测：只读检测结果，目标与链接不变；行样式沿用上面的解析过程 ── */
+      .locale-monitor {
+        grid-column: 1 / -1;
+        margin: 0;
+      }
+
+      .locale-monitor-caption {
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.4;
+      }
+
+      .trace-evidence {
+        margin-top: 0.75rem;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation: none !important; transition: none !important; }
         .splash { transition: none; }
@@ -592,6 +621,23 @@ const trace = [
             {localeLinks.map((link) => <li><a href={link.href} lang={link.lang} data-transit-alternative>{link.label}</a></li>)}
           </ul>
         </nav>
+        {monitor && (
+          <section class="locale-monitor" data-locale-monitor data-shared-domain={monitor.sharedDomain ?? ''} aria-label="Locale monitor">
+            <p class="locale-monitor-caption">Locale monitor · detected only, the target above is unchanged</p>
+            <dl class="trace">
+              {monitorRows.map(([key, label, placeholder], index) => (
+                <div class="trace-row" data-locale-trace={key} data-state="idle" style={`--i: ${index}`}>
+                  <dt>{label}</dt><dd class="trace-value" data-locale-value>{placeholder}</dd><dd class="trace-verdict" data-locale-verdict></dd>
+                </div>
+              ))}
+            </dl>
+            <dl class="trace trace-evidence">
+              <div class="trace-row" data-locale-trace="shared" data-state="idle" style={`--i: ${monitorRows.length}`}>
+                <dt>shared marker</dt><dd class="trace-value" data-locale-value>—</dd><dd class="trace-verdict" data-locale-verdict></dd>
+              </div>
+            </dl>
+          </section>
+        )}
       </main>
       <footer><nav class="quick-links"><slot name="footer" /></nav></footer>
     </div>

@@ -146,6 +146,100 @@ async function routing(browser, url, base) {
   await page.context().close();
 }
 
+async function monitorRows(page) {
+  return page.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-locale-trace]')].map((row) => [
+    row.dataset.localeTrace,
+    {
+      state: row.dataset.state,
+      value: row.querySelector('[data-locale-value]').textContent,
+      verdict: row.querySelector('[data-locale-verdict]').textContent,
+    },
+  ])));
+}
+
+function detectedRows(rows) {
+  return Object.keys(rows).filter((key) => rows[key].verdict === 'detected');
+}
+
+async function localeMonitor(browser, minimal) {
+  const url = `${minimal}locale-monitor/`;
+  const noOverflow = (page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
+
+  // A supported ?lang= wins. The browser row still shows what it read, and the continue link keeps the query.
+  let page = await newPage(browser, { locale: 'de-AT', viewport: phone });
+  await page.goto(`${url}?lang=zh-CN`);
+  let rows = await monitorRows(page);
+  assert.equal(rows.query.value, 'zh-CN');
+  assert.equal(rows.stored.value, '—');
+  assert.equal(rows.browser.value, 'de-AT → de-DE');
+  assert.equal(rows.default.value, 'en-US');
+  assert.equal(rows.shared.value, '—');
+  assert.deepEqual(detectedRows(rows), ['query']);
+  assert.equal(await page.locator('[data-transit-continue]').getAttribute('href'), '/en-US/?lang=zh-CN');
+  assert.equal(await page.evaluate(() => localStorage.getItem('hagicode:site-locale')), null);
+  assert.equal(await page.evaluate(() => localStorage.getItem('lang')), null);
+  assert.match(await page.evaluate(() => localStorage.getItem('hagicode:locale-monitor')), /^zh-CN\|query\|127\.0\.0\.1\|\d+$/u);
+  await page.clock.runFor(1569);
+  assert.equal(page.url(), `${url}?lang=zh-CN`);
+  await page.clock.runFor(1);
+  await page.waitForURL(`${minimal}en-US/?lang=zh-CN`);
+  await page.context().close();
+
+  // The stored key wins over the browser, and an unsupported ?lang= falls through without being used.
+  page = await newPage(browser, { locale: 'en-US', viewport: phone });
+  await page.addInitScript(() => { if (!localStorage.getItem('hagicode:site-locale')) localStorage.setItem('hagicode:site-locale', 'fr-FR'); });
+  await page.goto(`${url}?lang=xx`);
+  rows = await monitorRows(page);
+  assert.equal(rows.query.value, 'xx');
+  assert.equal(rows.stored.value, 'fr-FR');
+  assert.deepEqual(detectedRows(rows), ['stored']);
+  await page.context().close();
+
+  // Only the browser language is left: it is detected, and the default row stays en-US.
+  page = await newPage(browser, { locale: 'ru-RU', viewport: phone });
+  await page.goto(url);
+  rows = await monitorRows(page);
+  assert.equal(rows.browser.value, 'ru-RU');
+  assert.deepEqual(detectedRows(rows), ['browser']);
+  await page.context().close();
+
+  // A marker seeded as if another HagiCode subdomain had written it: shown as evidence, never detected.
+  for (const viewport of [phone, { width: 320, height: 740 }]) {
+    page = await newPage(browser, { locale: 'en-US', viewport });
+    await page.context().addCookies([{ name: 'hagicode_locale_monitor', value: 'zh-CN|query|docs.hagicode.com|1761000000', url: minimal }]);
+    await page.goto(url);
+    rows = await monitorRows(page);
+    assert.equal(rows.shared.value, 'zh-CN · ?lang= · docs.hagicode.com');
+    assert.equal(rows.shared.verdict, '');
+    assert.equal(rows.shared.state, 'idle');
+    assert.deepEqual(detectedRows(rows), ['browser']);
+    await assertReadable(page, viewport);
+    assert.ok(await noOverflow(page), `no horizontal overflow at ${viewport.width}px`);
+    await page.context().close();
+  }
+
+  // Scripting off: the five labels are in the initial HTML, with placeholders for the rows that need the browser.
+  page = await newPage(browser, { javaScriptEnabled: false, viewport: phone });
+  await page.goto(url);
+  assert.deepEqual(await page.locator('section.locale-monitor dt').allTextContents(), ['?lang=', 'hagicode:site-locale', 'navigator.languages', 'default', 'shared marker']);
+  assert.equal(await page.locator('[data-locale-trace="default"] [data-locale-value]').textContent(), 'en-US');
+  assert.equal(await page.locator('[data-transit-continue]').getAttribute('href'), '/en-US/');
+  await page.context().close();
+
+  // The monitor reads as a block in both themes, with the detected row marked by its word as well as its colour.
+  for (const colorScheme of ['light', 'dark']) {
+    for (const viewport of [phone, desktop]) {
+      page = await newPage(browser, { viewport, colorScheme });
+      await page.goto(`${url}?lang=ja-JP`);
+      await freezePresentation(page);
+      await page.locator('section.locale-monitor').screenshot({ path: join(artifacts, `locale-monitor-${viewport.width}-${colorScheme}.png`) });
+      assert.equal(await page.locator('[data-locale-trace="query"] [data-locale-verdict]').textContent(), 'detected');
+      assert.ok(await noOverflow(page));
+      await page.context().close();
+    }
+  }
+}
+
 async function compareReference(browser, reference, consumers) {
   for (const viewport of [{ width: 1440, height: 900 }, { width: 375, height: 812 }]) {
     const ref = await newPage(browser, { viewport });
@@ -494,6 +588,7 @@ try {
   await appearance(browser, demo, 'hagilight');
   await appearance(browser, minimal, 'minimal');
   await routing(browser, minimal, '/');
+  await localeMonitor(browser, minimal);
   await splashChecks(browser, demo, minimal);
   const deep = await newPage(browser);
   await deep.goto(`${demo}zh-CN/`);

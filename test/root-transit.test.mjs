@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import {
   ROOT_TRANSIT_DELAY_MS, resolveTransitDestination, resolveTransitNavigation, mountRootTransit,
 } from '@hagicode/hagilight-core/root-transit';
+import { detectedRows, localeMonitorFake } from './support/locale-monitor-fake.mjs';
 
 const site = 'https://consumer.example';
 
@@ -37,23 +38,30 @@ test('browser search and fragment are carried without allowing incoming paramete
   assert.equal(resolveTransitNavigation('/en-US/?default=1#intro', new URL(site)), '/en-US/?default=1#intro');
 });
 
-function harness(t, splash = null) {
+function harness(t, splash = null, monitor = null) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const anchor = Object.assign(new EventTarget(), { href: '/en-US/', getAttribute() { return this.href; } });
   const alternative = Object.assign(new EventTarget(), { href: '/zh-CN/', getAttribute() { return this.href; } });
   const page = { dataset: { base: '/' }, querySelector: () => anchor, querySelectorAll: () => [alternative] };
   const doc = Object.assign(new EventTarget(), {
-    querySelector: (selector) => (selector === '[data-splash]' ? splash?.figure ?? null : page),
+    querySelector: (selector) => {
+      if (selector === '[data-splash]') return splash?.figure ?? null;
+      if (selector === '[data-locale-monitor]') return monitor?.panel ?? null;
+      return page;
+    },
     documentElement: { dataset: {} },
   });
+  if (monitor) Object.defineProperty(doc, 'cookie', { get: () => monitor.doc.cookie, set: (value) => { monitor.doc.cookie = value; } });
   const navigations = [];
   const win = Object.assign(new EventTarget(), {
     document: doc,
-    location: { href: `${site}/?utm=test#deep`, replace: (url) => navigations.push(url) },
+    location: { href: `${site}/?utm=test#deep`, replace: (url) => navigations.push(url), ...monitor?.win.location },
     setTimeout, clearTimeout,
     caches: splash?.caches,
     fetch: splash?.fetch,
     requestIdleCallback: splash?.requestIdleCallback,
+    localStorage: monitor?.win.localStorage,
+    navigator: monitor?.win.navigator,
   });
   return { win, anchor, alternative, page, navigations };
 }
@@ -271,4 +279,73 @@ test('a store that never settles after a loaded image does not move forwarding',
   assert.deepEqual(navigations, []);
   t.mock.timers.tick(1);
   assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
+});
+
+test('the locale monitor reports a detected ?lang= but forwards to the configured target at the same time', (t) => {
+  const monitor = localeMonitorFake({ href: `${site}/?lang=zh-CN`, languages: ['de-AT'] });
+  const { win, anchor, alternative, navigations } = harness(t, null, monitor);
+  mountRootTransit(win);
+  assert.equal(monitor.rows.query.value.textContent, 'zh-CN');
+  assert.deepEqual(detectedRows(monitor.rows), ['query']);
+  assert.equal(anchor.href, '/en-US/?lang=zh-CN');
+  assert.equal(alternative.href, '/zh-CN/?lang=zh-CN', 'the configured language link keeps its own target');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1);
+  assert.deepEqual(navigations, []);
+  t.mock.timers.tick(1);
+  assert.deepEqual(navigations, ['/en-US/?lang=zh-CN']);
+});
+
+test('a foreign shared marker and an unsupported browser list leave the target and the links unchanged', (t) => {
+  const monitor = localeMonitorFake({
+    href: `${site}/`,
+    languages: ['xx'],
+    cookie: 'hagicode_locale_monitor=ja-JP|stored|docs.hagicode.com|1761000000',
+  });
+  const { win, anchor, alternative, navigations } = harness(t, null, monitor);
+  mountRootTransit(win);
+  assert.deepEqual(detectedRows(monitor.rows), ['default']);
+  assert.equal(monitor.rows.shared.value.textContent, 'ja-JP · hagicode:site-locale · docs.hagicode.com');
+  assert.equal(anchor.href, '/en-US/');
+  assert.equal(alternative.href, '/zh-CN/');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.deepEqual(navigations, ['/en-US/']);
+});
+
+test('the monitor writes only its own two keys and never the official locale keys', (t) => {
+  const storage = { 'hagicode:site-locale': 'fr-FR', lang: 'de-DE' };
+  const monitor = localeMonitorFake({ href: 'https://docs.hagicode.com/?lang=ja-JP', storage });
+  const { win, navigations } = harness(t, null, monitor);
+  mountRootTransit(win);
+  assert.deepEqual(monitor.storageWrites.map(([key]) => key), ['hagicode:locale-monitor']);
+  assert.deepEqual(monitor.cookieWrites.map((cookie) => cookie.split('=')[0]), ['hagicode_locale_monitor']);
+  assert.equal(storage['hagicode:site-locale'], 'fr-FR');
+  assert.equal(storage.lang, 'de-DE');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.deepEqual(navigations, ['/en-US/?lang=ja-JP']);
+});
+
+for (const [name, options] of [
+  ['throwing storage', { failStorage: true }],
+  ['a blocked cookie', { cookieMode: 'block' }],
+  ['a throwing cookie write', { cookieMode: 'throw' }],
+]) {
+  test(`${name} with the monitor on still forwards on time`, (t) => {
+    const monitor = localeMonitorFake({ href: 'https://docs.hagicode.com/', ...options });
+    const { win, navigations } = harness(t, null, monitor);
+    assert.doesNotThrow(() => mountRootTransit(win));
+    t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1);
+    assert.deepEqual(navigations, []);
+    t.mock.timers.tick(1);
+    assert.deepEqual(navigations, ['/en-US/']);
+  });
+}
+
+test('a monitor that throws while mounting still forwards on time and keeps the continue link', (t) => {
+  const monitor = localeMonitorFake({ href: `${site}/?lang=ko` });
+  monitor.panel.querySelector = () => { throw new Error('broken panel'); };
+  const { win, anchor, navigations } = harness(t, null, monitor);
+  assert.doesNotThrow(() => mountRootTransit(win));
+  assert.equal(anchor.href, '/en-US/?lang=ko');
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.deepEqual(navigations, ['/en-US/?lang=ko']);
 });
