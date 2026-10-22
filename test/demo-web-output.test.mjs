@@ -124,7 +124,9 @@ test('plain-Astro footer includes one exact package-version attribution and pres
     for (const destination of expectedRss) {
       assert.ok(footer.includes(destination), `${page.file} retains ${destination}`);
     }
-    assert.doesNotMatch(footer, /<script\b|https?:\/\/[^"]*(?:version|registry)/iu);
+    // The footer's only script is its avatar picker (one module, no inline analytics or external source).
+    assert.ok((footer.match(/<script\b/gu) ?? []).length <= 1, `${page.file} has at most the avatar picker script`);
+    assert.doesNotMatch(footer, /<script\b[^>]*\bsrc=|posthog|gtag|https?:\/\/[^"]*(?:version|registry)/iu);
   }
 });
 

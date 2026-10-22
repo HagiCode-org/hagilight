@@ -25,6 +25,14 @@ const sections = [
         example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"en-US\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter remains available without feature-package attribution. */}\n<CoreFooter locale=\"en-US\" />\n\nimport FooterBrand from '@hagicode/hagilight-core/FooterBrand';\nimport { resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';\n\nconst { headline, pillars } = resolveFooterBrand('en-US');",
       },
       {
+        id: 'footer-avatar',
+        title: 'Footer avatar',
+        kind: 'Live component',
+        summary: "The footer opens with a small decorative HagiCode avatar, shipped as an AVIF and WebP pair at 128 px for a 64 px box. @hagicode/hagilight-core/footer-avatar resolves the avatar and randomAvatar options, and @hagicode/hagilight-core/random-image picks one entry of the hero-avatars pool per page view, preloads it, and swaps it in only when it loads within three seconds.",
+        evidence: "Reload the page to see a different avatar. With scripts disabled or img-gen blocked, the vendored default stays and the layout does not move.",
+        example: "import avatarAvif from '@hagicode/hagilight-core/assets/footer/avatar.avif';\nimport avatarWebp from '@hagicode/hagilight-core/assets/footer/avatar.webp';\nimport avatarManifest from '@hagicode/hagilight-core/assets/footer/manifest.json';\nimport { resolveFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';\nimport { mountRandomImages } from '@hagicode/hagilight-core/random-image';\n\n{/* avatar and randomAvatar default to true; false removes the element or the random pool. */}\n<Footer avatar={true} randomAvatar={false} />",
+      },
+      {
         id: 'copyright',
         title: 'Copyright',
         kind: 'Live in footer · direct export',

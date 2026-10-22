@@ -25,6 +25,14 @@ const sections = [
         example: "import Footer from '@hagicode/hagilight/Footer';\nimport CoreFooter from '@hagicode/hagilight-core/Footer';\n\n<Footer locale=\"zh-CN\" links={{ rssFeedUrl: '/rss.xml' }} />\n\n{/* CoreFooter 仍可单独使用，且不会显示功能包标识。 */}\n<CoreFooter locale=\"zh-CN\" />\n\nimport FooterBrand from '@hagicode/hagilight-core/FooterBrand';\nimport { resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';\n\nconst { headline, pillars } = resolveFooterBrand('zh-CN');",
       },
       {
+        id: 'footer-avatar',
+        title: '页脚头像',
+        kind: '实时组件',
+        summary: "页脚以一个小巧的装饰性 HagiCode 头像开场，以 AVIF 与 WebP 两个文件提供，128 px 源图用于 64 px 的显示框。@hagicode/hagilight-core/footer-avatar 解析 avatar 与 randomAvatar 选项，@hagicode/hagilight-core/random-image 每次页面浏览从 hero-avatars 池中随机选择一幅，预加载后仅在三秒内加载成功时替换。",
+        evidence: "刷新页面可看到不同的头像。禁用脚本或屏蔽 img-gen 时保留内置默认图，布局不会移动。",
+        example: "import avatarAvif from '@hagicode/hagilight-core/assets/footer/avatar.avif';\nimport avatarWebp from '@hagicode/hagilight-core/assets/footer/avatar.webp';\nimport avatarManifest from '@hagicode/hagilight-core/assets/footer/manifest.json';\nimport { resolveFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';\nimport { mountRandomImages } from '@hagicode/hagilight-core/random-image';\n\n{/* avatar 与 randomAvatar 默认为 true；设为 false 时分别移除头像元素或随机池。 */}\n<Footer avatar={true} randomAvatar={false} />",
+      },
+      {
         id: 'copyright',
         title: '版权信息',
         kind: '页脚内实时呈现 · 可单独导入',
