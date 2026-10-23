@@ -91,6 +91,16 @@ The theme reads these colors from the page. Define them on `:root` (or any ances
 | `--hagilight-mermaid-mm-up`, `--hagilight-mermaid-mm-down` | Trace colors override | primary and warning | primary and warning |
 | `--hagilight-mermaid-app-font-mono` | Error source font | system monospace | system monospace |
 
+### Series palette
+
+Charts that tell many parts apart (pie, Gantt, git graph, journey, timeline, mindmap, kanban, radar, XY, Venn, quadrant, event modeling, Cynefin) read a fixed 12-hue categorical palette per preset and mode, not the site tokens. Mermaid's base theme would derive these from the primary color and leave every slice navy. Each hue has three tones, generated in OKLCH:
+
+- **mark** for slices, bars, lines and branches: at least 3:1 against the canvas, with 4.5:1 text on it. In dark mode no mark passes 0.5 relative luminance, so a large mark never glares.
+- **fill** for blocks that carry their own text, such as notes, quadrants and event boxes.
+- **border** for the edge of a fill block.
+
+Blue and teal lead the order, then amber and violet, so neighbouring series never read alike. `getMermaidSemanticTheme(mode, preset).series` exposes the tones; node, edge and cluster colors still follow the tokens above.
+
 To use a site's own names, pass `tokens` instead of redefining the package tokens:
 
 ```ts
@@ -148,7 +158,7 @@ With Mermaid 11.16.1, every diagram type the demo covers renders an SVG, and non
 - **Part focus and the reveal** read Mermaid 11.16.1's SVG structure, which has no shared shape across diagram types. A later Mermaid release can rename a class: the affected type then loses its part focus, and its reveal falls back to the generic one, until the table in `src/adapters.ts` is updated. The browser checks pin the installed version.
 - **Thin lines** (a sequence message, a git branch) are hard to hit on their own, so the part includes its label: hover the label or the text beside the line.
 - **Block**, **kanban**, **architecture** and **Wardley** have no dependency graph the tracing can read, so they get part focus rather than upstream and downstream paths.
-- **Text halo**: the default preset draws a light halo behind diagram text in light mode and a dark halo in dark mode. Against a page background of the other colour, text can look outlined.
+- **Text halo**: the default preset draws a halo behind diagram text, white in light mode and `#111827` in dark mode. Set `--hagilight-mermaid-halo` to the page color when it differs. Text printed on a colored mark (pie slices, Gantt bars, timeline and branch labels) has no halo.
 
 ## Parity
 
