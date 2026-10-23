@@ -3,6 +3,7 @@ import {
   CORE_PACKAGE,
   EXAMPLES,
   PACKAGES,
+  STANDALONE,
   assertPackageGraph,
   readManifest,
   root,
@@ -67,7 +68,10 @@ export function dependencyStamps(version) {
   return [
     ...PACKAGES.map(({ name }) => ({
       workspace: name,
-      values: [`version=${version}`, ...(name === CORE_PACKAGE ? [] : [`dependencies.${CORE_PACKAGE}=${version}`])],
+      values: [
+        `version=${version}`,
+        ...(name === CORE_PACKAGE || STANDALONE.includes(name) ? [] : [`dependencies.${CORE_PACKAGE}=${version}`]),
+      ],
     })),
     ...EXAMPLES.map(({ name, directory }) => {
       const manifest = readManifest(directory);

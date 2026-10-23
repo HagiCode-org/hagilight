@@ -9,6 +9,8 @@
   "dependencies": {
     "@hagicode/hagilight": "0.1.0",
     "@hagicode/hagilight-core": "0.1.0",
-    "astro": "^7.3.5"
+    "@hagicode/hagilight-mermaid": "0.1.0",
+    "astro": "^7.3.5",
+    "mermaid": "11.16.1"
   }
 }

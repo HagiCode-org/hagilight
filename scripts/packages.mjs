@@ -11,9 +11,13 @@ export const CORE_PACKAGE = '@hagicode/hagilight-core';
 export const PACKAGES = [
   { name: CORE_PACKAGE, directory: 'packages/core' },
   { name: '@hagicode/hagilight-docusaurus', directory: 'packages/docusaurus' },
+  { name: '@hagicode/hagilight-mermaid', directory: 'packages/mermaid' },
   { name: '@hagicode/hagilight', directory: 'packages/astro' },
   { name: '@hagicode/hagilight-starlight', directory: 'packages/starlight' },
 ];
+
+/** Feature packages that use nothing from core, so they carry no core dependency. They keep the shared version. */
+export const STANDALONE = ['@hagicode/hagilight-mermaid'];
 
 /** Private example workspaces and the Hagilight packages each one depends on. */
 export const EXAMPLES = [
@@ -41,9 +45,9 @@ export function buildPackages() {
 }
 
 /**
- * Assert that versions are aligned: every package shares one version, both
- * feature packages depend on exactly that core version, and neither depends on
- * the other feature package.
+ * Assert that versions are aligned: every package shares one version, feature
+ * packages depend on exactly that core version (STANDALONE packages excepted),
+ * and no feature package depends on another feature package.
  */
 export function assertPackageGraph(manifests = PACKAGES.map(({ directory }) => readManifest(directory))) {
   const [core, ...dependents] = manifests;
@@ -54,7 +58,7 @@ export function assertPackageGraph(manifests = PACKAGES.map(({ directory }) => r
   }
   const featureNames = new Set(dependents.map(({ name }) => name));
   for (const manifest of dependents) {
-    if (manifest.dependencies?.[CORE_PACKAGE] !== core.version) {
+    if (!STANDALONE.includes(manifest.name) && manifest.dependencies?.[CORE_PACKAGE] !== core.version) {
       throw new Error(`${manifest.name} must depend on ${CORE_PACKAGE}@${core.version}`);
     }
     for (const field of ['dependencies', 'peerDependencies', 'optionalDependencies', 'devDependencies']) {

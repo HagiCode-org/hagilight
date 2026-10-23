@@ -22,6 +22,7 @@ const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
 const ASTRO_PACKAGE = '@hagicode/hagilight';
 const STARLIGHT_PACKAGE = '@hagicode/hagilight-starlight';
 const DOCUSAURUS_PACKAGE = '@hagicode/hagilight-docusaurus';
+const MERMAID_PACKAGE = '@hagicode/hagilight-mermaid';
 const DOCUSAURUS_SITE_URL = 'https://consumer.example.test';
 const BUILD_INFO_VARIABLES = ['HAGILIGHT_BUILD_BRANCH', 'HAGILIGHT_BUILD_COMMIT'];
 const BUILD_INFO_OVERRIDE = {
@@ -624,6 +625,41 @@ Installed consumer welcome post.
   assert.equal(home.commit.text, 'Commit: unknown', 'a Docusaurus consumer built outside a repository reports an unknown commit');
 }
 
+function verifyMermaidConsumer(tarballs) {
+  const mermaidTemp = join(temp, 'mermaid-consumer');
+  const mermaidVersion = JSON.parse(readFileSync('package.json', 'utf8')).devDependencies.mermaid;
+  const nodeModules = installConsumer(mermaidTemp, {
+    mermaid: mermaidVersion,
+    [MERMAID_PACKAGE]: tarballSpec(tarballs[MERMAID_PACKAGE]),
+  }, 'hagilight-mermaid-consumer');
+  assertInstalled(nodeModules, {
+    present: [MERMAID_PACKAGE, 'mermaid'],
+    absent: [CORE_PACKAGE, ASTRO_PACKAGE, STARLIGHT_PACKAGE, DOCUSAURUS_PACKAGE, 'astro'],
+  });
+  const packageRoot = join(nodeModules, ...MERMAID_PACKAGE.split('/'));
+  // render.js is the only module that loads mermaid; it must keep the bare specifier so the consumer's own mermaid is used.
+  const distFiles = listFiles(join(packageRoot, 'dist')).filter((path) => path.endsWith('.js'));
+  const mermaidImports = distFiles
+    .filter((path) => /import\(\s*['"]mermaid['"]\s*\)/u.test(readFileSync(path, 'utf8')))
+    .map((path) => path.slice(packageRoot.length + 1).split(/[\\/]/u).join('/'));
+  assert.deepEqual(mermaidImports, ['dist/render.js'], 'only dist/render.js imports mermaid, as a bare specifier');
+  writeFileSync(join(mermaidTemp, 'load-exports.mjs'), `
+const subpaths = ${JSON.stringify(['', 'theme', 'svg', 'graph', 'entrance', 'interaction', 'labels'])};
+for (const subpath of subpaths) {
+  const specifier = '${MERMAID_PACKAGE}' + (subpath ? '/' + subpath : '');
+  const module = await import(specifier);
+  if (Object.keys(module).length === 0) throw new Error(specifier + ' has no runtime exports');
+}
+const { renderMermaid, mountMermaidDiagrams } = await import('${MERMAID_PACKAGE}');
+if (typeof renderMermaid !== 'function' || typeof mountMermaidDiagrams !== 'function') throw new Error('mermaid entry exports are incomplete');
+for (const style of ['styles.css', 'styles/archify.css']) {
+  const url = import.meta.resolve('${MERMAID_PACKAGE}/' + style);
+  if (!url.endsWith('/' + style)) throw new Error(style + ' does not resolve to its packaged file: ' + url);
+}
+`);
+  execFileSync(process.execPath, ['load-exports.mjs'], { cwd: mermaidTemp, stdio: 'inherit' });
+}
+
 function addDirectStarlightFooterPage(directory) {
   const docsDirectory = join(directory, 'src', 'content', 'docs');
   mkdirSync(docsDirectory, { recursive: true });
@@ -678,6 +714,7 @@ try {
   verifyAstroFooter(tarballs, example.dependencies.astro);
   verifyBuildInfoConsumer(tarballs, example.dependencies.astro);
   verifyDocusaurusConsumer(tarballs);
+  verifyMermaidConsumer(tarballs);
   const configPath = join(temp, 'astro.config.mjs');
   const enabledConfig = readFileSync('examples/demo-starlight-web/astro.config.mjs', 'utf8');
   assert.doesNotMatch(
@@ -788,5 +825,6 @@ import DefaultHead from '@astrojs/starlight/components/Head.astro';
   assert.match(unreadableStarlightOutput, /package\.json|JSON|SyntaxError/u);
   assert.doesNotMatch(unreadableStarlightOutput, /Powered By hagilight-starlight@undefined/u);
 } finally {
-  rmSync(temp, { recursive: true, force: true });
+  // Astro can still be writing its cache as the last child exits, so retry the removal instead of masking the result.
+  rmSync(temp, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
 }

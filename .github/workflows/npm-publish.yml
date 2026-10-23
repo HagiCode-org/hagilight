@@ -40,7 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: echo "version=$(node scripts/release.mjs dev)" >> "$GITHUB_OUTPUT"
-      - name: Stamp core, all dependent packages, and example dependencies
+      - name: Stamp core, Docusaurus, Mermaid, plain Astro, Starlight, and example dependencies
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/release.mjs stamp "$VERSION"
@@ -48,7 +48,7 @@ jobs:
         run: |
           npm run pack:check
           npm run integration:installed
-      - name: Publish core, then Docusaurus, plain Astro, and Starlight (dev)
+      - name: Publish core, then Docusaurus, Mermaid, plain Astro, and Starlight (dev)
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/publish.mjs dev
@@ -59,7 +59,7 @@ jobs:
           RESULT: ${{ job.status }}
         run: |
           echo "## npm dev publish" >> "$GITHUB_STEP_SUMMARY"
-          echo "Hagilight core, Docusaurus, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: dev)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Hagilight core, Docusaurus, Mermaid, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: dev)." >> "$GITHUB_STEP_SUMMARY"
 
   publish-release:
     if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease && !github.event.release.draft
@@ -85,7 +85,7 @@ jobs:
         run: |
           npm run typecheck
           npm test
-      - name: Stamp core, all dependent packages, and example dependencies
+      - name: Stamp core, Docusaurus, Mermaid, plain Astro, Starlight, and example dependencies
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/release.mjs stamp "$VERSION"
@@ -93,7 +93,7 @@ jobs:
         run: |
           npm run pack:check
           npm run integration:installed
-      - name: Publish core, then Docusaurus, plain Astro, and Starlight (latest)
+      - name: Publish core, then Docusaurus, Mermaid, plain Astro, and Starlight (latest)
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: node scripts/publish.mjs latest
@@ -104,4 +104,4 @@ jobs:
           RESULT: ${{ job.status }}
         run: |
           echo "## npm stable publish" >> "$GITHUB_STEP_SUMMARY"
-          echo "Hagilight core, Docusaurus, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Hagilight core, Docusaurus, Mermaid, plain Astro, and Starlight packages, version $VERSION: $RESULT (dist-tag: latest)." >> "$GITHUB_STEP_SUMMARY"

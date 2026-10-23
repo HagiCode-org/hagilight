@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const packages = ['core', 'astro', 'starlight'].map((directory) => ({
+const packages = ['core', 'astro', 'starlight', 'mermaid'].map((directory) => ({
   directory,
   manifest: JSON.parse(readFileSync(join(root, 'packages', directory, 'package.json'), 'utf8')),
 }));
@@ -124,6 +124,21 @@ const expectedExports = {
     'loadStructuredArticleLocaleDetails',
   ],
   '@hagicode/hagilight/integration': ['hagilight', 'hagilightFavicon'],
+  '@hagicode/hagilight-mermaid': ['mountMermaidDiagrams', 'renderMermaid'],
+  '@hagicode/hagilight-mermaid/theme': [
+    'MERMAID_LAYOUT_DEFAULTS',
+    'TOKEN_PROPERTIES',
+    'clearMermaidThemeConfigCache',
+    'getContrastRatio',
+    'getMermaidSemanticTheme',
+    'getMermaidThemeConfig',
+    'resolvePreset',
+  ],
+  '@hagicode/hagilight-mermaid/svg': ['normalizeMermaidSvgViewBox', 'postProcessMermaidSvg'],
+  '@hagicode/hagilight-mermaid/graph': ['assignRanks', 'buildMermaidGraph', 'traceFrom'],
+  '@hagicode/hagilight-mermaid/entrance': ['playMermaidEntrance'],
+  '@hagicode/hagilight-mermaid/interaction': ['attachMermaidDiagramInteraction'],
+  '@hagicode/hagilight-mermaid/labels': ['DEFAULT_LABELS', 'formatLabel', 'resolveLabels'],
   '@hagicode/hagilight-starlight': ['default'],
   '@hagicode/hagilight-starlight/locales': ['locales'],
   '@hagicode/hagilight-starlight/schema': ['aiDisclosureSchema', 'articlePromotionSchema', 'hagilightSchema', 'rssSchema'],

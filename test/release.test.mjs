@@ -27,6 +27,7 @@ test('publishes shared core first and stamps it into every dependent package and
   assert.deepEqual(PACKAGES.map(({ name }) => name), [
     '@hagicode/hagilight-core',
     '@hagicode/hagilight-docusaurus',
+    '@hagicode/hagilight-mermaid',
     '@hagicode/hagilight',
     '@hagicode/hagilight-starlight',
   ]);
@@ -35,9 +36,11 @@ test('publishes shared core first and stamps it into every dependent package and
   for (const name of ['@hagicode/hagilight-docusaurus', '@hagicode/hagilight', '@hagicode/hagilight-starlight']) {
     assert.deepEqual(stamps[name], ['version=1.2.3', 'dependencies.@hagicode/hagilight-core=1.2.3']);
   }
+  assert.deepEqual(stamps['@hagicode/hagilight-mermaid'], ['version=1.2.3']);
   assert.deepEqual(stamps['hagilight-core-footer-example'], [
     'dependencies.@hagicode/hagilight=1.2.3',
     'dependencies.@hagicode/hagilight-core=1.2.3',
+    'dependencies.@hagicode/hagilight-mermaid=1.2.3',
   ]);
   assert.ok(stamps['hagilight-example'].includes('dependencies.@hagicode/hagilight-starlight=1.2.3'));
   assert.ok(stamps['hagilight-example'].includes('dependencies.@hagicode/hagilight-core=1.2.3'));
@@ -52,4 +55,29 @@ test('rejects a Docusaurus dependency on either Astro-based feature package', ()
       message: `@hagicode/hagilight-docusaurus must not depend on ${name} (dependencies)`,
     });
   }
+});
+
+test('lets the standalone mermaid package carry no core dependency', () => {
+  const manifests = PACKAGES.map(({ directory }) => readManifest(directory));
+  const mermaid = manifests.find((manifest) => manifest.name === '@hagicode/hagilight-mermaid');
+  assert.equal(mermaid.dependencies?.['@hagicode/hagilight-core'], undefined);
+  assert.equal(assertPackageGraph(manifests), manifests[0].version);
+});
+
+test('rejects a standalone package whose version drifts from core', () => {
+  const manifests = PACKAGES.map(({ directory }) => readManifest(directory));
+  const mermaid = manifests.find((manifest) => manifest.name === '@hagicode/hagilight-mermaid');
+  mermaid.version = '9.9.9';
+  assert.throws(() => assertPackageGraph(manifests), {
+    message: `@hagicode/hagilight-mermaid@9.9.9 does not match @hagicode/hagilight-core@${manifests[0].version}`,
+  });
+});
+
+test('rejects a standalone package that depends on another feature package', () => {
+  const manifests = PACKAGES.map(({ directory }) => readManifest(directory));
+  const mermaid = manifests.find((manifest) => manifest.name === '@hagicode/hagilight-mermaid');
+  mermaid.peerDependencies = { ...mermaid.peerDependencies, '@hagicode/hagilight-docusaurus': mermaid.version };
+  assert.throws(() => assertPackageGraph(manifests), {
+    message: '@hagicode/hagilight-mermaid must not depend on @hagicode/hagilight-docusaurus (peerDependencies)',
+  });
 });

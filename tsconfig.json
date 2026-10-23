@@ -4,6 +4,7 @@
     { "path": "./packages/core" },
     { "path": "./packages/astro" },
     { "path": "./packages/starlight" },
-    { "path": "./packages/docusaurus" }
+    { "path": "./packages/docusaurus" },
+    { "path": "./packages/mermaid" }
   ]
 }

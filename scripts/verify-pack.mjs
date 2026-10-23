@@ -69,6 +69,12 @@ const REQUIRED_FILES = {
     'dist/og-image.d.ts',
     ...comparisonArticleDataFiles(),
   ],
+  '@hagicode/hagilight-mermaid': [
+    'dist/index.js',
+    'dist/index.d.ts',
+    'styles.css',
+    'styles/archify.css',
+  ],
   '@hagicode/hagilight-docusaurus': [
     'styles.css',
     'promoto.css',
@@ -134,6 +140,18 @@ const REQUIRED_FILES = {
 
 const EXPECTED_EXPORTS = {
   '@hagicode/hagilight-docusaurus': ['.', './locales'],
+  // The stylesheet entries are exports too, so they belong in the exact key list.
+  '@hagicode/hagilight-mermaid': [
+    '.',
+    './theme',
+    './svg',
+    './graph',
+    './entrance',
+    './interaction',
+    './labels',
+    './styles.css',
+    './styles/archify.css',
+  ],
 };
 
 const FORBIDDEN_FILES = {
@@ -219,6 +237,15 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
     const peers = manifest.peerDependencies ?? {};
     if (peers['@docusaurus/core'] !== '^3.9.2' || peers['@docusaurus/theme-classic'] !== '^3.9.2') {
       throw new Error(`${name} must declare the tested Docusaurus 3.9 core and theme-classic peer ranges`);
+    }
+  } else if (name === '@hagicode/hagilight-mermaid') {
+    const peers = manifest.peerDependencies ?? {};
+    if (peers.mermaid !== '^11') {
+      throw new Error(`${name} must declare the mermaid ^11 peer range`);
+    }
+    const framework = Object.keys(peers).filter((peer) => /^(?:astro|react|react-dom|@docusaurus\/.+)$/u.test(peer));
+    if (framework.length > 0) {
+      throw new Error(`${name} must be framework-agnostic and cannot peer on ${framework.join(', ')}`);
     }
   } else if (manifest.peerDependencies?.astro === undefined) {
     throw new Error(`${name} must declare an Astro peer dependency`);
