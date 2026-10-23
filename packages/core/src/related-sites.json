@@ -374,5 +374,34 @@
       "ru-RU": "Галерея работ HagiCode в виде статических страниц."
     },
     "url": "https://gallery.hagicode.com/"
+  },
+  {
+    "id": "impeccable-site",
+    "name": {
+      "zh-CN": "Impeccable Commands",
+      "zh-Hant": "Impeccable Commands",
+      "en-US": "Impeccable Commands",
+      "ja-JP": "Impeccable Commands",
+      "ko-KR": "Impeccable Commands",
+      "de-DE": "Impeccable Commands",
+      "fr-FR": "Impeccable Commands",
+      "es-ES": "Impeccable Commands",
+      "pt-BR": "Impeccable Commands",
+      "ru-RU": "Impeccable Commands"
+    },
+    "description": {
+      "zh-CN": "impeccable 工作流命令文档",
+      "zh-Hant": "impeccable 工作流程指令文件",
+      "en-US": "Command docs for the impeccable workflow.",
+      "ja-JP": "impeccable ワークフローのコマンドドキュメントです。",
+      "ko-KR": "impeccable 워크플로의 명령어 문서입니다.",
+      "de-DE": "Befehlsdokumentation für den impeccable-Workflow.",
+      "fr-FR": "Documentation des commandes du workflow impeccable.",
+      "es-ES": "Documentación de comandos del flujo de trabajo impeccable.",
+      "pt-BR": "Documentação dos comandos do fluxo de trabalho impeccable.",
+      "ru-RU": "Документация по командам рабочего процесса impeccable."
+    },
+    "url": "https://impeccable.hagicode.com/",
+    "supportsLocalePath": true
   }
 ]

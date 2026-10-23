@@ -46,7 +46,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'hagitask', 'costCalculator',
     'hagicode-main', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
-    'fullstack-tutorial', 'gallery',
+    'fullstack-tutorial', 'gallery', 'impeccable-site',
   ]);
   assert.equal(links.quick[0].label, 'Download Hagicode');
   assert.equal(links.quick[1].label, 'Download Hagicode for Windows');
@@ -124,7 +124,30 @@ test('includes the Gallery site last with a localized description for every loca
     resolveSiteLinks('en-US').relatedSites.find(({ id }) => id === 'gallery').description,
     resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'gallery').description,
   );
-  assert.equal(resolveSiteLinks('en-US').relatedSites.at(-1).id, 'gallery');
+});
+
+test('includes the Impeccable Commands site last with a localized description for every locale', () => {
+  for (const locale of [
+    'zh-CN', 'zh-Hant', 'en-US', 'ja-JP', 'ko-KR',
+    'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+  ]) {
+    const sites = resolveSiteLinks(locale).relatedSites.filter(({ id }) => id === 'impeccable-site');
+    assert.equal(sites.length, 1);
+    assert.equal(sites[0].name, 'Impeccable Commands');
+    assert.equal(sites[0].href, `https://impeccable.hagicode.com/${locale}/`);
+    assert.equal(sites[0].target, '_blank');
+    assert.equal(sites[0].rel, 'noopener');
+    assert.ok(sites[0].description.length > 0);
+  }
+  assert.notEqual(
+    resolveSiteLinks('en-US').relatedSites.find(({ id }) => id === 'impeccable-site').description,
+    resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'impeccable-site').description,
+  );
+  assert.equal(resolveSiteLinks('en-US').relatedSites.at(-1).id, 'impeccable-site');
+  assert.equal(
+    resolveSiteLinks('en-US', { siteId: 'impeccable-site' }).relatedSites.some(({ id }) => id === 'impeccable-site'),
+    false,
+  );
 });
 
 test('the Fullstack entry can be removed, replaced, or excluded on its own site', () => {
