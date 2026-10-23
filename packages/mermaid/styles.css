@@ -99,15 +99,18 @@
   transition: opacity 160ms ease, stroke 160ms ease, stroke-width 160ms ease;
 }
 
-.mermaid-container .mermaid-enhanced-svg .mermaid-node {
+.mermaid-container .mermaid-enhanced-svg .mermaid-node[role="button"],
+.mermaid-container .mermaid-enhanced-svg .mermaid-entity[role="button"] {
   cursor: pointer;
 }
 
-.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus {
+.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus,
+.mermaid-container .mermaid-enhanced-svg .mermaid-entity:focus {
   outline: none;
 }
 
-.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus-visible {
+.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus-visible,
+.mermaid-container .mermaid-enhanced-svg .mermaid-entity:focus-visible {
   outline: 2px solid var(--hagilight-mermaid-trace-down, #2563eb);
   outline-offset: 3px;
 }
@@ -254,7 +257,8 @@
 
 .mermaid-container .mermaid-trace-chip-pin,
 .mermaid-container .mermaid-trace-chip-clear svg,
-.mermaid-container .mermaid-replay svg {
+.mermaid-container .mermaid-replay svg,
+.mermaid-container .mermaid-expand svg {
   width: 0.875rem;
   height: 0.875rem;
   flex-shrink: 0;
@@ -265,7 +269,8 @@
 }
 
 .mermaid-container .mermaid-trace-chip-clear,
-.mermaid-container .mermaid-replay {
+.mermaid-container .mermaid-replay,
+.mermaid-container .mermaid-expand {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -282,26 +287,49 @@
 }
 
 .mermaid-container .mermaid-trace-chip-clear:hover,
-.mermaid-container .mermaid-replay:hover {
+.mermaid-container .mermaid-replay:hover,
+.mermaid-container .mermaid-expand:hover {
   background: var(--hagilight-mermaid-hover, #f1f5f9);
   color: var(--hagilight-mermaid-ink, #17212b);
 }
 
 .mermaid-container .mermaid-trace-chip-clear:focus-visible,
-.mermaid-container .mermaid-replay:focus-visible {
+.mermaid-container .mermaid-replay:focus-visible,
+.mermaid-container .mermaid-expand:focus-visible {
   outline: 2px solid var(--hagilight-mermaid-trace-down, #2563eb);
   outline-offset: 1px;
 }
 
-.mermaid-container .mermaid-replay {
+.mermaid-container .mermaid-replay,
+.mermaid-container .mermaid-expand {
   flex-shrink: 0;
   width: 1.75rem;
   height: 1.75rem;
   transition: background-color 160ms ease, color 160ms ease;
 }
 
+.mermaid-container .mermaid-replay svg,
+.mermaid-container .mermaid-expand svg {
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* The arrows of the enlarge icon part a little, and the replay arrow winds back, so each button says what it will do. */
+.mermaid-container .mermaid-expand:hover svg {
+  transform: scale(1.14);
+}
+
+.mermaid-container .mermaid-replay:hover svg {
+  transform: rotate(-60deg);
+}
+
+.mermaid-container .mermaid-replay:active svg,
+.mermaid-container .mermaid-expand:active svg {
+  transform: scale(0.88);
+}
+
 @media (pointer: coarse) {
-  .mermaid-container .mermaid-replay {
+  .mermaid-container .mermaid-replay,
+  .mermaid-container .mermaid-expand {
     width: 2.25rem;
     height: 2.25rem;
   }
@@ -336,12 +364,281 @@
   .mermaid-container .mermaid-enhanced-svg .mermaid-subgraph,
   .mermaid-container .mermaid-enhanced-svg .mermaid-edge,
   .mermaid-container .mermaid-enhanced-svg .mermaid-edge-label,
-  .mermaid-container .mermaid-replay {
+  .mermaid-container .mermaid-replay,
+  .mermaid-container .mermaid-expand,
+  .mermaid-container .mermaid-replay svg,
+  .mermaid-container .mermaid-expand svg,
+  .mermaid-container .mermaid-part {
     transition: none;
   }
 
   .mermaid-container .mermaid-trace-chip {
     animation: none;
+  }
+}
+
+/*
+ * Part focus, for the diagrams path tracing cannot read (pie, Gantt, sequence, ...). The part under the
+ * pointer or keyboard focus keeps its colour and gains an outline in the trace colour; its other parts,
+ * such as a slice's legend row, move with it, and everything else steps back.
+ */
+.mermaid-container .mermaid-enhanced-svg .mermaid-part {
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.mermaid-container .mermaid-focusing .mermaid-focus-dim {
+  opacity: 0.28;
+}
+
+.mermaid-container .mermaid-focusing .mermaid-focus-on {
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--hagilight-mermaid-ink, #17212b) 24%, transparent));
+}
+
+.mermaid-container .mermaid-focusing .mermaid-focus-on:is(rect, circle, ellipse, polygon, path, line),
+.mermaid-container .mermaid-focusing .mermaid-focus-on :is(rect, circle, ellipse, polygon, path, line) {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb) !important;
+  stroke-width: 2px !important;
+}
+
+/* A trace chip that names a chart part shows its place, such as 3 / 8, instead of node counts. */
+.mermaid-container .mermaid-trace-chip-place::before {
+  content: none;
+}
+
+/* Fixed-height tiles: the diagram fits whole inside its host instead of setting the host's height. */
+.mermaid-container.mermaid-fit-contain {
+  height: 100%;
+  margin: 0;
+}
+
+.mermaid-container.mermaid-fit-contain .mermaid-diagram-container {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 0.25rem;
+  overflow: hidden;
+}
+
+.mermaid-container.mermaid-fit-contain .mermaid-diagram-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Enlarged viewer: a modal dialog inside the diagram's container, so it inherits the theme tokens.
+ * The diagram is laid out once at its natural size and moved by transform alone.
+ */
+.mermaid-container .mermaid-viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hagilight-mermaid-ink, #17212b);
+  overflow: hidden;
+}
+
+.mermaid-container .mermaid-viewer::backdrop {
+  background: color-mix(in srgb, #ffffff 84%, transparent);
+  backdrop-filter: blur(14px);
+  animation: mermaid-viewer-fade 280ms ease-out backwards;
+}
+
+.mermaid-container[data-mermaid-mode="dark"] .mermaid-viewer::backdrop {
+  background: color-mix(in srgb, #0b1220 84%, transparent);
+}
+
+.mermaid-container .mermaid-viewer[data-state="closing"]::backdrop {
+  animation: mermaid-viewer-fade 240ms ease-in reverse both;
+}
+
+.mermaid-container .mermaid-viewer-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  outline: none;
+  overscroll-behavior: contain;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mermaid-container .mermaid-viewer-stage[data-dragging] {
+  cursor: grabbing;
+}
+
+.mermaid-container .mermaid-viewer .mermaid-viewer-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: auto;
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  transform-origin: 0 0;
+}
+
+.mermaid-container .mermaid-viewer .mermaid-viewer-canvas svg {
+  display: block;
+  max-width: none;
+}
+
+.mermaid-container .mermaid-viewer-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  animation: mermaid-viewer-rise 380ms 140ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.mermaid-container .mermaid-viewer-bar > * {
+  pointer-events: auto;
+}
+
+.mermaid-container .mermaid-viewer-bar .mermaid-trace-status {
+  pointer-events: none;
+}
+
+.mermaid-container .mermaid-viewer-bar .mermaid-trace-chip {
+  pointer-events: auto;
+}
+
+.mermaid-container .mermaid-viewer[data-state="closing"] .mermaid-viewer-bar,
+.mermaid-container .mermaid-viewer[data-state="closing"] .mermaid-viewer-hint {
+  opacity: 0;
+}
+
+.mermaid-container .mermaid-viewer-zoom,
+.mermaid-container .mermaid-viewer-close {
+  border: 1px solid var(--hagilight-mermaid-line, #e2e8f0);
+  border-radius: 10px;
+  background: var(--hagilight-mermaid-surface, #ffffff);
+}
+
+.mermaid-container .mermaid-viewer-zoom {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem;
+}
+
+.mermaid-container .mermaid-viewer-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.375rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  font: inherit;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mermaid-container .mermaid-viewer-button svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.mermaid-container .mermaid-viewer-button:hover {
+  background: var(--hagilight-mermaid-hover, #f1f5f9);
+  color: var(--hagilight-mermaid-ink, #17212b);
+}
+
+.mermaid-container .mermaid-viewer-button:active {
+  transform: scale(0.92);
+}
+
+.mermaid-container .mermaid-viewer-button:focus-visible {
+  outline: 2px solid var(--hagilight-mermaid-trace-down, #2563eb);
+  outline-offset: 1px;
+}
+
+.mermaid-container .mermaid-viewer-close {
+  flex-shrink: 0;
+  min-width: 2.25rem;
+  height: 2.25rem;
+}
+
+.mermaid-container .mermaid-viewer-percent {
+  min-width: 3.25rem;
+  color: var(--hagilight-mermaid-ink, #17212b);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.mermaid-container .mermaid-viewer-hint {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  left: 1rem;
+  margin: 0;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  font-size: 0.75rem;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  animation: mermaid-viewer-rise 380ms 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@media (pointer: coarse) {
+  .mermaid-container .mermaid-viewer-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .mermaid-container .mermaid-viewer-bar {
+    padding: 0.5rem;
+  }
+
+  .mermaid-container .mermaid-viewer-actual,
+  .mermaid-container .mermaid-viewer-percent {
+    display: none;
+  }
+}
+
+@keyframes mermaid-viewer-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mermaid-viewer-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-container .mermaid-viewer::backdrop,
+  .mermaid-container .mermaid-viewer-bar,
+  .mermaid-container .mermaid-viewer-hint {
+    animation: none;
+  }
+
+  .mermaid-container .mermaid-viewer-button {
+    transition: none;
   }
 }
 

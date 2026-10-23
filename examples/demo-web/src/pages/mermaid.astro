@@ -2,6 +2,10 @@
 import '@hagicode/hagilight-mermaid/styles/archify.css';
 import types from '../../../../test/fixtures/mermaid-diagram-types.json';
 import { MERMAID_SAMPLES } from '../mermaid-samples';
+
+// Diagrams whose shape needs more room than one tile: wide ones span two columns, tall ones two rows.
+const WIDE = new Set(['flowchart-v2', 'gantt', 'eventmodeling', 'timeline', 'packet', 'xychart', 'sankey']);
+const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDiagram', 'er', 'swimlane']);
 ---
 <!doctype html>
 <html lang="en">
@@ -9,78 +13,259 @@ import { MERMAID_SAMPLES } from '../mermaid-samples';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mermaid diagrams · Hagilight demo</title>
-    <style>
-      body {
-        margin: 0;
-        background: #ffffff;
-        color: #17212b;
-        font-family: system-ui, sans-serif;
+    <style is:global>
+      :root {
+        --page-bg: #f6f7f9;
+        --page-ink: #17212b;
+        --page-muted: #5b6776;
+        --page-line: #dfe3e8;
+        --page-tile: #ffffff;
+        --page-accent: #2563eb;
+        --page-ring: color-mix(in srgb, var(--page-accent) 55%, transparent);
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
       }
-      main {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 16px;
-      }
-      fieldset {
-        display: inline-flex;
-        gap: 12px;
-        align-items: center;
-        margin: 0 0 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 6px 12px;
-      }
-      section {
-        margin: 24px 0;
-      }
-      /* The page follows the diagram mode: an explicit mode sets data-theme, auto follows the system. */
-      html[data-theme="dark"] body {
-        background: #111827;
-        color: #f8fafc;
-      }
-      html[data-theme="dark"] h2 code {
-        color: #94a3b8;
+      html[data-theme="dark"] {
+        --page-bg: #0d131d;
+        --page-ink: #f1f5f9;
+        --page-muted: #9aa7b8;
+        --page-line: #263244;
+        --page-tile: #131b28;
+        --page-accent: #60a5fa;
       }
       @media (prefers-color-scheme: dark) {
-        html:not([data-theme]) body {
-          background: #111827;
-          color: #f8fafc;
-        }
-        html:not([data-theme]) h2 code {
-          color: #94a3b8;
+        html:not([data-theme]) {
+          --page-bg: #0d131d;
+          --page-ink: #f1f5f9;
+          --page-muted: #9aa7b8;
+          --page-line: #263244;
+          --page-tile: #131b28;
+          --page-accent: #60a5fa;
         }
       }
-      h2 code {
-        margin-left: 8px;
-        font-size: 0.8em;
-        color: #64748b;
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--page-bg);
+        color: var(--page-ink);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        line-height: 1.5;
+      }
+      ::selection {
+        background: color-mix(in srgb, var(--page-accent) 28%, transparent);
+      }
+      main {
+        max-width: 1560px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+      }
+      @media (min-width: 720px) {
+        main {
+          padding: 2.5rem 2rem 4rem;
+        }
+      }
+      header.intro {
+        display: grid;
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+        font-weight: 650;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+      }
+      .intro p {
+        max-width: 68ch;
+        margin: 0.5rem 0 0;
+        color: var(--page-muted);
+        text-wrap: pretty;
+      }
+      .intro code,
+      .tile code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.85em;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        align-items: center;
+      }
+      fieldset {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        margin: 0;
+        padding: 0.1875rem;
+        border: 1px solid var(--page-line);
+        border-radius: 10px;
+        background: var(--page-tile);
+      }
+      legend {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      .seg {
+        position: relative;
+        display: inline-flex;
+      }
+      .seg input {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .seg span {
+        padding: 0.3125rem 0.875rem;
+        border-radius: 7px;
+        color: var(--page-muted);
+        font-size: 0.875rem;
+        transition: background-color 180ms ease, color 180ms ease;
+      }
+      .seg input:hover + span {
+        color: var(--page-ink);
+      }
+      .seg input:checked + span {
+        background: color-mix(in srgb, var(--page-accent) 14%, transparent);
+        color: var(--page-ink);
+        font-weight: 600;
+      }
+      .seg input:focus-visible + span {
+        outline: 2px solid var(--page-accent);
+        outline-offset: 1px;
+      }
+      .tip {
+        margin: 0;
+        color: var(--page-muted);
+        font-size: 0.875rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+        grid-auto-rows: 16rem;
+        grid-auto-flow: dense;
+        gap: 1rem;
+      }
+      .tile {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        border: 1px solid var(--page-line);
+        border-radius: 14px;
+        background: var(--page-tile);
+        cursor: zoom-in;
+        transition: border-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out), translate 220ms var(--ease-out);
+      }
+      .tile:hover {
+        border-color: color-mix(in srgb, var(--page-accent) 45%, var(--page-line));
+        box-shadow: 0 10px 28px -14px color-mix(in srgb, var(--page-ink) 35%, transparent);
+        translate: 0 -2px;
+      }
+      .tile:focus-within {
+        border-color: var(--page-accent);
+      }
+      .tile h2 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 0.5rem;
+        align-items: baseline;
+        margin: 0;
+        padding: 0.75rem 1rem 0;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+      .tile h2 code {
+        color: var(--page-muted);
+        font-weight: 400;
+      }
+      .stage {
+        flex: 1 1 0;
+        min-height: 0;
+        padding: 0 0.5rem 0.5rem;
+      }
+      .stage > [data-mermaid-mounted] {
+        height: 100%;
+      }
+      .stage > pre {
+        height: 100%;
+        margin: 0;
+        padding: 0.5rem;
+        overflow: hidden;
+        color: var(--page-muted);
+        font-size: 0.75rem;
+      }
+      @media (min-width: 720px) {
+        .tile-wide {
+          grid-column: span 2;
+        }
+      }
+      .tile-tall {
+        grid-row: span 2;
+      }
+      @media (pointer: coarse) {
+        .tip {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tile {
+          transition: border-color 160ms ease;
+        }
+        .tile:hover {
+          translate: none;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Mermaid diagrams</h1>
-      <p>
-        One large sample for each diagram type that Mermaid {types.mermaid} registers, rendered by
-        <code>@hagicode/hagilight-mermaid</code>. Graph types show the trace toolbar.
-      </p>
-      <fieldset>
-        <legend>Mode</legend>
-        <label><input type="radio" name="mermaid-mode" value="auto" checked /> Auto</label>
-        <label><input type="radio" name="mermaid-mode" value="light" /> Light</label>
-        <label><input type="radio" name="mermaid-mode" value="dark" /> Dark</label>
-      </fieldset>
-      <fieldset>
-        <legend>Preset</legend>
-        <label><input type="radio" name="mermaid-preset" value="default" checked /> Default</label>
-        <label><input type="radio" name="mermaid-preset" value="archify" /> Archify</label>
-      </fieldset>
-      {types.types.map((type) => (
-        <section data-mermaid-type={type.id}>
-          <h2>{type.label}<code>{type.keyword}</code></h2>
-          <pre class="mermaid">{MERMAID_SAMPLES[type.id]}</pre>
-        </section>
-      ))}
+      <header class="intro">
+        <div>
+          <h1>Mermaid diagrams</h1>
+          <p>
+            One sample for each diagram type that Mermaid {types.mermaid} registers, rendered by
+            <code>@hagicode/hagilight-mermaid</code>. Each diagram reveals itself in the order its type reads. Hover a part
+            to follow it through the diagram, or click a tile to enlarge it.
+          </p>
+        </div>
+        <div class="controls">
+          <fieldset>
+            <legend>Mode</legend>
+            <label class="seg"><input type="radio" name="mermaid-mode" value="auto" checked /><span>Auto</span></label>
+            <label class="seg"><input type="radio" name="mermaid-mode" value="light" /><span>Light</span></label>
+            <label class="seg"><input type="radio" name="mermaid-mode" value="dark" /><span>Dark</span></label>
+          </fieldset>
+          <fieldset>
+            <legend>Preset</legend>
+            <label class="seg"><input type="radio" name="mermaid-preset" value="default" checked /><span>Default</span></label>
+            <label class="seg"><input type="radio" name="mermaid-preset" value="archify" /><span>Archify</span></label>
+          </fieldset>
+          <p class="tip">In the enlarged view: scroll to zoom, drag to move, <kbd>0</kbd> fits, <kbd>1</kbd> shows actual size, <kbd>Esc</kbd> closes.</p>
+        </div>
+      </header>
+      <div class="grid">
+        {types.types.map((type) => (
+          <section class:list={['tile', { 'tile-wide': WIDE.has(type.id), 'tile-tall': TALL.has(type.id) }]} data-mermaid-type={type.id}>
+            <h2>{type.label}<code>{type.keyword}</code></h2>
+            <div class="stage">
+              <pre class="mermaid">{MERMAID_SAMPLES[type.id]}</pre>
+            </div>
+          </section>
+        ))}
+      </div>
     </main>
     <script>
       import '../scripts/mermaid-demo.ts';

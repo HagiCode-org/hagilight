@@ -27,6 +27,21 @@ export interface MermaidLabels {
   unknownDiagramType: string;
   diagramLabel: string;
   replay: string;
+  /** Opens the enlarged viewer. */
+  expand: string;
+  viewer: {
+    /** Accessible name of the viewer dialog. */
+    title: string;
+    close: string;
+    zoomIn: string;
+    zoomOut: string;
+    /** Fits the whole diagram in the viewer. */
+    fit: string;
+    /** Shows the diagram at its natural size. */
+    actualSize: string;
+    /** One line under the diagram that tells how to move around. */
+    hint: string;
+  };
   trace: {
     pinned: string;
     clear: string;
@@ -36,8 +51,9 @@ export interface MermaidLabels {
 }
 
 /** Partial label overrides. Unspecified keys keep the English defaults. */
-export interface MermaidLabelOverrides extends Partial<Omit<MermaidLabels, 'trace'>> {
+export interface MermaidLabelOverrides extends Partial<Omit<MermaidLabels, 'trace' | 'viewer'>> {
   trace?: Partial<MermaidLabels['trace']>;
+  viewer?: Partial<MermaidLabels['viewer']>;
 }
 
 export interface MermaidSemanticTheme {
@@ -75,18 +91,22 @@ export interface MermaidSvgPostProcessorConfig {
 }
 
 export interface MermaidTraceSummary {
-  /** Text of the node being traced. */
+  /** Text of the node being traced, or of the pie slice, bar, message or other part being focused. */
   label: string;
-  /** Count of nodes that reach it. */
+  /** Count of nodes that reach it. Zero for a focused part of a chart. */
   upstream: number;
-  /** Count of nodes it reaches. */
+  /** Count of nodes it reaches. Zero for a focused part of a chart. */
   downstream: number;
   pinned: boolean;
+  /** Set for a focused part of a chart: its 1-based place among the parts of its kind, and how many there are. */
+  position?: { index: number; total: number };
 }
 
 export interface MermaidInteractionConfig {
-  /** Path tracing and keyboard access. On by default; `false` renders a static diagram. */
+  /** Path tracing, part focus and keyboard access. On by default; `false` renders a static diagram. */
   enabled?: boolean;
+  /** Whether a click or tap pins the traced or focused part. On by default; `false` leaves clicks to the host page. */
+  pin?: boolean;
   /** Overrides the system reduced-motion preference when set. */
   reducedMotion?: boolean;
   /** Called with the active trace, or null when nothing is traced. */
@@ -109,8 +129,16 @@ export interface MermaidRenderOptions {
   tokens?: MermaidTokens;
   /** Path tracing options, or `{ enabled: false }`. */
   interaction?: MermaidInteractionConfig;
-  /** Play the dependency-order reveal when the diagram is first in view. Defaults to `true`. */
+  /** Play the reveal when the diagram is first in view. Defaults to `true`. */
   entrance?: boolean;
+  /** Offer the enlarged viewer (zoom, pan, fit) through a toolbar button. Defaults to `true`. */
+  viewer?: boolean;
+  /**
+   * How the diagram sizes inside its host. `width` fills the width and lets the height follow, so the host
+   * grows with the diagram. `contain` fits the whole diagram in the host's height, for fixed-height tiles.
+   * Defaults to `width`.
+   */
+  fit?: 'width' | 'contain';
   /** Supplies the `mermaid` module. Defaults to a dynamic import of `mermaid`. */
   loadMermaid?: () => Promise<MermaidModule>;
   /** Extra class names for the diagram container. */
@@ -130,6 +158,10 @@ export interface MermaidHandle {
   replay: () => void;
   /** Clears any pinned or hovered trace. */
   clearFocus: () => void;
+  /** Opens the enlarged viewer. Does nothing while the diagram is loading, failed to render, or the viewer is off. */
+  expand: () => void;
+  /** Closes the enlarged viewer. */
+  collapse: () => void;
   /** Discards pending renders, removes listeners and animations, and empties the host. */
   destroy: () => void;
 }

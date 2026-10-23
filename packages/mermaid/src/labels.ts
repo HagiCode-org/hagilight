@@ -11,6 +11,16 @@ export const DEFAULT_LABELS: MermaidLabels = {
   unknownDiagramType: 'Unknown diagram type',
   diagramLabel: 'Diagram',
   replay: 'Replay animation',
+  expand: 'Enlarge diagram',
+  viewer: {
+    title: 'Enlarged diagram',
+    close: 'Close',
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    fit: 'Fit to window',
+    actualSize: 'Actual size',
+    hint: 'Scroll to zoom, drag to move, Esc to close',
+  },
   trace: {
     pinned: 'Pinned',
     clear: 'Clear selection',
@@ -21,11 +31,12 @@ export const DEFAULT_LABELS: MermaidLabels = {
 
 /** Returns the default labels with each provided key replaced. Unspecified keys keep their defaults. */
 export function resolveLabels(overrides: MermaidLabelOverrides = {}): MermaidLabels {
-  const { trace, ...rest } = overrides;
+  const { trace, viewer, ...rest } = overrides;
   return {
     ...DEFAULT_LABELS,
     ...rest,
     trace: { ...DEFAULT_LABELS.trace, ...trace },
+    viewer: { ...DEFAULT_LABELS.viewer, ...viewer },
   };
 }
 

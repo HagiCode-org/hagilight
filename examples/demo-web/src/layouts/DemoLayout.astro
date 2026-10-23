@@ -34,6 +34,7 @@ interface Props {
   liveFooterDescription: string;
   resolverLabel: string;
   feedNavLabel: string;
+  mermaidLabel: string;
   fallbackNotice: string;
   sections: FeatureSection[];
   markdownSampleTitle: string;
@@ -58,6 +59,7 @@ const {
   liveFooterDescription,
   resolverLabel,
   feedNavLabel,
+  mermaidLabel,
   fallbackNotice,
   sections,
   markdownSampleTitle,
@@ -121,6 +123,7 @@ const structuredData = [
       </a>
       <nav aria-label={languageLabel} class="header-actions">
         <a class="feed-link" href={feedPath}>{feedLabel}</a>
+        <a class="feed-link" href={`${basePath}mermaid/`}>{mermaidLabel}</a>
         <div class="language-nav">
           <a href={`${basePath}en-US/`} lang="en-US" aria-current={locale === 'en-US' ? 'page' : undefined}>EN</a>
           <a

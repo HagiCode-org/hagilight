@@ -20,6 +20,17 @@ export function normalizeMermaidSvgViewBox(svg: SVGSVGElement, padding = 16): vo
   );
 }
 
+/** Gives an SVG that Mermaid left without a viewBox one from its content, so it can be fitted and scaled. */
+export function ensureSvgViewBox(svg: SVGSVGElement, padding = 8): void {
+  if (svg.viewBox.baseVal.width > 0 || typeof svg.getBBox !== 'function') return;
+  const bounds = svg.getBBox();
+  if (bounds.width <= 0 || bounds.height <= 0) return;
+  svg.setAttribute(
+    'viewBox',
+    `${bounds.x - padding} ${bounds.y - padding} ${bounds.width + padding * 2} ${bounds.height + padding * 2}`,
+  );
+}
+
 /**
  * Adds scoped semantic classes to Mermaid output. Non-SVG input is returned
  * unchanged so unrelated application SVGs can never be affected.
@@ -29,7 +40,9 @@ export function postProcessMermaidSvg(
   options: MermaidSvgPostProcessorConfig = {},
 ): string {
   if (typeof DOMParser === 'undefined') return svg;
-  const document = new DOMParser().parseFromString(svg, 'image/svg+xml');
+  // C4 diagrams use `xlink:href` on their icons without declaring the prefix, which an XML parser rejects.
+  const declared = /xmlns:xlink=/.test(svg) || !/xlink:/.test(svg) ? svg : svg.replace(/<svg\b/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+  const document = new DOMParser().parseFromString(declared, 'image/svg+xml');
   const root = document.documentElement;
   if (root.nodeName.toLowerCase() !== 'svg' || document.querySelector('parsererror')) return svg;
 

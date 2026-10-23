@@ -16,9 +16,18 @@ test('a partial override changes only the keys it names', () => {
   assert.equal(labels.replay, DEFAULT_LABELS.replay);
 });
 
+test('the viewer labels override one by one and keep the rest', () => {
+  const labels = resolveLabels({ expand: 'Open large', viewer: { close: 'Done' } });
+  assert.equal(labels.expand, 'Open large');
+  assert.equal(labels.viewer.close, 'Done');
+  assert.equal(labels.viewer.zoomIn, DEFAULT_LABELS.viewer.zoomIn);
+  assert.equal(labels.trace.clear, DEFAULT_LABELS.trace.clear);
+});
+
 test('resolving labels never mutates the defaults', () => {
-  resolveLabels({ trace: { upstream: 'Up {value}' } });
+  resolveLabels({ trace: { upstream: 'Up {value}' }, viewer: { close: 'Done' } });
   assert.equal(DEFAULT_LABELS.trace.upstream, 'Upstream {value}');
+  assert.equal(DEFAULT_LABELS.viewer.close, 'Close');
 });
 
 test('count placeholders are replaced and unknown placeholders are kept', () => {

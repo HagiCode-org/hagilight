@@ -8,6 +8,7 @@ const { getMermaidThemeConfig, clearMermaidThemeConfigCache } = await import(`${
 const { postProcessMermaidSvg } = await import(`${PKG}/svg.js`);
 const { buildMermaidGraph, assignRanks, traceFrom } = await import(`${PKG}/graph.js`);
 const { attachMermaidDiagramInteraction } = await import(`${PKG}/interaction.js`);
+const { entranceBeats, describeParts } = await import(`${PKG}/adapters.js`);
 const realLoader = () => import('mermaid');
 const SUITE = new URLSearchParams(location.search).get('suite') ?? 'default';
 const results = [];
@@ -94,7 +95,7 @@ async function renderChecks() {
     const svg = await waitFor(() => host.querySelector('.mermaid-container svg.mermaid-enhanced-svg'), 'SVG');
     same(svg.getAttribute('role'), 'img', 'role');
     same(svg.getAttribute('aria-label'), 'Diagram', 'aria-label');
-    same(host.querySelectorAll('svg').length, 1, 'SVG count');
+    same(host.querySelectorAll('svg.mermaid-enhanced-svg').length, 1, 'diagram SVG count');
     same(host.querySelector('.mermaid-container').dataset.mermaidMode, 'light', 'mode attribute');
     same(host.querySelector('.mermaid-container').dataset.mermaidPreset, 'default', 'preset attribute');
   });
@@ -159,19 +160,33 @@ async function renderChecks() {
     assert(replay.querySelector('svg'), 'replay icon');
   });
 
-  await check('a pie chart has no toolbar', async () => {
+  await check('a pie chart gets the toolbar too: replay and enlarge, and its slices are focusable', async () => {
     const host = fresh();
     renderMermaid(host, fixtures.charts.pie, { loadMermaid: realLoader, entrance: false });
     await waitFor(() => host.querySelector('.mermaid-diagram-container svg'), 'pie SVG');
-    same(host.querySelector('.mermaid-toolbar'), null, 'toolbar');
+    assert(host.querySelector('.mermaid-toolbar .mermaid-replay'), 'replay button');
+    same(host.querySelector('.mermaid-expand').getAttribute('aria-label'), 'Enlarge diagram', 'expand label');
+    assert(host.querySelectorAll('.mermaid-entity').length >= 2, 'focusable slices');
   });
 
-  await check('interaction disabled means no toolbar', async () => {
+  await check('interaction and viewer both off means no toolbar and no tab stops', async () => {
     const host = fresh();
-    renderMermaid(host, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, interaction: { enabled: false } });
+    renderMermaid(host, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, viewer: false, interaction: { enabled: false } });
     await waitFor(() => host.querySelector('.mermaid-diagram-container svg'), 'SVG');
     same(host.querySelector('.mermaid-toolbar'), null, 'toolbar');
     same(host.querySelector('.mermaid-node').getAttribute('tabindex'), null, 'tab stop');
+  });
+
+  await check('interaction off still offers the viewer, and viewer off still traces', async () => {
+    const quiet = fresh();
+    renderMermaid(quiet, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, interaction: { enabled: false } });
+    await waitFor(() => quiet.querySelector('.mermaid-diagram-container svg'), 'SVG');
+    assert(quiet.querySelector('.mermaid-expand'), 'expand button');
+    same(quiet.querySelector('.mermaid-node').getAttribute('tabindex'), null, 'tab stop');
+    const traced = fresh();
+    renderMermaid(traced, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, viewer: false });
+    await waitFor(() => traced.querySelector('.mermaid-toolbar'), 'toolbar');
+    same(traced.querySelector('.mermaid-expand'), null, 'no expand button');
   });
 
   await check('the trace chip text comes from labels, with the count substituted', async () => {
@@ -606,6 +621,292 @@ async function parityChecks() {
   });
 }
 
+
+/** A pie, Gantt and sequence source each render distinctly, so a part check can name its part. */
+const SOURCES = {
+  gantt: 'gantt\n  dateFormat YYYY-MM-DD\n  section A\n  First :a1, 2026-01-01, 3d\n  Second :a2, after a1, 4d',
+  sequence: 'sequenceDiagram\n  participant U as User\n  participant A as API\n  U->>A: ask\n  A-->>U: answer',
+  classes: 'classDiagram\n  Animal <|-- Duck\n  Animal <|-- Fish\n  Duck --> Pond : lives in',
+  sankey: 'sankey-beta\nA,B,5\nA,C,3\nB,D,5',
+};
+
+async function partFocusChecks() {
+  const rendered = async (source, options = {}) => {
+    const host = fresh();
+    const summaries = [];
+    renderMermaid(host, source, { loadMermaid: realLoader, entrance: false, interaction: { onTraceChange: (summary) => summaries.push(summary) }, ...options });
+    const svg = await waitFor(() => host.querySelector('.mermaid-diagram-container svg.mermaid-enhanced-svg'), 'SVG');
+    return { host, svg, summaries };
+  };
+
+  await check('a pie slice, its percentage and its legend row focus together while the rest steps back', async () => {
+    const { host, svg, summaries } = await rendered(fixtures.charts.pie);
+    const slice = svg.querySelector('.mermaid-entity');
+    fire(slice, 'pointerover');
+    assert(host.querySelector('.mermaid-focusing'), 'focusing class');
+    same(svg.querySelectorAll('.mermaid-focus-on').length, 3, 'slice, percentage and legend row');
+    assert(svg.querySelectorAll('.mermaid-focus-dim').length > 0, 'the other slices dim');
+    same(summaries.at(-1).label, 'Dogs', 'the label is the legend text');
+    same(summaries.at(-1).position.index, 1, 'position');
+    assert(host.querySelector('.mermaid-trace-chip-place'), 'chip shows the place, not node counts');
+    fire(host.querySelector('.mermaid-diagram-container'), 'pointerleave');
+    same(svg.querySelectorAll('.mermaid-focus-on, .mermaid-focus-dim').length, 0, 'cleared');
+    same(summaries.at(-1), null, 'null summary');
+  });
+
+  await check('a Gantt bar and its label are one part, numbered among the tasks', async () => {
+    const { svg, summaries } = await rendered(SOURCES.gantt);
+    const parts = describeParts(svg);
+    same(parts.map((part) => part.label), ['First', 'Second'], 'labels');
+    same(parts.map((part) => part.parts.length), [2, 2], 'bar and label each');
+    fire(svg.querySelectorAll('.mermaid-entity')[1], 'pointerover');
+    same(summaries.at(-1).position, { index: 2, total: 2 }, 'position');
+  });
+
+  await check('a sequence message keeps its text and a participant its lifeline, listed left to right', async () => {
+    const { svg } = await rendered(SOURCES.sequence);
+    const parts = describeParts(svg);
+    same(parts.filter((part) => part.group === 'participant').map((part) => part.label.replace(/\s+/g, ' ').trim()), ['User', 'API'], 'participants');
+    const messages = parts.filter((part) => part.group === 'message');
+    same(messages.map((part) => part.label), ['ask', 'answer'], 'messages');
+    assert(messages.every((part) => part.parts.length >= 2), 'line and text per message');
+  });
+
+  await check('arrow keys walk the parts of one kind, Enter pins and Escape releases', async () => {
+    const { host, svg, summaries } = await rendered(fixtures.charts.pie);
+    const slices = [...svg.querySelectorAll('.mermaid-entity')];
+    same(slices.map((slice) => slice.getAttribute('tabindex')), ['0', ...slices.slice(1).map(() => '-1')], 'one tab stop');
+    slices[0].focus();
+    key(slices[0], 'ArrowRight');
+    same(document.activeElement, slices[1], 'focus moved');
+    same(slices[1].getAttribute('tabindex'), '0', 'roving tab stop');
+    key(slices[1], 'Enter');
+    same(summaries.at(-1).pinned, true, 'pinned');
+    same(slices[1].getAttribute('aria-pressed'), 'true', 'pressed');
+    key(slices[1], 'Escape');
+    same(slices[1].getAttribute('aria-pressed'), 'false', 'released');
+    key(slices[1], 'End');
+    same(document.activeElement, slices.at(-1), 'End goes to the last part');
+    assert(host.querySelector('.mermaid-trace-status'), 'status region');
+  });
+
+  await check('pin: false leaves clicks to the host and keeps hover focus', async () => {
+    const { svg, summaries } = await rendered(fixtures.charts.pie, { interaction: { pin: false } });
+    const slice = svg.querySelector('.mermaid-entity');
+    same(slice.getAttribute('role'), 'group', 'role');
+    same(slice.getAttribute('aria-pressed'), null, 'pressed');
+    tap(slice);
+    same(summaries.filter(Boolean).some((summary) => summary.pinned), false, 'nothing pinned');
+    fire(slice, 'pointerover');
+    assert(svg.querySelector('.mermaid-focus-on'), 'hover focus still applies');
+  });
+
+  await check('destroying the diagram removes every part class and attribute', async () => {
+    const host = fresh();
+    const handle = renderMermaid(host, fixtures.charts.pie, { loadMermaid: realLoader, entrance: false });
+    const svg = await waitFor(() => host.querySelector('.mermaid-diagram-container svg.mermaid-enhanced-svg'), 'SVG');
+    fire(svg.querySelector('.mermaid-entity'), 'pointerover');
+    handle.destroy();
+    same(host.childElementCount, 0, 'host emptied');
+    same(svg.querySelector('[class*="mermaid-part"], [class*="mermaid-entity"], [class*="mermaid-focus"]'), null, 'part artefacts');
+    same(svg.querySelector('[tabindex], [role="button"]'), null, 'attributes');
+  });
+
+  await check('class edges and Sankey links join the trace graph', async () => {
+    const classes = await rendered(SOURCES.classes);
+    const classGraph = buildMermaidGraph(classes.svg);
+    same([classGraph.nodes.length, classGraph.edges.length], [4, 3], 'class nodes and edges');
+    same(classGraph.nodes.map((node) => node.label).sort(), ['Animal', 'Duck', 'Fish', 'Pond'], 'a class node is named by its title');
+    const sankey = await rendered(SOURCES.sankey);
+    const sankeyGraph = buildMermaidGraph(sankey.svg);
+    same([sankeyGraph.nodes.length, sankeyGraph.edges.length], [4, 3], 'sankey nodes and links');
+    assert(sankeyGraph.nodes.every((node) => node.label !== ''), 'sankey nodes take their names from the label list');
+    const flow = traceFrom(sankeyGraph, 1);
+    assert(flow.upstream.size === 1 && flow.downstream.size === 1, 'B has one source and one sink');
+  });
+
+  await check('C4 icons no longer stop the SVG from being post-processed', async () => {
+    const processed = postProcessMermaidSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><image xlink:href="a.png"/></svg>');
+    assert(processed.includes('mermaid-enhanced-svg'), 'enhanced');
+  });
+}
+
+async function choreographyChecks() {
+  const reveal = async (source, options = {}) => {
+    const host = fresh();
+    // Each run needs a source never played before: a played source skips its reveal.
+    renderMermaid(host, `${source}\n%% reveal-${Date.now()}-${Math.random()}`, { loadMermaid: realLoader, ...options });
+    const svg = await waitFor(() => host.querySelector('.mermaid-diagram-container svg.mermaid-enhanced-svg'), 'SVG');
+    return { host, svg };
+  };
+
+  await check('a pie reveals its slices one after another, clockwise', async () => {
+    const { svg } = await reveal(fixtures.charts.pie);
+    const slices = [...svg.querySelectorAll('path.pieCircle')];
+    const delays = await waitFor(() => (slices.every((slice) => slice.getAnimations().length) ? slices.map((slice) => delayOf(slice.getAnimations()[0])) : null), 'slice animations');
+    assert(delays.every((delay, index) => index === 0 || delay > delays[index - 1]), `delays ${JSON.stringify(delays)}`);
+  });
+
+  await check('Gantt bars grow from their start, in order', async () => {
+    const { svg } = await reveal(SOURCES.gantt);
+    const bars = [...svg.querySelectorAll('rect.task')];
+    await waitFor(() => bars.every((bar) => bar.getAnimations().length), 'bar animations');
+    const frame = bars[0].getAnimations()[0].effect.getKeyframes()[0];
+    same(frame.scale, '0 1', 'starts collapsed along x');
+    assert(delayOf(bars[0].getAnimations()[0]) < delayOf(bars[1].getAnimations()[0]), 'in order');
+  });
+
+  await check('sequence messages arrive from top to bottom, and their arrowheads wait for the line', async () => {
+    const { svg } = await reveal(SOURCES.sequence);
+    const lines = [...svg.querySelectorAll('line.messageLine0, line.messageLine1')];
+    await waitFor(() => lines.every((line) => line.getAnimations().length), 'message animations');
+    assert(delayOf(lines[0].getAnimations()[0]) < delayOf(lines[1].getAnimations()[0]), 'top message first');
+    same(lines.every((line) => !line.hasAttribute('marker-end')), true, 'arrowheads held back');
+    await waitFor(() => lines.every((line) => line.hasAttribute('marker-end')), 'arrowheads land', 6000);
+  });
+
+  await check('cancelling a reveal mid-way puts the arrowheads back', async () => {
+    const host = fresh();
+    const handle = renderMermaid(host, `${SOURCES.sequence}\n%% cancel-${Date.now()}`, { loadMermaid: realLoader });
+    const svg = await waitFor(() => host.querySelector('.mermaid-diagram-container svg.mermaid-enhanced-svg'), 'SVG');
+    await waitFor(() => svg.querySelector('line.messageLine0')?.getAnimations().length, 'reveal started');
+    handle.destroy();
+    await sleep(50);
+    same(svg.querySelectorAll('line.messageLine0:not([marker-end]), line.messageLine1:not([marker-end])').length, 0, 'every message has its arrowhead');
+  });
+
+  await check('every diagram type in the table has an entrance, and an unknown one falls back to its pieces', async () => {
+    const host = fresh();
+    host.innerHTML = `<svg aria-roledescription="future-diagram"><g><rect width="4" height="4"/><path d="M0 0L9 9"/><text>t</text><circle r="3"/></g></svg>`;
+    const kinds = entranceBeats(host.querySelector('svg')).flatMap((beat) => beat.els.map(() => beat.kind));
+    same(kinds.sort(), ['draw', 'fade', 'pop', 'pop'].sort(), 'fallback kinds follow the element tags');
+    const crowded = fresh();
+    crowded.innerHTML = `<svg aria-roledescription="future-diagram">${'<rect width="2" height="2"/>'.repeat(200)}</svg>`;
+    same(entranceBeats(crowded.querySelector('svg')).map((beat) => beat.kind), ['wipe'], 'a crowded unknown diagram sweeps as one');
+  });
+
+  await check('a diagram with no graph and entrance off plays nothing', async () => {
+    const { svg } = await reveal(fixtures.charts.pie, { entrance: false });
+    await sleep(200);
+    same(svg.getAnimations({ subtree: true }).length, 0, 'animations');
+  });
+}
+
+async function viewerChecks() {
+  const open = async (source = 'flowchart LR\n  A --> B\n  B --> C', options = {}) => {
+    const host = fresh();
+    const handle = renderMermaid(host, source, { loadMermaid: realLoader, entrance: false, ...options });
+    await waitFor(() => host.querySelector('.mermaid-expand'), 'expand button');
+    return { host, handle };
+  };
+  const dialogOf = (host) => host.querySelector('dialog.mermaid-viewer');
+  const percentOf = (host) => host.querySelector('.mermaid-viewer-percent')?.textContent;
+
+  await check('the expand button opens a modal viewer with its own copy of the diagram', async () => {
+    const { host } = await open();
+    host.querySelector('.mermaid-expand').click();
+    const dialog = await waitFor(() => dialogOf(host)?.open && dialogOf(host), 'viewer');
+    assert(dialog.matches(':modal'), 'modal dialog');
+    same(host.querySelectorAll('svg.mermaid-enhanced-svg').length, 2, 'inline copy and viewer copy');
+    const inlineId = host.querySelector('.mermaid-diagram-container svg').id;
+    const copyId = dialog.querySelector('svg').id;
+    assert(copyId === `${inlineId}-zoom`, `ids stay unique: ${inlineId} / ${copyId}`);
+    assert(dialog.querySelector('.mermaid-viewer-stage').contains(dialog.querySelector('svg')), 'diagram on the stage');
+    same(dialog.getAttribute('aria-label'), 'Enlarged diagram', 'name');
+  });
+
+  await check('the viewer fits the diagram, zooms by buttons and keys, and jumps to actual size', async () => {
+    const { host } = await open('pie title Pets\n  "Dogs" : 386\n  "Cats" : 85');
+    host.querySelector('.mermaid-expand').click();
+    await waitFor(() => dialogOf(host)?.dataset.state === 'open', 'open state', 5000);
+    const fitted = Number.parseInt(percentOf(host), 10);
+    host.querySelector('.mermaid-viewer-button[aria-label="Zoom in"]').click();
+    await waitFor(() => Number.parseInt(percentOf(host), 10) > fitted, 'zoom in');
+    key(dialogOf(host).querySelector('.mermaid-viewer-stage'), '1');
+    await waitFor(() => percentOf(host) === '100%', 'actual size');
+    key(dialogOf(host).querySelector('.mermaid-viewer-stage'), '0');
+    await waitFor(() => Number.parseInt(percentOf(host), 10) === fitted, 'back to fit');
+  });
+
+  await check('the wheel zooms about the pointer', async () => {
+    const { host } = await open();
+    host.querySelector('.mermaid-expand').click();
+    const stage = await waitFor(() => dialogOf(host)?.dataset.state === 'open' && dialogOf(host).querySelector('.mermaid-viewer-stage'), 'viewer', 5000);
+    const before = Number.parseInt(percentOf(host), 10);
+    stage.dispatchEvent(new WheelEvent('wheel', { deltaY: -240, clientX: 200, clientY: 200, bubbles: true, cancelable: true }));
+    await waitFor(() => Number.parseInt(percentOf(host), 10) > before, 'wheel zoom');
+  });
+
+  await check('a trace pinned in the viewer is released before Escape closes it', async () => {
+    const { host } = await open();
+    host.querySelector('.mermaid-expand').click();
+    const dialog = await waitFor(() => dialogOf(host)?.dataset.state === 'open' && dialogOf(host), 'viewer', 5000);
+    const node = dialog.querySelector('.mermaid-node[aria-label="B"]');
+    tap(node);
+    await waitFor(() => dialog.querySelector('.mermaid-trace-chip[data-pinned="true"]'), 'pinned chip');
+    dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
+    await waitFor(() => !dialog.querySelector('.mermaid-trace-chip[data-pinned="true"]'), 'pin released');
+    assert(dialog.isConnected && dialog.open, 'still open after the first Escape');
+    dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
+    await waitFor(() => !dialog.isConnected, 'closed after the second Escape', 5000);
+  });
+
+  await check('close settles the diagram back and restores the page', async () => {
+    const { host } = await open();
+    const inline = host.querySelector('.mermaid-diagram-container svg');
+    host.querySelector('.mermaid-expand').focus();
+    host.querySelector('.mermaid-expand').click();
+    await waitFor(() => dialogOf(host)?.dataset.state === 'open', 'viewer', 5000);
+    assert(inline.style.visibility === 'hidden', 'inline copy hides while its twin is up');
+    dialogOf(host).querySelector('.mermaid-viewer-close').click();
+    await waitFor(() => !dialogOf(host), 'closed', 5000);
+    same(inline.style.visibility, '', 'inline copy visible again');
+    same(document.activeElement, host.querySelector('.mermaid-expand'), 'focus returns to the button');
+  });
+
+  await check('expand and collapse on the handle drive the viewer, and update closes it', async () => {
+    const { host, handle } = await open();
+    handle.expand();
+    await waitFor(() => dialogOf(host)?.open, 'expand()');
+    handle.collapse();
+    await waitFor(() => !dialogOf(host), 'collapse()', 5000);
+    handle.expand();
+    await waitFor(() => dialogOf(host)?.open, 'expand() again');
+    handle.update({ source: 'flowchart LR\n  X --> Y' });
+    await waitFor(() => !dialogOf(host), 'update() closes the viewer');
+    handle.destroy();
+  });
+
+  await check('viewer: false means no button and expand() does nothing', async () => {
+    const host = fresh();
+    const handle = renderMermaid(host, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, viewer: false });
+    await waitFor(() => host.querySelector('.mermaid-toolbar'), 'toolbar');
+    handle.expand();
+    await sleep(100);
+    same(host.querySelector('dialog'), null, 'dialog');
+  });
+
+  await check('labels reach the viewer controls', async () => {
+    const { host } = await open('flowchart LR\n  A --> B', { labels: { expand: 'Grow', viewer: { zoomIn: 'Closer', close: 'Done' } } });
+    same(host.querySelector('.mermaid-expand').getAttribute('aria-label'), 'Grow', 'expand');
+    host.querySelector('.mermaid-expand').click();
+    await waitFor(() => dialogOf(host)?.open, 'viewer');
+    same(dialogOf(host).querySelector('.mermaid-viewer-close').getAttribute('aria-label'), 'Done', 'close');
+    assert(dialogOf(host).querySelector('[aria-label="Closer"]'), 'zoom in');
+  });
+
+  await check('fit: contain sizes the diagram to its host and fit: width does not', async () => {
+    const host = fresh();
+    host.style.height = '200px';
+    renderMermaid(host, 'flowchart TB\n  A --> B --> C --> D', { loadMermaid: realLoader, entrance: false, fit: 'contain' });
+    await waitFor(() => host.querySelector('.mermaid-fit-contain svg.mermaid-enhanced-svg'), 'SVG');
+    await sleep(100);
+    assert(host.getBoundingClientRect().height <= 200 + 1, `host grew to ${host.getBoundingClientRect().height}`);
+    const svg = host.querySelector('svg.mermaid-enhanced-svg');
+    assert(svg.getBoundingClientRect().height <= 200, `svg ${svg.getBoundingClientRect().height}`);
+  });
+}
+
 async function phoneChecks() {
   await check('a diagram has no horizontal page overflow at 390px', async () => {
     const host = fresh();
@@ -633,10 +934,62 @@ async function reducedMotionChecks() {
   });
 }
 
+async function viewerPhoneChecks() {
+  await check('the viewer fills a phone and fits the diagram inside it', async () => {
+    const host = fresh();
+    renderMermaid(host, 'flowchart TB\n  A --> B --> C --> D --> E', { loadMermaid: realLoader, entrance: false });
+    await waitFor(() => host.querySelector('.mermaid-expand'), 'expand button');
+    host.querySelector('.mermaid-expand').click();
+    const dialog = await waitFor(() => host.querySelector('dialog.mermaid-viewer')?.dataset.state === 'open' && host.querySelector('dialog.mermaid-viewer'), 'viewer', 5000);
+    const box = dialog.getBoundingClientRect();
+    assert(box.width >= innerWidth - 1 && box.height >= innerHeight - 1, `viewer ${box.width}x${box.height}`);
+    const drawn = dialog.querySelector('svg').getBoundingClientRect();
+    assert(drawn.left >= -1 && drawn.right <= innerWidth + 1 && drawn.top >= -1 && drawn.bottom <= innerHeight + 1, `diagram ${JSON.stringify(drawn)}`);
+    const doc = document.documentElement;
+    assert(doc.scrollWidth <= doc.clientWidth + 1, 'no page overflow');
+  });
+}
+
+async function reducedViewerChecks() {
+  await check('reduced motion: the viewer opens and closes at once, with no travelling copy', async () => {
+    const host = fresh();
+    const handle = renderMermaid(host, 'flowchart LR\n  A --> B', { loadMermaid: realLoader });
+    await waitFor(() => host.querySelector('.mermaid-expand'), 'expand button');
+    handle.expand();
+    const dialog = await waitFor(() => host.querySelector('dialog.mermaid-viewer')?.dataset.state === 'open' && host.querySelector('dialog.mermaid-viewer'), 'open at once', 500);
+    same(dialog.querySelector('.mermaid-viewer-canvas').getAnimations().length, 0, 'canvas animations');
+    same(host.querySelector('.mermaid-diagram-container svg').style.visibility, '', 'inline copy stays');
+    handle.collapse();
+    await waitFor(() => !host.querySelector('dialog'), 'closed', 1000);
+  });
+
+  await check('reduced motion: a pie chart plays no reveal but still focuses a slice', async () => {
+    const host = fresh();
+    renderMermaid(host, `${fixtures.charts.pie}\n%% reduced-pie-${Date.now()}`, { loadMermaid: realLoader });
+    const svg = await waitFor(() => host.querySelector('svg.mermaid-enhanced-svg'), 'SVG');
+    await sleep(300);
+    same(svg.getAnimations({ subtree: true }).length, 0, 'animations');
+    fire(svg.querySelector('.mermaid-entity'), 'pointerover');
+    assert(svg.querySelector('.mermaid-focus-on'), 'static focus');
+  });
+}
+
 const suites = {
-  default: [renderChecks, mountChecks, svgChecks, graphChecks, interactionChecks, entranceChecks, modeChecks, parityChecks],
-  phone: [phoneChecks],
-  reduced: [reducedMotionChecks],
+  default: [
+    renderChecks,
+    mountChecks,
+    svgChecks,
+    graphChecks,
+    interactionChecks,
+    partFocusChecks,
+    entranceChecks,
+    choreographyChecks,
+    viewerChecks,
+    modeChecks,
+    parityChecks,
+  ],
+  phone: [phoneChecks, viewerPhoneChecks],
+  reduced: [reducedMotionChecks, reducedViewerChecks],
 };
 
 for (const run of suites[SUITE] ?? []) {

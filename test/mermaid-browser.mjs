@@ -98,9 +98,10 @@ async function demoChecks(browser, server) {
         type: section.dataset.mermaidType,
         svg: Boolean(section.querySelector('.mermaid-diagram-container svg')),
         error: section.querySelector('.mermaid-error-message')?.textContent ?? null,
-        toolbar: Boolean(section.querySelector('.mermaid-toolbar')),
-        // The trace graph reads `g.nodes > g.node`, so only those count as traceable nodes.
-        nodes: section.querySelectorAll('.mermaid-diagram-container svg g.nodes > g.node').length,
+        expand: Boolean(section.querySelector('.mermaid-toolbar .mermaid-expand')),
+        // A diagram is interactive when the graph model reads nodes from it, or when its parts can be focused.
+        nodes: section.querySelectorAll('.mermaid-diagram-container svg .mermaid-node[role="button"], .mermaid-diagram-container svg .mermaid-node[role="group"][tabindex]').length,
+        entities: section.querySelectorAll('.mermaid-diagram-container svg .mermaid-entity').length,
         mode: section.querySelector('.mermaid-container')?.dataset.mermaidMode ?? null,
       })),
     );
@@ -115,18 +116,48 @@ async function demoChecks(browser, server) {
         if (!item || item.svg) throw new Error(`${type} is expected to show an error panel`);
       }
     });
-    await check('the trace toolbar appears exactly for diagrams with traceable nodes', async () => {
-      const mismatched = outcomes.filter((item) => item.svg && item.toolbar !== item.nodes > 0).map((item) => item.type);
-      if (mismatched.length) throw new Error(mismatched.join(', '));
+    await check('every diagram has the toolbar with its enlarge button', async () => {
+      const missing = outcomes.filter((item) => item.svg && !item.expand).map((item) => item.type);
+      if (missing.length) throw new Error(missing.join(', '));
     });
-    await check('graph types show the trace toolbar and pie, sequence and gantt do not', async () => {
-      const byType = Object.fromEntries(outcomes.map((item) => [item.type, item]));
-      for (const type of ['flowchart-v2', 'stateDiagram', 'class', 'er']) {
-        if (!byType[type]?.toolbar) throw new Error(`${type} has no toolbar`);
-      }
-      for (const type of ['pie', 'sequence', 'gantt']) {
-        if (byType[type]?.toolbar) throw new Error(`${type} shows a toolbar`);
-      }
+    await check('every diagram but the Info page can be hovered part by part', async () => {
+      const idle = outcomes.filter((item) => item.svg && item.nodes === 0 && item.entities === 0).map((item) => item.type);
+      if (idle.join() !== 'info') throw new Error(`diagrams with nothing to focus: ${idle.join(', ')}`);
+    });
+    await check('the tiles form a grid and the diagrams fit inside them', async () => {
+      const layout = await page.evaluate(() => {
+        const grid = document.querySelector('.grid');
+        const tiles = [...grid.querySelectorAll('section[data-mermaid-type]')];
+        const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+        const outside = tiles.filter((tile) => {
+          const svg = tile.querySelector('.mermaid-diagram-container svg');
+          const stage = tile.querySelector('.stage');
+          if (!svg || !stage) return true;
+          const a = svg.getBoundingClientRect();
+          const b = stage.getBoundingClientRect();
+          return a.left < b.left - 1 || a.right > b.right + 1 || a.top < b.top - 1 || a.bottom > b.bottom + 1;
+        });
+        return { columns, outside: outside.map((tile) => tile.dataset.mermaidType) };
+      });
+      if (layout.columns < 3) throw new Error(`${layout.columns} columns at 1280px`);
+      if (layout.outside.length) throw new Error(`diagrams outside their tile: ${layout.outside.join(', ')}`);
+    });
+    await check('clicking a tile enlarges its diagram, and zoom, key and close work', async () => {
+      const tile = page.locator('section[data-mermaid-type="pie"]');
+      await tile.scrollIntoViewIfNeeded();
+      await tile.locator('.stage').click({ position: { x: 20, y: 20 } });
+      const dialog = page.locator('dialog.mermaid-viewer[open]');
+      await dialog.waitFor({ timeout: 10000 });
+      await page.waitForFunction(() => document.querySelector('dialog.mermaid-viewer')?.dataset.state === 'open', null, { timeout: 5000 });
+      const percent = () => page.locator('.mermaid-viewer-percent').textContent();
+      const fitted = Number.parseInt(await percent(), 10);
+      await page.mouse.move(640, 450);
+      await page.mouse.wheel(0, -300);
+      await page.waitForFunction((from) => Number.parseInt(document.querySelector('.mermaid-viewer-percent').textContent, 10) > from, fitted, { timeout: 5000 });
+      await page.keyboard.press('0');
+      await page.waitForFunction((from) => Number.parseInt(document.querySelector('.mermaid-viewer-percent').textContent, 10) === from, fitted, { timeout: 5000 });
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !document.querySelector('dialog.mermaid-viewer'), null, { timeout: 5000 });
     });
     await check('switching mode and preset re-renders every diagram', async () => {
       await page.getByRole('radio', { name: 'Dark' }).check();

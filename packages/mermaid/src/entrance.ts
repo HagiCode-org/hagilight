@@ -1,3 +1,4 @@
+import { playTypeEntrance } from './choreography.js';
 import { assignRanks, type MermaidGraph } from './graph.js';
 
 export interface MermaidEntranceHandle {
@@ -11,9 +12,13 @@ const LABEL_MS = 240;
 const RISE_PX = 6;
 const FULL_SEQUENCE_NODE_LIMIT = 80;
 
-/** A dependency graph reads in rank order, so the reveal order is the reading order. */
+/**
+ * A dependency graph reads in rank order, so the reveal order is the reading order. A diagram with no
+ * graph (a pie, a Gantt chart, a sequence diagram) reveals its own parts in the order its type reads.
+ */
 export function playMermaidEntrance(svg: SVGSVGElement, graph: MermaidGraph): MermaidEntranceHandle | null {
-  if (typeof svg.animate !== 'function' || graph.nodes.length === 0) return null;
+  if (typeof svg.animate !== 'function') return null;
+  if (graph.nodes.length === 0) return playTypeEntrance(svg);
 
   const animations: Animation[] = [];
   const restores: Array<() => void> = [];
@@ -52,6 +57,12 @@ export function playMermaidEntrance(svg: SVGSVGElement, graph: MermaidGraph): Me
         : [{ opacity: 0 }, { opacity: 1 }];
       add(node.el, frames, { duration: NODE_MS, delay });
     });
+
+    // Sankey draws its labels apart from its nodes, in the same order, so each label arrives with its node.
+    const labels = svg.querySelectorAll('g.node-labels > text');
+    if (labels.length === graph.nodes.length) {
+      labels.forEach((label, index) => add(label, [{ opacity: 0 }, { opacity: 1 }], { duration: LABEL_MS, delay: rank[index] * step + NODE_MS * 0.6 }));
+    }
 
     graph.edges.forEach((edge) => {
       const delay = rank[edge.from] * step + 70;

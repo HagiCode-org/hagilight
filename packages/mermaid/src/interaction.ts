@@ -87,6 +87,7 @@ export function attachMermaidDiagramInteraction(
   const graph = prebuilt ?? buildMermaidGraph(svg);
   if (graph.nodes.length === 0) return NOOP_HANDLE;
 
+  const canPin = config.pin !== false;
   const isReduced = () =>
     config.reducedMotion ?? Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
 
@@ -102,8 +103,8 @@ export function attachMermaidDiagramInteraction(
   // One tab stop for the whole graph; arrow keys walk its edges.
   graph.nodes.forEach((node, index) => {
     node.el.setAttribute('tabindex', index === 0 ? '0' : '-1');
-    node.el.setAttribute('role', 'button');
-    node.el.setAttribute('aria-pressed', 'false');
+    node.el.setAttribute('role', canPin ? 'button' : 'group');
+    if (canPin) node.el.setAttribute('aria-pressed', 'false');
     if (node.label) node.el.setAttribute('aria-label', node.label);
   });
 
@@ -221,7 +222,7 @@ export function attachMermaidDiagramInteraction(
 
   const apply = () => {
     const next = hovered ?? focused ?? pinned;
-    graph.nodes.forEach((node, index) => node.el.setAttribute('aria-pressed', String(pinned === index)));
+    if (canPin) graph.nodes.forEach((node, index) => node.el.setAttribute('aria-pressed', String(pinned === index)));
     if (next === applied) {
       // Same focus, but pinning may have changed what the summary reports.
       if (next !== null) report(traceFrom(graph, next));
@@ -243,6 +244,7 @@ export function attachMermaidDiagramInteraction(
   };
 
   const togglePin = (index: number) => {
+    if (!canPin) return;
     pinned = pinned === index ? null : index;
     apply();
   };
@@ -267,6 +269,7 @@ export function attachMermaidDiagramInteraction(
     pointerStart = null;
   };
   const select = (target: EventTarget | null) => {
+    if (!canPin) return;
     const index = nodeIndexOf(graph, target);
     if (index === -1) {
       if (pinned === null) return;
@@ -323,6 +326,7 @@ export function attachMermaidDiagramInteraction(
     const index = nodeIndexOf(graph, event.target);
     if (index === -1) return;
     if (event.key === 'Enter' || event.key === ' ') {
+      if (!canPin) return;
       event.preventDefault();
       togglePin(index);
       return;

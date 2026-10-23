@@ -1,13 +1,18 @@
 import type { MermaidConfig } from 'mermaid';
+import { describeParts } from './adapters.js';
+import { renderTraceChip } from './chip.js';
+import { el, icon, iconButton, prefersReducedMotion } from './dom.js';
 import { playMermaidEntrance, type MermaidEntranceHandle } from './entrance.js';
+import { attachMermaidPartFocus } from './focus.js';
 import { buildMermaidGraph, type MermaidGraph } from './graph.js';
 import { attachMermaidDiagramInteraction, type MermaidInteractionHandle } from './interaction.js';
-import { formatLabel, resolveLabels } from './labels.js';
+import { resolveLabels } from './labels.js';
 import { resolveMode, watchMode } from './mode.js';
-import { normalizeMermaidSvgViewBox, postProcessMermaidSvg } from './svg.js';
+import { ensureSvgViewBox, normalizeMermaidSvgViewBox, postProcessMermaidSvg } from './svg.js';
 import { getMermaidThemeConfig, resolvePreset } from './theme.js';
 import type {
   MermaidHandle,
+  MermaidInteractionConfig,
   MermaidLabels,
   MermaidModule,
   MermaidRenderOptions,
@@ -15,62 +20,11 @@ import type {
   MermaidTraceSummary,
   MermaidUpdate,
 } from './types.js';
+import { openMermaidViewer, type MermaidViewerHandle } from './viewer.js';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const PLAYED_SOURCES_LIMIT = 200;
 /** Sources whose reveal already played, so re-rendering or remounting the same diagram does not replay it. */
 const PLAYED_SOURCES = new Set<string>();
-
-const ICONS = {
-  pin: [
-    ['line', { x1: '12', x2: '12', y1: '17', y2: '22' }],
-    ['path', { d: 'M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z' }],
-  ],
-  x: [
-    ['path', { d: 'M18 6 6 18' }],
-    ['path', { d: 'm6 6 12 12' }],
-  ],
-  rotate: [
-    ['path', { d: 'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8' }],
-    ['path', { d: 'M3 3v5h5' }],
-  ],
-  alert: [
-    ['path', { d: 'M12 8V12M12 16H12.01' }],
-    ['path', { d: 'M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z' }],
-  ],
-} satisfies Record<string, Array<[string, Record<string, string>]>>;
-
-type IconName = keyof typeof ICONS;
-
-/** Inline SVG icon, so the package needs no icon library. Decorative unless a label is given. */
-function icon(name: IconName, className?: string, label?: string): SVGSVGElement {
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  const attributes: Record<string, string> = {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    'stroke-width': '2',
-    'stroke-linecap': 'round',
-    'stroke-linejoin': 'round',
-  };
-  if (className) attributes.class = className;
-  if (label) Object.assign(attributes, { role: 'img', 'aria-label': label });
-  else attributes['aria-hidden'] = 'true';
-  for (const [key, value] of Object.entries(attributes)) svg.setAttribute(key, value);
-  for (const [tag, attrs] of ICONS[name]) {
-    const shape = document.createElementNS(SVG_NS, tag);
-    for (const [key, value] of Object.entries(attrs)) shape.setAttribute(key, value);
-    svg.appendChild(shape);
-  }
-  return svg;
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
 
 function markPlayed(source: string): void {
   PLAYED_SOURCES.add(source);
@@ -78,10 +32,6 @@ function markPlayed(source: string): void {
     const oldest = PLAYED_SOURCES.values().next().value;
     if (oldest !== undefined) PLAYED_SOURCES.delete(oldest);
   }
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** At least 15% of the element's visible height is inside the viewport. */
@@ -118,6 +68,19 @@ function defaultLoader(): Promise<MermaidModule> {
 }
 
 /** Maps Mermaid's parser messages onto the labels, as the web app does. */
+/** Trace for a graph the model can read, part focus for every other type, nothing when interaction is off. */
+function attachInteraction(
+  host: HTMLElement,
+  svg: SVGSVGElement,
+  config: MermaidInteractionConfig,
+  onTraceChange: (summary: MermaidTraceSummary | null) => void,
+  graph: MermaidGraph = buildMermaidGraph(svg),
+): MermaidInteractionHandle {
+  const wired = { ...config, onTraceChange };
+  if (graph.nodes.length > 0) return attachMermaidDiagramInteraction(host, wired, graph);
+  return attachMermaidPartFocus(host, wired, describeParts(svg));
+}
+
 function describeError(error: unknown, labels: MermaidLabels): string {
   let message = labels.unableToRender;
   if (error instanceof Error) message = error.message;
@@ -148,6 +111,9 @@ class MermaidDiagram {
   private destroyed = false;
   private renderedMode: MermaidThemeMode | null = null;
   private graph: MermaidGraph | null = null;
+  private markup = '';
+  private container: HTMLElement | null = null;
+  private viewer: MermaidViewerHandle | null = null;
   private svgElement: SVGSVGElement | null = null;
   private diagramHost: HTMLElement | null = null;
   private statusRegion: HTMLElement | null = null;
@@ -173,6 +139,8 @@ class MermaidDiagram {
       update: (changes) => this.update(changes),
       replay: () => this.replay(),
       clearFocus: () => this.interaction?.clearFocus(),
+      expand: () => this.expand(),
+      collapse: () => this.viewer?.close(),
       destroy: () => this.destroy(),
     };
   }
@@ -241,13 +209,15 @@ class MermaidDiagram {
 
   private showDiagram(svg: string, mode: MermaidThemeMode, preset: 'default' | 'archify'): void {
     this.renderedMode = mode;
-    const container = el('div', ['mermaid-container', `mermaid-preset-${preset}`, this.options.className].filter(Boolean).join(' '));
+    this.markup = svg;
+    const container = el('div', [this.baseClasses(), `mermaid-preset-${preset}`].join(' '));
     container.dataset.mermaidPreset = preset;
     container.dataset.mermaidMode = mode;
     const diagramHost = el('div', 'mermaid-diagram-container');
     diagramHost.innerHTML = svg;
     this.host.replaceChildren(container);
     container.appendChild(diagramHost);
+    this.container = container;
     this.diagramHost = diagramHost;
 
     // Layout-dependent work runs once the SVG is in the document: the viewBox needs getBBox, and the
@@ -256,22 +226,23 @@ class MermaidDiagram {
     if (!svgElement) return;
     this.svgElement = svgElement;
     if (svgElement.classList.contains('flowchart')) normalizeMermaidSvgViewBox(svgElement);
+    ensureSvgViewBox(svgElement);
     svgElement.setAttribute('aria-label', this.labels.diagramLabel);
 
     const graph = buildMermaidGraph(svgElement);
     this.graph = graph;
     const interactionOptions = { enabled: true, ...this.options.interaction };
-    const interactive = graph.nodes.length > 0 && interactionOptions.enabled !== false;
+    const interactive = interactionOptions.enabled !== false && (graph.nodes.length > 0 || describeParts(svgElement).length > 0);
+    const viewerOn = this.options.viewer !== false;
+    if (interactive || viewerOn) container.insertBefore(this.toolbar(typeof svgElement.animate === 'function', viewerOn), diagramHost);
     if (interactive) {
-      container.insertBefore(this.toolbar(typeof svgElement.animate === 'function'), diagramHost);
-      this.interaction = attachMermaidDiagramInteraction(
+      this.interaction = attachInteraction(
         diagramHost,
-        {
-          ...interactionOptions,
-          onTraceChange: (summary) => {
-            interactionOptions.onTraceChange?.(summary);
-            this.renderTrace(summary);
-          },
+        svgElement,
+        interactionOptions,
+        (summary) => {
+          interactionOptions.onTraceChange?.(summary);
+          this.renderTrace(summary);
         },
         graph,
       );
@@ -280,7 +251,7 @@ class MermaidDiagram {
   }
 
   private scheduleEntrance(svg: SVGSVGElement, graph: MermaidGraph, diagramHost: HTMLElement): void {
-    if (this.options.entrance === false || graph.nodes.length === 0) return;
+    if (this.options.entrance === false) return;
     if (PLAYED_SOURCES.has(this.source) || prefersReducedMotion()) return;
     markPlayed(this.source);
     if (typeof IntersectionObserver === 'undefined' || isMostlyInView(diagramHost)) {
@@ -304,51 +275,42 @@ class MermaidDiagram {
     this.entrance = playMermaidEntrance(svg, graph);
   }
 
-  private toolbar(canReplay: boolean): HTMLElement {
+  private toolbar(canReplay: boolean, canExpand: boolean): HTMLElement {
     const toolbar = el('div', 'mermaid-toolbar');
     const status = el('div', 'mermaid-trace-status');
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     this.statusRegion = status;
     toolbar.appendChild(status);
-    if (canReplay) {
-      const replay = el('button', 'mermaid-replay');
-      replay.type = 'button';
-      replay.setAttribute('aria-label', this.labels.replay);
-      replay.title = this.labels.replay;
-      replay.appendChild(icon('rotate'));
-      replay.addEventListener('click', () => this.replay());
-      toolbar.appendChild(replay);
-    }
+    if (canReplay) toolbar.appendChild(iconButton('rotate', this.labels.replay, 'mermaid-replay', () => this.replay()));
+    if (canExpand) toolbar.appendChild(iconButton('expand', this.labels.expand, 'mermaid-expand', () => this.expand()));
     return toolbar;
   }
 
   private renderTrace(summary: MermaidTraceSummary | null): void {
-    const status = this.statusRegion;
-    if (!status) return;
-    status.replaceChildren();
-    if (!summary) return;
-    const { trace } = this.labels;
-    const chip = el('div', 'mermaid-trace-chip');
-    chip.dataset.pinned = String(summary.pinned);
-    if (summary.pinned) chip.appendChild(icon('pin', 'mermaid-trace-chip-pin', trace.pinned));
-    chip.appendChild(el('span', 'mermaid-trace-chip-name', summary.label));
-    chip.appendChild(
-      el('span', 'mermaid-trace-chip-count mermaid-trace-chip-up', formatLabel(trace.upstream, { value: summary.upstream })),
-    );
-    chip.appendChild(
-      el('span', 'mermaid-trace-chip-count mermaid-trace-chip-down', formatLabel(trace.downstream, { value: summary.downstream })),
-    );
-    if (summary.pinned) {
-      const clear = el('button', 'mermaid-trace-chip-clear');
-      clear.type = 'button';
-      clear.setAttribute('aria-label', trace.clear);
-      clear.title = trace.clear;
-      clear.appendChild(icon('x'));
-      clear.addEventListener('click', () => this.interaction?.clearFocus());
-      chip.appendChild(clear);
-    }
-    status.appendChild(chip);
+    if (this.statusRegion) renderTraceChip(this.statusRegion, summary, this.labels, () => this.interaction?.clearFocus());
+  }
+
+  private expand(): void {
+    const container = this.container;
+    if (this.destroyed || this.viewer || !container || !this.markup || this.options.viewer === false) return;
+    this.interaction?.clearFocus();
+    this.viewer = openMermaidViewer({
+      container,
+      markup: this.markup,
+      labels: this.labels,
+      source: () => this.svgElement,
+      enhance: (canvas, svg, onSummary) => {
+        const config = { enabled: true, ...this.options.interaction };
+        return attachInteraction(canvas, svg, config, (summary) => {
+          config.onTraceChange?.(summary);
+          onSummary(summary);
+        });
+      },
+      onClose: () => {
+        this.viewer = null;
+      },
+    });
   }
 
   private replay(): void {
@@ -357,8 +319,13 @@ class MermaidDiagram {
     this.playEntrance(this.svgElement, this.graph);
   }
 
+  /** Classes every container state carries, so loading, error and diagram share the host's sizing. */
+  private baseClasses(): string {
+    return ['mermaid-container', this.options.fit === 'contain' ? 'mermaid-fit-contain' : '', this.options.className].filter(Boolean).join(' ');
+  }
+
   private loadingPanel(): HTMLElement {
-    const container = el('div', ['mermaid-container', this.options.className].filter(Boolean).join(' '));
+    const container = el('div', this.baseClasses());
     const loading = el('div', 'mermaid-loading');
     loading.appendChild(el('div', 'mermaid-spinner'));
     loading.appendChild(el('span', undefined, this.labels.rendering));
@@ -367,7 +334,7 @@ class MermaidDiagram {
   }
 
   private errorPanel(message: string): HTMLElement {
-    const container = el('div', ['mermaid-container', this.options.className].filter(Boolean).join(' '));
+    const container = el('div', this.baseClasses());
     const panel = el('div', 'mermaid-error-container');
     const iconBox = el('div', 'mermaid-error-icon');
     iconBox.appendChild(icon('alert'));
@@ -384,6 +351,10 @@ class MermaidDiagram {
   }
 
   private teardownDiagram(): void {
+    this.viewer?.destroy();
+    this.viewer = null;
+    this.container = null;
+    this.markup = '';
     this.observer?.disconnect();
     this.observer = null;
     this.entrance?.cancel();

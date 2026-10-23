@@ -1,8 +1,9 @@
 /**
- * Graph model of a rendered Mermaid SVG. Mermaid's unified renderer (flowchart, state, class, ER)
- * emits `g.nodes > g.node` and `g.edgePaths > path`, so the model is read from the DOM instead of
- * re-parsing the diagram source. Diagram types without that structure (sequence, gantt, ...) yield
- * an empty graph and stay static.
+ * Graph model of a rendered Mermaid SVG. Mermaid's unified renderer (flowchart, state, class, ER,
+ * requirement, mindmap, swimlane) emits `g.nodes > g.node` and `g.edgePaths > path`, and Sankey draws
+ * its links as `g.links > g.link > path`, so the model is read from the DOM instead of re-parsing the
+ * diagram source. Diagram types without that structure (sequence, gantt, ...) yield an empty graph;
+ * `adapters.ts` describes their parts instead.
  */
 
 export interface MermaidGraphNode {
@@ -40,12 +41,23 @@ export interface MermaidTrace {
   downstreamEdges: Map<number, number>;
 }
 
-const NODE_KEY = /-(?:flowchart|state|class|er)-(.+?)-\d+$/;
-const EDGE_ID = /^L_(.+)_\d+$/;
+const NODE_KEY = /-(?:flowchart|state|class|classId|er)-(.+?)-\d+$/;
+/** Flowchart-style edges are `L_<from>_<to>_<n>`; class diagrams use `id_<from>_<to>_<n>`. */
+const EDGE_ID = /^(?:L|id)_(.+)_\d+$/;
+const EDGE_PATHS = 'g.edgePaths > path, g.edges > path, g.links > g.link > path';
 const POINT_TOLERANCE = 8;
 
-function labelOf(node: Element): string {
+function textOf(node: Element): string {
   return (node.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
+
+/** A node's name: its first non-empty label, so a class node reads `Duck`, not `Duck+swim() : void`. */
+function labelOf(node: Element): string {
+  for (const label of Array.from(node.querySelectorAll('.label'))) {
+    const text = textOf(label);
+    if (text) return text;
+  }
+  return textOf(node);
 }
 
 function splitFlowchartEdge(dataId: string | null, keys: Map<string, number>): [number, number] | null {
@@ -90,13 +102,20 @@ function nearestNode(boxes: Array<ReturnType<typeof nodeCenterAndBox>>, x: numbe
 
 export function buildMermaidGraph(svg: SVGSVGElement): MermaidGraph {
   const nodeEls = Array.from(svg.querySelectorAll<SVGGElement>('g.nodes > g.node'));
-  const edgeEls = Array.from(svg.querySelectorAll<SVGPathElement>('g.edgePaths > path'));
+  const edgeEls = Array.from(svg.querySelectorAll<SVGPathElement>(EDGE_PATHS));
   const nodes: MermaidGraphNode[] = nodeEls.map((el, index) => ({
     index,
     el,
     key: NODE_KEY.exec(el.id)?.[1] ?? null,
     label: labelOf(el),
   }));
+  // Sankey keeps each node's name in a separate label list, in node order.
+  const outsideLabels = Array.from(svg.querySelectorAll('g.node-labels > text'));
+  if (outsideLabels.length === nodes.length) {
+    nodes.forEach((node) => {
+      if (!node.label) node.label = textOf(outsideLabels[node.index]);
+    });
+  }
   const keys = new Map<string, number>();
   nodes.forEach((node) => {
     if (node.key !== null) keys.set(node.key, node.index);
