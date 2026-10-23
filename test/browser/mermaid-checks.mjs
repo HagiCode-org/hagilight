@@ -169,6 +169,34 @@ async function renderChecks() {
     assert(host.querySelectorAll('.mermaid-entity').length >= 2, 'focusable slices');
   });
 
+  await check('a pinned trace keeps its clear control when focus leaves the pinned node or slice, so a press releases the pin', async () => {
+    const graph = fresh();
+    // A fixed mode keeps the page theme from re-rendering the diagram while the check holds its elements.
+    renderMermaid(graph, 'flowchart LR\n  A --> B\n  B --> C', { loadMermaid: realLoader, entrance: false, viewer: false, mode: 'light' });
+    await waitFor(() => graph.querySelector('.mermaid-toolbar') && graph.querySelectorAll('.mermaid-node').length === 3, 'flowchart');
+    const node = graph.querySelectorAll('.mermaid-node')[1];
+    node.focus();
+    tap(node);
+    const clear = await waitFor(() => graph.querySelector('.mermaid-trace-chip-clear'), 'clear control');
+    clear.focus();
+    same(graph.querySelector('.mermaid-trace-chip-clear') === clear && clear.isConnected, true, 'clear control kept under the press');
+    clear.click();
+    same(node.getAttribute('aria-pressed'), 'false', 'pin released by the clear control');
+
+    const pie = fresh();
+    renderMermaid(pie, fixtures.charts.pie, { loadMermaid: realLoader, entrance: false, viewer: false, mode: 'light' });
+    const slice = await waitFor(() => pie.querySelector('.mermaid-diagram-container svg.mermaid-enhanced-svg .mermaid-entity[tabindex]'), 'enhanced pie slice');
+    slice.focus();
+    tap(slice);
+    const pieClear = await waitFor(() => pie.querySelector('.mermaid-trace-chip-clear'), 'pie clear control').catch((error) => {
+      throw new Error(`${error.message}; chip ${pie.querySelector('.mermaid-trace-chip')?.outerHTML.slice(0, 200) ?? 'none'}; slice connected ${slice.isConnected}; tabindex ${slice.getAttribute('tabindex')}; role ${slice.getAttribute('role')}; parts ${pie.querySelectorAll('.mermaid-part').length}; entities ${pie.querySelectorAll('.mermaid-entity').length}; svgs ${pie.querySelectorAll('svg').length}; focus ${document.activeElement?.tagName}`);
+    });
+    pieClear.focus();
+    same(pie.querySelector('.mermaid-trace-chip-clear') === pieClear && pieClear.isConnected, true, 'pie clear control kept under the press');
+    pieClear.click();
+    same(pie.querySelector('.mermaid-trace-chip-clear'), null, 'pie pin released by the clear control');
+  });
+
   await check('interaction and viewer both off means no toolbar and no tab stops', async () => {
     const host = fresh();
     renderMermaid(host, 'flowchart LR\n  A --> B', { loadMermaid: realLoader, entrance: false, viewer: false, interaction: { enabled: false } });

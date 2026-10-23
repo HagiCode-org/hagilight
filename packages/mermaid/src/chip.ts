@@ -2,6 +2,13 @@ import { el, icon } from './dom.js';
 import { formatLabel } from './labels.js';
 import type { MermaidLabels, MermaidTraceSummary } from './types.js';
 
+const renderedKeys = new WeakMap<HTMLElement, string>();
+
+/** Identifies what a chip shows, so an unchanged summary can keep the chip it already has. */
+export function traceChipKey(summary: MermaidTraceSummary | null, labels: MermaidLabels): string {
+  return JSON.stringify([summary, labels.trace]);
+}
+
 /**
  * Fills a live region with the trace or focus summary: the name, then either the upstream and
  * downstream counts of a traced node or the place of a focused chart part. A pinned summary carries a
@@ -13,6 +20,11 @@ export function renderTraceChip(
   labels: MermaidLabels,
   onClear: () => void,
 ): void {
+  // Focus leaving a pinned node re-reports the same summary. Rebuilding the chip then detaches the
+  // clear button under a mouse press, and the click never reaches it, so an unchanged chip stays.
+  const key = traceChipKey(summary, labels);
+  if (renderedKeys.get(status) === key) return;
+  renderedKeys.set(status, key);
   status.replaceChildren();
   if (!summary) return;
   const { trace } = labels;
