@@ -280,9 +280,10 @@ test('the showcase illustration has a localized caption and alt text that never 
 test('only the illustration slot may swap: one pooled figure, a conditional picker, and no hard-coded R2 image', async () => {
   const component = await readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8');
   const markdownContent = await readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8');
-  const pooled = component.match(/data-random-pool=/gu) ?? [];
-  assert.equal(pooled.length, 1, 'exactly one gallery figure carries a pool');
-  assert.match(component, /<figure data-random-pool=\{item\.id === ILLUSTRATION_ID && avatarPool \? randomPoolAttribute\(avatarPool\) : undefined\}>/u);
+  const pooled = component.match(/data-random-fan'?[=:]/gu) ?? [];
+  assert.equal(pooled.length, 1, 'exactly one gallery picture carries a pool');
+  assert.doesNotMatch(component, /data-random-pool=/u, 'the illustration is dealt as a fan, not swapped');
+  assert.match(component, /pictureAttributes=\{item\.id === ILLUSTRATION_ID && avatarPool \? \{ 'data-random-fan': randomPoolAttribute\(avatarPool\) \} : undefined\}/u);
   assert.match(component, /\{avatarPool && <ArticlePromotionPicker \/>\}/u);
   assert.match(component, /const ILLUSTRATION_ID = 'cat-head';/u);
   assert.doesNotMatch(component, /img-gen\.hagicode\.com/u, 'the R2 origin lives in the shared picker, not in the component');
@@ -290,7 +291,7 @@ test('only the illustration slot may swap: one pooled figure, a conditional pick
   assert.match(markdownContent, /hagicodePromotionRandomAvatar = true/u);
   assert.match(markdownContent, /<ArticlePromotion lang=\{route\.lang\} randomAvatar=\{hagicodePromotionRandomAvatar\} \/>/u);
   const picker = await readFile(new URL('../packages/starlight/ArticlePromotionPicker.astro', import.meta.url), 'utf8');
-  assert.match(picker, /mountRandomImages\(document\)/u);
+  assert.match(picker, /mountRandomFans\(document\)/u);
   assert.match(picker, /from '@hagicode\/hagilight-core\/random-image'/u);
 });
 

@@ -20,7 +20,7 @@ import ArticlePromotionPicker from './ArticlePromotionPicker.astro';
 
 interface Props {
   lang?: string;
-  /** Swap the illustration for one random pool entry per page view. Defaults to `true`. */
+  /** Deal the illustration as a fan of random cat heads, like the footer avatar. Defaults to `true`. */
   randomAvatar?: boolean;
 }
 
@@ -46,7 +46,7 @@ const galleryImages: Record<string, ImageMetadata> = {
   heroes,
   'cat-head': catHead,
 };
-// The illustration slot is the only gallery image that may change; its pool lives in the showcase manifest.
+// The illustration slot is the only gallery image that may change; its pool lives in the showcase manifest. It is dealt as the footer's fan of cat heads.
 const ILLUSTRATION_ID = 'cat-head';
 const avatarEntry = showcaseManifest.assets.find(({ id }) => id === ILLUSTRATION_ID);
 const avatarPool = randomAvatar && avatarEntry && 'pool' in avatarEntry ? randomPoolFromManifest(avatarEntry.pool) : undefined;
@@ -106,7 +106,7 @@ const gallery = copy.gallery.flatMap((item) => {
     <ul class="hagilight-article-promotion__gallery" aria-labelledby="hagilight-article-promotion-gallery-title">
       {gallery.map((item) => (
         <li>
-          <figure data-random-pool={item.id === ILLUSTRATION_ID && avatarPool ? randomPoolAttribute(avatarPool) : undefined}>
+          <figure>
             <Picture
               src={item.image}
               alt={item.alt}
@@ -119,6 +119,7 @@ const gallery = copy.gallery.flatMap((item) => {
               loading="lazy"
               decoding="async"
               fetchpriority="low"
+              pictureAttributes={item.id === ILLUSTRATION_ID && avatarPool ? { 'data-random-fan': randomPoolAttribute(avatarPool) } : undefined}
             />
             <figcaption>{item.caption}</figcaption>
           </figure>
@@ -440,6 +441,90 @@ const gallery = copy.gallery.flatMap((item) => {
   /* The illustration is a small square with its caption beside it, so it reads as an avatar, not a screenshot. */
   .hagilight-article-promotion__gallery li:nth-child(4) picture {
     max-width: 12rem;
+  }
+
+  /*
+   * The illustration's fan, the footer avatar's fan at the illustration's size: three cards pivot on a point
+   * below the stack, the vendored default is the first centre card and fades out as the random cards are dealt
+   * over it. Offsets are percentages of a card, so the fan scales with the 12 rem box.
+   */
+  .hagilight-article-promotion picture[data-random-fan] {
+    position: relative;
+    aspect-ratio: 112 / 76;
+  }
+
+  .hagilight-article-promotion picture[data-random-fan] img,
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card) {
+    position: absolute;
+    top: 13.16%;
+    left: 25%;
+    width: 50%;
+    height: auto;
+    aspect-ratio: 1;
+    border: 0;
+    box-shadow: 0 0 0 2px var(--sl-color-bg), 0 3px 8px -2px color-mix(in srgb, var(--sl-color-black) 45%, transparent);
+    transform-origin: 50% 140%;
+    transition: opacity 320ms ease-out, transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hagilight-article-promotion figure:hover picture[data-random-fan] img,
+  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card) {
+    border: 0;
+  }
+
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan) {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .hagilight-article-promotion figure:hover picture[data-random-fan] img[data-fan-out],
+  .hagilight-article-promotion picture[data-random-fan] img[data-fan-out] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card) {
+    z-index: 0;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="0"]),
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="0"]) {
+    z-index: 1;
+    opacity: 1;
+    transform: translate(-11%, 2%) rotate(-17deg);
+  }
+
+  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="1"]),
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="1"]) {
+    z-index: 3;
+    opacity: 1;
+    transform: none;
+  }
+
+  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="2"]),
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="2"]) {
+    z-index: 2;
+    opacity: 1;
+    transform: translate(11%, 2%) rotate(17deg);
+  }
+
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="3"]),
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="4"]) {
+    transform: translate(18%, 0) rotate(34deg) scale(0.7);
+  }
+
+  .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="5"]) {
+    transform: translate(-18%, 0) rotate(-36deg) scale(0.7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hagilight-article-promotion picture[data-random-fan] img,
+    .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card) {
+      transition: none;
+    }
   }
 
   /* Closing: a full-bleed band, the heaviest surface, so "get it" is where the eye lands last. */
