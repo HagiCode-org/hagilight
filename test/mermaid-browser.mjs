@@ -159,6 +159,46 @@ async function demoChecks(browser, server) {
       await page.keyboard.press('Escape');
       await page.waitForFunction(() => !document.querySelector('dialog.mermaid-viewer'), null, { timeout: 5000 });
     });
+    for (const preset of ['Default', 'Archify']) {
+      await check(`dark mode leaves no large light fills in any diagram (${preset})`, async () => {
+        await page.getByRole('radio', { name: 'Dark' }).check();
+        await page.getByRole('radio', { name: preset }).check();
+        await page.waitForFunction(
+          (want) => [...document.querySelectorAll('section[data-mermaid-type] .mermaid-container')].every((el) => el.dataset.mermaidMode === 'dark' && el.dataset.mermaidPreset === want) && !document.querySelector('.mermaid-loading'),
+          preset.toLowerCase(),
+          { timeout: 240000 },
+        );
+        await page.waitForTimeout(500);
+        const light = await page.evaluate(() => {
+          const luminance = (rgb) => {
+            const [r, g, b] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+          };
+          const found = {};
+          for (const section of document.querySelectorAll('section[data-mermaid-type]')) {
+            let area = 0;
+            for (const shape of section.querySelectorAll('.mermaid-diagram-container svg :is(rect, circle, ellipse, polygon, path)')) {
+              if (shape.closest('marker, defs, clipPath, .mermaid-trace-hop')) continue;
+              const style = getComputedStyle(shape);
+              const match = /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/.exec(style.fill);
+              if (!match || Number(match[4] ?? 1) * Number(style.fillOpacity) < 0.5 || Number(style.opacity) < 0.5) continue;
+              // A brightness() filter darkens the fill the way it is drawn.
+              const dim = Number(/brightness\(([\d.]+)\)/.exec(style.filter)?.[1] ?? 1);
+              if (luminance([+match[1], +match[2], +match[3]].map((channel) => channel * dim)) < 0.5) continue;
+              const box = shape.getBoundingClientRect();
+              area += box.width * box.height;
+            }
+            const frame = section.querySelector('.mermaid-diagram-container svg').getBoundingClientRect();
+            found[section.dataset.mermaidType] = area / Math.max(frame.width * frame.height, 1);
+          }
+          return found;
+        });
+        // Sticky notes (sequence, state) and the Info version text are yellow or white by design.
+        const allowed = new Set(['sequence', 'stateDiagram', 'info']);
+        const offenders = Object.entries(light).filter(([type, share]) => !allowed.has(type) && share > 0.08).map(([type, share]) => `${type} ${(share * 100).toFixed(0)}%`);
+        if (offenders.length) throw new Error(offenders.join(', '));
+      });
+    }
     await check('switching mode and preset re-renders every diagram', async () => {
       await page.getByRole('radio', { name: 'Dark' }).check();
       await page.waitForFunction(() => [...document.querySelectorAll('section[data-mermaid-type] .mermaid-container')].every((el) => el.dataset.mermaidMode === 'dark'), null, { timeout: 240000 });
