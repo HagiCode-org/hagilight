@@ -1,4 +1,11 @@
 import type { MermaidConfig } from 'mermaid';
+import {
+  ARCHIFY_DARK_SERIES,
+  ARCHIFY_LIGHT_SERIES,
+  DEFAULT_DARK_SERIES,
+  DEFAULT_LIGHT_SERIES,
+  buildSeriesVariables,
+} from './palette.js';
 import type {
   MermaidLayoutConfig,
   MermaidPreset,
@@ -39,6 +46,8 @@ const LIGHT_THEME: MermaidSemanticTheme = {
   coreNode: { fill: '#dbeafe', border: '#1e40af', text: '#17212b' },
   cluster: { fill: '#f8fafc', border: '#64748b', text: '#17212b' },
   edge: { line: '#334155', label: '#17212b', arrow: '#1d4ed8' },
+  series: DEFAULT_LIGHT_SERIES,
+  onSeries: '#0b1220',
 };
 
 const DARK_THEME: MermaidSemanticTheme = {
@@ -56,6 +65,8 @@ const DARK_THEME: MermaidSemanticTheme = {
   coreNode: { fill: '#1d4ed8', border: '#bfdbfe', text: '#ffffff' },
   cluster: { fill: '#1f2937', border: '#94a3b8', text: '#f8fafc' },
   edge: { line: '#cbd5e1', label: '#f8fafc', arrow: '#93c5fd' },
+  series: DEFAULT_DARK_SERIES,
+  onSeries: '#0b1220',
 };
 
 const ARCHIFY_LIGHT_THEME: MermaidSemanticTheme = {
@@ -73,6 +84,8 @@ const ARCHIFY_LIGHT_THEME: MermaidSemanticTheme = {
   coreNode: { fill: '#cffafe', border: '#0891b2', text: '#164e63' },
   cluster: { fill: '#f1f5f9', border: '#94a3b8', text: '#0f172a' },
   edge: { line: '#475569', label: '#0f172a', arrow: '#0891b2' },
+  series: ARCHIFY_LIGHT_SERIES,
+  onSeries: '#0f172a',
 };
 
 const ARCHIFY_DARK_THEME: MermaidSemanticTheme = {
@@ -90,6 +103,8 @@ const ARCHIFY_DARK_THEME: MermaidSemanticTheme = {
   coreNode: { fill: '#083344', border: '#22d3ee', text: '#ecfeff' },
   cluster: { fill: '#0f172a', border: '#475569', text: '#f8fafc' },
   edge: { line: '#22d3ee', label: '#f8fafc', arrow: '#22d3ee' },
+  series: ARCHIFY_DARK_SERIES,
+  onSeries: '#020617',
 };
 
 export const MERMAID_LAYOUT_DEFAULTS: MermaidLayoutConfig = {
@@ -222,6 +237,7 @@ export function getMermaidThemeConfig(
     labelBoxBorderColor: semantic.cluster.border,
     fontFamily: 'inherit',
     fontSize: '14px',
+    ...buildSeriesVariables(semantic),
   };
   if (appliedPreset === 'archify') {
     Object.assign(themeVariables, {

@@ -141,3 +141,37 @@ test('the Mermaid configuration keeps the strict security and no auto-start sett
   assert.deepEqual(config.flowchart, MERMAID_LAYOUT_DEFAULTS);
   assert.equal(MERMAID_LAYOUT_DEFAULTS.maxNodeWidth, 280);
 });
+
+for (const preset of ['default', 'archify']) {
+  for (const mode of ['light', 'dark']) {
+    test(`${preset} ${mode} series colors keep readable text and visible marks`, () => {
+      clearBrowser();
+      const theme = getMermaidSemanticTheme(mode, preset);
+      assert.equal(theme.series.length, 12);
+      assert.equal(new Set(theme.series.map((tone) => tone.mark)).size, 12, 'every mark is distinct');
+      for (const [index, tone] of theme.series.entries()) {
+        assert.ok(getContrastRatio(theme.onSeries, tone.mark) >= 4.5, `text on mark ${index}`);
+        assert.ok(getContrastRatio(tone.mark, theme.background) >= 3, `mark ${index} against the canvas`);
+        assert.ok(getContrastRatio(theme.foreground, tone.fill) >= 4.5, `text on fill ${index}`);
+        assert.ok(getContrastRatio(tone.border, tone.fill) >= 4.5, `border on fill ${index}`);
+      }
+    });
+  }
+}
+
+test('categorical diagrams read the series palette instead of the node color', () => {
+  clearBrowser();
+  const light = getMermaidThemeConfig('light').themeVariables;
+  const dark = getMermaidThemeConfig('dark').themeVariables;
+  const theme = getMermaidSemanticTheme('light');
+  assert.equal(light.darkMode, false);
+  assert.equal(dark.darkMode, true);
+  assert.equal(light.pie1, theme.series[0].mark);
+  assert.equal(light.pie2, theme.series[1].mark);
+  assert.equal(light.cScale3, theme.series[3].mark);
+  assert.equal(light.pieSectionTextColor, theme.onSeries);
+  assert.equal(light.pieStrokeColor, theme.background);
+  assert.equal(light.xyChart.plotColorPalette.split(',').length, 12);
+  assert.notEqual(light.noteBkgColor, '#fff5ad', 'notes no longer use the cream default');
+  assert.notEqual(light.pie1, dark.pie1, 'each mode has its own tones');
+});

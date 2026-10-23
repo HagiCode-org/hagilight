@@ -56,6 +56,13 @@ export interface MermaidLabelOverrides extends Partial<Omit<MermaidLabels, 'trac
   viewer?: Partial<MermaidLabels['viewer']>;
 }
 
+/** Three tones of one categorical hue: a mark for slices and lines, a quiet fill for text blocks, and its border. */
+export interface MermaidSeriesColor {
+  mark: string;
+  fill: string;
+  border: string;
+}
+
 export interface MermaidSemanticTheme {
   mode: MermaidThemeMode;
   base: 'base';
@@ -71,6 +78,10 @@ export interface MermaidSemanticTheme {
   coreNode: { fill: string; border: string; text: string };
   cluster: { fill: string; border: string; text: string };
   edge: { line: string; label: string; arrow: string };
+  /** Categorical colors for diagrams that tell many parts apart, such as pie, Gantt and git graph. */
+  series: readonly MermaidSeriesColor[];
+  /** Text color that holds 4.5:1 on every series `mark`. */
+  onSeries: string;
 }
 
 export interface MermaidLayoutConfig {

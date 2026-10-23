@@ -74,14 +74,30 @@
 
 .mermaid-container.mermaid-preset-default .mermaid-diagram-container svg text {
   paint-order: stroke fill;
-  stroke: #fff;
+  stroke: var(--hagilight-mermaid-halo, #fff);
   stroke-width: 4px;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .mermaid-container[data-mermaid-mode="dark"].mermaid-preset-default .mermaid-diagram-container svg text {
-  stroke: #1e1e1e;
+  stroke: var(--hagilight-mermaid-halo, #111827);
+}
+
+/* Text printed on a colored mark has no line behind it to clear, and a halo only blurs its edges. */
+.mermaid-container.mermaid-preset-default .mermaid-diagram-container svg :is(
+  text.slice,
+  text.taskText,
+  text.journey-section,
+  text.task,
+  text.treemapLabel,
+  text.treemapValue,
+  text.treemapSectionLabel,
+  text.treemapSectionValue,
+  g.timeline-node text,
+  g.branchLabel text
+) {
+  stroke: none;
 }
 
 /*
@@ -644,355 +660,29 @@
 }
 
 /*
- * Dark mode for the diagram types whose Mermaid palette stays light. The base theme only maps the
- * flowchart family, so charts such as packet, Gantt or XY read their fills from fixed light values, or
- * derive near-black series colours from the dark node fill. These rules recolour them from the same
- * tokens as everything else. Mermaid's own `#id .x` rules outrank any class selector, hence !important.
+ * Parts Mermaid draws from fixed colors that no theme variable reaches. They follow the container tokens, so
+ * both modes read from one place. Mermaid's own `#id .x` rules outrank any class selector, hence !important.
  */
+.mermaid-container svg[aria-roledescription="gantt"] g.grid .tick line {
+  stroke: var(--hagilight-mermaid-line, #e2e8f0) !important;
+}
 
-.mermaid-container[data-mermaid-mode="dark"] {
-  --hagilight-mermaid-tint: color-mix(in srgb, var(--hagilight-mermaid-trace-down, #60a5fa) 26%, var(--hagilight-mermaid-surface, #1f2937));
-  --hagilight-mermaid-tint-strong: color-mix(in srgb, var(--hagilight-mermaid-trace-down, #60a5fa) 52%, var(--hagilight-mermaid-surface, #1f2937));
-  --hagilight-mermaid-warm: color-mix(in srgb, var(--hagilight-mermaid-trace-up, #fbbf24) 30%, var(--hagilight-mermaid-surface, #1f2937));
-  --hagilight-mermaid-series-0: var(--hagilight-mermaid-series-0-color, #60a5fa);
-  --hagilight-mermaid-series-1: var(--hagilight-mermaid-series-1-color, #34d399);
-  --hagilight-mermaid-series-2: var(--hagilight-mermaid-series-2-color, #fbbf24);
-  --hagilight-mermaid-series-3: var(--hagilight-mermaid-series-3-color, #f472b6);
-  --hagilight-mermaid-series-4: var(--hagilight-mermaid-series-4-color, #a78bfa);
-  --hagilight-mermaid-series-5: var(--hagilight-mermaid-series-5-color, #22d3ee);
-  --hagilight-mermaid-series-6: var(--hagilight-mermaid-series-6-color, #fb923c);
-  --hagilight-mermaid-series-7: var(--hagilight-mermaid-series-7-color, #a3e635);
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-swimlane rect {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-box rect {
-  filter: brightness(0.5) saturate(1.15);
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-swimlane text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
+.mermaid-container svg[aria-roledescription="gantt"] g.grid .tick text {
+  fill: var(--hagilight-mermaid-muted-ink, #64748b) !important;
   stroke: none !important;
 }
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-box foreignObject, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-box foreignObject div, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] g.em-box foreignObject b {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="eventmodeling"] path.em-relation {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="packet"] rect.packetBlock {
-  fill: var(--hagilight-mermaid-tint, #243a5a) !important;
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="packet"] text.packetLabel {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="packet"] text.packetByte, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="packet"] text.packetTitle {
-  fill: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g[class^="bar-plot"] rect {
-  fill: var(--hagilight-mermaid-tint-strong, #2f5a96) !important;
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g[class^="line-plot"] path {
-  stroke: var(--hagilight-mermaid-trace-up, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g.chart-title text, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g.bottom-axis text, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g.left-axis text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g.bottom-axis path, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] g.left-axis path {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="xychart"] rect.background {
-  fill: transparent !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="cynefin"] rect.cynefinDomain {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="cynefin"] path.cynefinConfusion {
-  fill: var(--hagilight-mermaid-tint, #243a5a) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="cynefin"] rect.cynefinItem {
-  fill: var(--hagilight-mermaid-surface, #1f2937) !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="cynefin"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="cynefin"] path.cynefinBoundary {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.section0, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.section2 {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.section1, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.section3 {
-  fill: var(--hagilight-mermaid-surface, #1f2937) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.task {
-  fill: var(--hagilight-mermaid-tint-strong, #2f5a96) !important;
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.task[class*="done"] {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.task[class*="active"] {
-  fill: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] rect.task[class*="crit"] {
-  fill: var(--hagilight-mermaid-danger, #f87171) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] text.taskText, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] text.taskTextOutsideLeft, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] text.taskTextOutsideRight, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] text.sectionTitle, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] text.titleText {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] g.grid .tick line {
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gantt"] g.grid .tick text {
-  fill: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] circle.radarGraticule {
-  fill: transparent !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] line.radarAxisLine {
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] path.radarCurve-0 {
-  fill: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-  stroke: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-  fill-opacity: 0.32 !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] rect.radarLegendBox-0 {
-  fill: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-  stroke: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] path.radarCurve-1 {
-  fill: var(--hagilight-mermaid-series-1, #34d399) !important;
-  stroke: var(--hagilight-mermaid-series-1, #34d399) !important;
-  fill-opacity: 0.32 !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] rect.radarLegendBox-1 {
-  fill: var(--hagilight-mermaid-series-1, #34d399) !important;
-  stroke: var(--hagilight-mermaid-series-1, #34d399) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] path.radarCurve-2 {
-  fill: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-  stroke: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-  fill-opacity: 0.32 !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] rect.radarLegendBox-2 {
-  fill: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-  stroke: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] path.radarCurve-3 {
-  fill: var(--hagilight-mermaid-series-3, #f472b6) !important;
-  stroke: var(--hagilight-mermaid-series-3, #f472b6) !important;
-  fill-opacity: 0.32 !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] rect.radarLegendBox-3 {
-  fill: var(--hagilight-mermaid-series-3, #f472b6) !important;
-  stroke: var(--hagilight-mermaid-series-3, #f472b6) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="radar"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="venn"] g.venn-set-0 path {
-  fill: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-  fill-opacity: 0.28 !important;
-  stroke: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="venn"] g.venn-set-1 path {
-  fill: var(--hagilight-mermaid-series-1, #34d399) !important;
-  fill-opacity: 0.28 !important;
-  stroke: var(--hagilight-mermaid-series-1, #34d399) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="venn"] g.venn-set-2 path {
-  fill: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-  fill-opacity: 0.28 !important;
-  stroke: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="venn"] g.venn-intersection path {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  fill-opacity: 0.1 !important;
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="venn"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treeView"] text.treeView-node-label {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treeView"] line.treeView-node-line {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription^="railroad"] g.railroad-terminal rect {
-  fill: var(--hagilight-mermaid-warm, #4a3f1f) !important;
-  stroke: var(--hagilight-mermaid-trace-up, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription^="railroad"] g.railroad-nonterminal rect {
-  fill: var(--hagilight-mermaid-tint, #243a5a) !important;
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription^="railroad"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription^="railroad"] path.railroad-line {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="timeline"] path.node-bkg {
-  fill: var(--hagilight-mermaid-tint-strong, #2f5a96) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="timeline"] line[class^="node-line"] {
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="timeline"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="mindmap"] path.node-bkg, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="mindmap"] g.node rect {
-  fill: var(--hagilight-mermaid-tint, #243a5a) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="mindmap"] g.node.section-root circle {
-  fill: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="mindmap"] line[class^="node-line"] {
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="mindmap"] g.edgePaths path {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="kanban"] g.sections g.cluster rect {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch0, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow0 {
-  stroke: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit0, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label0 {
-  fill: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-  stroke: var(--hagilight-mermaid-series-0, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch1, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow1 {
-  stroke: var(--hagilight-mermaid-series-1, #34d399) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit1, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label1 {
-  fill: var(--hagilight-mermaid-series-1, #34d399) !important;
-  stroke: var(--hagilight-mermaid-series-1, #34d399) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch2, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow2 {
-  stroke: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit2, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label2 {
-  fill: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-  stroke: var(--hagilight-mermaid-series-2, #fbbf24) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch3, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow3 {
-  stroke: var(--hagilight-mermaid-series-3, #f472b6) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit3, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label3 {
-  fill: var(--hagilight-mermaid-series-3, #f472b6) !important;
-  stroke: var(--hagilight-mermaid-series-3, #f472b6) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch4, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow4 {
-  stroke: var(--hagilight-mermaid-series-4, #a78bfa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit4, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label4 {
-  fill: var(--hagilight-mermaid-series-4, #a78bfa) !important;
-  stroke: var(--hagilight-mermaid-series-4, #a78bfa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch5, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow5 {
-  stroke: var(--hagilight-mermaid-series-5, #22d3ee) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit5, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label5 {
-  fill: var(--hagilight-mermaid-series-5, #22d3ee) !important;
-  stroke: var(--hagilight-mermaid-series-5, #22d3ee) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch6, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow6 {
-  stroke: var(--hagilight-mermaid-series-6, #fb923c) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit6, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label6 {
-  fill: var(--hagilight-mermaid-series-6, #fb923c) !important;
-  stroke: var(--hagilight-mermaid-series-6, #fb923c) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] line.branch7, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] path.arrow7 {
-  stroke: var(--hagilight-mermaid-series-7, #a3e635) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] circle.commit7, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.label7 {
-  fill: var(--hagilight-mermaid-series-7, #a3e635) !important;
-  stroke: var(--hagilight-mermaid-series-7, #a3e635) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] rect.branchLabelBkg {
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] g.branchLabel text, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] g.branchLabel tspan, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] .branch-label0, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] .branch-label1, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="gitGraph"] .branch-label2 {
-  fill: var(--hagilight-mermaid-surface, #111827) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="er"] g.row-rect-odd path[stroke="none"] {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="er"] g.row-rect-even path[stroke="none"] {
-  fill: var(--hagilight-mermaid-surface, #1f2937) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="er"] .nodeLabel, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="er"] .nodeLabel p {
-  color: var(--hagilight-mermaid-ink, #f8fafc) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapSection {
-  fill: var(--hagilight-mermaid-group, #1e293b) !important;
-  stroke: var(--hagilight-mermaid-line, #334155) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapSection.section0 {
-  fill: color-mix(in srgb, var(--hagilight-mermaid-series-0, #60a5fa) 14%, var(--hagilight-mermaid-surface, #1f2937)) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapSection.section1 {
-  fill: color-mix(in srgb, var(--hagilight-mermaid-series-1, #34d399) 14%, var(--hagilight-mermaid-surface, #1f2937)) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapSection.section2 {
-  fill: color-mix(in srgb, var(--hagilight-mermaid-series-2, #fbbf24) 14%, var(--hagilight-mermaid-surface, #1f2937)) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapSection.section3 {
-  fill: color-mix(in srgb, var(--hagilight-mermaid-series-3, #f472b6) 14%, var(--hagilight-mermaid-surface, #1f2937)) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] rect.treemapLeaf {
-  fill: var(--hagilight-mermaid-tint-strong, #2f5a96) !important;
-  stroke: var(--hagilight-mermaid-trace-down, #60a5fa) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="treemap"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] text {
-  fill: var(--hagilight-mermaid-ink, #f8fafc) !important;
-  stroke: none !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] g.wardley-axes line, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] g.wardley-stages line, .mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] line.wardley-link {
-  stroke: var(--hagilight-mermaid-muted-ink, #94a3b8) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] g.wardley-node circle {
-  fill: var(--hagilight-mermaid-surface, #1f2937) !important;
-  stroke: var(--hagilight-mermaid-ink, #f8fafc) !important;
-}
-.mermaid-container[data-mermaid-mode="dark"] svg[aria-roledescription="wardley"] rect.wardley-background {
-  fill: transparent !important;
+
+.mermaid-container svg[aria-roledescription="timeline"] .lineWrapper line {
+  stroke: var(--hagilight-mermaid-muted-ink, #64748b) !important;
+}
+
+.mermaid-container svg[aria-roledescription="treeView"] text.treeView-node-label {
+  fill: var(--hagilight-mermaid-ink, #17212b) !important;
+  color: var(--hagilight-mermaid-ink, #17212b) !important;
+}
+
+.mermaid-container svg[aria-roledescription="treeView"] line.treeView-node-line {
+  stroke: var(--hagilight-mermaid-muted-ink, #64748b) !important;
 }
 
 /* Loading state. */
