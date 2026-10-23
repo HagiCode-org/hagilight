@@ -27,6 +27,7 @@ flowchart LR
   A["@hagicode/hagilight"] --> C["@hagicode/hagilight-core"]
   S["@hagicode/hagilight-starlight"] --> C
   D["@hagicode/hagilight-docusaurus"] --> C
+  M["@hagicode/hagilight-mermaid"]
 ```
 
 Every feature package depends on the matching version of the shared core and
@@ -39,6 +40,7 @@ point.
 | [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight)](https://www.npmjs.com/package/@hagicode/hagilight) |
 | [`@hagicode/hagilight-starlight`](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-starlight?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-starlight)](https://www.npmjs.com/package/@hagicode/hagilight-starlight) |
 | [`@hagicode/hagilight-docusaurus`](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-docusaurus?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-docusaurus)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) |
+| [`@hagicode/hagilight-mermaid`](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-mermaid?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-mermaid)](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) |
 
 ## `@hagicode/hagilight-core`
 
