@@ -1,0 +1,107 @@
+/*
+ * @hagicode/hagilight-mermaid archify preset. Import after styles.css.
+ * Palettes are fixed per mode and do not read the site tokens, except the trace colors.
+ */
+
+.mermaid-container.mermaid-preset-archify {
+  --hagilight-mermaid-archify-canvas: #f8fafc;
+  --hagilight-mermaid-archify-node: #ffffff;
+  --hagilight-mermaid-archify-core: #cffafe;
+  --hagilight-mermaid-archify-group: #f1f5f9;
+  --hagilight-mermaid-archify-ink: #0f172a;
+  --hagilight-mermaid-archify-line: #475569;
+  --hagilight-mermaid-archify-accent: #0891b2;
+  --hagilight-mermaid-archify-border: #cbd5e1;
+  --hagilight-mermaid-archify-shadow: rgb(15 23 42 / 10%);
+
+  border: 1px solid var(--hagilight-mermaid-archify-border, #cbd5e1);
+  border-radius: 14px;
+  background: var(--hagilight-mermaid-archify-canvas, #f8fafc);
+}
+
+.mermaid-container.mermaid-preset-archify[data-mermaid-mode="dark"] {
+  --hagilight-mermaid-archify-canvas: #020617;
+  --hagilight-mermaid-archify-node: #0f172a;
+  --hagilight-mermaid-archify-core: #083344;
+  --hagilight-mermaid-archify-group: #0f172a;
+  --hagilight-mermaid-archify-ink: #f8fafc;
+  --hagilight-mermaid-archify-line: #22d3ee;
+  --hagilight-mermaid-archify-accent: #22d3ee;
+  --hagilight-mermaid-archify-border: #1e293b;
+  --hagilight-mermaid-archify-shadow: rgb(0 0 0 / 28%);
+}
+
+/* Trace colors: a site token wins, then the archify value. Dark mode uses a brighter upward hue. */
+.mermaid-container[data-mermaid-preset="archify"][data-mermaid-mode] {
+  --hagilight-mermaid-trace-down: var(--hagilight-mermaid-mm-down, var(--hagilight-mermaid-archify-accent, #0891b2));
+  --hagilight-mermaid-trace-up: var(--hagilight-mermaid-mm-up, #b45309);
+  overflow: visible;
+}
+
+.mermaid-container[data-mermaid-preset="archify"][data-mermaid-mode="dark"] {
+  --hagilight-mermaid-trace-up: var(--hagilight-mermaid-mm-up, #fbbf24);
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-diagram-container svg {
+  background: var(--hagilight-mermaid-archify-canvas, #f8fafc);
+  color: var(--hagilight-mermaid-archify-ink, #0f172a);
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node rect,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node polygon,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node circle,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node ellipse {
+  fill: var(--hagilight-mermaid-archify-node, #ffffff) !important;
+  stroke: var(--hagilight-mermaid-archify-accent, #0891b2) !important;
+  stroke-width: 1.4px;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core rect,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core polygon,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core circle,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core ellipse {
+  fill: var(--hagilight-mermaid-archify-core, #cffafe) !important;
+  stroke: var(--hagilight-mermaid-archify-accent, #0891b2) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-subgraph rect {
+  fill: var(--hagilight-mermaid-archify-group, #f1f5f9) !important;
+  stroke: var(--hagilight-mermaid-archify-border, #cbd5e1) !important;
+  stroke-width: 1.25px;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-edge path,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-edge line {
+  stroke: var(--hagilight-mermaid-archify-line, #475569) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-edge.arrowheadPath {
+  fill: var(--hagilight-mermaid-archify-accent, #0891b2) !important;
+  stroke: var(--hagilight-mermaid-archify-accent, #0891b2) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-edge-label rect {
+  fill: var(--hagilight-mermaid-archify-canvas, #f8fafc) !important;
+  stroke: var(--hagilight-mermaid-archify-border, #cbd5e1) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-label {
+  fill: var(--hagilight-mermaid-archify-ink, #0f172a) !important;
+  color: var(--hagilight-mermaid-archify-ink, #0f172a) !important;
+  stroke: none;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg foreignObject,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg foreignObject div,
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg foreignObject span {
+  color: var(--hagilight-mermaid-archify-ink, #0f172a) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core .mermaid-label {
+  fill: var(--hagilight-mermaid-archify-ink, #0f172a) !important;
+  color: var(--hagilight-mermaid-archify-ink, #0f172a) !important;
+}
+
+.mermaid-container.mermaid-preset-archify .mermaid-enhanced-svg .mermaid-node-core {
+  filter: drop-shadow(0 2px 4px var(--hagilight-mermaid-archify-shadow, rgb(15 23 42 / 10%)));
+}

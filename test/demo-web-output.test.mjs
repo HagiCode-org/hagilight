@@ -400,3 +400,13 @@ test('sitemap and robots output use the configured base path', () => {
     assert.ok(sitemap.includes(`https://hagilight.hagicode.com${baseUrl}/zh-CN/`));
   }
 });
+
+test('the built Mermaid page has a section for every recorded diagram type, the stylesheet link and the module script', () => {
+  const html = readFileSync(join(outputDir, 'mermaid', 'index.html'), 'utf8');
+  const { types } = JSON.parse(readFileSync(join(root, 'test', 'fixtures', 'mermaid-diagram-types.json'), 'utf8'));
+  const sections = [...html.matchAll(/data-mermaid-type="([^"]+)"/gu)].map(([, id]) => id);
+  assert.deepEqual(sections, types.map(({ id }) => id), 'one section per recorded type, in the recorded order');
+  assert.equal([...html.matchAll(/<pre class="mermaid"[^>]*>/gu)].length, types.length, 'one diagram source per section');
+  assert.match(html, /<link rel="stylesheet" href="[^"]+\.css">/u, 'the built page links a package stylesheet');
+  assert.match(html, /<script type="module" src="[^"]+\.js"><\/script>/u, 'the built page loads the demo module script');
+});

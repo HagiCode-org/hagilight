@@ -1,0 +1,2649 @@
+{
+  "source": "Captured from repos/web (src/utils/mermaidThemeConfig.ts, mermaidSvgPostProcessor.ts) in Chromium with mermaid 11.16.1. Token values are set on :root for mapped entries; tokenMap names the web custom properties.",
+  "tokenMap": {
+    "background": "--background",
+    "foreground": "--foreground",
+    "primary": "--primary",
+    "accent": "--accent",
+    "primaryForeground": "--primary-foreground"
+  },
+  "tokens": {
+    "--background": "#f4f6fb",
+    "--foreground": "#1c2433",
+    "--primary": "oklch(0.55 0.19 265)",
+    "--accent": "#0f9d8a",
+    "--primary-foreground": "#ffffff"
+  },
+  "configs": [
+    {
+      "mode": "light",
+      "preset": "default",
+      "mapped": false,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#ffffff",
+          "primaryColor": "#eff6ff",
+          "mainBkg": "#eff6ff",
+          "nodeBkg": "#eff6ff",
+          "nodeBorder": "#2563eb",
+          "primaryTextColor": "#17212b",
+          "primaryBorderColor": "#2563eb",
+          "lineColor": "#17212b",
+          "secondaryColor": "#dbeafe",
+          "secondaryBorderColor": "#2563eb",
+          "tertiaryColor": "#f8fafc",
+          "tertiaryBorderColor": "#64748b",
+          "clusterBkg": "#f8fafc",
+          "clusterBorder": "#64748b",
+          "labelBoxBkg": "#ffffff",
+          "labelBoxBorderColor": "#64748b",
+          "fontFamily": "inherit",
+          "fontSize": "14px"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "light",
+      "preset": "archify",
+      "mapped": false,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#f8fafc",
+          "primaryColor": "#ffffff",
+          "mainBkg": "#ffffff",
+          "nodeBkg": "#ffffff",
+          "nodeBorder": "#0891b2",
+          "primaryTextColor": "#0f172a",
+          "primaryBorderColor": "#0891b2",
+          "lineColor": "#475569",
+          "secondaryColor": "#cffafe",
+          "secondaryBorderColor": "#0891b2",
+          "tertiaryColor": "#f1f5f9",
+          "tertiaryBorderColor": "#94a3b8",
+          "clusterBkg": "#f1f5f9",
+          "clusterBorder": "#94a3b8",
+          "labelBoxBkg": "#f8fafc",
+          "labelBoxBorderColor": "#94a3b8",
+          "fontFamily": "inherit",
+          "fontSize": "14px",
+          "nodeTextColor": "#0f172a",
+          "secondaryTextColor": "#164e63",
+          "tertiaryTextColor": "#0f172a",
+          "labelTextColor": "#0f172a",
+          "edgeLabelBackground": "#f8fafc",
+          "arrowheadColor": "#0891b2",
+          "defaultLinkColor": "#475569"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "dark",
+      "preset": "default",
+      "mapped": false,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#111827",
+          "primaryColor": "#1e3a5f",
+          "mainBkg": "#1e3a5f",
+          "nodeBkg": "#1e3a5f",
+          "nodeBorder": "#60a5fa",
+          "primaryTextColor": "#f8fafc",
+          "primaryBorderColor": "#60a5fa",
+          "lineColor": "#f8fafc",
+          "secondaryColor": "#1d4ed8",
+          "secondaryBorderColor": "#60a5fa",
+          "tertiaryColor": "#1f2937",
+          "tertiaryBorderColor": "#94a3b8",
+          "clusterBkg": "#1f2937",
+          "clusterBorder": "#94a3b8",
+          "labelBoxBkg": "#111827",
+          "labelBoxBorderColor": "#94a3b8",
+          "fontFamily": "inherit",
+          "fontSize": "14px"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": false,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#020617",
+          "primaryColor": "#0f172a",
+          "mainBkg": "#0f172a",
+          "nodeBkg": "#0f172a",
+          "nodeBorder": "#1e293b",
+          "primaryTextColor": "#f8fafc",
+          "primaryBorderColor": "#1e293b",
+          "lineColor": "#22d3ee",
+          "secondaryColor": "#083344",
+          "secondaryBorderColor": "#22d3ee",
+          "tertiaryColor": "#0f172a",
+          "tertiaryBorderColor": "#475569",
+          "clusterBkg": "#0f172a",
+          "clusterBorder": "#475569",
+          "labelBoxBkg": "#020617",
+          "labelBoxBorderColor": "#475569",
+          "fontFamily": "inherit",
+          "fontSize": "14px",
+          "nodeTextColor": "#f8fafc",
+          "secondaryTextColor": "#ecfeff",
+          "tertiaryTextColor": "#f8fafc",
+          "labelTextColor": "#f8fafc",
+          "edgeLabelBackground": "#020617",
+          "arrowheadColor": "#22d3ee",
+          "defaultLinkColor": "#22d3ee"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#f4f6fb",
+          "primaryColor": "#eff6ff",
+          "mainBkg": "#eff6ff",
+          "nodeBkg": "#eff6ff",
+          "nodeBorder": "#2563eb",
+          "primaryTextColor": "#1c2433",
+          "primaryBorderColor": "#2563eb",
+          "lineColor": "#1c2433",
+          "secondaryColor": "#dbeafe",
+          "secondaryBorderColor": "#2563eb",
+          "tertiaryColor": "#f8fafc",
+          "tertiaryBorderColor": "#64748b",
+          "clusterBkg": "#f8fafc",
+          "clusterBorder": "#64748b",
+          "labelBoxBkg": "#f4f6fb",
+          "labelBoxBorderColor": "#64748b",
+          "fontFamily": "inherit",
+          "fontSize": "14px"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#f8fafc",
+          "primaryColor": "#ffffff",
+          "mainBkg": "#ffffff",
+          "nodeBkg": "#ffffff",
+          "nodeBorder": "#0891b2",
+          "primaryTextColor": "#0f172a",
+          "primaryBorderColor": "#0891b2",
+          "lineColor": "#475569",
+          "secondaryColor": "#cffafe",
+          "secondaryBorderColor": "#0891b2",
+          "tertiaryColor": "#f1f5f9",
+          "tertiaryBorderColor": "#94a3b8",
+          "clusterBkg": "#f1f5f9",
+          "clusterBorder": "#94a3b8",
+          "labelBoxBkg": "#f8fafc",
+          "labelBoxBorderColor": "#94a3b8",
+          "fontFamily": "inherit",
+          "fontSize": "14px",
+          "nodeTextColor": "#0f172a",
+          "secondaryTextColor": "#164e63",
+          "tertiaryTextColor": "#0f172a",
+          "labelTextColor": "#0f172a",
+          "edgeLabelBackground": "#f8fafc",
+          "arrowheadColor": "#0891b2",
+          "defaultLinkColor": "#475569"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#f4f6fb",
+          "primaryColor": "#1e3a5f",
+          "mainBkg": "#1e3a5f",
+          "nodeBkg": "#1e3a5f",
+          "nodeBorder": "#60a5fa",
+          "primaryTextColor": "#1c2433",
+          "primaryBorderColor": "#60a5fa",
+          "lineColor": "#1c2433",
+          "secondaryColor": "#1d4ed8",
+          "secondaryBorderColor": "#60a5fa",
+          "tertiaryColor": "#1f2937",
+          "tertiaryBorderColor": "#94a3b8",
+          "clusterBkg": "#1f2937",
+          "clusterBorder": "#94a3b8",
+          "labelBoxBkg": "#f4f6fb",
+          "labelBoxBorderColor": "#94a3b8",
+          "fontFamily": "inherit",
+          "fontSize": "14px"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    },
+    {
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "config": {
+        "theme": "base",
+        "themeVariables": {
+          "background": "#020617",
+          "primaryColor": "#0f172a",
+          "mainBkg": "#0f172a",
+          "nodeBkg": "#0f172a",
+          "nodeBorder": "#1e293b",
+          "primaryTextColor": "#f8fafc",
+          "primaryBorderColor": "#1e293b",
+          "lineColor": "#22d3ee",
+          "secondaryColor": "#083344",
+          "secondaryBorderColor": "#22d3ee",
+          "tertiaryColor": "#0f172a",
+          "tertiaryBorderColor": "#475569",
+          "clusterBkg": "#0f172a",
+          "clusterBorder": "#475569",
+          "labelBoxBkg": "#020617",
+          "labelBoxBorderColor": "#475569",
+          "fontFamily": "inherit",
+          "fontSize": "14px",
+          "nodeTextColor": "#f8fafc",
+          "secondaryTextColor": "#ecfeff",
+          "tertiaryTextColor": "#f8fafc",
+          "labelTextColor": "#f8fafc",
+          "edgeLabelBackground": "#020617",
+          "arrowheadColor": "#22d3ee",
+          "defaultLinkColor": "#22d3ee"
+        },
+        "flowchart": {
+          "nodeSpacing": 36,
+          "rankSpacing": 48,
+          "curve": "basis",
+          "padding": 16,
+          "maxNodeWidth": 280,
+          "useMaxWidth": true
+        },
+        "htmlLabels": true,
+        "startOnLoad": false,
+        "suppressErrorRendering": true,
+        "securityLevel": "strict",
+        "useMaxWidth": true
+      }
+    }
+  ],
+  "structures": [
+    {
+      "chart": "flowchart",
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.arrowMarkerPath",
+          4
+        ],
+        [
+          "defs",
+          3
+        ],
+        [
+          "div",
+          5
+        ],
+        [
+          "div.labelBkg",
+          5
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          10
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          5
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          10
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.cross.flowchart-v2.marker",
+          4
+        ],
+        [
+          "marker.flowchart-v2.marker",
+          8
+        ],
+        [
+          "p",
+          7
+        ],
+        [
+          "path.arrowMarkerPath",
+          7
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.flowchart-link.mermaid-edge",
+          5
+        ],
+        [
+          "polygon.arrowMarkerPath",
+          1
+        ],
+        [
+          "polygon.label-container",
+          1
+        ],
+        [
+          "rect",
+          5
+        ],
+        [
+          "rect.basic.label-container",
+          4
+        ],
+        [
+          "span.edgeLabel",
+          5
+        ],
+        [
+          "span.nodeLabel",
+          5
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.flowchart.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "flowchart",
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.arrowMarkerPath",
+          4
+        ],
+        [
+          "defs",
+          3
+        ],
+        [
+          "div",
+          5
+        ],
+        [
+          "div.labelBkg",
+          5
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          10
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          5
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          10
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.cross.flowchart-v2.marker",
+          4
+        ],
+        [
+          "marker.flowchart-v2.marker",
+          8
+        ],
+        [
+          "p",
+          7
+        ],
+        [
+          "path.arrowMarkerPath",
+          7
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.flowchart-link.mermaid-edge",
+          5
+        ],
+        [
+          "polygon.arrowMarkerPath",
+          1
+        ],
+        [
+          "polygon.label-container",
+          1
+        ],
+        [
+          "rect",
+          5
+        ],
+        [
+          "rect.basic.label-container",
+          4
+        ],
+        [
+          "span.edgeLabel",
+          5
+        ],
+        [
+          "span.nodeLabel",
+          5
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.flowchart.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "flowchart",
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.arrowMarkerPath",
+          4
+        ],
+        [
+          "defs",
+          3
+        ],
+        [
+          "div",
+          5
+        ],
+        [
+          "div.labelBkg",
+          5
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          10
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          5
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          10
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.cross.flowchart-v2.marker",
+          4
+        ],
+        [
+          "marker.flowchart-v2.marker",
+          8
+        ],
+        [
+          "p",
+          7
+        ],
+        [
+          "path.arrowMarkerPath",
+          7
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.flowchart-link.mermaid-edge",
+          5
+        ],
+        [
+          "polygon.arrowMarkerPath",
+          1
+        ],
+        [
+          "polygon.label-container",
+          1
+        ],
+        [
+          "rect",
+          5
+        ],
+        [
+          "rect.basic.label-container",
+          4
+        ],
+        [
+          "span.edgeLabel",
+          5
+        ],
+        [
+          "span.nodeLabel",
+          5
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.flowchart.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "flowchart",
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.arrowMarkerPath",
+          4
+        ],
+        [
+          "defs",
+          3
+        ],
+        [
+          "div",
+          5
+        ],
+        [
+          "div.labelBkg",
+          5
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          10
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          5
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          10
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.cross.flowchart-v2.marker",
+          4
+        ],
+        [
+          "marker.flowchart-v2.marker",
+          8
+        ],
+        [
+          "p",
+          7
+        ],
+        [
+          "path.arrowMarkerPath",
+          7
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.flowchart-link.mermaid-edge",
+          5
+        ],
+        [
+          "polygon.arrowMarkerPath",
+          1
+        ],
+        [
+          "polygon.label-container",
+          1
+        ],
+        [
+          "rect",
+          5
+        ],
+        [
+          "rect.basic.label-container",
+          4
+        ],
+        [
+          "span.edgeLabel",
+          5
+        ],
+        [
+          "span.nodeLabel",
+          5
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.flowchart.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "sequence",
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          1
+        ],
+        [
+          "defs",
+          12
+        ],
+        [
+          "g",
+          7
+        ],
+        [
+          "line.200.actor-line",
+          2
+        ],
+        [
+          "line.messageLine0",
+          1
+        ],
+        [
+          "line.messageLine1",
+          1
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "marker",
+          8
+        ],
+        [
+          "path",
+          10
+        ],
+        [
+          "rect.actor.actor-bottom",
+          2
+        ],
+        [
+          "rect.actor.actor-top",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "symbol",
+          3
+        ],
+        [
+          "text.actor.actor-box.mermaid-label",
+          4
+        ],
+        [
+          "text.mermaid-label.messageText",
+          2
+        ],
+        [
+          "tspan",
+          4
+        ]
+      ]
+    },
+    {
+      "chart": "sequence",
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          1
+        ],
+        [
+          "defs",
+          12
+        ],
+        [
+          "g",
+          7
+        ],
+        [
+          "line.200.actor-line",
+          2
+        ],
+        [
+          "line.messageLine0",
+          1
+        ],
+        [
+          "line.messageLine1",
+          1
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "marker",
+          8
+        ],
+        [
+          "path",
+          10
+        ],
+        [
+          "rect.actor.actor-bottom",
+          2
+        ],
+        [
+          "rect.actor.actor-top",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "symbol",
+          3
+        ],
+        [
+          "text.actor.actor-box.mermaid-label",
+          4
+        ],
+        [
+          "text.mermaid-label.messageText",
+          2
+        ],
+        [
+          "tspan",
+          4
+        ]
+      ]
+    },
+    {
+      "chart": "sequence",
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          1
+        ],
+        [
+          "defs",
+          12
+        ],
+        [
+          "g",
+          7
+        ],
+        [
+          "line.200.actor-line",
+          2
+        ],
+        [
+          "line.messageLine0",
+          1
+        ],
+        [
+          "line.messageLine1",
+          1
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "marker",
+          8
+        ],
+        [
+          "path",
+          10
+        ],
+        [
+          "rect.actor.actor-bottom",
+          2
+        ],
+        [
+          "rect.actor.actor-top",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "symbol",
+          3
+        ],
+        [
+          "text.actor.actor-box.mermaid-label",
+          4
+        ],
+        [
+          "text.mermaid-label.messageText",
+          2
+        ],
+        [
+          "tspan",
+          4
+        ]
+      ]
+    },
+    {
+      "chart": "sequence",
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          1
+        ],
+        [
+          "defs",
+          12
+        ],
+        [
+          "g",
+          7
+        ],
+        [
+          "line.200.actor-line",
+          2
+        ],
+        [
+          "line.messageLine0",
+          1
+        ],
+        [
+          "line.messageLine1",
+          1
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "marker",
+          8
+        ],
+        [
+          "path",
+          10
+        ],
+        [
+          "rect.actor.actor-bottom",
+          2
+        ],
+        [
+          "rect.actor.actor-top",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "symbol",
+          3
+        ],
+        [
+          "text.actor.actor-box.mermaid-label",
+          4
+        ],
+        [
+          "text.mermaid-label.messageText",
+          2
+        ],
+        [
+          "tspan",
+          4
+        ]
+      ]
+    },
+    {
+      "chart": "class",
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          4
+        ],
+        [
+          "defs",
+          22
+        ],
+        [
+          "div",
+          4
+        ],
+        [
+          "div.labelBkg",
+          1
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.annotation-group.text",
+          2
+        ],
+        [
+          "g.basic.label-container.outer-path",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.divider",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          1
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.label-group.text",
+          2
+        ],
+        [
+          "g.members-group.text",
+          2
+        ],
+        [
+          "g.methods-group.text",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.aggregation.class.marker",
+          4
+        ],
+        [
+          "marker.class.composition.marker",
+          4
+        ],
+        [
+          "marker.class.dependency.marker",
+          4
+        ],
+        [
+          "marker.class.extension.marker",
+          4
+        ],
+        [
+          "marker.class.lollipop.marker",
+          4
+        ],
+        [
+          "p",
+          4
+        ],
+        [
+          "path",
+          22
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.relation",
+          1
+        ],
+        [
+          "polygon",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          1
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          4
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.classDiagram.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "class",
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          4
+        ],
+        [
+          "defs",
+          22
+        ],
+        [
+          "div",
+          4
+        ],
+        [
+          "div.labelBkg",
+          1
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.annotation-group.text",
+          2
+        ],
+        [
+          "g.basic.label-container.outer-path",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.divider",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          1
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.label-group.text",
+          2
+        ],
+        [
+          "g.members-group.text",
+          2
+        ],
+        [
+          "g.methods-group.text",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.aggregation.class.marker",
+          4
+        ],
+        [
+          "marker.class.composition.marker",
+          4
+        ],
+        [
+          "marker.class.dependency.marker",
+          4
+        ],
+        [
+          "marker.class.extension.marker",
+          4
+        ],
+        [
+          "marker.class.lollipop.marker",
+          4
+        ],
+        [
+          "p",
+          4
+        ],
+        [
+          "path",
+          22
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.relation",
+          1
+        ],
+        [
+          "polygon",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          1
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          4
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.classDiagram.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "class",
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          4
+        ],
+        [
+          "defs",
+          22
+        ],
+        [
+          "div",
+          4
+        ],
+        [
+          "div.labelBkg",
+          1
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.annotation-group.text",
+          2
+        ],
+        [
+          "g.basic.label-container.outer-path",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.divider",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          1
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.label-group.text",
+          2
+        ],
+        [
+          "g.members-group.text",
+          2
+        ],
+        [
+          "g.methods-group.text",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.aggregation.class.marker",
+          4
+        ],
+        [
+          "marker.class.composition.marker",
+          4
+        ],
+        [
+          "marker.class.dependency.marker",
+          4
+        ],
+        [
+          "marker.class.extension.marker",
+          4
+        ],
+        [
+          "marker.class.lollipop.marker",
+          4
+        ],
+        [
+          "p",
+          4
+        ],
+        [
+          "path",
+          22
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.relation",
+          1
+        ],
+        [
+          "polygon",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          1
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          4
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.classDiagram.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "class",
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle",
+          4
+        ],
+        [
+          "defs",
+          22
+        ],
+        [
+          "div",
+          4
+        ],
+        [
+          "div.labelBkg",
+          1
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          1
+        ],
+        [
+          "g.annotation-group.text",
+          2
+        ],
+        [
+          "g.basic.label-container.outer-path",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.divider",
+          4
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          1
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.label-group.text",
+          2
+        ],
+        [
+          "g.members-group.text",
+          2
+        ],
+        [
+          "g.methods-group.text",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker.aggregation.class.marker",
+          4
+        ],
+        [
+          "marker.class.composition.marker",
+          4
+        ],
+        [
+          "marker.class.dependency.marker",
+          4
+        ],
+        [
+          "marker.class.extension.marker",
+          4
+        ],
+        [
+          "marker.class.lollipop.marker",
+          4
+        ],
+        [
+          "p",
+          4
+        ],
+        [
+          "path",
+          22
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.relation",
+          1
+        ],
+        [
+          "polygon",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          1
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          4
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.classDiagram.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "state",
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.state-start",
+          1
+        ],
+        [
+          "defs",
+          4
+        ],
+        [
+          "div",
+          2
+        ],
+        [
+          "div.labelBkg",
+          3
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          3
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.mermaid-node.mermaid-node-supporting.node.statediagram-state",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.outer-path",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker",
+          1
+        ],
+        [
+          "p",
+          2
+        ],
+        [
+          "path",
+          5
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.transition",
+          3
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "rect.basic.label-container",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          3
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          2
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow.statediagram",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "state",
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.state-start",
+          1
+        ],
+        [
+          "defs",
+          4
+        ],
+        [
+          "div",
+          2
+        ],
+        [
+          "div.labelBkg",
+          3
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          3
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.mermaid-node.mermaid-node-supporting.node.statediagram-state",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.outer-path",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker",
+          1
+        ],
+        [
+          "p",
+          2
+        ],
+        [
+          "path",
+          5
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.transition",
+          3
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "rect.basic.label-container",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          3
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          2
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow.statediagram",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "state",
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.state-start",
+          1
+        ],
+        [
+          "defs",
+          4
+        ],
+        [
+          "div",
+          2
+        ],
+        [
+          "div.labelBkg",
+          3
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          3
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.mermaid-node.mermaid-node-supporting.node.statediagram-state",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.outer-path",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker",
+          1
+        ],
+        [
+          "p",
+          2
+        ],
+        [
+          "path",
+          5
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.transition",
+          3
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "rect.basic.label-container",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          3
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          2
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow.statediagram",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "state",
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.state-start",
+          1
+        ],
+        [
+          "defs",
+          4
+        ],
+        [
+          "div",
+          2
+        ],
+        [
+          "div.labelBkg",
+          3
+        ],
+        [
+          "fedropshadow",
+          2
+        ],
+        [
+          "filter",
+          2
+        ],
+        [
+          "foreignobject.mermaid-label",
+          5
+        ],
+        [
+          "g",
+          2
+        ],
+        [
+          "g.clusters",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-core.node",
+          1
+        ],
+        [
+          "g.default.mermaid-node.mermaid-node-supporting.node",
+          1
+        ],
+        [
+          "g.edgeLabel.mermaid-edge-label",
+          3
+        ],
+        [
+          "g.edgeLabels",
+          1
+        ],
+        [
+          "g.edgePaths",
+          1
+        ],
+        [
+          "g.label",
+          5
+        ],
+        [
+          "g.mermaid-node.mermaid-node-supporting.node.statediagram-state",
+          2
+        ],
+        [
+          "g.nodes",
+          1
+        ],
+        [
+          "g.outer-path",
+          1
+        ],
+        [
+          "g.root",
+          1
+        ],
+        [
+          "lineargradient",
+          2
+        ],
+        [
+          "marker",
+          1
+        ],
+        [
+          "p",
+          2
+        ],
+        [
+          "path",
+          5
+        ],
+        [
+          "path.edge-pattern-solid.edge-thickness-normal.mermaid-edge.transition",
+          3
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "rect.basic.label-container",
+          2
+        ],
+        [
+          "span.edgeLabel",
+          3
+        ],
+        [
+          "span.markdown-node-label.nodeLabel",
+          2
+        ],
+        [
+          "stop",
+          4
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow.statediagram",
+          1
+        ]
+      ]
+    },
+    {
+      "chart": "pie",
+      "mode": "light",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.pieOuterCircle",
+          1
+        ],
+        [
+          "defs",
+          1
+        ],
+        [
+          "g",
+          3
+        ],
+        [
+          "g.legend",
+          2
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "path.pieCircle",
+          2
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "text.mermaid-label",
+          2
+        ],
+        [
+          "text.mermaid-label.pieTitleText",
+          1
+        ],
+        [
+          "text.mermaid-label.slice",
+          2
+        ]
+      ]
+    },
+    {
+      "chart": "pie",
+      "mode": "light",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.pieOuterCircle",
+          1
+        ],
+        [
+          "defs",
+          1
+        ],
+        [
+          "g",
+          3
+        ],
+        [
+          "g.legend",
+          2
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "path.pieCircle",
+          2
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "text.mermaid-label",
+          2
+        ],
+        [
+          "text.mermaid-label.pieTitleText",
+          1
+        ],
+        [
+          "text.mermaid-label.slice",
+          2
+        ]
+      ]
+    },
+    {
+      "chart": "pie",
+      "mode": "dark",
+      "preset": "default",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.pieOuterCircle",
+          1
+        ],
+        [
+          "defs",
+          1
+        ],
+        [
+          "g",
+          3
+        ],
+        [
+          "g.legend",
+          2
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "path.pieCircle",
+          2
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "text.mermaid-label",
+          2
+        ],
+        [
+          "text.mermaid-label.pieTitleText",
+          1
+        ],
+        [
+          "text.mermaid-label.slice",
+          2
+        ]
+      ]
+    },
+    {
+      "chart": "pie",
+      "mode": "dark",
+      "preset": "archify",
+      "mapped": true,
+      "structure": [
+        [
+          "circle.pieOuterCircle",
+          1
+        ],
+        [
+          "defs",
+          1
+        ],
+        [
+          "g",
+          3
+        ],
+        [
+          "g.legend",
+          2
+        ],
+        [
+          "lineargradient",
+          1
+        ],
+        [
+          "path.pieCircle",
+          2
+        ],
+        [
+          "rect",
+          2
+        ],
+        [
+          "stop",
+          2
+        ],
+        [
+          "style",
+          1
+        ],
+        [
+          "svg.mermaid-enhanced-svg.mermaid-has-shadow",
+          1
+        ],
+        [
+          "text.mermaid-label",
+          2
+        ],
+        [
+          "text.mermaid-label.pieTitleText",
+          1
+        ],
+        [
+          "text.mermaid-label.slice",
+          2
+        ]
+      ]
+    }
+  ]
+}

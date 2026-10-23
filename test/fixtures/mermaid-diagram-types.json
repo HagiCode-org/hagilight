@@ -1,0 +1,186 @@
+{
+  "mermaid": "11.16.1",
+  "source": "Registered diagram ids of the installed mermaid (dist/mermaid.core.mjs lazy registrations). Each id is the value mermaid.detectType returns for the keyword sample in this file.",
+  "types": [
+    {
+      "id": "architecture",
+      "keyword": "architecture-beta",
+      "label": "Architecture"
+    },
+    {
+      "id": "block",
+      "keyword": "block-beta",
+      "label": "Block"
+    },
+    {
+      "id": "c4",
+      "keyword": "C4Context",
+      "label": "C4"
+    },
+    {
+      "id": "class",
+      "keyword": "classDiagram",
+      "label": "Class"
+    },
+    {
+      "id": "classDiagram",
+      "keyword": "classDiagram-v2",
+      "label": "Class (v2 keyword)"
+    },
+    {
+      "id": "cynefin",
+      "keyword": "cynefin-beta",
+      "label": "Cynefin"
+    },
+    {
+      "id": "er",
+      "keyword": "erDiagram",
+      "label": "Entity relationship"
+    },
+    {
+      "id": "eventmodeling",
+      "keyword": "eventmodeling",
+      "label": "Event modeling"
+    },
+    {
+      "id": "flowchart-v2",
+      "keyword": "flowchart",
+      "label": "Flowchart"
+    },
+    {
+      "id": "flowchart-elk",
+      "keyword": "flowchart-elk",
+      "label": "Flowchart (ELK layout)"
+    },
+    {
+      "id": "gantt",
+      "keyword": "gantt",
+      "label": "Gantt"
+    },
+    {
+      "id": "gitGraph",
+      "keyword": "gitGraph",
+      "label": "Git graph"
+    },
+    {
+      "id": "info",
+      "keyword": "info",
+      "label": "Info"
+    },
+    {
+      "id": "ishikawa",
+      "keyword": "ishikawa-beta",
+      "label": "Ishikawa"
+    },
+    {
+      "id": "journey",
+      "keyword": "journey",
+      "label": "User journey"
+    },
+    {
+      "id": "kanban",
+      "keyword": "kanban",
+      "label": "Kanban"
+    },
+    {
+      "id": "mindmap",
+      "keyword": "mindmap",
+      "label": "Mindmap"
+    },
+    {
+      "id": "packet",
+      "keyword": "packet-beta",
+      "label": "Packet"
+    },
+    {
+      "id": "pie",
+      "keyword": "pie",
+      "label": "Pie"
+    },
+    {
+      "id": "quadrantChart",
+      "keyword": "quadrantChart",
+      "label": "Quadrant chart"
+    },
+    {
+      "id": "radar",
+      "keyword": "radar-beta",
+      "label": "Radar"
+    },
+    {
+      "id": "railroad",
+      "keyword": "railroad-beta",
+      "label": "Railroad"
+    },
+    {
+      "id": "railroadAbnf",
+      "keyword": "railroad-abnf-beta",
+      "label": "Railroad (ABNF grammar)"
+    },
+    {
+      "id": "railroadEbnf",
+      "keyword": "railroad-ebnf-beta",
+      "label": "Railroad (EBNF grammar)"
+    },
+    {
+      "id": "railroadPeg",
+      "keyword": "railroad-peg-beta",
+      "label": "Railroad (PEG grammar)"
+    },
+    {
+      "id": "requirement",
+      "keyword": "requirementDiagram",
+      "label": "Requirement"
+    },
+    {
+      "id": "sankey",
+      "keyword": "sankey-beta",
+      "label": "Sankey"
+    },
+    {
+      "id": "sequence",
+      "keyword": "sequenceDiagram",
+      "label": "Sequence"
+    },
+    {
+      "id": "stateDiagram",
+      "keyword": "stateDiagram-v2",
+      "label": "State"
+    },
+    {
+      "id": "swimlane",
+      "keyword": "swimlane-beta",
+      "label": "Swimlane"
+    },
+    {
+      "id": "timeline",
+      "keyword": "timeline",
+      "label": "Timeline"
+    },
+    {
+      "id": "treeView",
+      "keyword": "treeView-beta",
+      "label": "Tree view"
+    },
+    {
+      "id": "treemap",
+      "keyword": "treemap-beta",
+      "label": "Treemap"
+    },
+    {
+      "id": "venn",
+      "keyword": "venn-beta",
+      "label": "Venn"
+    },
+    {
+      "id": "wardley",
+      "keyword": "wardley-beta",
+      "label": "Wardley map"
+    },
+    {
+      "id": "xychart",
+      "keyword": "xychart-beta",
+      "label": "XY chart"
+    }
+  ]
+}

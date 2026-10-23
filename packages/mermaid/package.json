@@ -1,0 +1,81 @@
+{
+  "name": "@hagicode/hagilight-mermaid",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Framework-agnostic Mermaid rendering with the HagiCode look: themes, presets, entrance reveal and path tracing for Astro, Starlight and Docusaurus sites",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HagiCode-org/hagilight.git",
+    "directory": "packages/mermaid"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "prepack": "tsc -b"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "default": "./dist/theme.js"
+    },
+    "./svg": {
+      "types": "./dist/svg.d.ts",
+      "default": "./dist/svg.js"
+    },
+    "./graph": {
+      "types": "./dist/graph.d.ts",
+      "default": "./dist/graph.js"
+    },
+    "./entrance": {
+      "types": "./dist/entrance.d.ts",
+      "default": "./dist/entrance.js"
+    },
+    "./interaction": {
+      "types": "./dist/interaction.d.ts",
+      "default": "./dist/interaction.js"
+    },
+    "./labels": {
+      "types": "./dist/labels.d.ts",
+      "default": "./dist/labels.js"
+    },
+    "./styles.css": "./styles.css",
+    "./styles/archify.css": "./styles/archify.css"
+  },
+  "files": [
+    "README.md",
+    "styles.css",
+    "styles/archify.css",
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "peerDependencies": {
+    "mermaid": "^11"
+  },
+  "keywords": [
+    "hagicode",
+    "hagicode-org",
+    "hagilight",
+    "mermaid",
+    "diagram",
+    "flowchart"
+  ],
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme",
+  "bugs": {
+    "url": "https://github.com/HagiCode-org/hagilight/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "HagiCode",
+    "url": "https://github.com/HagiCode-org"
+  }
+}

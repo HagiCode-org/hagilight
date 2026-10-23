@@ -1,0 +1,486 @@
+/*
+ * @hagicode/hagilight-mermaid base styles.
+ *
+ * Every selector is scoped under `.mermaid-container`. Colors come from `--hagilight-mermaid-*`
+ * custom properties. Each container resolves them once, with a built-in fallback for light and dark,
+ * so a site that defines no tokens still gets a readable diagram.
+ */
+
+.mermaid-container {
+  --hagilight-mermaid-ink: var(--hagilight-mermaid-foreground, #17212b);
+  --hagilight-mermaid-muted-ink: var(--hagilight-mermaid-muted-foreground, #64748b);
+  --hagilight-mermaid-line: var(--hagilight-mermaid-border, #e2e8f0);
+  --hagilight-mermaid-trace-down: var(--hagilight-mermaid-mm-down, var(--hagilight-mermaid-primary, #2563eb));
+  --hagilight-mermaid-trace-up: var(--hagilight-mermaid-mm-up, var(--hagilight-mermaid-status-warning, #d97706));
+  --hagilight-mermaid-surface: var(--hagilight-mermaid-card, #ffffff);
+  --hagilight-mermaid-hover: var(--hagilight-mermaid-accent, #f1f5f9);
+  --hagilight-mermaid-group: var(--hagilight-mermaid-muted, #f1f5f9);
+  --hagilight-mermaid-danger: var(--hagilight-mermaid-destructive, #dc2626);
+  --hagilight-mermaid-code-font: var(--hagilight-mermaid-app-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+  margin: 1rem 0;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+/* Dark mode resolves the same tokens to dark fallbacks. A site token still wins when it is defined. */
+.mermaid-container[data-mermaid-mode="dark"] {
+  --hagilight-mermaid-ink: var(--hagilight-mermaid-foreground, #f8fafc);
+  --hagilight-mermaid-muted-ink: var(--hagilight-mermaid-muted-foreground, #94a3b8);
+  --hagilight-mermaid-line: var(--hagilight-mermaid-border, #334155);
+  --hagilight-mermaid-trace-down: var(--hagilight-mermaid-mm-down, var(--hagilight-mermaid-primary, #60a5fa));
+  --hagilight-mermaid-trace-up: var(--hagilight-mermaid-mm-up, var(--hagilight-mermaid-status-warning, #fbbf24));
+  --hagilight-mermaid-surface: var(--hagilight-mermaid-card, #1f2937);
+  --hagilight-mermaid-hover: var(--hagilight-mermaid-accent, #334155);
+  --hagilight-mermaid-group: var(--hagilight-mermaid-muted, #1e293b);
+  --hagilight-mermaid-danger: var(--hagilight-mermaid-destructive, #f87171);
+}
+
+.mermaid-container .mermaid-diagram-container {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  width: 100%;
+  scrollbar-gutter: stable;
+  max-width: 100%;
+}
+
+.mermaid-container .mermaid-diagram-container svg {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  overflow: visible;
+}
+
+/* Default preset: subgraph fill, node shadow and the label halo. */
+.mermaid-container.mermaid-preset-default .mermaid-enhanced-svg .mermaid-subgraph {
+  fill: color-mix(in srgb, var(--hagilight-mermaid-group, #f1f5f9) 30%, transparent);
+  stroke: var(--hagilight-mermaid-line, #e2e8f0);
+  stroke-width: 1.25px;
+}
+
+.mermaid-container.mermaid-preset-default .mermaid-enhanced-svg .mermaid-node-core {
+  filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--hagilight-mermaid-ink, #17212b) 18%, transparent));
+}
+
+.mermaid-container.mermaid-preset-default .mermaid-diagram-container svg text {
+  paint-order: stroke fill;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mermaid-container[data-mermaid-mode="dark"].mermaid-preset-default .mermaid-diagram-container svg text {
+  stroke: #1e1e1e;
+}
+
+/*
+ * Path tracing. A node under the pointer or keyboard focus lights its upstream (what it depends on)
+ * and downstream (what depends on it) chains; everything else steps back. Direction is carried by
+ * hop badges (+n downstream, -n upstream) and the chip text, so colour is never the only signal.
+ */
+.mermaid-container .mermaid-enhanced-svg .mermaid-node,
+.mermaid-container .mermaid-enhanced-svg .mermaid-subgraph,
+.mermaid-container .mermaid-enhanced-svg .mermaid-edge-label {
+  transition: opacity 160ms ease, filter 160ms ease;
+}
+
+.mermaid-container .mermaid-enhanced-svg .mermaid-edge {
+  transition: opacity 160ms ease, stroke 160ms ease, stroke-width 160ms ease;
+}
+
+.mermaid-container .mermaid-enhanced-svg .mermaid-node {
+  cursor: pointer;
+}
+
+.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus {
+  outline: none;
+}
+
+.mermaid-container .mermaid-enhanced-svg .mermaid-node:focus-visible {
+  outline: 2px solid var(--hagilight-mermaid-trace-down, #2563eb);
+  outline-offset: 3px;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-trace-dim {
+  opacity: 0.3;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-trace-focus {
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--hagilight-mermaid-ink, #17212b) 24%, transparent));
+}
+
+.mermaid-container .mermaid-tracing .mermaid-trace-focus > :is(rect, polygon, circle, ellipse, path) {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb) !important;
+  stroke-width: 2.5px !important;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-trace-up > :is(rect, polygon, circle, ellipse, path) {
+  stroke: var(--hagilight-mermaid-trace-up, #d97706) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-trace-down > :is(rect, polygon, circle, ellipse, path) {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-edge.mermaid-trace-edge-up {
+  stroke: var(--hagilight-mermaid-trace-up, #d97706) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid-container .mermaid-tracing .mermaid-edge.mermaid-trace-edge-down {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid-container .mermaid-trace-hop {
+  pointer-events: none;
+}
+
+/* Mermaid's own `#id .node rect` rule outranks any class selector, hence !important. */
+.mermaid-container .mermaid-trace-hop rect {
+  fill: var(--hagilight-mermaid-surface, #ffffff) !important;
+  stroke-width: 1.5px !important;
+}
+
+.mermaid-container .mermaid-trace-hop-down rect {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb) !important;
+}
+
+.mermaid-container .mermaid-trace-hop-up rect {
+  stroke: var(--hagilight-mermaid-trace-up, #d97706) !important;
+}
+
+.mermaid-container .mermaid-diagram-container .mermaid-trace-hop text {
+  fill: var(--hagilight-mermaid-ink, #17212b) !important;
+  stroke: none !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.mermaid-container .mermaid-trace-layer {
+  pointer-events: none;
+}
+
+.mermaid-container .mermaid-trace-comet {
+  fill: none;
+  stroke-width: 3.5px;
+  stroke-linecap: butt;
+}
+
+.mermaid-container .mermaid-trace-comet-down {
+  stroke: var(--hagilight-mermaid-trace-down, #2563eb);
+}
+
+.mermaid-container .mermaid-trace-comet-up {
+  stroke: var(--hagilight-mermaid-trace-up, #d97706);
+}
+
+.mermaid-container .mermaid-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  padding: 0.5rem 0.5rem 0;
+}
+
+.mermaid-container .mermaid-toolbar + .mermaid-diagram-container {
+  padding-top: 0.25rem;
+}
+
+.mermaid-container .mermaid-trace-status {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.mermaid-container .mermaid-trace-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--hagilight-mermaid-line, #e2e8f0);
+  border-radius: 8px;
+  background: var(--hagilight-mermaid-surface, #ffffff);
+  color: var(--hagilight-mermaid-ink, #17212b);
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  animation: mermaid-chip-in 160ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.mermaid-container .mermaid-trace-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mermaid-container .mermaid-trace-chip-count {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  white-space: nowrap;
+}
+
+.mermaid-container .mermaid-trace-chip-count::before {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--hagilight-mermaid-trace-down, #2563eb);
+  content: "";
+}
+
+.mermaid-container .mermaid-trace-chip-up::before {
+  background: var(--hagilight-mermaid-trace-up, #d97706);
+}
+
+.mermaid-container .mermaid-trace-chip-pin,
+.mermaid-container .mermaid-trace-chip-clear svg,
+.mermaid-container .mermaid-replay svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.mermaid-container .mermaid-trace-chip-pin {
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+}
+
+.mermaid-container .mermaid-trace-chip-clear,
+.mermaid-container .mermaid-replay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  cursor: pointer;
+}
+
+.mermaid-container .mermaid-trace-chip-clear {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mermaid-container .mermaid-trace-chip-clear:hover,
+.mermaid-container .mermaid-replay:hover {
+  background: var(--hagilight-mermaid-hover, #f1f5f9);
+  color: var(--hagilight-mermaid-ink, #17212b);
+}
+
+.mermaid-container .mermaid-trace-chip-clear:focus-visible,
+.mermaid-container .mermaid-replay:focus-visible {
+  outline: 2px solid var(--hagilight-mermaid-trace-down, #2563eb);
+  outline-offset: 1px;
+}
+
+.mermaid-container .mermaid-replay {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+@media (pointer: coarse) {
+  .mermaid-container .mermaid-replay {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+/* A phone-width chip wraps its counts under the name; the row reserves both lines so nothing jumps. */
+@media (max-width: 480px) {
+  .mermaid-container .mermaid-toolbar {
+    min-height: 2.75rem;
+    align-items: flex-start;
+  }
+
+  .mermaid-container .mermaid-trace-chip {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+
+  .mermaid-container .mermaid-trace-chip-name {
+    max-width: 100%;
+  }
+}
+
+@keyframes mermaid-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-container .mermaid-enhanced-svg .mermaid-node,
+  .mermaid-container .mermaid-enhanced-svg .mermaid-subgraph,
+  .mermaid-container .mermaid-enhanced-svg .mermaid-edge,
+  .mermaid-container .mermaid-enhanced-svg .mermaid-edge-label,
+  .mermaid-container .mermaid-replay {
+    transition: none;
+  }
+
+  .mermaid-container .mermaid-trace-chip {
+    animation: none;
+  }
+}
+
+/* Loading state. */
+.mermaid-container .mermaid-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  background: var(--hagilight-mermaid-surface, #ffffff);
+  border-radius: 8px;
+  border: 1px solid var(--hagilight-mermaid-line, #e2e8f0);
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+}
+
+.mermaid-container .mermaid-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--hagilight-mermaid-line, #e2e8f0);
+  border-top: 3px solid var(--hagilight-mermaid-trace-down, #2563eb);
+  border-radius: 50%;
+  animation: mermaid-spin 1s linear infinite;
+}
+
+@keyframes mermaid-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state. */
+.mermaid-container .mermaid-error-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.mermaid-container .mermaid-error-icon {
+  flex-shrink: 0;
+  color: var(--hagilight-mermaid-danger, #dc2626);
+  margin-top: 2px;
+}
+
+.mermaid-container .mermaid-error-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.mermaid-container .mermaid-error-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mermaid-container .mermaid-error-title {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--hagilight-mermaid-ink, #17212b);
+  line-height: 1.5;
+}
+
+.mermaid-container .mermaid-error-message {
+  margin: 0 0 12px 0;
+  font-size: 0.875rem;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.mermaid-container .mermaid-error-details {
+  margin: 0;
+}
+
+.mermaid-container .mermaid-error-details summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--hagilight-mermaid-ink, #17212b);
+  padding: 4px 8px;
+  background: var(--hagilight-mermaid-group, #f1f5f9);
+  border: 1px solid var(--hagilight-mermaid-line, #e2e8f0);
+  border-radius: 4px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.mermaid-container .mermaid-error-details summary:hover {
+  background: var(--hagilight-mermaid-hover, #f1f5f9);
+}
+
+.mermaid-container .mermaid-error-details[open] {
+  margin-top: 8px;
+}
+
+.mermaid-container .mermaid-error-details[open] summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-bottom: -1px;
+}
+
+.mermaid-container .mermaid-error-code {
+  margin: 0;
+  padding: 12px;
+  background: #1a202c;
+  color: #e2e8f0;
+  font-family: var(--hagilight-mermaid-code-font, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  border-radius: 4px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Narrow screens: the diagram aligns to the start and the error stacks. */
+@media (max-width: 1023px) {
+  .mermaid-container .mermaid-diagram-container {
+    justify-content: flex-start;
+    padding-inline: 0.25rem;
+  }
+
+  .mermaid-container .mermaid-diagram-container svg {
+    width: 100%;
+  }
+
+  .mermaid-container .mermaid-error-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .mermaid-container .mermaid-error-icon {
+    align-self: center;
+  }
+}

@@ -1,0 +1,89 @@
+---
+import '@hagicode/hagilight-mermaid/styles/archify.css';
+import types from '../../../../test/fixtures/mermaid-diagram-types.json';
+import { MERMAID_SAMPLES } from '../mermaid-samples';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mermaid diagrams · Hagilight demo</title>
+    <style>
+      body {
+        margin: 0;
+        background: #ffffff;
+        color: #17212b;
+        font-family: system-ui, sans-serif;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      fieldset {
+        display: inline-flex;
+        gap: 12px;
+        align-items: center;
+        margin: 0 0 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 6px 12px;
+      }
+      section {
+        margin: 24px 0;
+      }
+      /* The page follows the diagram mode: an explicit mode sets data-theme, auto follows the system. */
+      html[data-theme="dark"] body {
+        background: #111827;
+        color: #f8fafc;
+      }
+      html[data-theme="dark"] h2 code {
+        color: #94a3b8;
+      }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme]) body {
+          background: #111827;
+          color: #f8fafc;
+        }
+        html:not([data-theme]) h2 code {
+          color: #94a3b8;
+        }
+      }
+      h2 code {
+        margin-left: 8px;
+        font-size: 0.8em;
+        color: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Mermaid diagrams</h1>
+      <p>
+        One large sample for each diagram type that Mermaid {types.mermaid} registers, rendered by
+        <code>@hagicode/hagilight-mermaid</code>. Graph types show the trace toolbar.
+      </p>
+      <fieldset>
+        <legend>Mode</legend>
+        <label><input type="radio" name="mermaid-mode" value="auto" checked /> Auto</label>
+        <label><input type="radio" name="mermaid-mode" value="light" /> Light</label>
+        <label><input type="radio" name="mermaid-mode" value="dark" /> Dark</label>
+      </fieldset>
+      <fieldset>
+        <legend>Preset</legend>
+        <label><input type="radio" name="mermaid-preset" value="default" checked /> Default</label>
+        <label><input type="radio" name="mermaid-preset" value="archify" /> Archify</label>
+      </fieldset>
+      {types.types.map((type) => (
+        <section data-mermaid-type={type.id}>
+          <h2>{type.label}<code>{type.keyword}</code></h2>
+          <pre class="mermaid">{MERMAID_SAMPLES[type.id]}</pre>
+        </section>
+      ))}
+    </main>
+    <script>
+      import '../scripts/mermaid-demo.ts';
+    </script>
+  </body>
+</html>

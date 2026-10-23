@@ -1,0 +1,20 @@
+{
+  "stubs": {
+    "linked": { "nodes": ["A", "B", "C"], "edges": [["A", "B", "auth"], ["B", "C"]] },
+    "underscores": { "nodes": ["read_db", "api"], "edges": [["api", "read_db"]] },
+    "ambiguous": { "nodes": ["a", "b_c", "a_b", "c"], "edges": [["a", "b_c"]] },
+    "diamond": { "nodes": ["A", "B", "C", "D", "E"], "edges": [["A", "B"], ["B", "C"], ["B", "D"], ["D", "E"], ["A", "D"]] },
+    "loop": { "nodes": ["A", "B", "C"], "edges": [["A", "B"], ["B", "C"], ["C", "B"]] },
+    "cycle": { "nodes": ["A", "B"], "edges": [["A", "B"], ["B", "A"]] },
+    "layered": { "nodes": ["A", "B", "C", "D"], "edges": [["A", "B"], ["B", "C"], ["A", "C"], ["C", "D"]] },
+    "trace": { "nodes": ["A", "B", "C", "D"], "edges": [["A", "B"], ["B", "C"]] },
+    "pair": { "nodes": ["A", "B"], "edges": [["A", "B"]] }
+  },
+  "charts": {
+    "flowchart": "flowchart LR\n  A[Parser] --> B{Graph}\n  B -->|yes| C[Render]\n  B -->|no| D[Skip]\n  C --> E[Done]\n  D --> E",
+    "sequence": "sequenceDiagram\n  participant U as User\n  participant A as App\n  U->>A: open\n  A-->>U: ok",
+    "class": "classDiagram\n  Animal <|-- Duck\n  Animal : +int age\n  Duck : +swim()",
+    "state": "stateDiagram-v2\n  [*] --> Still\n  Still --> Moving\n  Moving --> [*]",
+    "pie": "pie title Pets\n  \"Dogs\" : 386\n  \"Cats\" : 85"
+  }
+}
