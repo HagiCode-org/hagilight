@@ -1,0 +1,512 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mermaid diagrams · Hagilight demo</title><link rel="stylesheet" href="/_astro/mermaid.C6icaxrE.css"><link rel="stylesheet" href="/_astro/mermaid.przZGr9w.css"><script>(() => {
+  if (window.__hagilightPosthogInitialized) return;
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init("phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5", {"api_host":"https://us.i.posthog.com","defaults":"2026-05-30"});
+  window.__hagilightPosthogInitialized = true;
+})();</script></head><body><main><header class="intro"><div><h1>Mermaid diagrams</h1><p>One sample for each diagram type that Mermaid 11.16.1 registers, rendered by<code>@hagicode/hagilight-mermaid</code>. Each diagram reveals itself in the order its type reads. Hover a part to follow it through the diagram, or click a tile to enlarge it.</p></div><div class="controls"><fieldset><legend>Mode</legend><label class="seg"><input type="radio" name="mermaid-mode" value="auto" checked><span>Auto</span></label><label class="seg"><input type="radio" name="mermaid-mode" value="light"><span>Light</span></label><label class="seg"><input type="radio" name="mermaid-mode" value="dark"><span>Dark</span></label></fieldset><fieldset><legend>Preset</legend><label class="seg"><input type="radio" name="mermaid-preset" value="default" checked><span>Default</span></label><label class="seg"><input type="radio" name="mermaid-preset" value="archify"><span>Archify</span></label></fieldset><p class="tip">In the enlarged view: scroll to zoom, drag to move, <kbd>0</kbd> fits, <kbd>1</kbd> shows actual size, <kbd>Esc</kbd> closes.</p></div></header><div class="grid"><section class="tile" data-mermaid-type="architecture"><h2>Architecture<code>architecture-beta</code></h2><div class="stage"><pre class="mermaid">architecture-beta
+  group cloud(cloud)[Cloud]
+  group edge(internet)[Edge] in cloud
+  service web(server)[Web] in edge
+  service api(server)[API] in cloud
+  service db(database)[Database] in cloud
+  service cache(disk)[Cache] in cloud
+  service queue(server)[Queue] in cloud
+  web:R --&gt; L:api
+  api:B --&gt; T:db
+  api:R --&gt; L:cache
+  api:B --&gt; T:queue</pre></div></section><section class="tile" data-mermaid-type="block"><h2>Block<code>block-beta</code></h2><div class="stage"><pre class="mermaid">block-beta
+  columns 3
+  a[&quot;Ingest&quot;] b[&quot;Parse&quot;] c[&quot;Store&quot;]
+  d(&quot;Queue&quot;) space e{{&quot;Route&quot;}}
+  f[&quot;Render&quot;]:2 g[(&quot;Index&quot;)]
+  a --&gt; b
+  b --&gt; c
+  b --&gt; d
+  d --&gt; e
+  e --&gt; f
+  f --&gt; g</pre></div></section><section class="tile" data-mermaid-type="c4"><h2>C4<code>C4Context</code></h2><div class="stage"><pre class="mermaid">C4Context
+  title System context
+  Person(user, &quot;User&quot;, &quot;Writes docs&quot;)
+  System(app, &quot;Docs Site&quot;, &quot;Renders diagrams&quot;)
+  System_Ext(mail, &quot;Mail&quot;, &quot;Sends notices&quot;)
+  SystemDb(db, &quot;Store&quot;, &quot;Holds pages&quot;)
+  Rel(user, app, &quot;Uses&quot;)
+  Rel(app, db, &quot;Reads and writes&quot;)
+  Rel(app, mail, &quot;Notifies&quot;)</pre></div></section><section class="tile tile-tall" data-mermaid-type="class"><h2>Class<code>classDiagram</code></h2><div class="stage"><pre class="mermaid">classDiagram
+  class Animal {
+    +int age
+    +String name
+    +eat() void
+  }
+  class Duck {
+    +swim() void
+    +quack() void
+  }
+  class Fish
+  class Pond {
+    +int depth
+  }
+  Animal &lt;|-- Duck
+  Animal &lt;|-- Fish
+  Duck --&gt; Pond : lives in
+  Fish &quot;1&quot; --o &quot;*&quot; Pond : swims in</pre></div></section><section class="tile tile-tall" data-mermaid-type="classDiagram"><h2>Class (v2 keyword)<code>classDiagram-v2</code></h2><div class="stage"><pre class="mermaid">classDiagram-v2
+  class Shape {
+    &lt;&lt;interface&gt;&gt;
+    +area() double
+  }
+  class Circle {
+    +double radius
+  }
+  class Square {
+    +double side
+  }
+  class Canvas
+  Shape &lt;|.. Circle
+  Shape &lt;|.. Square
+  Canvas o-- Shape : draws
+  Canvas *-- Square : owns</pre></div></section><section class="tile" data-mermaid-type="cynefin"><h2>Cynefin<code>cynefin-beta</code></h2><div class="stage"><pre class="mermaid">cynefin-beta
+  clear
+    &quot;Standard process&quot;
+    &quot;Routine request&quot;
+  complicated
+    &quot;Expert review&quot;
+    &quot;Architecture change&quot;
+  complex
+    &quot;New market&quot;
+  chaotic
+    &quot;Outage&quot;</pre></div></section><section class="tile tile-tall" data-mermaid-type="er"><h2>Entity relationship<code>erDiagram</code></h2><div class="stage"><pre class="mermaid">erDiagram
+  CUSTOMER ||--o{ ORDER : places
+  ORDER ||--|{ LINE_ITEM : contains
+  PRODUCT ||--o{ LINE_ITEM : &quot;is sold as&quot;
+  CUSTOMER {
+    string name
+    string email PK
+    int loyalty_points
+  }
+  ORDER {
+    int id PK
+    date placed_at
+    string status
+  }
+  LINE_ITEM {
+    int quantity
+    decimal price
+  }
+  PRODUCT {
+    string sku PK
+    string title
+    decimal list_price
+  }</pre></div></section><section class="tile tile-wide" data-mermaid-type="eventmodeling"><h2>Event modeling<code>eventmodeling</code></h2><div class="stage"><pre class="mermaid">eventmodeling
+  tf 01 cmd CreateOrder
+  tf 02 evt OrderCreated
+  tf 03 rmo OrderSummary
+  tf 04 cmd ShipOrder
+  tf 05 evt OrderShipped</pre></div></section><section class="tile tile-wide" data-mermaid-type="flowchart-v2"><h2>Flowchart<code>flowchart</code></h2><div class="stage"><pre class="mermaid">flowchart LR
+  subgraph ingest_group[&quot;INGEST stage&quot;]
+    ingest0[&quot;ingest step 0&quot;]
+    ingest1[&quot;ingest step 1&quot;]
+    ingest2[&quot;ingest step 2&quot;]
+    ingest3[&quot;ingest step 3&quot;]
+    ingest4[&quot;ingest step 4&quot;]
+    ingest5[&quot;ingest step 5&quot;]
+    ingest6[&quot;ingest step 6&quot;]
+    ingest7[&quot;ingest step 7&quot;]
+    ingest8[&quot;ingest step 8&quot;]
+    ingest9[&quot;ingest step 9&quot;]
+    ingest10[&quot;ingest step 10&quot;]
+    ingest11[&quot;ingest step 11&quot;]
+    ingest12[&quot;ingest step 12&quot;]
+    ingest13[&quot;ingest step 13&quot;]
+    ingest14[&quot;ingest step 14&quot;]
+    ingest15[&quot;ingest step 15&quot;]
+    ingest16[&quot;ingest step 16&quot;]
+    ingest17[&quot;ingest step 17&quot;]
+  end
+  subgraph parse_group[&quot;PARSE stage&quot;]
+    parse0[&quot;parse step 0&quot;]
+    parse1[&quot;parse step 1&quot;]
+    parse2[&quot;parse step 2&quot;]
+    parse3[&quot;parse step 3&quot;]
+    parse4[&quot;parse step 4&quot;]
+    parse5[&quot;parse step 5&quot;]
+    parse6[&quot;parse step 6&quot;]
+    parse7[&quot;parse step 7&quot;]
+    parse8[&quot;parse step 8&quot;]
+    parse9[&quot;parse step 9&quot;]
+    parse10[&quot;parse step 10&quot;]
+    parse11[&quot;parse step 11&quot;]
+    parse12[&quot;parse step 12&quot;]
+    parse13[&quot;parse step 13&quot;]
+    parse14[&quot;parse step 14&quot;]
+    parse15[&quot;parse step 15&quot;]
+    parse16[&quot;parse step 16&quot;]
+    parse17[&quot;parse step 17&quot;]
+  end
+  subgraph index_group[&quot;INDEX stage&quot;]
+    index0[&quot;index step 0&quot;]
+    index1[&quot;index step 1&quot;]
+    index2[&quot;index step 2&quot;]
+    index3[&quot;index step 3&quot;]
+    index4[&quot;index step 4&quot;]
+    index5[&quot;index step 5&quot;]
+    index6[&quot;index step 6&quot;]
+    index7[&quot;index step 7&quot;]
+    index8[&quot;index step 8&quot;]
+    index9[&quot;index step 9&quot;]
+    index10[&quot;index step 10&quot;]
+    index11[&quot;index step 11&quot;]
+    index12[&quot;index step 12&quot;]
+    index13[&quot;index step 13&quot;]
+    index14[&quot;index step 14&quot;]
+    index15[&quot;index step 15&quot;]
+    index16[&quot;index step 16&quot;]
+    index17[&quot;index step 17&quot;]
+  end
+  subgraph rank_group[&quot;RANK stage&quot;]
+    rank0[&quot;rank step 0&quot;]
+    rank1[&quot;rank step 1&quot;]
+    rank2[&quot;rank step 2&quot;]
+    rank3[&quot;rank step 3&quot;]
+    rank4[&quot;rank step 4&quot;]
+    rank5[&quot;rank step 5&quot;]
+    rank6[&quot;rank step 6&quot;]
+    rank7[&quot;rank step 7&quot;]
+    rank8[&quot;rank step 8&quot;]
+    rank9[&quot;rank step 9&quot;]
+    rank10[&quot;rank step 10&quot;]
+    rank11[&quot;rank step 11&quot;]
+    rank12[&quot;rank step 12&quot;]
+    rank13[&quot;rank step 13&quot;]
+    rank14[&quot;rank step 14&quot;]
+    rank15[&quot;rank step 15&quot;]
+    rank16[&quot;rank step 16&quot;]
+    rank17[&quot;rank step 17&quot;]
+  end
+  subgraph render_group[&quot;RENDER stage&quot;]
+    render0[&quot;render step 0&quot;]
+    render1[&quot;render step 1&quot;]
+    render2[&quot;render step 2&quot;]
+    render3[&quot;render step 3&quot;]
+    render4[&quot;render step 4&quot;]
+    render5[&quot;render step 5&quot;]
+    render6[&quot;render step 6&quot;]
+    render7[&quot;render step 7&quot;]
+    render8[&quot;render step 8&quot;]
+    render9[&quot;render step 9&quot;]
+    render10[&quot;render step 10&quot;]
+    render11[&quot;render step 11&quot;]
+    render12[&quot;render step 12&quot;]
+    render13[&quot;render step 13&quot;]
+    render14[&quot;render step 14&quot;]
+    render15[&quot;render step 15&quot;]
+    render16[&quot;render step 16&quot;]
+    render17[&quot;render step 17&quot;]
+  end
+  ingest17 --&gt; parse0
+  parse17 --&gt; index0
+  index17 --&gt; rank0
+  rank17 --&gt; render0
+  ingest0 --&gt; ingest1
+  ingest1 --&gt; ingest2
+  ingest2 --&gt; ingest3
+  ingest3 --&gt; ingest4
+  ingest4 --&gt; ingest5
+  ingest5 --&gt; ingest6
+  ingest6 --&gt; ingest7
+  ingest7 --&gt; ingest8
+  ingest8 --&gt; ingest9
+  ingest9 --&gt; ingest10
+  ingest10 --&gt; ingest11
+  ingest11 --&gt; ingest12
+  ingest12 --&gt; ingest13
+  ingest13 --&gt; ingest14
+  ingest14 --&gt; ingest15
+  ingest15 --&gt; ingest16
+  ingest16 --&gt; ingest17
+  parse0 --&gt; parse1
+  parse1 --&gt; parse2
+  parse2 --&gt; parse3
+  parse3 --&gt; parse4
+  parse4 --&gt; parse5
+  parse5 --&gt; parse6
+  parse6 --&gt; parse7
+  parse7 --&gt; parse8
+  parse8 --&gt; parse9
+  parse9 --&gt; parse10
+  parse10 --&gt; parse11
+  parse11 --&gt; parse12
+  parse12 --&gt; parse13
+  parse13 --&gt; parse14
+  parse14 --&gt; parse15
+  parse15 --&gt; parse16
+  parse16 --&gt; parse17
+  index0 --&gt; index1
+  index1 --&gt; index2
+  index2 --&gt; index3
+  index3 --&gt; index4
+  index4 --&gt; index5
+  index5 --&gt; index6
+  index6 --&gt; index7
+  index7 --&gt; index8
+  index8 --&gt; index9
+  index9 --&gt; index10
+  index10 --&gt; index11
+  index11 --&gt; index12
+  index12 --&gt; index13
+  index13 --&gt; index14
+  index14 --&gt; index15
+  index15 --&gt; index16
+  index16 --&gt; index17
+  rank0 --&gt; rank1
+  rank1 --&gt; rank2
+  rank2 --&gt; rank3
+  rank3 --&gt; rank4
+  rank4 --&gt; rank5
+  rank5 --&gt; rank6
+  rank6 --&gt; rank7
+  rank7 --&gt; rank8
+  rank8 --&gt; rank9
+  rank9 --&gt; rank10
+  rank10 --&gt; rank11
+  rank11 --&gt; rank12
+  rank12 --&gt; rank13
+  rank13 --&gt; rank14
+  rank14 --&gt; rank15
+  rank15 --&gt; rank16
+  rank16 --&gt; rank17
+  render0 --&gt; render1
+  render1 --&gt; render2
+  render2 --&gt; render3
+  render3 --&gt; render4
+  render4 --&gt; render5
+  render5 --&gt; render6
+  render6 --&gt; render7
+  render7 --&gt; render8
+  render8 --&gt; render9
+  render9 --&gt; render10
+  render10 --&gt; render11
+  render11 --&gt; render12
+  render12 --&gt; render13
+  render13 --&gt; render14
+  render14 --&gt; render15
+  render15 --&gt; render16
+  render16 --&gt; render17
+  render17 -. retry .-&gt; ingest0</pre></div></section><section class="tile" data-mermaid-type="flowchart-elk"><h2>Flowchart (ELK layout)<code>flowchart-elk</code></h2><div class="stage"><pre class="mermaid">flowchart-elk LR
+  subgraph frontend[&quot;Frontend&quot;]
+    ui[&quot;Editor&quot;] --&gt; preview[&quot;Preview&quot;]
+  end
+  subgraph backend[&quot;Backend&quot;]
+    api[&quot;API&quot;] --&gt; worker[&quot;Worker&quot;]
+    worker --&gt; store[(&quot;Store&quot;)]
+  end
+  preview --&gt; api
+  api --&gt; ui</pre></div></section><section class="tile tile-wide" data-mermaid-type="gantt"><h2>Gantt<code>gantt</code></h2><div class="stage"><pre class="mermaid">gantt
+  title Release plan
+  dateFormat YYYY-MM-DD
+  section Design
+  Research :done, r1, 2026-01-01, 7d
+  Prototype :active, p1, after r1, 5d
+  section Build
+  Core :c1, after p1, 10d
+  Web :w1, after p1, 8d
+  Tests :t1, after c1, 4d
+  section Launch
+  Docs :d1, after w1, 3d
+  Release :milestone, m1, after t1, 0d</pre></div></section><section class="tile" data-mermaid-type="gitGraph"><h2>Git graph<code>gitGraph</code></h2><div class="stage"><pre class="mermaid">gitGraph
+  commit id: &quot;init&quot;
+  branch develop
+  checkout develop
+  commit id: &quot;feat-a&quot;
+  commit id: &quot;feat-b&quot;
+  checkout main
+  commit id: &quot;hotfix&quot;
+  merge develop
+  branch release
+  commit id: &quot;rc1&quot;
+  checkout main
+  merge release tag: &quot;v1.0&quot;</pre></div></section><section class="tile" data-mermaid-type="info"><h2>Info<code>info</code></h2><div class="stage"><pre class="mermaid">info showInfo</pre></div></section><section class="tile tile-tall" data-mermaid-type="ishikawa"><h2>Ishikawa<code>ishikawa-beta</code></h2><div class="stage"><pre class="mermaid">ishikawa-beta
+  Slow release
+    Process
+      Manual steps
+      Review queue
+    People
+      Few reviewers
+    Tooling
+      Flaky tests</pre></div></section><section class="tile" data-mermaid-type="journey"><h2>User journey<code>journey</code></h2><div class="stage"><pre class="mermaid">journey
+  title Onboarding
+  section Sign up
+    Open page: 5: User
+    Create account: 3: User
+  section Setup
+    Install CLI: 2: User, Admin
+    Configure: 4: User
+  section Use
+    First run: 5: User</pre></div></section><section class="tile" data-mermaid-type="kanban"><h2>Kanban<code>kanban</code></h2><div class="stage"><pre class="mermaid">kanban
+  Todo
+    t1[Write spec]
+    t2[Review draft]
+  In progress
+    t3[Build feature]
+  Done
+    t4[Ship release]
+    t5[Update docs]</pre></div></section><section class="tile" data-mermaid-type="mindmap"><h2>Mindmap<code>mindmap</code></h2><div class="stage"><pre class="mermaid">mindmap
+  root((Hagilight))
+    Packages
+      core
+      astro
+      starlight
+      docusaurus
+      mermaid
+    Demo
+      pages
+      samples
+    Release
+      npm
+      CI</pre></div></section><section class="tile tile-wide" data-mermaid-type="packet"><h2>Packet<code>packet-beta</code></h2><div class="stage"><pre class="mermaid">packet-beta
+  title TCP header
+  0-15: &quot;Source port&quot;
+  16-31: &quot;Destination port&quot;
+  32-63: &quot;Sequence number&quot;
+  64-95: &quot;Acknowledgment number&quot;
+  96-99: &quot;Offset&quot;
+  100-105: &quot;Reserved&quot;
+  106-111: &quot;Flags&quot;
+  112-127: &quot;Window&quot;</pre></div></section><section class="tile" data-mermaid-type="pie"><h2>Pie<code>pie</code></h2><div class="stage"><pre class="mermaid">pie showData title Pets adopted
+  &quot;Dogs&quot; : 386
+  &quot;Cats&quot; : 85
+  &quot;Rats&quot; : 15
+  &quot;Birds&quot; : 5</pre></div></section><section class="tile" data-mermaid-type="quadrantChart"><h2>Quadrant chart<code>quadrantChart</code></h2><div class="stage"><pre class="mermaid">quadrantChart
+  title Reach and engagement
+  x-axis Low reach --&gt; High reach
+  y-axis Low engagement --&gt; High engagement
+  quadrant-1 We should expand
+  quadrant-2 Need to promote
+  quadrant-3 Re-evaluate
+  quadrant-4 May be improved
+  Campaign A: [0.3, 0.6]
+  Campaign B: [0.45, 0.23]
+  Campaign C: [0.57, 0.69]
+  Campaign D: [0.78, 0.34]
+  Campaign E: [0.4, 0.34]
+  Campaign F: [0.35, 0.78]</pre></div></section><section class="tile" data-mermaid-type="radar"><h2>Radar<code>radar-beta</code></h2><div class="stage"><pre class="mermaid">radar-beta
+  title Skills
+  axis a[&quot;Design&quot;], b[&quot;Code&quot;], c[&quot;Test&quot;], d[&quot;Docs&quot;], e[&quot;Ops&quot;]
+  curve team1[&quot;Team A&quot;]{ 4, 3, 5, 2, 3 }
+  curve team2[&quot;Team B&quot;]{ 2, 5, 3, 4, 4 }
+  max 5</pre></div></section><section class="tile" data-mermaid-type="railroad"><h2>Railroad<code>railroad-beta</code></h2><div class="stage"><pre class="mermaid">railroad-beta
+  expression = sequence(terminal(&quot;a&quot;), nonterminal(&quot;b&quot;)) ;</pre></div></section><section class="tile" data-mermaid-type="railroadAbnf"><h2>Railroad (ABNF grammar)<code>railroad-abnf-beta</code></h2><div class="stage"><pre class="mermaid">railroad-abnf-beta
+  title Rule
+  rule = &quot;a&quot; / &quot;b&quot; ;</pre></div></section><section class="tile" data-mermaid-type="railroadEbnf"><h2>Railroad (EBNF grammar)<code>railroad-ebnf-beta</code></h2><div class="stage"><pre class="mermaid">railroad-ebnf-beta
+  title Identifier
+  identifier = letter, { letter | digit } ;</pre></div></section><section class="tile" data-mermaid-type="railroadPeg"><h2>Railroad (PEG grammar)<code>railroad-peg-beta</code></h2><div class="stage"><pre class="mermaid">railroad-peg-beta
+  pair &lt;- key &quot;:&quot; value ;</pre></div></section><section class="tile" data-mermaid-type="requirement"><h2>Requirement<code>requirementDiagram</code></h2><div class="stage"><pre class="mermaid">requirementDiagram
+  requirement login_req {
+    id: 1
+    text: The system shall authenticate users.
+    risk: high
+    verifymethod: test
+  }
+  element login_test {
+    type: simulation
+  }
+  element auth_service {
+    type: module
+  }
+  login_test - verifies -&gt; login_req
+  auth_service - satisfies -&gt; login_req</pre></div></section><section class="tile tile-wide" data-mermaid-type="sankey"><h2>Sankey<code>sankey-beta</code></h2><div class="stage"><pre class="mermaid">sankey-beta
+Agriculture,Food processing,60
+Agriculture,Exports,20
+Food processing,Households,30
+Food processing,Restaurants,25
+Food processing,Waste,5
+Exports,Overseas,20</pre></div></section><section class="tile tile-tall" data-mermaid-type="sequence"><h2>Sequence<code>sequenceDiagram</code></h2><div class="stage"><pre class="mermaid">sequenceDiagram
+  autonumber
+  participant U as User
+  participant W as Web
+  participant A as API
+  participant D as Database
+  U-&gt;&gt;W: Open page
+  W-&gt;&gt;A: GET /pages
+  loop every refresh
+    A-&gt;&gt;D: query
+    D--&gt;&gt;A: rows
+  end
+  alt cache hit
+    A--&gt;&gt;W: cached
+  else cache miss
+    A-&gt;&gt;D: fetch
+    D--&gt;&gt;A: result
+    A--&gt;&gt;W: fresh
+  end
+  opt error
+    A--xW: failed
+  end
+  Note over W,A: rendered in place
+  par notify
+    W--&gt;&gt;U: show
+  and log
+    A-&gt;&gt;A: write log
+  end</pre></div></section><section class="tile tile-tall" data-mermaid-type="stateDiagram"><h2>State<code>stateDiagram-v2</code></h2><div class="stage"><pre class="mermaid">stateDiagram-v2
+  [*] --&gt; Idle
+  Idle --&gt; Loading : fetch
+  state Loading {
+    [*] --&gt; Queued
+    Queued --&gt; Running
+    Running --&gt; [*]
+  }
+  Loading --&gt; Ready : done
+  Loading --&gt; Failed : error
+  Failed --&gt; Idle : retry
+  Ready --&gt; [*]
+  note right of Ready : terminal</pre></div></section><section class="tile tile-tall" data-mermaid-type="swimlane"><h2>Swimlane<code>swimlane-beta</code></h2><div class="stage"><pre class="mermaid">swimlane-beta
+  a1[&quot;Place order&quot;]
+  a2[&quot;Pick items&quot;]
+  a3[&quot;Pack box&quot;]
+  a4[&quot;Deliver&quot;]
+  a1 --&gt; a2
+  a2 --&gt; a3
+  a3 --&gt; a4</pre></div></section><section class="tile tile-wide" data-mermaid-type="timeline"><h2>Timeline<code>timeline</code></h2><div class="stage"><pre class="mermaid">timeline
+  title Release history
+  section 2025
+    Q1 : Prototype
+    Q2 : Alpha : Beta
+  section 2026
+    Q1 : Public preview
+    Q3 : General availability</pre></div></section><section class="tile" data-mermaid-type="treeView"><h2>Tree view<code>treeView-beta</code></h2><div class="stage"><pre class="mermaid">treeView-beta
+  &quot;src&quot;
+    &quot;components&quot;
+      &quot;Button.tsx&quot;
+      &quot;Card.tsx&quot;
+    &quot;utils&quot;
+      &quot;theme.ts&quot;
+  &quot;package.json&quot;</pre></div></section><section class="tile" data-mermaid-type="treemap"><h2>Treemap<code>treemap-beta</code></h2><div class="stage"><pre class="mermaid">treemap-beta
+&quot;Root&quot;
+    &quot;Packages&quot;
+        &quot;core&quot;: 40
+        &quot;astro&quot;: 25
+        &quot;mermaid&quot;: 20
+    &quot;Demo&quot;
+        &quot;pages&quot;: 10
+        &quot;samples&quot;: 15</pre></div></section><section class="tile" data-mermaid-type="venn"><h2>Venn<code>venn-beta</code></h2><div class="stage"><pre class="mermaid">venn-beta
+  title Team skills
+  set A[&quot;Design&quot;]
+  set B[&quot;Engineering&quot;]
+  set C[&quot;Product&quot;]
+  union A,B[&quot;Prototype&quot;]
+  union B,C[&quot;Spec&quot;]
+  union A,B,C[&quot;Launch&quot;]</pre></div></section><section class="tile" data-mermaid-type="wardley"><h2>Wardley map<code>wardley-beta</code></h2><div class="stage"><pre class="mermaid">wardley-beta
+  title Hosting
+  component User [0.9, 0.1]
+  component Website [0.75, 0.3]
+  component Database [0.55, 0.5]
+  component Compute [0.4, 0.7]
+  component Storage [0.25, 0.85]
+  User -&gt; Website
+  Website -&gt; Database
+  Database -&gt; Compute
+  Compute -&gt; Storage</pre></div></section><section class="tile tile-wide" data-mermaid-type="xychart"><h2>XY chart<code>xychart-beta</code></h2><div class="stage"><pre class="mermaid">xychart-beta
+  title &quot;Monthly visitors&quot;
+  x-axis [Jan, Feb, Mar, Apr, May, Jun]
+  y-axis &quot;Visitors&quot; 0 --&gt; 5000
+  bar [1200, 1800, 2400, 3100, 3900, 4500]
+  line [1000, 1600, 2300, 3000, 3700, 4300]</pre></div></section></div></main><script type="module" src="/_astro/mermaid.astro_astro_type_script_index_0_lang.BcVkL-kU.js"></script></body></html>
