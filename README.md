@@ -17,7 +17,7 @@
 [![Docusaurus demo](https://img.shields.io/badge/demo-docusaurus-2ea44f)](https://docusaurus.hagicode.com)
 
 Reusable Astro components, integrations, a Starlight plugin, and a Docusaurus
-plugin for HagiCode sites. This repository publishes four npm packages, all authored in
+plugin for HagiCode sites. This repository publishes five npm packages, all authored in
 TypeScript and shipped as ESM with generated `.d.ts` declarations. Astro
 components, Astro route entry points, styles, JSON, and images are shipped in
 their native formats.
@@ -151,11 +151,11 @@ The built-in analytics IDs belong to HagiCode, so set your own IDs or disable ea
 
 ## PostHog analytics
 
-Starlight's `hagilight()` and Docusaurus's `hagilightDocusaurus()` enable PostHog without configuration or a consumer key. The supplied defaults are `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It loads asynchronously from `https://us-assets.i.posthog.com/static/array.js`, only in production, once per document.
+Starlight's `hagilight()` and Docusaurus's `hagilightDocusaurus()` enable PostHog without configuration or a consumer key. The supplied defaults are HagiCode's own PostHog project key, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It loads asynchronously from `https://us-assets.i.posthog.com/static/array.js`, only in production, once per document.
 
-For plain Astro, compose `import PostHog from '@hagicode/hagilight-core/PostHog'` and `<PostHog />` once in the common layout's `<head>`, alongside `@hagicode/hagilight-core/GoogleAnalytics` when configured. The demo also composes it in its transit page's head slot. The integration does not inject it automatically. Non-Astro consumers use `posthogInitScript()` from `@hagicode/hagilight-core/posthog` without requiring Astro.
+For plain Astro, `hagilight()` from `@hagicode/hagilight/integration` injects the same loader into the head of every page of a production build, and injects nothing when `@astrojs/starlight` is registered because the Starlight plugin then owns PostHog. To own the initialization yourself, set `analytics: { posthog: { enabled: false } }` and compose `import PostHog from '@hagicode/hagilight-core/PostHog'` and `<PostHog />` once in the common layout's `<head>`, alongside `@hagicode/hagilight-core/GoogleAnalytics` when configured. Non-Astro consumers use `posthogInitScript()` from `@hagicode/hagilight-core/posthog` without requiring Astro.
 
-Both plugins accept `analytics.posthog: { enabled?, apiKey? }`, like Google Analytics: omitted options use the shared default; `{}` disables the provider; an explicit `enabled: true` requires a valid key. Use `{ apiKey: 'phc_Custom123' }` for another project or `{ enabled: false }` to opt out independently. The built-in project belongs to HagiCode. SDK defaults own PostHog navigation behavior. Keep one initialization owner; disable the provider if the site supplies PostHog itself. Starlight's generated Head owns SEO, GA and PostHog; preserving a custom Head requires disabling these features and composing them explicitly. See the [core](packages/core/README.md#posthog), [Starlight](packages/starlight/README.md#analytics), and [Docusaurus](packages/docusaurus/README.md#analytics-defaults) usage.
+All three integrations accept `analytics.posthog: { enabled?, apiKey? }`, like Google Analytics: omitted options use the shared default; `{}` disables the provider; an explicit `enabled: true` requires a valid key. Use `{ apiKey: 'phc_Custom123' }` for another project or `{ enabled: false }` to opt out independently. The built-in project belongs to HagiCode. SDK defaults own PostHog navigation behavior. Keep one initialization owner; disable the provider if the site supplies PostHog itself. Starlight's generated Head owns SEO, GA and PostHog; preserving a custom Head requires disabling these features and composing them explicitly. See the [core](packages/core/README.md#posthog), [Starlight](packages/starlight/README.md#analytics), and [Docusaurus](packages/docusaurus/README.md#analytics-defaults) usage.
 
 ## First-party links and campaign tags
 
@@ -192,29 +192,6 @@ const getFeed: RssFeedCallback = async ({ lang }) => ({
 });
 export default getFeed;
 ```
-
-## Local development
-
-Run commands from the repository root:
-
-```sh
-npm install
-npm run build              # tsc -b: core, then the Docusaurus, plain Astro, and Starlight packages
-npm run typecheck          # build, check Astro route entry points, and check test/types fixtures
-npm test                   # builds first, then runs node --test
-npm run build:example      # builds packages, the core-footer demo, and the Starlight demo variants, then verifies their output (the Docusaurus demo is built and checked by npm test)
-npm run build:starlight-example  # builds only the default Starlight demo, without the verification variants
-npm run pack:check         # verifies all four tarballs, exports, and version alignment
-npm run integration:installed  # installs tarballs into isolated core, Docusaurus, Astro, and Starlight consumers
-```
-
-Sources live in `packages/*/src/*.ts` and compile to the ignored
-`packages/*/dist/` directories; `.astro` components and route files import the
-built `dist/*.js` modules, so build before running examples from a clean
-checkout. The release workflow stamps one version into all four packages and the core
-dependency of every feature package (`scripts/release.mjs stamp`), then
-`scripts/publish.mjs` publishes core first, followed by the Docusaurus,
-plain-Astro, and Starlight packages.
 
 ## Sitemap and robots.txt for plain Astro
 
@@ -320,16 +297,3 @@ neither routes nor Footer URLs. Both packages coordinate through
 `@hagicode/hagilight-core/rss-ownership`. Having both packages installed does not enable
 either integration. If the Starlight integration is present with RSS explicitly
 disabled, the plain-Astro `hagilight()` owns the RSS routes instead.
-
-## Desktop viewport regression baseline
-
-Install the Chromium browser once with `npx playwright install chromium`, then run `npm run test:viewport` from the Hagilight repository root. The command builds and serves both example sites locally before checking these routes at 1536 x 864, 1920 x 1080, and 2560 x 1440 CSS viewport pixels:
-
-| Example | Routes | Layout states |
-| --- | --- | --- |
-| Core Astro | `/`, `/zh-CN/` | Header actions, bounded feature cards, internal code-block scrolling, and document overflow |
-| Starlight | `/zh-CN/`, `/zh-Hant/` | Header, sidebar, populated page outline, narrow and wide reading widths, and the open language chooser |
-
-The suite blocks external requests, disables optional analytics only for its test build, waits for fonts, and disables animation. On failure it reports the route, viewport, and affected region, then saves a screenshot; CI retains these under `.ci-artifacts/viewport/`.
-
-These dimensions are Chromium CSS viewport pixels at device scale factor 1. They do not emulate macOS display scaling, physical device pixels, Safari, or other browser typography; a real-device/browser pass remains complementary.
