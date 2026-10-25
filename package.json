@@ -7,8 +7,8 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "typecheck": "tsc -b && tsc -p tsconfig.routes.json && tsc -p test/types/tsconfig.json",
+    "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b",
+    "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -p tsconfig.routes.json && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -p test/types/tsconfig.json",
     "pretest": "npm run build",
     "test": "node --test test/*.test.mjs",
     "test:viewport": "node test/viewport-regression.mjs && node test/root-transit-browser.mjs && node test/mermaid-browser.mjs",
