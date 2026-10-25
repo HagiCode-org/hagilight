@@ -70,7 +70,7 @@ trace; the page does not perform the official website's locale detection itself.
 changes routes. Consumers that do not import this page keep their current root.
 
 `destination` and nonblank `siteName` are required. Optional `locale` (default
-`en-US`), `heading`, `message`, and `continueLabel` supply the site's translated
+`en-US`), `heading`, `message`, `continueLabel`, and `loadingLabel` supply the site's translated
 copy. `links={[{ destination: '/zh-CN/', label: '简体中文', lang: 'zh-CN' }]}`
 adds native alternative-language links without introducing locale selection or
 storage rules. Named `head` and `footer` slots accept site-owned metadata and
@@ -94,6 +94,15 @@ events, fonts or images. A normal continuation activation replaces immediately;
 modified clicks retain native behavior. Leaving the document or an Astro
 `astro:before-swap` event cancels the timer; `astro:page-load` mounts a newly
 rendered transit page once. Back therefore does not re-enter an automatic loop.
+
+When the beam lands (1,250 ms, or at once when a continuation click starts the navigation early) the
+page sets `data-transit-phase="loading"` on the root and a 3 px loading rail takes over from the beam: the
+same blue-to-green gradient and vertical head, creeping toward 94% and never reaching 100%, with a sheen
+that keeps moving while the next page is awaited. A browser navigation has no readable progress, so the
+rail says "still working", not "x% done"; it is a `progressbar` without a value, named by `loadingLabel`
+or, when that is unset, `heading`. The optional `loadingLabel` also cross-fades the status line into that
+text; it has no English default because a default could not be localized. Under reduced motion the rail
+is a still, partly filled bar. The attribute is style only and never moves the forward clock.
 
 With scripting, incoming search and fragment replace their configured counterparts
 when nonempty, and the continuation anchor and timer share the resulting URL.
