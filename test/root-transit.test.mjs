@@ -109,6 +109,34 @@ test('the reference timer replaces once, is independent of effects, and mounts o
   assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
 });
 
+test('the loading phase starts when the sweep lands and never moves the forward clock', (t) => {
+  const { win, navigations } = harness(t);
+  const root = win.document.documentElement;
+  mountRootTransit(win);
+  t.mock.timers.tick(1249);
+  assert.equal(root.dataset.transitPhase, undefined);
+  t.mock.timers.tick(1);
+  assert.equal(root.dataset.transitPhase, 'loading');
+  assert.deepEqual(navigations, []);
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS - 1250);
+  assert.equal(navigations.length, 1);
+});
+
+test('a manual continue enters the loading phase at once', (t) => {
+  const { win, anchor } = harness(t);
+  mountRootTransit(win);
+  anchor.dispatchEvent(Object.assign(new Event('click', { cancelable: true }), { button: 0 }));
+  assert.equal(win.document.documentElement.dataset.transitPhase, 'loading');
+});
+
+test('leaving the page never enters the loading phase', (t) => {
+  const { win } = harness(t);
+  mountRootTransit(win);
+  win.dispatchEvent(new Event('pagehide'));
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS);
+  assert.equal(win.document.documentElement.dataset.transitPhase, undefined);
+});
+
 test('manual activation bypasses the timer and uses the same history replacement target', (t) => {
   const { win, anchor, navigations } = harness(t);
   mountRootTransit(win);

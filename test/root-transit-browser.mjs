@@ -563,6 +563,44 @@ async function splashCache(browser, minimal) {
   await page.context().close();
 }
 
+/** The loading rail: hidden through the sweep, on when the beam lands, honest (never full) and still under reduced motion. */
+async function loadingRail(browser, demo, minimal) {
+  const rail = (page) => page.locator('.load').evaluate((el) => ({
+    opacity: Number(getComputedStyle(el).opacity), load: Number(getComputedStyle(el).getPropertyValue('--load')),
+    name: el.getAttribute('aria-label'), role: el.getAttribute('role'),
+  }));
+  // The demo passes loadingLabel, which names the bar; the minimal consumer does not, so the heading does.
+  for (const [url, label] of [[demo, 'Loading Hagilight…'], [minimal, 'Opening Minimal consumer']]) {
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 320, height: 740 }]) {
+      const page = await newPage(browser, { viewport });
+      await page.goto(url);
+      assert.equal((await rail(page)).opacity, 0, 'the rail is hidden while the beam travels');
+      await page.clock.runFor(1249);
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.transitPhase), undefined);
+      await page.clock.runFor(1);
+      assert.equal(await page.evaluate(() => document.documentElement.dataset.transitPhase), 'loading');
+      await freezePresentation(page, 1000);
+      const state = await rail(page);
+      assert.equal(state.role, 'progressbar');
+      assert.equal(state.name, label);
+      assert.equal(state.opacity, 1);
+      assert.ok(state.load > 0.5 && state.load < 0.95, `the rail creeps but never completes (${state.load})`);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      const status = await page.locator('.status').evaluate((el) => el.textContent.trim());
+      if (url === demo) assert.ok(status.includes('Loading Hagilight'), status);
+      await page.context().close();
+    }
+  }
+  const still = await newPage(browser, { viewport: { width: 375, height: 812 }, reducedMotion: 'reduce' });
+  await still.goto(demo);
+  await still.clock.runFor(1250);
+  assert.equal(await still.evaluate(() => document.getAnimations().length), 0, 'no animation runs under reduced motion');
+  const state = await rail(still);
+  assert.equal(state.opacity, 1);
+  assert.equal(state.load, 0.35);
+  await still.context().close();
+}
+
 async function splashChecks(browser, demo, minimal) {
   await splashImageShown(browser, demo);
   await splashRetry(browser, demo);
@@ -589,6 +627,7 @@ try {
   await appearance(browser, minimal, 'minimal');
   await routing(browser, minimal, '/');
   await localeMonitor(browser, minimal);
+  await loadingRail(browser, demo, minimal);
   await splashChecks(browser, demo, minimal);
   const deep = await newPage(browser);
   await deep.goto(`${demo}zh-CN/`);

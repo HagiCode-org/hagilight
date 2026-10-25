@@ -13,8 +13,11 @@ export {
 } from './root-transit-marker.js';
 export { mountLocaleMonitor, resolveLocaleMonitor, type LocaleMonitorOptions } from './root-transit-monitor.js';
 
+/** The reference route sweep: the beam lands here and the loading rail takes over. */
+const ROUTE_RUN_MS = 1250;
+
 /** The reference route sweep (1,250 ms) and finished-state hold (320 ms). */
-export const ROOT_TRANSIT_DELAY_MS = 1570;
+export const ROOT_TRANSIT_DELAY_MS = ROUTE_RUN_MS + 320;
 
 /** Idle-time limit for storing a loaded splash image, so the store never waits on the page. */
 const SPLASH_STORE_IDLE_TIMEOUT_MS = 1000;
@@ -161,6 +164,29 @@ function mountSplash(win: Window, doc: Document): () => void {
   return release;
 }
 
+/**
+ * The beam handing off to the loading rail: one attribute on the root, set when the route sweep lands (or when a
+ * continuation click starts the navigation early). Style only; the forward clock never reads or waits for it.
+ * Without an `animationend` (reduced motion, no animation support) a timer sets it at the same moment.
+ */
+function mountLoadingPhase(win: Window, doc: Document): { enter: () => void; release: () => void } {
+  const root = doc.documentElement;
+  const run = doc.querySelector<HTMLElement>('.run');
+  let timer: number | undefined;
+  const onEnd = (event: Event) => { if (event.target === run) enter(); };
+  const release = () => {
+    win.clearTimeout(timer);
+    if (typeof run?.removeEventListener === 'function') run.removeEventListener('animationend', onEnd);
+  };
+  function enter() {
+    release();
+    root.dataset.transitPhase = 'loading';
+  }
+  if (typeof run?.addEventListener === 'function') run.addEventListener('animationend', onEnd);
+  timer = win.setTimeout(enter, ROUTE_RUN_MS);
+  return { enter, release };
+}
+
 /** Mount once per rendered root; decoration never controls the navigation clock. */
 export function mountRootTransit(win: Window = window): () => void {
   const doc = win.document;
@@ -179,9 +205,16 @@ export function mountRootTransit(win: Window = window): () => void {
   let finished = false;
   let timer: number;
   let releaseSplash = () => {};
+  let loading = { enter: () => {}, release: () => {} };
+  try {
+    loading = mountLoadingPhase(win, doc);
+  } catch {
+    // The rail only decorates; a failure here never changes forwarding.
+  }
   const cleanup = () => {
     finished = true;
     win.clearTimeout(timer);
+    loading.release();
     releaseSplash();
     win.removeEventListener('pagehide', cleanup);
     doc.removeEventListener('astro:before-swap', cleanup);
@@ -189,6 +222,7 @@ export function mountRootTransit(win: Window = window): () => void {
   };
   const forward = (destination = target) => {
     if (finished) return;
+    loading.enter();
     cleanup();
     win.location.replace(destination);
   };
