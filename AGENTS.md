@@ -19,6 +19,7 @@ npm run typecheck          # build + check Astro route files and test/types fixt
 npm test                   # build, then run node --test on test/*.test.mjs
 npm run build:example      # build packages, the core-footer demo, and the Starlight demo variants, then verify their output
 npm run build:starlight-example  # build only the default Starlight demo
+npm run build:core-footer-example  # build only the plain-Astro demo (examples/demo-web)
 npm run build:docusaurus-example  # build the Docusaurus demo alone
 npm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
 npm run integration:installed  # validate an installed tarball (scripts/integration-installed.mjs)
@@ -46,7 +47,7 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 
 ## Conventions
 
-- All five packages share one version. Every feature package depends on the exact core version, except `STANDALONE` packages, which only share the version. Publish core first, then `@hagicode/hagilight-docusaurus`, `@hagicode/hagilight-mermaid`, `@hagicode/hagilight`, and `@hagicode/hagilight-starlight` (`scripts/publish.mjs` enforces this order).
+- All five packages share one version. Every feature package depends on the exact core version, except `STANDALONE` packages (listed in `scripts/packages.mjs`, currently `@hagicode/hagilight-mermaid`), which carry no core dependency and only share the version (`scripts/release.mjs` stamps only their `version`). Publish core first, then `@hagicode/hagilight-docusaurus`, `@hagicode/hagilight-mermaid`, `@hagicode/hagilight`, and `@hagicode/hagilight-starlight` (`scripts/publish.mjs` enforces this order).
 - Mermaid theme and labels: the package reads site colors only from `--hagilight-mermaid-*` custom properties (or the `tokens` option, which maps roles to the site's own names), never from the web app's token names. Every user-visible string comes from `labels` with English defaults, and `{value}` is the only placeholder. A change to the theme mapping must keep `test/browser/mermaid-checks.mjs` passing, because its parity check compares the configuration and the SVG structure against `test/fixtures/mermaid-web-theme.json`, captured from the web app.
 - Mermaid demo coverage: `examples/demo-web/src/mermaid-samples.ts` must hold one sample per type in `test/fixtures/mermaid-diagram-types.json`, and each sample must be detected as its own type. Upgrading Mermaid means re-recording that file; the coverage test fails until every type has a sample.
 - Confirm `@hagicode` scope permission before first publish.
@@ -70,7 +71,6 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 - CI (`.github/workflows/ci.yml`) type-checks all five packages and runs `npm test` (which includes real Astro and Docusaurus demo builds) on Linux, Windows, and macOS; the OS-independent `build:example`, pack checks, installed-tarball consumers, and viewport regression run on Linux only. `npm-publish.yml` repeats only type-check and test, then packs and installs the stamped tarballs.
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - `@hagicode/hagilight-mermaid` is published by `npm-publish.yml` with the other packages. Before its first publish it needs its own npm trusted publisher (owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`) and `@hagicode` scope permission.
-- `STANDALONE` packages in `scripts/packages.mjs` (currently `@hagicode/hagilight-mermaid`) carry no `@hagicode/hagilight-core` dependency; `scripts/release.mjs` stamps only their shared `version`.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes all five packages to `latest` (core first; existing versions are skipped).
 - `.github/workflows/demo-web.yml` publishes `examples/demo-web/` to the `demo-web` branch and creates the `demo-web` GitHub deployment with `https://hagilight.hagicode.com/`; select `demo-web` root as this repository's GitHub Pages source instead of `gh-pages`.
 - `.github/workflows/demo-starlight-web.yml` publishes `examples/demo-starlight-web/` to the `demo-starlight-web` branch and creates the separate `demo-starlight-web` GitHub deployment with `https://hagistar.hagicode.com/`; that domain requires a separate hosting consumer because this repository's GitHub Pages source serves only one branch.
