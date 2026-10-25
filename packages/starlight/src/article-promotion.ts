@@ -7,25 +7,14 @@ export interface ArticlePromotionFeature {
   description: string;
 }
 
-export interface ArticlePromotionGalleryItem {
-  /** Matches an entry in `assets/showcase/manifest.json`. */
-  id: string;
-  caption: string;
-  alt: string;
-}
-
 export interface ArticlePromotionCopy {
   title: string;
   lead: string;
   subheadline: string;
-  /** Text alternative of the lead gallery image. */
-  imageAlt: string;
   features: readonly ArticlePromotionFeature[];
   visitLabel: string;
   /** Secondary call to action. */
   docsLabel: string;
-  galleryHeading: string;
-  gallery: readonly ArticlePromotionGalleryItem[];
   /** Visible caption beside the Windows download button. */
   windowsLabel: string;
   /** Text of the static fallback link to the Microsoft Store listing. */

@@ -1,12 +1,9 @@
 import type { ArticlePromotionCopy } from '../article-promotion.js';
 
-const workbenchAlt = 'HagiCode workbench showing a session kanban board with Pending, In Progress, and Archived columns.';
-
 export default {
   title: 'HagiCode',
   lead: 'HagiCode is an agentic coding workspace. Rich, convenient UI interactions make planning, agent execution, and project work approachable and easy to navigate, creating an engaging development experience.',
   subheadline: 'Explore an engaging development experience through rich, convenient UI interactions.',
-  imageAlt: workbenchAlt,
   features: [
     { id: 'smart', label: 'Smart', description: 'OpenSpec workflows turn intent into an executable path, from proposal to design, tasks, and a shipped change.' },
     { id: 'efficient', label: 'Efficient', description: 'Multi-agent execution keeps research, implementation, and review moving in parallel, across several repositories and the Agent CLIs you already use.' },
@@ -14,29 +11,6 @@ export default {
   ],
   visitLabel: 'Visit HagiCode',
   docsLabel: 'Read the documentation',
-  galleryHeading: 'HagiCode at a glance',
-  gallery: [
-    {
-      id: 'workbench',
-      caption: 'The workbench: every session on one kanban board.',
-      alt: workbenchAlt,
-    },
-    {
-      id: 'proposal-workflow',
-      caption: 'A proposal moves from created to drafted, reviewed, executed, and archived.',
-      alt: 'HagiCode proposal stage bar from Created to Archived, with the Execution Completed stage highlighted and an Archive Plan button.',
-    },
-    {
-      id: 'heroes',
-      caption: 'Hero Scenario: heroes run the work while you follow progress, levels, and story.',
-      alt: 'HagiCode Hero Scenario panel named Ember Keep, listing three running heroes with their level, progress, and story text.',
-    },
-    {
-      id: 'cat-head',
-      caption: 'Illustration: a cat-head portrait from the HagiCode illustration set, one of many that change between visits.',
-      alt: 'Stylized cat-head illustration from the HagiCode illustration set.',
-    },
-  ],
   windowsLabel: 'Download for Windows',
   windowsStoreLabel: 'Get it from Microsoft Store',
   windowsStoreAriaLabel: 'Open HagiCode on Microsoft Store',

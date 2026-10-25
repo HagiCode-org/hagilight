@@ -96,32 +96,13 @@ test('shipped showcase source images meet the format, size, and traffic budgets'
   );
 });
 
-test('component registry, copy gallery ids, and manifest ids agree', () => {
+test('component imports only shipped images, and pillar icons and manifest ids agree', () => {
   const imported = [...component.matchAll(/from '\.\/assets\/showcase\/([^']+)'/gu)].map(([, file]) => file).filter((file) => !file.endsWith('.json')).sort();
-  assert.deepEqual(imported, shippedFiles, 'the component imports every shipped image and nothing else');
+  assert.ok(imported.every((file) => shippedFiles.includes(file)), 'the component imports only shipped images');
 
-  const registry = component.match(/const galleryImages[^{]*\{([\s\S]*?)\n\};/u)?.[1] ?? assert.fail('gallery registry');
-  const registryIds = [...registry.matchAll(/^\s*(?:'([^']+)'|(\w+))\s*[:,]/gmu)].map((match) => match[1] ?? match[2]).sort();
-  const rasterIds = manifest.assets.filter(({ kind }) => kind !== 'svg').map(({ id }) => id).sort();
-  assert.deepEqual(registryIds, rasterIds);
-
-  for (const [locale, copy] of Object.entries(COPY)) {
-    assert.deepEqual(copy.gallery.map(({ id }) => id).sort(), registryIds, `${locale} gallery ids`);
-  }
   for (const id of COPY['en-US'].features.map((feature) => feature.id)) {
     assert.ok(manifest.assets.some((asset) => asset.id === `pillar-${id}` && asset.kind === 'svg'), `pillar icon for ${id}`);
     assert.ok(component.includes(`${id}: pillar`), `component maps the ${id} pillar icon`);
-  }
-});
-
-test('generated and vector illustrations are never captioned as product screenshots', () => {
-  const illustrations = new Set(manifest.assets.filter(({ kind }) => kind !== 'sourced').map(({ id }) => id));
-  for (const copy of Object.values(COPY)) {
-    for (const item of copy.gallery) {
-      if (illustrations.has(item.id)) {
-        assert.doesNotMatch(`${item.caption} ${item.alt}`, /screenshot|screen shot|截图|截圖|スクリーンショット|스크린샷|Bildschirmfoto|capture d.écran|captura de pantalla|captura de tela|скриншот/iu);
-      }
-    }
   }
 });
 

@@ -64,12 +64,6 @@ test('showcase copy covers all ten locales with identical structure and no empty
       `${locale} has the same fields as the English copy`,
     );
     assert.deepEqual(copy.features.map(({ id }) => id), ['smart', 'efficient', 'fun'], `${locale} feature ids`);
-    assert.deepEqual(
-      copy.gallery.map(({ id }) => id),
-      english.gallery.map(({ id }) => id),
-      `${locale} gallery ids`,
-    );
-    assert.equal(copy.imageAlt, copy.gallery[0].alt, `${locale} lead image alt`);
     assert.equal(copy.title, 'HagiCode');
   }
 });
@@ -79,7 +73,6 @@ test('showcase copy keeps brand and product terms untranslated in every locale',
     assert.ok(copy.lead.includes('HagiCode'), `${locale} lead names HagiCode`);
     assert.ok(copy.features[0].description.includes('OpenSpec'), `${locale} smart card names OpenSpec`);
     assert.ok(copy.features[1].description.toLowerCase().includes(GLOSSARY[locale].multiAgent.toLowerCase()), `${locale} efficient card names multi-agent work`);
-    assert.ok(copy.gallery.find(({ id }) => id === 'heroes')?.caption.includes('Hero Scenario'), `${locale} feature gallery names Hero Scenario`);
     assert.ok(!copy.features[2].description.includes('Hero Scenario'), `${locale} Interesting card leads with UI interactions`);
     assert.ok(copy.windowsLabel.includes('Windows'), `${locale} Windows label`);
     assert.ok(copy.windowsStoreLabel.includes('Microsoft Store'), `${locale} Store fallback label`);
@@ -149,7 +142,7 @@ test('showcase copy falls back to English and cannot be mutated', () => {
   const original = japanese.lead;
   assert.throws(() => { japanese.lead = 'changed'; }, TypeError);
   assert.throws(() => { japanese.features[0].label = 'changed'; }, TypeError);
-  assert.throws(() => { japanese.gallery.push({ id: 'x', caption: 'x', alt: 'x' }); }, TypeError);
+  assert.throws(() => { japanese.features.push({ id: 'x', label: 'x', description: 'x' }); }, TypeError);
   assert.throws(() => { COPY['ja-JP'] = COPY['en-US']; }, TypeError);
   assert.equal(getArticlePromotionCopy('ja-JP').lead, original);
 });
@@ -199,28 +192,15 @@ test('article promotion renders a themed, accessible showcase after the article 
   assert.match(component, /href=\{homeHref\}/);
   assert.match(component, /href=\{docsHref\}/);
 
-  // Copy, gallery images, and localized text alternatives.
+  // Copy and localized text.
   for (const field of [
     'copy.lead', 'copy.subheadline', 'copy.features.map', 'copy.visitLabel', 'copy.docsLabel',
-    'copy.galleryHeading', 'copy.windowsLabel', 'copy.windowsStoreLabel', 'copy.windowsStoreAriaLabel',
-    'copy.allDownloadsLabel', 'copy.shareLabel', 'copy.shareText', 'copy.gallery.flatMap',
+    'copy.windowsLabel', 'copy.windowsStoreLabel', 'copy.windowsStoreAriaLabel',
+    'copy.allDownloadsLabel', 'copy.shareLabel', 'copy.shareText',
   ]) {
     assert.ok(component.includes(field), `component renders ${field}`);
   }
-  assert.match(component, /alt=\{item\.alt\}/);
-  assert.match(component, /<figcaption[^>]*>\{item\.caption\}<\/figcaption>/);
-  assert.match(component, /import \{ Picture \} from 'astro:assets'/);
-  assert.doesNotMatch(component, /<Image\b/);
-  assert.match(component, /formats=\{\['avif', 'webp'\]\}/);
-  assert.match(component, /fallbackFormat="jpeg"/);
-  assert.doesNotMatch(component, /\bquality=/u);
-  assert.match(component, /width=\{item\.image\.width\}/);
-  assert.match(component, /height=\{item\.image\.height\}/);
-  assert.match(component, /widths=\{\[480, 800, item\.image\.width\]\}/);
-  assert.match(component, /sizes=/);
-  assert.match(component, /loading="lazy"/);
-  assert.match(component, /decoding="async"/);
-  assert.match(component, /fetchpriority="low"/);
+  assert.doesNotMatch(component, /galleryHeading|copy\.gallery|hagilight-article-promotion__gallery/u, 'the gallery is gone');
   assert.doesNotMatch(component, /light-main/);
 
   // Accessibility, theming, and responsive layout.
@@ -235,7 +215,7 @@ test('article promotion renders a themed, accessible showcase after the article 
   assert.match(component, /@container \(min-width: 36rem\)/);
   assert.match(component, /@container \(min-width: 56rem\)/);
 
-  // Structure and reading order: pitch (intro, calls to action, pillars), gallery, then download and share.
+  // Structure and reading order: pitch (intro, calls to action, pillars), then download and share.
   const markup = component.slice(component.indexOf('<section class="hagilight-article-promotion"'), component.indexOf('</section>'));
   const order = [
     'id="hagilight-article-promotion-title"',
@@ -243,7 +223,6 @@ test('article promotion renders a themed, accessible showcase after the article 
     'hagilight-article-promotion__tagline',
     'hagilight-article-promotion__actions',
     'hagilight-article-promotion__features',
-    'hagilight-article-promotion-gallery-title',
     'hagilight-article-promotion__closing',
     'hagilight-article-promotion-windows-title',
     'hagilight-article-promotion__downloads',
@@ -267,24 +246,16 @@ test('article promotion renders a themed, accessible showcase after the article 
   assert.match(floatingBanner, /\.hagilight-promoto__shell\[hidden\][\s\S]*?display:\s*none/u);
 });
 
-test('the showcase illustration has a localized caption and alt text that never claims a screenshot', () => {
-  for (const [locale, copy] of Object.entries(COPY)) {
-    const item = copy.gallery.find(({ id }) => id === 'cat-head');
-    assert.ok(item, `${locale} has the illustration caption`);
-    assert.ok(item.caption.trim() && item.alt.trim(), `${locale} caption and alt are filled`);
-    assert.ok(item.caption.toLowerCase().includes(GLOSSARY[locale].illustration.toLowerCase()), `${locale} caption uses the illustration term`);
-    assert.doesNotMatch(`${item.caption} ${item.alt}`, /screenshot|screen shot|截图|截圖|スクリーンショット|스크린샷|Bildschirmfoto|capture d.écran|captura de pantalla|captura de tela|скриншот/iu);
-  }
-});
-
-test('only the illustration slot may swap: one pooled figure, a conditional picker, and no hard-coded R2 image', async () => {
+test('the illustration pool is never hard-coded: no data-random-pool swap, a conditional picker, and no R2 image', async () => {
   const component = await readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8');
   const markdownContent = await readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8');
-  const pooled = component.match(/data-random-fan'?[=:]/gu) ?? [];
-  assert.equal(pooled.length, 1, 'exactly one gallery picture carries a pool');
   assert.doesNotMatch(component, /data-random-pool=/u, 'the illustration is dealt as a fan, not swapped');
-  assert.match(component, /pictureAttributes=\{item\.id === ILLUSTRATION_ID && avatarPool \? \{ 'data-random-fan': randomPoolAttribute\(avatarPool\) \} : undefined\}/u);
   assert.match(component, /\{avatarPool && <ArticlePromotionPicker \/>\}/u);
+  // The cat-head fan leads the primary call to action, decorative and captionless.
+  const primaryCta = component.slice(component.indexOf('hagilight-article-promotion__cta--primary'), component.indexOf('{copy.visitLabel}'));
+  assert.match(primaryCta, /<Picture\s+src=\{catHead\}\s+alt=""/u, 'the avatar is decorative and leads the primary call to action');
+  assert.match(primaryCta, /pictureAttributes=\{ctaAvatarAttributes\}/u);
+  assert.doesNotMatch(component, /<figcaption|galleryHeading|hagilight-article-promotion__gallery/u, 'no illustration caption or gallery');
   assert.match(component, /const ILLUSTRATION_ID = 'cat-head';/u);
   assert.doesNotMatch(component, /img-gen\.hagicode\.com/u, 'the R2 origin lives in the shared picker, not in the component');
   assert.match(component, /randomAvatar = true/u);

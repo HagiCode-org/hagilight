@@ -1,5 +1,4 @@
 ---
-import { Picture } from 'astro:assets';
 import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
@@ -8,13 +7,11 @@ import {
   resolveMicrosoftStoreBadgeLanguage,
   resolveMicrosoftStoreProductId,
 } from './dist/windows-download.js';
+import { Picture } from 'astro:assets';
 import catHead from './assets/showcase/cat-head.webp';
-import heroes from './assets/showcase/heroes.webp';
 import pillarEfficient from './assets/showcase/pillar-efficient.svg';
 import pillarFun from './assets/showcase/pillar-fun.svg';
 import pillarSmart from './assets/showcase/pillar-smart.svg';
-import proposalWorkflow from './assets/showcase/proposal-workflow.webp';
-import workbench from './assets/showcase/workbench.webp';
 import showcaseManifest from './assets/showcase/manifest.json';
 import ArticlePromotionPicker from './ArticlePromotionPicker.astro';
 
@@ -39,26 +36,19 @@ const badgeLanguage = resolveMicrosoftStoreBadgeLanguage(lang);
 const showcaseTag = (category: 'download' | 'store' | 'navigation', label: string, url?: string) =>
   gaEventAttributes({ category, label, location: 'article_promotion', url });
 
-// Keyed by the ids in assets/showcase/manifest.json and in the copy catalog's gallery.
-const galleryImages: Record<string, ImageMetadata> = {
-  workbench,
-  'proposal-workflow': proposalWorkflow,
-  heroes,
-  'cat-head': catHead,
-};
-// The illustration slot is the only gallery image that may change; its pool lives in the showcase manifest. It is dealt as the footer's fan of cat heads.
+// The illustration's pool lives in the showcase manifest. It is dealt as the footer's fan of cat heads.
 const ILLUSTRATION_ID = 'cat-head';
 const avatarEntry = showcaseManifest.assets.find(({ id }) => id === ILLUSTRATION_ID);
 const avatarPool = randomAvatar && avatarEntry && 'pool' in avatarEntry ? randomPoolFromManifest(avatarEntry.pool) : undefined;
+const ctaAvatarAttributes = {
+  class: 'hagilight-article-promotion__cta-avatar',
+  ...(avatarPool ? { 'data-random-fan': randomPoolAttribute(avatarPool) } : {}),
+};
 const pillarIcons: Record<string, ImageMetadata> = {
   smart: pillarSmart,
   efficient: pillarEfficient,
   fun: pillarFun,
 };
-const gallery = copy.gallery.flatMap((item) => {
-  const image = galleryImages[item.id];
-  return image ? [{ ...item, image }] : [];
-});
 ---
 
 <section class="hagilight-article-promotion" aria-labelledby="hagilight-article-promotion-title">
@@ -73,6 +63,17 @@ const gallery = copy.gallery.flatMap((item) => {
           href={homeHref}
           {...showcaseTag('navigation', 'home')}
         >
+          <Picture
+            src={catHead}
+            alt=""
+            formats={['avif', 'webp']}
+            fallbackFormat="jpeg"
+            widths={[96, 192]}
+            sizes="52px"
+            loading="lazy"
+            decoding="async"
+            pictureAttributes={ctaAvatarAttributes}
+          />
           <span>{copy.visitLabel}</span>
           <svg class="hagilight-article-promotion__arrow" aria-hidden="true" focusable="false" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
         </a>
@@ -96,33 +97,6 @@ const gallery = copy.gallery.flatMap((item) => {
           ></span>
           <strong>{feature.label}</strong>
           <span class="hagilight-article-promotion__feature-text">{feature.description}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
-
-  <div class="hagilight-article-promotion__gallery-block">
-    <h3 id="hagilight-article-promotion-gallery-title">{copy.galleryHeading}</h3>
-    <ul class="hagilight-article-promotion__gallery" aria-labelledby="hagilight-article-promotion-gallery-title">
-      {gallery.map((item) => (
-        <li>
-          <figure>
-            <Picture
-              src={item.image}
-              alt={item.alt}
-              width={item.image.width}
-              height={item.image.height}
-              formats={['avif', 'webp']}
-              fallbackFormat="jpeg"
-              widths={[480, 800, item.image.width]}
-              sizes="(min-width: 50rem) 560px, 100vw"
-              loading="lazy"
-              decoding="async"
-              fetchpriority="low"
-              pictureAttributes={item.id === ILLUSTRATION_ID && avatarPool ? { 'data-random-fan': randomPoolAttribute(avatarPool) } : undefined}
-            />
-            <figcaption>{item.caption}</figcaption>
-          </figure>
         </li>
       ))}
     </ul>
@@ -171,8 +145,8 @@ const gallery = copy.gallery.flatMap((item) => {
 
 <style>
   /*
-   * One stage, four beats, top to bottom: pitch (what it is, the way in, the three pillars),
-   * gallery (proof), closing band (get it, share it). The stage is tinted from the active theme's
+   * One stage, three beats, top to bottom: pitch (what it is, the way in, the three pillars),
+   * closing band (get it, share it). The stage is tinted from the active theme's
    * accent so it reads as a deliberate HagiCode moment against the article's neutral page, and the
    * closing band bleeds to the stage edges so "get it" is the last, heaviest surface. Pillars are
    * separated by accent rules rather than boxes. The topology follows the section's own width, so
@@ -392,27 +366,6 @@ const gallery = copy.gallery.flatMap((item) => {
     -webkit-mask: var(--hagilight-pillar-icon) center / contain no-repeat;
   }
 
-  /* Gallery: three audited screenshots, kept in the catalog's narrative order. */
-  .hagilight-article-promotion__gallery-block {
-    display: grid;
-    gap: 1.125rem;
-  }
-
-  .hagilight-article-promotion__gallery {
-    display: grid;
-    gap: 1.5rem 1.25rem;
-  }
-
-  .hagilight-article-promotion__gallery li {
-    min-width: 0;
-  }
-
-  .hagilight-article-promotion figure {
-    display: grid;
-    gap: 0.625rem;
-    margin: 0;
-  }
-
   .hagilight-article-promotion picture {
     display: block;
   }
@@ -424,29 +377,12 @@ const gallery = copy.gallery.flatMap((item) => {
     border: 1px solid var(--hagilight-promo-edge);
     border-radius: var(--sl-radius-md, 0.5rem);
     box-shadow: 0 18px 32px -18px color-mix(in srgb, var(--sl-color-black) 80%, transparent);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s;
-  }
-
-  .hagilight-article-promotion figure:hover img {
-    transform: translateY(-3px);
-    border-color: var(--sl-color-text-accent);
-  }
-
-  .hagilight-article-promotion figcaption {
-    color: var(--sl-color-gray-1);
-    font-size: var(--sl-text-sm, 0.875rem);
-    line-height: 1.5;
-  }
-
-  /* The illustration is a small square with its caption beside it, so it reads as an avatar, not a screenshot. */
-  .hagilight-article-promotion__gallery li:nth-child(4) picture {
-    max-width: 12rem;
   }
 
   /*
-   * The illustration's fan, the footer avatar's fan at the illustration's size: three cards pivot on a point
+   * The cat-head fan, the footer avatar's fan at the call to action's size: three cards pivot on a point
    * below the stack, the vendored default is the first centre card and fades out as the random cards are dealt
-   * over it. Offsets are percentages of a card, so the fan scales with the 12 rem box.
+   * over it. Offsets are percentages of a card, so the fan scales with its box.
    */
   .hagilight-article-promotion picture[data-random-fan] {
     position: relative;
@@ -467,9 +403,25 @@ const gallery = copy.gallery.flatMap((item) => {
     transition: opacity 320ms ease-out, transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .hagilight-article-promotion figure:hover picture[data-random-fan] img,
-  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card) {
-    border: 0;
+  /* The avatar leads the primary call to action, so the fan and the button read as one control. */
+  .hagilight-article-promotion__cta--primary:has(.hagilight-article-promotion__cta-avatar) {
+    padding-inline-start: 0.625rem;
+  }
+
+  .hagilight-article-promotion__cta-avatar {
+    flex: none;
+    width: 3.25rem;
+  }
+
+  .hagilight-article-promotion__cta-avatar:not([data-random-fan]) {
+    width: 2.25rem;
+    aspect-ratio: 1;
+  }
+
+  .hagilight-article-promotion__cta-avatar:not([data-random-fan]) img {
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan) {
@@ -478,7 +430,6 @@ const gallery = copy.gallery.flatMap((item) => {
     display: block;
   }
 
-  .hagilight-article-promotion figure:hover picture[data-random-fan] img[data-fan-out],
   .hagilight-article-promotion picture[data-random-fan] img[data-fan-out] {
     opacity: 0;
     transform: scale(0.9);
@@ -490,21 +441,18 @@ const gallery = copy.gallery.flatMap((item) => {
     transform: scale(0.6);
   }
 
-  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="0"]),
   .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="0"]) {
     z-index: 1;
     opacity: 1;
     transform: translate(-11%, 2%) rotate(-17deg);
   }
 
-  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="1"]),
   .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="1"]) {
     z-index: 3;
     opacity: 1;
     transform: none;
   }
 
-  .hagilight-article-promotion figure:hover picture[data-random-fan] :global(.hagilight-fan__card[data-slot="2"]),
   .hagilight-article-promotion picture[data-random-fan] :global(.hagilight-fan__card[data-slot="2"]) {
     z-index: 2;
     opacity: 1;
@@ -591,50 +539,15 @@ const gallery = copy.gallery.flatMap((item) => {
     user-select: all;
   }
 
-  /* Medium: pillars become a three-up row, the gallery a mosaic, the closing two columns. */
+  /* Medium: pillars become a three-up row, the closing band two columns. */
   @container (min-width: 36rem) {
     .hagilight-article-promotion__features {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    /*
-     * Mosaic in reading order: the workbench and the proposal strip stack in the left column
-     * beside the tall Hero Scenario panel. The 1.1fr split lands the image bottoms of both columns within
-     * a caption's height of each other for the current screenshots; the placement assumes exactly
-     * three gallery images.
-     */
-    .hagilight-article-promotion__gallery {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-      align-items: start;
-    }
-
-    .hagilight-article-promotion__gallery li:nth-child(1) {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .hagilight-article-promotion__gallery li:nth-child(2) {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    .hagilight-article-promotion__gallery li:nth-child(3) {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-    }
-
     .hagilight-article-promotion__closing {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 2rem;
-    }
-
-    .hagilight-article-promotion__gallery li:nth-child(4) {
-      grid-column: 1 / -1;
-    }
-
-    .hagilight-article-promotion__gallery li:nth-child(4) figure {
-      grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
-      align-items: end;
     }
   }
 
@@ -661,11 +574,9 @@ const gallery = copy.gallery.flatMap((item) => {
   }
 
   /*
-   * The one authored moment: as the stage scrolls into view its accent rule draws across and the
-   * screenshots rise into place one after another. Scroll-driven, so there is no JS and nothing
-   * replays; engines without view timelines, and readers who ask for less motion, get the final
-   * state. The animations start at 0.35 opacity, so a tall item that never reaches its full entry
-   * range is still readable.
+   * The one authored moment: as the stage scrolls into view its accent rule draws across. Scroll-driven,
+   * so there is no JS and nothing replays; engines without view timelines, and readers who ask for less
+   * motion, get the final state.
    */
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
@@ -676,40 +587,12 @@ const gallery = copy.gallery.flatMap((item) => {
         animation-timeline: view();
         animation-range: entry 0% entry 80%;
       }
-
-      .hagilight-article-promotion__gallery li {
-        animation-name: hagilight-promotion-rise;
-        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-        animation-fill-mode: both;
-        animation-timeline: view();
-        animation-range: entry 5% entry 45%;
-      }
-
-      .hagilight-article-promotion__gallery li:nth-child(2) {
-        animation-range: entry 12% entry 52%;
-      }
-
-      .hagilight-article-promotion__gallery li:nth-child(3) {
-        animation-range: entry 19% entry 59%;
-      }
-
-      .hagilight-article-promotion__gallery li:nth-child(4) {
-        animation-range: entry 26% entry 66%;
-      }
     }
   }
 
   @keyframes hagilight-promotion-rule {
     from {
       transform: scaleX(0.04);
-    }
-  }
-
-  @keyframes hagilight-promotion-rise {
-    from {
-      opacity: 0.35;
-      translate: 0 1.75rem;
-      scale: 0.97;
     }
   }
 </style>
