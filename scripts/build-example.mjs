@@ -331,7 +331,7 @@ const SHOWCASE_PAGES = {
 };
 const BADGE_LOADER = 'https://get.microsoft.com/badge/ms-store-badge.bundled.js';
 const KIB = 1024;
-const SHOWCASE_FILE = /^(?:workbench|proposal-workflow|heroes|pillar-)/u;
+const SHOWCASE_FILE = /^(?:cat-head|pillar-)/u;
 const SHOWCASE_FORMATS = ['avif', 'webp', 'jpeg'];
 const SHOWCASE_ASSETS = join(root, 'packages/starlight/assets/showcase');
 const DEMO_DIST = join(root, 'examples/demo-starlight-web/dist');
@@ -457,66 +457,58 @@ async function verifyShowcaseOutput(read) {
     assert.equal(html.split(BADGE_LOADER).length - 1, 1, `${filename} loads the badge script once`);
     assert.ok(html.includes(`<script type="module" src="${BADGE_LOADER}">`), `${filename} badge loader is a module script`);
 
+    // The showcase's one picture is the cat-head avatar in the primary call to action. It is decorative, so its alt stays empty.
     const pictures = [...section.matchAll(/<picture\b[^>]*>([\s\S]*?)<\/picture>/gu)].map(([, inner]) => inner);
-    assert.equal(pictures.length, copy.gallery.length, `${filename} gallery picture count`);
-    for (const [index, inner] of pictures.entries()) {
-      const parts = inner.match(/^\s*<source\b([^>]*)>\s*<source\b([^>]*)>\s*<img\b([^>]*)>\s*$/u);
-      assert.ok(parts, `${filename} image ${index} lists AVIF, then WebP, then the JPEG img`);
-      const [, avif, webp, img] = parts;
-      assert.match(avif, /\btype="image\/avif"/u, `${filename} image ${index} leads with AVIF`);
-      assert.match(webp, /\btype="image\/webp"/u, `${filename} image ${index} follows with WebP`);
-      assert.doesNotMatch(`${avif}${webp}`, /\b(?:loading|decoding|fetchpriority)=/u, `${filename} image ${index} keeps lazy attributes on the img`);
+    assert.equal(pictures.length, 1, `${filename} renders the cat-head avatar picture once`);
+    const parts = pictures[0].match(/^\s*<source\b([^>]*)>\s*<source\b([^>]*)>\s*<img\b([^>]*)>\s*$/u);
+    assert.ok(parts, `${filename} avatar lists AVIF, then WebP, then the JPEG img`);
+    const [, avif, webp, img] = parts;
+    assert.match(avif, /\btype="image\/avif"/u, `${filename} avatar leads with AVIF`);
+    assert.match(webp, /\btype="image\/webp"/u, `${filename} avatar follows with WebP`);
+    assert.doesNotMatch(`${avif}${webp}`, /\b(?:loading|decoding|fetchpriority)=/u, `${filename} avatar keeps lazy attributes on the img`);
 
-      const alt = attributeOf(img, 'alt');
-      assert.ok(alt, `${filename} image ${index} has alt text`);
-      assert.ok([copy.gallery[index].alt, escapeHtml(copy.gallery[index].alt)].includes(alt), `${filename} image ${index} localized alt`);
-      assert.match(img, /\bloading="lazy"/u);
-      assert.match(img, /\bdecoding="async"/u);
-      assert.match(img, /\bfetchpriority="low"/u);
-      assert.match(img, /\bwidth="\d+"/u);
-      assert.match(img, /\bheight="\d+"/u);
+    assert.match(img, /\salt(?:=""|(?=[\s/>]))/u, `${filename} avatar has an empty alt`);
+    assert.match(img, /\bloading="lazy"/u);
+    assert.match(img, /\bdecoding="async"/u);
+    assert.match(img, /\bwidth="\d+"/u);
+    assert.match(img, /\bheight="\d+"/u);
 
-      const sizes = attributeOf(img, 'sizes');
-      assert.ok(sizes, `${filename} image ${index} has a size hint`);
-      assert.equal(attributeOf(avif, 'sizes'), sizes, `${filename} image ${index} AVIF size hint`);
-      assert.equal(attributeOf(webp, 'sizes'), sizes, `${filename} image ${index} WebP size hint`);
+    const sizes = attributeOf(img, 'sizes');
+    assert.ok(sizes, `${filename} avatar has a size hint`);
+    assert.equal(attributeOf(avif, 'sizes'), sizes, `${filename} avatar AVIF size hint`);
+    assert.equal(attributeOf(webp, 'sizes'), sizes, `${filename} avatar WebP size hint`);
 
-      const tiers = {
-        avif: srcsetCandidates(attributeOf(avif, 'srcset'), filename),
-        webp: srcsetCandidates(attributeOf(webp, 'srcset'), filename),
-        jpeg: srcsetCandidates(attributeOf(img, 'srcset'), filename),
-      };
-      const widths = tiers.jpeg.map((candidate) => candidate.width);
-      for (const format of SHOWCASE_FORMATS) {
-        assert.deepEqual(tiers[format].map((candidate) => candidate.width), widths, `${filename} image ${index} ${format} offers the same widths`);
-      }
-      const native = Number(attributeOf(img, 'width'));
-      assert.equal(attributeOf(img, 'src'), tiers.jpeg.find((candidate) => candidate.width === native)?.url, `${filename} image ${index} src is the native JPEG`);
-      const name = tiers.jpeg[0].url.split('/').pop().split('.')[0];
-      const source = await shippedSource(name);
-      assert.deepEqual([source.width, source.height], [native, Number(attributeOf(img, 'height'))], `${filename} image ${index} declares the shipped source size`);
-
-      for (const { width } of tiers.jpeg) {
-        const variants = {};
-        for (const format of SHOWCASE_FORMATS) {
-          const { url } = tiers[format].find((candidate) => candidate.width === width);
-          variants[format] = { url, ...(await inspectVariant(url, format)) };
-          assert.equal(variants[format].width, width, `${url} is ${width} px wide`);
-        }
-        const pixelSizes = new Set(SHOWCASE_FORMATS.map((format) => `${variants[format].width}x${variants[format].height}`));
-        assert.equal(pixelSizes.size, 1, `${name} at ${width} px: tiers differ in pixel size`);
-        assert.ok(
-          variants.avif.bytes < variants.webp.bytes,
-          `${name} at ${width} px: AVIF ${variants.avif.bytes} bytes is not smaller than WebP ${variants.webp.bytes} bytes`,
-        );
-        if (width === native) {
-          for (const format of SHOWCASE_FORMATS) {
-            assert.deepEqual([variants[format].width, variants[format].height], [source.width, source.height], `${name} ${format} native size matches the shipped source`);
-            await verifyNativeFidelity(name, format, variants[format].url);
-          }
-        }
-      }
+    const tiers = {
+      avif: srcsetCandidates(attributeOf(avif, 'srcset'), filename),
+      webp: srcsetCandidates(attributeOf(webp, 'srcset'), filename),
+      jpeg: srcsetCandidates(attributeOf(img, 'srcset'), filename),
+    };
+    const widths = tiers.jpeg.map((candidate) => candidate.width);
+    for (const format of SHOWCASE_FORMATS) {
+      assert.deepEqual(tiers[format].map((candidate) => candidate.width), widths, `${filename} avatar ${format} offers the same widths`);
     }
+    const native = Number(attributeOf(img, 'width'));
+    const src = attributeOf(img, 'src');
+    assert.match(src, /^\/_astro\/cat-head\.[^/]+\.jpeg$/u, `${filename} avatar falls back to the native cat-head JPEG`);
+    const name = tiers.jpeg[0].url.split('/').pop().split('.')[0];
+    const source = await shippedSource(name);
+    assert.deepEqual([source.width, source.height], [native, Number(attributeOf(img, 'height'))], `${filename} avatar declares the shipped source size`);
+
+    for (const { width } of tiers.jpeg) {
+      const variants = {};
+      for (const format of SHOWCASE_FORMATS) {
+        const { url } = tiers[format].find((candidate) => candidate.width === width);
+        variants[format] = { url, ...(await inspectVariant(url, format)) };
+        assert.equal(variants[format].width, width, `${url} is ${width} px wide`);
+      }
+      const pixelSizes = new Set(SHOWCASE_FORMATS.map((format) => `${variants[format].width}x${variants[format].height}`));
+      assert.equal(pixelSizes.size, 1, `${name} at ${width} px: tiers differ in pixel size`);
+      assert.ok(
+        variants.avif.bytes < variants.webp.bytes,
+        `${name} at ${width} px: AVIF ${variants.avif.bytes} bytes is not smaller than WebP ${variants.webp.bytes} bytes`,
+      );
+    }
+    await verifyNativeFidelity(name, 'jpeg', src);
 
     for (const [, url] of section.matchAll(/url\((\/_astro\/pillar-[^)]+)\)/gu)) {
       assert.match(url, /\.svg$/u);

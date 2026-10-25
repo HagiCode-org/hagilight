@@ -56,13 +56,11 @@ function verifyBannerBuild(expected) {
     throw new Error(`Installed example banner output mismatch (expected ${expected ? 'enabled' : 'disabled'})`);
   }
   const builtAssets = listFiles(join(temp, 'dist', '_astro')).map((path) => path.split(/[\\/]/u).pop());
-  for (const name of ['workbench', 'proposal-workflow', 'heroes']) {
-    for (const extension of ['avif', 'webp', 'jpeg']) {
-      assert.ok(
-        builtAssets.some((file) => file.startsWith(`${name}.`) && file.endsWith(`.${extension}`)),
-        `the installed package builds the ${name} showcase image as ${extension}`,
-      );
-    }
+  for (const extension of ['avif', 'webp', 'jpeg']) {
+    assert.ok(
+      builtAssets.some((file) => file.startsWith('cat-head.') && file.endsWith(`.${extension}`)),
+      `the installed package builds the cat-head avatar as ${extension}`,
+    );
   }
   assert.ok(html.includes('<ms-store-badge') && html.includes('href="https://apps.microsoft.com/detail/9N3PM0N3SVDW"'), 'the installed package renders the Windows download block');
   assert.equal(countOccurrences(html, 'https://get.microsoft.com/badge/ms-store-badge.bundled.js'), 1);

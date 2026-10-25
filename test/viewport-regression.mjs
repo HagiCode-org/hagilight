@@ -480,13 +480,13 @@ async function assertStarlightPage(page, route, viewport) {
   await page.locator('.dialog-close').click();
 }
 
-const galleryImage = '.hagilight-article-promotion__gallery picture img';
+const avatarImage = '.hagilight-article-promotion__cta-avatar img';
 
-async function expectGalleryTier(page, route, viewport, extension) {
-  const count = await page.locator(galleryImage).count();
-  check(count > 0, route, viewport, 'showcase image tiers', 'no gallery images rendered');
+async function expectAvatarTier(page, route, viewport, extension) {
+  const count = await page.locator(avatarImage).count();
+  check(count > 0, route, viewport, 'showcase image tiers', 'no avatar image rendered');
   for (let index = 0; index < count; index++) {
-    const image = page.locator(galleryImage).nth(index);
+    const image = page.locator(avatarImage).nth(index);
     await image.scrollIntoViewIfNeeded();
     const selected = await image.evaluate(async (img, wanted) => {
       const deadline = performance.now() + 15000;
@@ -501,7 +501,7 @@ async function expectGalleryTier(page, route, viewport, extension) {
       route,
       viewport,
       'showcase image tiers',
-      `gallery image ${index + 1} selected ${selected.currentSrc || 'no source'} (natural width ${selected.naturalWidth}); expected .${extension}`,
+      `avatar image ${index + 1} selected ${selected.currentSrc || 'no source'} (natural width ${selected.naturalWidth}); expected .${extension}`,
     );
   }
 }
@@ -509,18 +509,18 @@ async function expectGalleryTier(page, route, viewport, extension) {
 async function dropTierSource(page, type) {
   await page.evaluate((selector) => {
     for (const source of document.querySelectorAll(selector)) source.remove();
-    for (const img of document.querySelectorAll('.hagilight-article-promotion__gallery picture img')) {
+    for (const img of document.querySelectorAll('.hagilight-article-promotion__cta-avatar img')) {
       if (img.hasAttribute('sizes')) img.setAttribute('sizes', img.getAttribute('sizes'));
     }
-  }, `.hagilight-article-promotion__gallery picture source[type="${type}"]`);
+  }, `.hagilight-article-promotion__cta-avatar source[type="${type}"]`);
 }
 
 async function assertShowcaseImageTiers(page, route, viewport) {
-  await expectGalleryTier(page, route, viewport, 'avif');
+  await expectAvatarTier(page, route, viewport, 'avif');
   await dropTierSource(page, 'image/avif');
-  await expectGalleryTier(page, route, viewport, 'webp');
+  await expectAvatarTier(page, route, viewport, 'webp');
   await dropTierSource(page, 'image/webp');
-  await expectGalleryTier(page, route, viewport, 'jpeg');
+  await expectAvatarTier(page, route, viewport, 'jpeg');
 }
 
 async function runCase(browser, origins, route, viewport) {
