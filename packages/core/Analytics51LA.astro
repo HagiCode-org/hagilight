@@ -1,13 +1,23 @@
 ---
 interface Props {
   siteId: string;
+  /**
+   * When true, the page carries only an inert descriptor and the consent gate loads the SDK after a grant.
+   * When false (the default), the SDK and `LA.init` are rendered as before.
+   */
+  consent?: boolean;
 }
 
-const { siteId } = Astro.props;
+const { siteId, consent = false } = Astro.props;
 if (!siteId?.trim()) throw new Error('Analytics51LA requires a siteId prop.');
+// Inert data for the consent gate: the site ID only, never the SDK URL or an initialization call.
+const descriptor = JSON.stringify({ siteId }).replace(/</g, '\\u003c');
 ---
 
-{import.meta.env.PROD && (
+{import.meta.env.PROD && consent && (
+  <script is:inline type="application/json" data-hagilight-analytics="fiftyOneLa" set:html={descriptor}></script>
+)}
+{import.meta.env.PROD && !consent && (
   <>
     <script is:inline charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>
     <script is:inline define:vars={{ siteId }}>
@@ -15,3 +25,9 @@ if (!siteId?.trim()) throw new Error('Analytics51LA requires a siteId prop.');
     </script>
   </>
 )}
+
+<script>
+  if (document.querySelector('script[data-hagilight-analytics]')) {
+    import('./dist/consent-gate.js').then((gate) => gate.mountConsentGate());
+  }
+</script>

@@ -13,15 +13,27 @@ export const SITE_METADATA_SCHEMA_VERSION = 1;
 export const SITE_METADATA_PATH = '.well-known/hagilight.metadata.json';
 
 /**
- * Substrings that a provider's loader leaves in built HTML. Each provider needs
- * every marker in one page. A core test pins these to the shipped loaders, so a
- * loader change fails loudly here.
+ * Substrings that a provider leaves in built HTML. Each provider is a list of
+ * alternatives: a page shows the provider when it carries every marker of one
+ * alternative. The first alternative is the consent descriptor a page carries
+ * when consent is on (the loader is injected after a grant); the second is the
+ * static loader that renders when consent is off. A core test pins both forms
+ * to the shipped components, so a change fails loudly here.
  */
 export const ANALYTICS_LOADER_MARKERS = {
-  googleAnalytics: ['https://www.googletagmanager.com/gtag/js'],
-  fiftyOneLa: ['id="LA_COLLECT"', 'https://sdk.51.la/js-sdk-pro.min.js'],
-  posthog: ['__hagilightPosthogInitialized'],
-} as const satisfies Record<keyof SiteMetadataAnalytics, readonly string[]>;
+  googleAnalytics: [
+    ['data-hagilight-analytics="googleAnalytics"'],
+    ['https://www.googletagmanager.com/gtag/js'],
+  ],
+  fiftyOneLa: [
+    ['data-hagilight-analytics="fiftyOneLa"'],
+    ['id="LA_COLLECT"', 'https://sdk.51.la/js-sdk-pro.min.js'],
+  ],
+  posthog: [
+    ['data-hagilight-analytics="posthog"'],
+    ['__hagilightPosthogInitialized'],
+  ],
+} as const satisfies Record<keyof SiteMetadataAnalytics, readonly (readonly string[])[]>;
 
 export interface SiteMetadataGenerator {
   readonly name: string;
@@ -69,6 +81,8 @@ export interface SiteMetadataAnalytics {
 export interface SiteMetadataFeatures {
   readonly seo?: boolean;
   readonly promoto?: boolean;
+  /** True when the build mounts the consent popup and the analytics gate. */
+  readonly consent?: boolean;
 }
 
 export interface SiteMetadata {
@@ -110,7 +124,7 @@ export interface SiteMetadataOption {
 
 const DISCOVERY_KEYS = ['sitemap', 'robots', 'rss', 'llms'] as const;
 const ANALYTICS_KEYS = ['googleAnalytics', 'fiftyOneLa', 'posthog'] as const;
-const FEATURE_KEYS = ['seo', 'promoto'] as const;
+const FEATURE_KEYS = ['seo', 'promoto', 'consent'] as const;
 const TOP_LEVEL_KEYS = ['schemaVersion', 'generator', 'site', 'languages', 'build', 'discovery', 'analytics', 'features'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -179,6 +193,7 @@ export function buildSiteMetadata(input: BuildSiteMetadataInput): SiteMetadata {
   const features: SiteMetadataFeatures = {
     ...(typeof input.features?.seo === 'boolean' ? { seo: input.features.seo } : {}),
     ...(typeof input.features?.promoto === 'boolean' ? { promoto: input.features.promoto } : {}),
+    ...(typeof input.features?.consent === 'boolean' ? { consent: input.features.consent } : {}),
   };
 
   return {
@@ -301,7 +316,7 @@ export function detectAnalyticsLoaders(pages: Iterable<string>): SiteMetadataAna
   const found: Record<keyof SiteMetadataAnalytics, boolean> = { googleAnalytics: false, fiftyOneLa: false, posthog: false };
   for (const html of pages) {
     for (const provider of ANALYTICS_KEYS) {
-      if (!found[provider] && ANALYTICS_LOADER_MARKERS[provider].every((marker) => html.includes(marker))) {
+      if (!found[provider] && ANALYTICS_LOADER_MARKERS[provider].some((markers) => markers.every((marker) => html.includes(marker)))) {
         found[provider] = true;
       }
     }

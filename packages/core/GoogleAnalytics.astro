@@ -1,9 +1,14 @@
 ---
 interface Props {
   measurementId: string;
+  /**
+   * When true, the page carries only an inert descriptor and the consent gate loads gtag.js after a grant.
+   * When false (the default), the static loader is rendered as before.
+   */
+  consent?: boolean;
 }
 
-const { measurementId } = Astro.props;
+const { measurementId, consent = false } = Astro.props;
 if (!measurementId?.trim()) throw new Error('GoogleAnalytics requires a measurementId prop.');
 const scriptUrl = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
 // Astro wraps a script that receives template variables in an IIFE, which would keep gtag out of
@@ -14,9 +19,14 @@ const initScript = [
   "window.gtag('js', new Date());",
   `window.gtag('config', ${JSON.stringify(measurementId).replace(/</g, '\\u003c')});`,
 ].join('\n');
+// Inert data for the consent gate: the ID only, never an executable loader or a provider URL.
+const descriptor = JSON.stringify({ measurementId }).replace(/</g, '\\u003c');
 ---
 
-{import.meta.env.PROD && (
+{import.meta.env.PROD && consent && (
+  <script is:inline type="application/json" data-hagilight-analytics="googleAnalytics" set:html={descriptor}></script>
+)}
+{import.meta.env.PROD && !consent && (
   <>
     <script async src={scriptUrl}></script>
     <script is:inline set:html={initScript}></script>
@@ -26,5 +36,9 @@ const initScript = [
 <script>
   import { installGaEventTracking } from './dist/analytics-events.js';
 
+  // Silent while gtag is undefined (before a grant), so a tracked click is only navigated, never sent.
   installGaEventTracking();
+  if (document.querySelector('script[data-hagilight-analytics]')) {
+    import('./dist/consent-gate.js').then((gate) => gate.mountConsentGate());
+  }
 </script>

@@ -1,6 +1,6 @@
 ---
 import corePackage from './package.json';
-import { posthogInitScript } from './dist/posthog.js';
+import { DEFAULT_POSTHOG_API_KEY, posthogInitScript } from './dist/posthog.js';
 
 interface Props {
   apiKey?: string;
@@ -12,21 +12,41 @@ interface Props {
   version?: string;
   /** A build-time page type from the page's vocabulary; absent falls back to the page-type meta element. */
   pageType?: 'home' | 'docs' | 'blog' | 'compare' | '404' | 'other';
+  /**
+   * When true, the page carries only an inert descriptor and the consent gate injects the same loader after a grant.
+   * The click listener is installed from the post-grant hook. When false (the default), PostHog renders as before.
+   */
+  consent?: boolean;
 }
 
-const { apiKey, siteId, framework = 'astro', version = corePackage.version, pageType } = Astro.props;
+const { apiKey, siteId, framework = 'astro', version = corePackage.version, pageType, consent = false } = Astro.props;
 const script = posthogInitScript(apiKey, {
   siteId: siteId ?? Astro.site?.hostname,
   framework,
   version,
   pageType,
 });
+// Inert data for the consent gate: the key and the unchanged loader, which runs only after a grant.
+const descriptor = JSON.stringify({ apiKey: apiKey ?? DEFAULT_POSTHOG_API_KEY, loader: script }).replace(/</g, '\\u003c');
 ---
 
-{import.meta.env.PROD && <script is:inline set:html={script}></script>}
+{import.meta.env.PROD && consent && (
+  <script is:inline type="application/json" data-hagilight-analytics="posthog" set:html={descriptor}></script>
+)}
+{import.meta.env.PROD && !consent && <script is:inline set:html={script}></script>}
 
 <script>
   import { installPostHogClickTracking } from './dist/posthog-events.js';
 
-  if (import.meta.env.PROD) installPostHogClickTracking();
+  if (import.meta.env.PROD) {
+    if (document.querySelector('script[data-hagilight-analytics="posthog"]')) {
+      // Listeners that need PostHog install only from the post-grant seam, never while undecided.
+      import('./dist/consent-gate.js').then((gate) => {
+        gate.onPostHogStarted(() => installPostHogClickTracking());
+        gate.mountConsentGate();
+      });
+    } else {
+      installPostHogClickTracking();
+    }
+  }
 </script>

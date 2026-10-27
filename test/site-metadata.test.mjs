@@ -149,21 +149,29 @@ test('analytics is always three booleans and features only carries supplied keys
   assert.deepEqual(partial.features, { seo: false });
 });
 
-test('the loader markers match the shipped GA, 51LA and PostHog loaders', () => {
+test('the loader markers match the shipped GA, 51LA and PostHog components in both forms', () => {
   const gaSource = readFileSync(join(root, 'packages/core/GoogleAnalytics.astro'), 'utf8');
-  assert.ok(gaSource.includes(ANALYTICS_LOADER_MARKERS.googleAnalytics[0]));
+  assert.ok(gaSource.includes(ANALYTICS_LOADER_MARKERS.googleAnalytics[1][0]), 'static GA loader');
+  assert.ok(gaSource.includes(ANALYTICS_LOADER_MARKERS.googleAnalytics[0][0]), 'GA consent descriptor');
   const laSource = readFileSync(join(root, 'packages/core/Analytics51LA.astro'), 'utf8');
-  for (const marker of ANALYTICS_LOADER_MARKERS.fiftyOneLa) assert.ok(laSource.includes(marker), marker);
+  for (const marker of ANALYTICS_LOADER_MARKERS.fiftyOneLa[1]) assert.ok(laSource.includes(marker), marker);
+  assert.ok(laSource.includes(ANALYTICS_LOADER_MARKERS.fiftyOneLa[0][0]), '51LA consent descriptor');
   const posthog = posthogInitScript(DEFAULT_POSTHOG_KEY);
-  for (const marker of ANALYTICS_LOADER_MARKERS.posthog) assert.ok(posthog.includes(marker), marker);
+  for (const marker of ANALYTICS_LOADER_MARKERS.posthog[1]) assert.ok(posthog.includes(marker), marker);
+  const posthogSource = readFileSync(join(root, 'packages/core/PostHog.astro'), 'utf8');
+  assert.ok(posthogSource.includes(ANALYTICS_LOADER_MARKERS.posthog[0][0]), 'PostHog consent descriptor');
 });
 
 test('detectAnalyticsLoaders reports a provider only when every marker is present on a page', () => {
-  const gaPage = `<script src="${ANALYTICS_LOADER_MARKERS.googleAnalytics[0]}?id=G-X"></script>`;
+  const gaPage = `<script src="${ANALYTICS_LOADER_MARKERS.googleAnalytics[1][0]}?id=G-X"></script>`;
   const half51La = `<script id="LA_COLLECT"></script>`;
   const full51La = `<script is:inline id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>`;
-  const posthogPage = `<script>${ANALYTICS_LOADER_MARKERS.posthog[0]}</script>`;
+  const posthogPage = `<script>${ANALYTICS_LOADER_MARKERS.posthog[1][0]}</script>`;
+  const consentPage = `<script type="application/json" data-hagilight-analytics="googleAnalytics">{}</script>`;
+  const posthogDescriptor = `<script type="application/json" data-hagilight-analytics="posthog">{}</script>`;
   assert.deepEqual(detectAnalyticsLoaders([]), { googleAnalytics: false, fiftyOneLa: false, posthog: false });
+  assert.deepEqual(detectAnalyticsLoaders([consentPage]), { googleAnalytics: true, fiftyOneLa: false, posthog: false }, 'a consent descriptor alone enables the provider');
+  assert.deepEqual(detectAnalyticsLoaders([posthogDescriptor]), { googleAnalytics: false, fiftyOneLa: false, posthog: true });
   assert.deepEqual(detectAnalyticsLoaders(['<p>plain</p>', gaPage]), { googleAnalytics: true, fiftyOneLa: false, posthog: false });
   assert.deepEqual(detectAnalyticsLoaders([half51La]), { googleAnalytics: false, fiftyOneLa: false, posthog: false });
   assert.deepEqual(detectAnalyticsLoaders([full51La, posthogPage]), { googleAnalytics: false, fiftyOneLa: true, posthog: true });
@@ -297,4 +305,17 @@ test('the schema example in the core README validates against the contract', () 
   const example = JSON.parse(section.match(/```json\n([\s\S]*?)```/u)[1]);
   assert.deepEqual(validateSiteMetadata(example), []);
   assert.equal(serializeSiteMetadata(example), `${JSON.stringify(example)}\n`, 'the example already uses canonical key order');
+});
+
+test('features.consent is a boolean in the fixed order and is set only when the build mounts the popup', () => {
+  const withConsent = buildSiteMetadata(sampleInput({ features: { seo: true, promoto: true, consent: true } }));
+  assert.equal(withConsent.features.consent, true);
+  assert.deepEqual(Object.keys(withConsent.features), ['seo', 'promoto', 'consent']);
+  assert.equal(withConsent.schemaVersion, 1, 'the addition stays within schemaVersion 1');
+  assert.match(serializeSiteMetadata(withConsent), /"features":\{"seo":true,"promoto":true,"consent":true\}/u);
+  const without = buildSiteMetadata(sampleInput({ features: { seo: false } }));
+  assert.equal('consent' in without.features, false);
+  assert.deepEqual(validateSiteMetadata(JSON.parse(serializeSiteMetadata(withConsent))), []);
+  assert.deepEqual(validateSiteMetadata({ ...JSON.parse(serializeSiteMetadata(withConsent)), features: { consent: 'yes' } }), ['features.consent must be a boolean']);
+  assert.equal(JSON.stringify(withConsent).includes('policyVersion'), false, 'no policy values or IDs leave the build');
 });
