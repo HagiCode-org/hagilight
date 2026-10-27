@@ -143,8 +143,9 @@ function verifyDefaultLinksAndAnalytics() {
   assert.ok(html.includes('Download HagiCode'));
   assert.ok(html.includes('Download HagiCode for Windows'));
   assert.ok(html.includes('About HagiCode'));
-  assert.ok(html.includes('Quick links'));
-  assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
+  for (const heading of ['Get Started', 'Learn &amp; Docs', 'Tools &amp; Resources', 'Community &amp; Support']) {
+    assert.ok(html.includes(`>${heading}</h2>`), `the footer has the ${heading} column`);
+  }
   assert.ok(html.includes('https://github.com/HagiCode-org/hagilight/edit/main/'));
   assert.ok(!html.includes('hagilight-site-description'));
   assert.match(
@@ -428,9 +429,12 @@ function verifyCoreFooter(tarballs, astroVersion) {
   assert.ok(chineseHtml.includes(`© ${new Date().getFullYear()} HagiCode`));
 
   const css = readFileSync(join(nodeModules, '@hagicode', 'hagilight-core', 'Footer.astro'), 'utf8');
-  assert.match(css, /grid-template-columns:\s*repeat\(auto-fit/u);
-  assert.match(css, /@media\s*\((?:max-width:\s*40rem|width\s*<=\s*40rem)\)/u);
-  assert.match(css, /grid-template-columns:\s*1fr/u);
+  // The columns reflow by container width: one column when narrow, two by default, four when wide.
+  assert.match(css, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/u);
+  assert.match(css, /@container\s+hagilight-cols\s*\((?:max-width:\s*19rem|width\s*<=\s*19rem)\)/u);
+  assert.match(css, /grid-template-columns:\s*minmax\(0,\s*1fr\)/u);
+  assert.match(css, /@container\s+hagilight-cols\s*\((?:min-width:\s*40rem|width\s*>=\s*40rem)\)/u);
+  assert.match(css, /grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/u);
   assert.ok(css.includes(':focus-visible'), 'Footer links must retain a visible keyboard-focus style');
 }
 
