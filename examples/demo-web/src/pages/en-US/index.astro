@@ -164,6 +164,24 @@ const sections = [
         evidence: 'PostHog is injected once into every page head by the integration. Production visits send activity to the shared HagiCode project.',
         example: "// astro.config.mjs: hagilight() injects PostHog into every production head.\nhagilight({ analytics: { posthog: { enabled: false } } }); // opt out\n\n// Custom head only: render the shared component once when the integration is not the owner.\nimport PostHog from '@hagicode/hagilight-core/PostHog';\nimport { posthogInitScript } from '@hagicode/hagilight-core/posthog';\n\n<PostHog />\n\nimport GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight-core/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}\n\nimport { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';\n\n<a href=\"/download\" {...gaEventAttributes({ category: 'download', label: 'customDownload', location: 'footer' })}>Download</a>",
       },
+      {
+        id: 'consent',
+        title: 'Analytics consent',
+        kind: 'Optional · strict prior consent',
+        summary: 'With consent on (the default when a provider is enabled), analytics stays off until the visitor accepts. The hagilight() integration leaves PostHog as an inert descriptor and mounts the popup and gate, and CookieConsent renders the same popup for hand-written layouts. @hagicode/hagilight-core/consent holds getConsent, setConsent, onConsentChange and openConsentPreferences; @hagicode/hagilight-core/consent-gate starts each provider once after a grant; @hagicode/hagilight-core/consent-popup, @hagicode/hagilight-core/consent-markup, @hagicode/hagilight-core/consent-copy and @hagicode/hagilight-core/consent-mount provide the popup, its markup, localized copy and page wiring.',
+        evidence: 'The demo popup is composed in the layout and appears once on every page; choosing Reject or Accept stores the choice for 180 days.',
+        example: "// Plain Astro: the integration mounts the popup while PostHog is enabled.
+hagilight({ analytics: { consent: { privacyUrl: '/privacy/', policyVersion: '1' } } });
+
+// Hand-written layout: one popup for the enabled providers.
+import CookieConsent from '@hagicode/hagilight-core/CookieConsent';
+
+<CookieConsent providers={['posthog']} privacyUrl="/privacy/" locale="en-US" />
+
+import { getConsent, setConsent } from '@hagicode/hagilight-core/consent';
+
+setConsent({ analytics: true });",
+      },
     ],
   },
 ];

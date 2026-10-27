@@ -164,6 +164,24 @@ const sections = [
         evidence: 'PostHog 由集成注入每个页面的 head 一次，生产环境访问会向 HagiCode 的共享项目发送活动数据。',
         example: "// astro.config.mjs: hagilight() injects PostHog into every production head.\nhagilight({ analytics: { posthog: { enabled: false } } }); // opt out\n\n// Custom head only: render the shared component once when the integration is not the owner.\nimport PostHog from '@hagicode/hagilight-core/PostHog';\nimport { posthogInitScript } from '@hagicode/hagilight-core/posthog';\n\n<PostHog />\n\nimport GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';\nimport Analytics51LA from '@hagicode/hagilight-core/Analytics51LA';\n\n{import.meta.env.PUBLIC_GA_ID && <GoogleAnalytics measurementId={import.meta.env.PUBLIC_GA_ID} />}\n{import.meta.env.PUBLIC_51LA_SITE_ID && <Analytics51LA siteId={import.meta.env.PUBLIC_51LA_SITE_ID} />}\n\nimport { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';\n\n<a href=\"/download\" {...gaEventAttributes({ category: 'download', label: 'customDownload', location: 'footer' })}>Download</a>",
       },
+      {
+        id: 'consent',
+        title: '分析同意',
+        kind: '可选 · 严格事先同意',
+        summary: '同意开启时(启用任一分析服务时默认开启),访问者接受之前分析都不会加载。hagilight() 集成把 PostHog 保留为惰性描述,并挂载弹窗和门控;CookieConsent 为手写的布局渲染同一个弹窗。@hagicode/hagilight-core/consent 提供 getConsent、setConsent、onConsentChange 和 openConsentPreferences;@hagicode/hagilight-core/consent-gate 在授予后各启动一次提供商;@hagicode/hagilight-core/consent-popup、@hagicode/hagilight-core/consent-markup、@hagicode/hagilight-core/consent-copy 与 @hagicode/hagilight-core/consent-mount 分别提供弹窗、标记、本地化文案和页面挂载。',
+        evidence: '演示站的弹窗在布局中组合,每个页面恰好出现一次;选择拒绝或接受会把选择保存 180 天。',
+        example: "// 普通 Astro:PostHog 启用时,集成会挂载弹窗。
+hagilight({ analytics: { consent: { privacyUrl: '/privacy/', policyVersion: '1' } } });
+
+// 手写布局:为已启用的提供商渲染一个弹窗。
+import CookieConsent from '@hagicode/hagilight-core/CookieConsent';
+
+<CookieConsent providers={['posthog']} privacyUrl="/privacy/" locale="zh-CN" />
+
+import { getConsent, setConsent } from '@hagicode/hagilight-core/consent';
+
+setConsent({ analytics: true });",
+      },
     ],
   },
 ];
