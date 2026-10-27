@@ -1,0 +1,25 @@
+{
+  "observedOn": "2026-10-26",
+  "method": "headless Chromium (Playwright 1.63), shipped loader output; provider request hosts aborted except the SDK loader",
+  "posthog": {
+    "cookies": ["ph_<key>_posthog"],
+    "localStorage": ["ph_<key>_posthog", "__ph_opt_in_out_<key>"],
+    "sessionStorage": ["ph_<key>_session_registered_properties", "ph_<key>_primary_window_exists"],
+    "calls": ["opt_out_capturing", "clear_opt_in_out_capturing"],
+    "documentedStopInPlace": true,
+    "observedStopInPlace": "not observed; confirm in the consent browser check (10.2)"
+  },
+  "googleAnalytics": {
+    "cookies": ["_ga", "_ga_<id>"],
+    "localStorage": [],
+    "sessionStorage": [],
+    "disableFlag": "ga-disable-<id>",
+    "flagBeforeLoad": "no cookie and no collect request",
+    "flagAfterConfig": "collect requests still attempted",
+    "stopInPlace": false
+  },
+  "fiftyOneLa": {
+    "status": "not observed",
+    "reason": "sdk.51.la does not resolve from this machine"
+  }
+}
