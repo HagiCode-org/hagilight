@@ -104,6 +104,14 @@ const sections = [
         example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\nimport { classifyOgImage } from '@hagicode/hagilight-core/og-image';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });\nconst imageFormat = classifyOgImage('/social/card.avif'); // 'convertible'",
       },
       {
+        id: 'entity-definition',
+        title: 'Entity definition',
+        kind: 'Build-time helper',
+        summary: 'getEntityDefinition returns the one shared sentence that defines the product, in the requested locale with an en-US fallback. buildSoftwareApplicationStructuredData turns product facts into SoftwareApplication JSON-LD.',
+        evidence: 'The definition is the single source for the page lead, the llms.txt summary and the SoftwareApplication description.',
+        example: "import { getEntityDefinition } from '@hagicode/hagilight-core/entity-definition';\nimport { buildSoftwareApplicationStructuredData } from '@hagicode/hagilight-core/seo';\n\nconst definition = getEntityDefinition(Astro.currentLocale); // falls back to en-US\nconst app = buildSoftwareApplicationStructuredData({\n  name: 'Example App',\n  applicationCategory: 'DeveloperApplication',\n  operatingSystem: 'Linux',\n  description: definition,\n});",
+      },
+      {
         id: 'favicon',
         title: 'Favicon',
         kind: 'Live in browser tab · build integration',
