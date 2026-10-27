@@ -140,8 +140,8 @@ function verifyDefaultLinksAndAnalytics() {
     assert.ok(!chineseFeed.includes('RSS draft'));
     assert.ok(chineseFeed.includes('https://hagistar.hagicode.com/zh-CN/blog/rss-example/'));
   assert.ok(!html.includes('store.steampowered.com'));
-  assert.ok(html.includes('Download Hagicode'));
-  assert.ok(html.includes('Download Hagicode for Windows'));
+  assert.ok(html.includes('Download HagiCode'));
+  assert.ok(html.includes('Download HagiCode for Windows'));
   assert.ok(html.includes('About HagiCode'));
   assert.ok(html.includes('Quick links'));
   assert.ok(html.includes('<h2') && html.includes('>Community</h2>'));
@@ -163,10 +163,10 @@ function verifyDefaultLinksAndAnalytics() {
     html,
     /href="https:\/\/discord\.gg\/qY662sJK"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/u,
   );
-  assert.ok(html.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'));
-  assert.ok(html.includes("window.gtag('config', \"G-EN03FMT2Q4\")"));
-  assert.ok(html.includes('sdk.51.la/js-sdk-pro.min.js'));
-  assert.ok(html.includes('L6b88a5yK4h2Xnci'));
+  // Providers load only after consent: the page carries inert descriptors and no provider script tag.
+  assert.ok(html.includes('data-hagilight-analytics="googleAnalytics"') && html.includes('G-EN03FMT2Q4'));
+  assert.ok(html.includes('data-hagilight-analytics="fiftyOneLa"') && html.includes('L6b88a5yK4h2Xnci'));
+  assert.doesNotMatch(html, /<script\b[^>]*\bsrc="https:\/\/(?:www\.googletagmanager\.com\/gtag\/js|sdk\.51\.la\/)/u);
 }
 
 function verifyContentFeatures() {
@@ -223,15 +223,18 @@ function verifySeoIntegration() {
 function verifyAnalyticsBuild() {
   const html = readFileSync(join(temp, 'dist', 'index.html'), 'utf8');
   const notFoundHtml = readFileSync(join(temp, 'dist', '404.html'), 'utf8');
-  assert.equal(countOccurrences(html, 'googletagmanager.com/gtag/js?id=G-TEST123'), 1);
-  assert.equal(countOccurrences(html, "window.gtag('config', \"G-TEST123\")"), 1);
-  assert.ok(html.includes('window.gtag = function gtag()'));
-  assert.equal(countOccurrences(html, 'sdk.51.la/js-sdk-pro.min.js'), 1);
-  assert.equal(countOccurrences(html, 'LA.init('), 1);
-  assert.match(html, /siteId\s*=\s*["']test-site-51la["']/u);
+  // Providers load only after consent: pages carry inert descriptors with the IDs, never a loader or an init call.
+  assert.equal(countOccurrences(html, 'data-hagilight-analytics="googleAnalytics"'), 1);
+  assert.equal(countOccurrences(html, 'data-hagilight-analytics="fiftyOneLa"'), 1);
+  assert.match(html, /\{"measurementId":"G-TEST123"\}/u);
+  assert.match(html, /\{"siteId":"test-site-51la"\}/u);
+  assert.doesNotMatch(html, /<script\b[^>]*\bsrc="https:\/\/(?:www\.googletagmanager\.com\/gtag\/js|sdk\.51\.la\/)/u);
+  assert.ok(!html.includes('LA.init('));
+  assert.ok(!html.includes("window.gtag('config',"));
   assert.ok(!notFoundHtml.includes('googletagmanager.com'));
   assert.ok(!notFoundHtml.includes("gtag('config',"));
-  assert.equal(countOccurrences(notFoundHtml, 'LA.init('), 1);
+  assert.ok(!notFoundHtml.includes('data-hagilight-analytics="googleAnalytics"'));
+  assert.ok(!notFoundHtml.includes('LA.init('));
 }
 
 async function availablePort() {
