@@ -86,7 +86,8 @@ test('registering with no options enables every standard feature', () => {
   const plugin = createPlugin();
   assert.equal(plugin.name, '@hagicode/hagilight-docusaurus');
   assert.ok(plugin.getThemePath, 'theme path is exposed while footer is enabled');
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
+  // Consent is on by default with the default providers, so its client module and stylesheet ship with them.
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
   // The footer avatar picker follows the footer and its randomAvatar option, and only those.
   assert.ok(plugin.getClientModules().some((path) => fileName(path) === 'random-image.js'));
 
@@ -251,7 +252,7 @@ test('the footer site identifier is published for the banner only when the banne
 });
 
 test('analytics head tags appear only in production builds', () => {
-  const plugin = createPlugin();
+  const plugin = createPlugin({ analytics: { consent: { enabled: false } } });
 
   process.env.NODE_ENV = 'development';
   assert.deepEqual(nonSeoHeadTags(plugin), []);
@@ -261,6 +262,20 @@ test('analytics head tags appear only in production builds', () => {
   assert.ok(headTags.some((tag) => tag.attributes?.src?.includes('googletagmanager.com/gtag/js?id=G-EN03FMT2Q4')));
   assert.ok(headTags.some((tag) => tag.attributes?.src === 'https://sdk.51.la/js-sdk-pro.min.js'));
   assert.ok(headTags.some((tag) => tag.innerHTML?.includes('LA.init({"id":"L6b88a5yK4h2Xnci"')));
+  assert.ok(headTags.every((tag) => tag.attributes?.id !== 'hagilight-consent-config'), 'consent off ships no popup config');
+});
+
+test('with consent on, providers leave inert descriptors and no executable loader in production', () => {
+  const plugin = createPlugin();
+  process.env.NODE_ENV = 'production';
+  const { headTags } = plugin.injectHtmlTags({ content: undefined });
+  const descriptor = (provider) => headTags.find((tag) => tag.attributes?.['data-hagilight-analytics'] === provider);
+  assert.equal(descriptor('googleAnalytics')?.attributes.type, 'application/json');
+  assert.deepEqual(JSON.parse(descriptor('googleAnalytics').innerHTML), { measurementId: 'G-EN03FMT2Q4' });
+  assert.deepEqual(JSON.parse(descriptor('fiftyOneLa').innerHTML), { siteId: 'L6b88a5yK4h2Xnci' });
+  assert.equal(headTags.some((tag) => tag.attributes?.src?.includes('googletagmanager.com') || tag.attributes?.src?.includes('sdk.51.la')), false);
+  const config = headTags.find((tag) => tag.attributes?.id === 'hagilight-consent-config');
+  assert.deepEqual(JSON.parse(config.innerHTML), { policyVersion: '1', privacyUrl: null, providers: ['googleAnalytics', 'fiftyOneLa', 'posthog'], locale: 'en-US' }, 'the config names providers and policy only');
 });
 
 test('a disabled provider leaves no head tags behind', () => {
@@ -272,7 +287,7 @@ test('a disabled provider leaves no head tags behind', () => {
 
 test('a disabled promote card ships neither its client module nor its stylesheet', () => {
   const plugin = createPlugin({ promoto: { enabled: false } });
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'styles.css', 'random-image.js']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'styles.css', 'consent.css', 'random-image.js']);
 });
 
 test('a sharing image is required by default and the warning is silent when either source sets one', () => {
@@ -331,12 +346,15 @@ test('PostHog emits one shared head script only in production and stays independ
   const plugin = createPlugin();
   process.env.NODE_ENV = 'production';
   const tags = nonSeoHeadTags(plugin);
-  const initTags = tags.filter((tag) => tag.innerHTML?.includes('posthog.init('));
+  // With consent on (the default), the one PostHog loader travels inside its inert descriptor, never executed as a script.
+  const initTags = tags.filter((tag) => tag.attributes?.['data-hagilight-analytics'] === 'posthog');
   assert.equal(initTags.length, 1);
-  assert.ok(initTags[0].innerHTML.includes('"framework":"docusaurus"'), 'the head registers the Docusaurus site context');
-  assert.ok(initTags[0].innerHTML.includes('"version":"0.1.0"'));
-  assert.ok(tags.some((tag) => tag.attributes?.src?.includes('googletagmanager')));
-  assert.ok(tags.some((tag) => tag.attributes?.src?.includes('sdk.51.la')));
+  const loader = JSON.parse(initTags[0].innerHTML).loader;
+  assert.ok(loader.includes('posthog.init('), 'the descriptor carries the unchanged loader');
+  assert.ok(loader.includes('"framework":"docusaurus"'), 'the head registers the Docusaurus site context');
+  assert.ok(loader.includes('"version":"0.1.0"'));
+  assert.equal(tags.some((tag) => tag.attributes?.src?.includes('googletagmanager')), false, 'no GA loader before a grant');
+  assert.equal(tags.some((tag) => tag.attributes?.src?.includes('sdk.51.la')), false, 'no 51LA loader before a grant');
   for (const mode of ['development', 'test', undefined]) {
     if (mode === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = mode;
@@ -349,12 +367,13 @@ test('PostHog emits one shared head script only in production and stays independ
   assert.deepEqual(nonSeoHeadTags(onlyPosthog).map(({ tagName, attributes }) => ({ tagName, name: attributes?.name })), [
     { tagName: 'meta', name: 'hagilight-base-path' },
     { tagName: 'script', name: undefined },
+    { tagName: 'script', name: undefined },
   ]);
-  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
+  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
   const noPosthog = createPlugin({ analytics: { posthog: { enabled: false } } });
-  assert.equal(nonSeoHeadTags(noPosthog).length, 4);
+  assert.equal(nonSeoHeadTags(noPosthog).length, 3, 'two inert provider descriptors and the popup config');
   assert.ok(nonSeoHeadTags(noPosthog).every((tag) => !tag.innerHTML?.includes('posthog.init')));
-  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
+  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
   const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
   assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML?.includes('phc_Custom123')).length, 1);
 });
