@@ -18,7 +18,12 @@ function buildExample(outDir, analytics) {
   rmSync(outDir, { recursive: true, force: true });
   execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example', '--', '--out-dir', outDir], {
     cwd: root,
-    env: { ...process.env, HAGILIGHT_DEMO_ANALYTICS: analytics },
+    env: {
+      ...process.env,
+      HAGILIGHT_DEMO_ANALYTICS: analytics,
+      // The ten-locale build overruns Node's default heap (about 2 GB on CI runners).
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=6144'].filter(Boolean).join(' '),
+    },
     stdio: 'pipe',
     shell: process.platform === 'win32',
   });
