@@ -170,17 +170,7 @@ const sections = [
         kind: '可选 · 严格事先同意',
         summary: '同意开启时(启用任一分析服务时默认开启),访问者接受之前分析都不会加载。hagilight() 集成把 PostHog 保留为惰性描述,并挂载弹窗和门控;CookieConsent 为手写的布局渲染同一个弹窗。@hagicode/hagilight-core/consent 提供 getConsent、setConsent、onConsentChange 和 openConsentPreferences;@hagicode/hagilight-core/consent-gate 在授予后各启动一次提供商;@hagicode/hagilight-core/consent-popup、@hagicode/hagilight-core/consent-markup、@hagicode/hagilight-core/consent-copy 与 @hagicode/hagilight-core/consent-mount 分别提供弹窗、标记、本地化文案和页面挂载。',
         evidence: '演示站的弹窗在布局中组合,每个页面恰好出现一次;选择拒绝或接受会把选择保存 180 天。',
-        example: "// 普通 Astro:PostHog 启用时,集成会挂载弹窗。
-hagilight({ analytics: { consent: { privacyUrl: '/privacy/', policyVersion: '1' } } });
-
-// 手写布局:为已启用的提供商渲染一个弹窗。
-import CookieConsent from '@hagicode/hagilight-core/CookieConsent';
-
-<CookieConsent providers={['posthog']} privacyUrl="/privacy/" locale="zh-CN" />
-
-import { getConsent, setConsent } from '@hagicode/hagilight-core/consent';
-
-setConsent({ analytics: true });",
+        example: "// 普通 Astro:PostHog 启用时,集成会挂载弹窗。\nhagilight({ analytics: { consent: { privacyUrl: '/privacy/', policyVersion: '1' } } });\n\n// 手写布局:为已启用的提供商渲染一个弹窗。\nimport CookieConsent from '@hagicode/hagilight-core/CookieConsent';\n\n<CookieConsent providers={['posthog']} privacyUrl=\"/privacy/\" locale=\"zh-CN\" />\n\nimport { getConsent, setConsent } from '@hagicode/hagilight-core/consent';\n\nsetConsent({ analytics: true });",
       },
     ],
   },

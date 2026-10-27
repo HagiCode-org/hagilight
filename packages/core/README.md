@@ -593,6 +593,8 @@ Analytics is off until a visitor grants it. With consent on (the default wheneve
 - `@hagicode/hagilight-core/CookieConsent` (Astro): renders the popup. Pass `providers` (the enabled analytics providers), and optionally `privacyUrl` (an absolute HTTP(S) URL or a `/` path; omitted means no privacy link) and `policyVersion` (1 to 32 letters, digits, dots, underscores or hyphens). Mount it only when a provider is enabled. The popup publishes `--hagilight-consent-clearance` so the banner and footers stay clear of it.
 - `@hagicode/hagilight-core/consent-markup` holds the shared markup, the config descriptor and the option validators; `@hagicode/hagilight-core/consent-copy` holds the localized copy for every `SITE_LOCALES` code.
 
+51LA is loaded without screen recording or session replay: `LA.init` sets `autoTrack` and `hashMode` and never `screenRecord`. Session replay in this stack is PostHog's, controlled by the project's PostHog settings, and the popup discloses it only for PostHog.
+
 Storage names that the details list (and that cleanup removes on withdrawal) are verified in `test/fixtures/consent-sdk-storage.json`: PostHog writes `ph_<key>_posthog` (cookie and localStorage), `__ph_opt_in_out_<key>` and two `ph_<key>_` sessionStorage keys; Google Analytics writes `_ga` and `_ga_<id>`. 51LA's names are not verified yet. Re-verify the SDK names whenever an SDK is upgraded, and update `packages/core/src/consent-gate.ts` and the fixture together.
 
 Withdrawal stops collection: PostHog opts out and its `ph_` entries are removed; GA sets `ga-disable-<id>` and its cookies are removed; any provider that cannot stop in place (51LA always, GA and PostHog until the consent browser check confirms otherwise) reloads the page after the denial is saved.
