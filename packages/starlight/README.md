@@ -43,6 +43,8 @@ PostHog options follow the Google Analytics provider convention:
 | `posthog: { enabled: true, apiKey: 'phc_Custom123' }` | Enabled with the custom key |
 | `posthog: { enabled: true }` | Configuration error: `apiKey` required |
 | `posthog: { enabled: false }` | Disabled independently of Google Analytics and 51LA |
+| `posthog: { searchQuery: 'zero-results' }` | Enabled with the default key; search text is sent only for searches with no results |
+| `posthog: { searchQuery: 'off' }` | Enabled with the default key; no search text in any event (the default) |
 
 Keys must match `^phc_[A-Za-z0-9]+$`; enabled providers reject missing or malformed keys. Provider options must be objects and `enabled` must be boolean.
 
@@ -63,6 +65,10 @@ hagilight({
   },
 });
 ```
+
+`searchQuery` accepts `off` (default) or `zero-results`; any other value fails configuration with an error naming `analytics.posthog.searchQuery`. It never changes whether PostHog is enabled: an object that holds only `searchQuery` counts as omitted, so the default key stays on, while `{}` still disables it. Under `zero-results`, `search_used` carries `query` only when the search returned nothing and the text passes the secret and path filter; see the core README for the exact rules.
+
+The Starlight plugin emits every core event: `not_found_viewed` (404 page), `search_used`, `search_result_clicked` (Pagefind search), `code_copied`, `article_promotion_impression` (end-of-article card), `locale_changed` (language chooser), `locale_redirected` (root transit), and the optional `theme_changed` and `content_width_changed` (theme picker and content width toggle). Docusaurus has no Pagefind search, so it sends no search events, and it has no article promotion impression or theme and width events.
 
 The shared component initializes once per document; SDK defaults own PostHog navigation behavior. Choose one initialization owner and disable this provider when the site already initializes PostHog. Google Analytics and 51LA keep their configured behavior when PostHog is disabled.
 

@@ -84,6 +84,8 @@ PostHog needs no configuration or consumer project key when registering `hagilig
 | `posthog: { enabled: true, apiKey: 'phc_Custom123' }` | Enabled with the custom key |
 | `posthog: { enabled: true }` | Configuration error: `apiKey` required |
 | `posthog: { enabled: false }` | Disabled independently of Google Analytics and 51LA |
+| `posthog: { searchQuery: 'zero-results' }` | Enabled with the default key; search text is sent only for searches with no results (Docusaurus has no PostHog search events, so this has no effect here) |
+| `posthog: { searchQuery: 'off' }` | Enabled with the default key; no search text (the default) |
 
 Keys must match `^phc_[A-Za-z0-9]+$`; enabled providers reject missing or malformed keys. Provider options must be objects and `enabled` must be boolean.
 
@@ -100,7 +102,12 @@ hagilightDocusaurus({
 }); // all analytics disabled
 ```
 
+`searchQuery` accepts `off` (default) or `zero-results`; any other value fails configuration with an error naming `analytics.posthog.searchQuery`. It never changes whether PostHog is enabled: an object that holds only `searchQuery` counts as omitted, while `{}` still disables it.
+
+Docusaurus sends `not_found_viewed` from its 404 page, `code_copied` from its code blocks, and `locale_changed` from the locale dropdown. The interaction observers are installed whenever PostHog is enabled, even when Google Analytics and 51LA are disabled. Platform gaps: there is no `search_used` or `search_result_clicked`, because Docusaurus search is not Pagefind; `article_promotion_impression`, `theme_changed`, `content_width_changed` and `locale_redirected` are Starlight-only or root-transit-only and are not sent here.
+
 Each provider is independent: disabling Google Analytics and 51LA alone leaves PostHog enabled. Choose one PostHog initialization owner and opt out here if the site already supplies it. The loader initializes once per document, and the supplied SDK defaults own navigation tracking. The head registers the site context (`site_framework` `docusaurus`, the plugin version, and `site_id` from `links.siteId` or the site URL's hostname) once. On every route update, including the first page load, the plugin refreshes only `locale` and `page_type` through `posthog.register`, with `page_type` derived from the path, so the 404 page reports a path-derived type rather than `other`. The analytics client module is bundled whenever PostHog is enabled, even when Google Analytics and 51LA are disabled, so marked links are captured as `cta_click` without Google Analytics. Google Analytics and 51LA keep their navigation behavior.
+
 
 ### SEO
 

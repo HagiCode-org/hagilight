@@ -29,7 +29,7 @@ attribution by itself. Plain-Astro sites that want the literal
 `@hagicode/hagilight/Footer`; that component reads the exact build-time version
 from `@hagicode/hagilight`'s own manifest, not from Astro.
 
-Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, `analytics-events`, and `posthog-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
+Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `@hagicode/hagilight-core/posthog-interactions` provides the interaction observers; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, `analytics-events`, and `posthog-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
 
 ```ts
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
@@ -551,7 +551,7 @@ const script = posthogInitScript(); // optional custom key as the first argument
 const withContext = posthogInitScript(undefined, { framework: 'astro', version: '0.1.0', siteId: 'docs.example.com' });
 ```
 
-Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking. Beyond them, Hagilight makes one `posthog.register` call with the site context, sets `capture_exceptions`, and sends `cta_click` events through one click listener per document. It adds no other capture calls and no route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro `hagilight()` integration injects the same script into every production head by default (see its README), so render this component only in a custom head where that integration is not the owner, such as a Starlight site that keeps its own `Head` or a site that sets `analytics: { posthog: { enabled: false } }`.
+Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking. Beyond them, Hagilight makes one `posthog.register` call with the site context, sets `capture_exceptions`, and sends `cta_click` events through one click listener per document. It adds no automatic page-view capture and no route listeners; the interaction events below are its only other captures. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro `hagilight()` integration injects the same script into every production head by default (see its README), so render this component only in a custom head where that integration is not the owner, such as a Starlight site that keeps its own `Head` or a site that sets `analytics: { posthog: { enabled: false } }`.
 
 ### Site context
 
@@ -567,7 +567,7 @@ The site-metadata file keeps its schema; it gains no analytics identifier.
 
 ### Event vocabulary and `cta_click`
 
-`@hagicode/hagilight-core/posthog-events` is the only place PostHog event names, per-event property allowlists, super-property keys, page types and framework names are spelled. It is browser-safe, with no Astro or Node imports, and it exports `POSTHOG_EVENTS`, `POSTHOG_SUPER_PROPERTIES`, `POSTHOG_PAGE_TYPES`, `POSTHOG_FRAMEWORKS`, `capturePostHogEvent`, `sanitizePostHogProperties`, `destinationOf`, `resolvePageType`, `classifyPagePath`, `installPostHogClickTracking` and `handlePostHogClick`.
+`@hagicode/hagilight-core/posthog-events` is the only place PostHog event names, per-event property allowlists, super-property keys, page types and framework names are spelled. Its interaction additions are `POSTHOG_REQUIRED_PROPERTIES`, `POSTHOG_REDIRECT_REASONS`, `POSTHOG_CONTENT_WIDTHS`, `referrerDomain` and `sanitizePath`. It is browser-safe, with no Astro or Node imports, and it exports `POSTHOG_EVENTS`, `POSTHOG_SUPER_PROPERTIES`, `POSTHOG_PAGE_TYPES`, `POSTHOG_FRAMEWORKS`, `capturePostHogEvent`, `sanitizePostHogProperties`, `destinationOf`, `resolvePageType`, `classifyPagePath`, `installPostHogClickTracking` and `handlePostHogClick`.
 
 A marked link (any element with `data-ga-category`, `data-ga-label` and `data-ga-location`) produces one `cta_click` event:
 
@@ -578,6 +578,34 @@ A marked link (any element with `data-ga-category`, `data-ga-label` and `data-ga
 The click listener is passive and capture-phase. It never cancels, stops or delays a click, and it is installed at most once per document whether or not Google Analytics is enabled. It sends nothing when `window.posthog` is absent or `has_opted_out_capturing()` returns `true`, and it never reads link text or form input or identifies the visitor. Other events in the vocabulary are documented with their features.
 
 Changing the vocabulary is a deliberate change: update the table in `packages/core/src/posthog-events.ts` and the snapshot in `test/posthog-events.test.mjs` together.
+
+### Interaction events
+
+`@hagicode/hagilight-core/posthog-interactions` installs one delegated observer set per document (`installPostHogInteractions`). Starlight and plain Astro install it from `PostHog.astro`; Docusaurus installs it from its own client module whenever PostHog is enabled, independently of Google Analytics and 51LA. Each event is sent through the single capture helper, with `transport: 'sendBeacon'`, and only with the properties listed here:
+
+| Event | Sent when | Properties |
+| --- | --- | --- |
+| `not_found_viewed` | A 404 page is shown (Starlight `NotFoundHero`, Docusaurus `NotFound` wrapper), once per view | `path` (no query or fragment), `referrer_domain` (host name, omitted when absent or unparseable) |
+| `search_used` | A Pagefind search has settled 800 ms after the last keystroke (Starlight only) | `query_length`, `results_count`, `locale`, and `query` only under `searchQuery: 'zero-results'` |
+| `search_result_clicked` | A Pagefind result link is clicked (Starlight only) | `rank` (1-based among rendered links), `results_count` |
+| `code_copied` | A code block copy button is used (Expressive Code or Docusaurus) | `language` (declared language, else `unknown`), `page_type`, `is_install_page` |
+| `article_promotion_impression` | The end-of-article promotion card is at least half visible for one second, once per page (Starlight only) | `variant` (centre fan card's pool key, else `default`), `path` |
+| `locale_changed` | A different language is chosen from the Starlight language chooser or the Docusaurus locale dropdown | `from`, `to` |
+| `locale_redirected` | The root transit forwards automatically to a known locale; a click does not count | `from` (`root`), `to`, `reason` (`query`, `stored`, `browser` or `default`) |
+| `theme_changed` (optional, Starlight only) | The theme picker changes | `theme` |
+| `content_width_changed` (optional, Starlight only) | The content width toggle changes | `choice` (`narrow` or `wide`) |
+
+`locale_redirected` has one emitter: the timer-driven forward of the root transit (`reportLocaleRedirect` in `root-transit.ts`). The forward fires only when the destination's first path segment after the base is a known site locale, and a visitor's own click on the transit link never counts. `reason` is the source the locale resolver reports for the transit's own inputs (`?lang=`, stored locale, browser languages, default). The page sets the destination, so `reason` explains why that locale was expected and is not a verified cause. `language-routing` holds no automatic redirect, so the Starlight language chooser never emits `locale_redirected`; it emits `locale_changed` for a choice the visitor makes.
+
+The vocabulary, the required properties of each event and the value rules live in `posthog-events.ts`. An event is dropped when a required property is missing or invalid, and a property outside its event's allowlist is dropped. `page_type` uses the shared values (`home`, `docs`, `blog`, `compare`, `404`, `other`).
+
+**Capture gate.** An event is sent only when `window.posthog` exists, exposes `capture`, and has not reported opt-out. A stub that has not loaded yet still queues the event, and the SDK applies opt-out when it replays the queue. Reading PostHog that throws is ignored, and listeners never cancel, stop or delay the interaction they observe.
+
+**Search text.** The search text is absent from every event by default. `analytics.posthog.searchQuery: 'zero-results'` (see the Starlight and Docusaurus READMEs) adds `query` only when the search returned nothing. The check runs on the whole text before it is cut to 64 code points, and it withholds the text when it contains a hexadecimal run of 16 or more characters, a `/`, `\`, `://`, a leading `~`, a key-like token of 24 or more characters, a known token prefix (`phc_`, `sk-`, `ghp_`, `gho_`, `xox`, `AKIA`, `eyJ`, `Bearer `), or an `@`. A withheld text still lets the rest of the event be sent.
+
+**Code.** The copy listener reads the block's declared language and never reads `data-code`, the block's text or the clipboard, so no code reaches an event.
+
+**Platform gaps.** Docusaurus uses its own search, so it has no `search_used` or `search_result_clicked`. `article_promotion_impression`, `search_*`, `theme_changed` and `content_width_changed` exist only on Starlight, because only Starlight renders those components.
 
 ### Exception capture and privacy limits
 

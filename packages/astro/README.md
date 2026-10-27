@@ -112,7 +112,8 @@ The build warning reads `Hagilight SEO image <address> was kept as declared: its
 `hagilight()` writes `/llms.txt` after the build, following the [llms.txt](https://llmstxt.org/) layout: the site name as the H1, the home page description as a blockquote summary, and one H2 section of links per top-level path segment. It is generated from the built HTML, so it works for plain Astro and Starlight sites alike and needs no content collection.
 
 - Only one language is listed: the Astro `i18n.defaultLocale`, then the home page language. The home pages of the other languages go under `## Optional`.
-- Pages are left out when they are `noindex`, instant redirects, 404 pages, or declare a canonical URL for another page.
+- Pages are left out when they are `noindex`, meta-refresh redirects, 404 pages, or declare a canonical URL for another page.
+- A page that redirects as soon as it loads with a script can opt out with `<meta name="hagilight:llms" content="exclude">` in its `<head>`. Only the redirect page should carry it; a normal page keeps its entry.
 - Each link carries the page's meta description. A description repeated on three or more pages is treated as a site-wide default and left out of the links.
 - Section order is Overview first, then by page count. A section lists 12 links (Overview 36) and the file lists at most 120.
 - An `llms.txt` that the site already provides, as a public file or a page, is never overwritten. `hagilight({ enabled: false })` skips generation too.
@@ -120,8 +121,8 @@ The build warning reads `Hagilight SEO image <address> was kept as declared: its
 ```js
 hagilight({
   llms: {
-    title: 'Example Docs',        // default: the home page og:site_name
-    summary: 'What this site is.', // default: the home page description
+    title: 'Example Docs',        // default: the home page og:site_name; a configured value always wins
+    summary: 'What this site is.', // default: the home page description; a configured value always wins
     lang: 'en-US',                // default: i18n.defaultLocale
     maxLinksPerSection: 60,       // default: 12
     maxLinks: 200,                // default: 120
