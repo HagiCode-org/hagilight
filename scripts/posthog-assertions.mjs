@@ -23,9 +23,19 @@ const CONSENT_DESCRIPTOR = /<script\b[^>]*data-hagilight-analytics="posthog"[^>]
  * The PostHog loader text a markup fragment carries: its executable scripts, plus the loader inside a consent
  * descriptor. A consent-gated page ships the same unchanged loader there, inert until the visitor grants consent.
  */
+// The plain-Astro head inserts its descriptors with one inline script: a single-quoted string literal passed to insertAdjacentHTML.
+const INSERTED_MARKUP = /insertAdjacentHTML\('beforeend',\s*('(?:[^'\\]|\\.)*')\)/gu;
+
+function insertedMarkup(html) {
+  // The literal is a string constant written by the integration, so evaluating it only decodes that string.
+  return [...html.matchAll(INSERTED_MARKUP)].map(([, literal]) => Function(`return ${literal};`)());
+}
+
 function loaderSources(html) {
-  const descriptors = [...html.matchAll(CONSENT_DESCRIPTOR)].map(([, body]) => JSON.parse(body).loader);
-  return [executableScripts(html), ...descriptors].join('\n');
+  const executable = executableScripts(html).replace(INSERTED_MARKUP, '');
+  const descriptors = [html, ...insertedMarkup(html)]
+    .flatMap((markup) => [...markup.matchAll(CONSENT_DESCRIPTOR)].map(([, body]) => JSON.parse(body).loader));
+  return [executable, ...descriptors].join('\n');
 }
 
 /**
