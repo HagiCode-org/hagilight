@@ -51,6 +51,10 @@ export function mountConsentPopup(root: ParentNode = document): () => void {
   // A page can mount the same panel from both its component and an integration; the second mount does nothing.
   if (panel.dataset.consentMounted === 'true') return noop;
   panel.dataset.consentMounted = 'true';
+  // Move the popup to the end of the body. Site layouts can isolate their content (Starlight's main pane does), which
+  // would trap a z-index of 45 inside that pane, under fixed side panels. In the root stacking context it stays on top.
+  const host = panel.closest<HTMLElement>('.hagilight-consent-host') ?? panel;
+  if (host.parentElement !== document.body) document.body.appendChild(host);
   const accept = panel.querySelector<HTMLButtonElement>('[data-consent-accept]');
   const reject = panel.querySelector<HTMLButtonElement>('[data-consent-reject]');
   const toggle = panel.querySelector<HTMLButtonElement>('[data-consent-toggle]');
