@@ -26,6 +26,9 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npm run build:docusaurus-example
+        env:
+          # 10-locale Docusaurus build exceeds the default ~4 GB heap on the runner.
+          NODE_OPTIONS: --max-old-space-size=8192
       - name: Publish Docusaurus demo
         uses: peaceiris/actions-gh-pages@v4
         with:
