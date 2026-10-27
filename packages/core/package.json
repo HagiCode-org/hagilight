@@ -76,6 +76,10 @@
       "types": "./dist/seo.d.ts",
       "default": "./dist/seo.js"
     },
+    "./entity-definition": {
+      "types": "./dist/entity-definition.d.ts",
+      "default": "./dist/entity-definition.js"
+    },
     "./seo-schema": {
       "types": "./dist/seo-schema.d.ts",
       "default": "./dist/seo-schema.js"
@@ -157,6 +161,10 @@
     "./posthog-events": {
       "types": "./dist/posthog-events.d.ts",
       "default": "./dist/posthog-events.js"
+    },
+    "./posthog-interactions": {
+      "types": "./dist/posthog-interactions.d.ts",
+      "default": "./dist/posthog-interactions.js"
     },
     "./Analytics51LA": "./Analytics51LA.astro",
     "./logo.png": "./logo.png",

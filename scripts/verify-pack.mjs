@@ -63,6 +63,8 @@ const REQUIRED_FILES = {
     'dist/posthog.d.ts',
     'dist/posthog-events.js',
     'dist/posthog-events.d.ts',
+    'dist/posthog-interactions.js',
+    'dist/posthog-interactions.d.ts',
     'Analytics51LA.astro',
     'logo.png',
     'favicon.ico',
