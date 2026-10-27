@@ -180,3 +180,7 @@ the literal `Powered By hagilight-starlight@<version>`. The version comes from
 this package's own manifest at build time, not from Astro or Starlight.
 
 See the [repository documentation](https://github.com/HagiCode-org/hagilight#readme) for schema setup and feature options.
+
+### Consent
+
+`analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) is on by default whenever a provider is enabled. The plugin mounts the popup through its generated Footer and Head, on every page including 404, and passes `consent` to the Google Analytics, 51LA and PostHog components. `enabled: false` restores immediate loading; invalid `privacyUrl` or `policyVersion` values fail with the option named. See the core README, "Analytics consent", for the storage names and rules.

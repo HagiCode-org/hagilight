@@ -583,6 +583,20 @@ Changing the vocabulary is a deliberate change: update the table in `packages/co
 
 `posthog.init` sets `capture_exceptions: true`, so unhandled errors are reported as `$exception` events. Project-side prerequisite: `$exception` events also need the `autocapture_exceptions_opt_in` setting enabled in the PostHog project. That setting belongs to the PostHog project owner and not to this repository, so until it is enabled, expect no `$exception` events. Hagilight does not call `identify`, `opt_in_capturing`, `opt_out_capturing` or any session-replay method, so visitors are never identified by Hagilight and no consent state changes.
 
+## Analytics consent
+
+Analytics is off until a visitor grants it. With consent on (the default whenever a provider is enabled), Google Analytics, 51LA and PostHog leave only inert `application/json` descriptors in the page. The gate (`@hagicode/hagilight-core/consent-gate`) injects each loader once, after a grant, and nothing from the undecided period is queued or replayed. Consent-off output (`consent` prop `false`, or `analytics.consent.enabled: false` in a framework plugin) keeps the static loaders as before.
+
+- `@hagicode/hagilight-core/consent` (browser-safe): `getConsent()` returns `{ necessary: 'granted', analytics: 'granted' | 'denied' | 'undecided' }`; `setConsent({ analytics })`; `onConsentChange(callback)` returns an unsubscribe function; `openConsentPreferences()` reopens the popup. None of them throw. `configureConsent({ regionHook })` takes an optional region check: returning `false` means consent is not required; any other result or a throw means it is.
+- Events: `hagilight:consent-change` on `document`, with the new state as `detail`, after each effective change.
+- Storage: cookie `hagicode_consent` (`Domain=.hagicode.com`, `Path=/`, `SameSite=Lax`, `Secure`, 180 days) on hagicode.com hosts only, and localStorage `hagicode:consent` everywhere. The record is `1|granted|<epoch seconds>|<policyVersion>`, expires after 180 days, and a changed policy version asks again. With storage blocked the choice holds for the page session only.
+- `@hagicode/hagilight-core/CookieConsent` (Astro): renders the popup. Pass `providers` (the enabled analytics providers), and optionally `privacyUrl` (an absolute HTTP(S) URL or a `/` path; omitted means no privacy link) and `policyVersion` (1 to 32 letters, digits, dots, underscores or hyphens). Mount it only when a provider is enabled. The popup publishes `--hagilight-consent-clearance` so the banner and footers stay clear of it.
+- `@hagicode/hagilight-core/consent-markup` holds the shared markup, the config descriptor and the option validators; `@hagicode/hagilight-core/consent-copy` holds the localized copy for every `SITE_LOCALES` code.
+
+Storage names that the details list (and that cleanup removes on withdrawal) are verified in `test/fixtures/consent-sdk-storage.json`: PostHog writes `ph_<key>_posthog` (cookie and localStorage), `__ph_opt_in_out_<key>` and two `ph_<key>_` sessionStorage keys; Google Analytics writes `_ga` and `_ga_<id>`. 51LA's names are not verified yet. Re-verify the SDK names whenever an SDK is upgraded, and update `packages/core/src/consent-gate.ts` and the fixture together.
+
+Withdrawal stops collection: PostHog opts out and its `ph_` entries are removed; GA sets `ga-disable-<id>` and its cookies are removed; any provider that cannot stop in place (51LA always, GA and PostHog until the consent browser check confirms otherwise) reloads the page after the denial is saved.
+
 ## Google Analytics click events
 
 `GoogleAnalytics` also reports clicks on the key links and download buttons that the shared components render. There is nothing to configure: events follow the same rules as page views, so they are sent only on production pages where Google Analytics is enabled, never on the Starlight 404 page, and silently skipped when `gtag` is missing (development builds, blocked scripts).

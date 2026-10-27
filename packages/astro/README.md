@@ -212,3 +212,7 @@ hagilight({ contentImages: { enabled: false } });
 Sites that do not use this integration can import the plugin from `@hagicode/hagilight-core` directly; its README describes the options and processor setup.
 
 See the [repository documentation](https://github.com/HagiCode-org/hagilight#readme) for RSS configuration, feed callback types, and integration behavior.
+
+### Consent
+
+`analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) applies to the PostHog this integration injects. With consent on (the default) the head carries an inert descriptor, the page mounts the popup and gate, and PostHog starts only after a grant. `enabled: false` injects PostHog immediately as before. Layouts that compose `<PostHog />`, `<GoogleAnalytics />` or `<Analytics51LA />` by hand pass `consent` to each component and render `<CookieConsent providers={...} />`.

@@ -184,3 +184,7 @@ The sitemap check looks at every loaded plugin, so the position of `hagilightDoc
 ## Demo
 
 The demo site for this package lives in the monorepo at `examples/demo-docusaurus-web` and is published to https://docusaurus.hagicode.com/.
+
+### Consent
+
+`analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) mirrors the Starlight option. With consent on, providers leave inert descriptors in the head, the client module mounts the popup and gate, PostHog's click sink installs only after a grant, and the swizzled footer shows the localized "Cookie settings" entry. The popup styles ship in `consent.css`. `enabled: false` restores immediate loading.
