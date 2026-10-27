@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const distDir = path.resolve(process.argv[2] ?? path.join(ROOT, 'examples/demo-web/dist'));
+const START = process.env.CONSENT_START ?? '/en-US/';
 const require = createRequire(path.join(ROOT, 'package.json'));
 const { chromium } = require('playwright');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.xml': 'application/xml', '.txt': 'text/plain' };
@@ -52,7 +53,7 @@ async function openSite(pathname = '/en-US/', { storage } = {}) {
   });
   const page = await context.newPage();
   if (storage) {
-    await page.goto(`${base}/en-US/`);
+    await page.goto(`${base}${START}`);
     await page.evaluate((entries) => { for (const [key, value] of entries) localStorage.setItem(key, value); }, storage);
   }
   await page.goto(`${base}${pathname}`, { waitUntil: 'load' });
@@ -76,7 +77,7 @@ async function check(name, fn) {
 }
 
 await check('undecided visitor: one popup, no provider request, no provider storage', async () => {
-  const { context, page, seen } = await openSite();
+  const { context, page, seen } = await openSite(START);
   try {
     await page.waitForTimeout(3000);
     assert.equal(await page.locator('[data-hagilight-consent]').count(), 1, 'one popup');
@@ -91,7 +92,7 @@ await check('undecided visitor: one popup, no provider request, no provider stor
 
 await check('denied visitor (stored): no provider request and no provider storage', async () => {
   const now = Math.floor(Date.now() / 1000);
-  const { context, page, seen } = await openSite('/en-US/', { storage: [['hagicode:consent', `1|denied|${now}|1`]] });
+  const { context, page, seen } = await openSite(START, { storage: [['hagicode:consent', `1|denied|${now}|1`]] });
   try {
     await page.waitForTimeout(3000);
     assert.equal(await page.locator('[data-hagilight-consent]').isHidden(), true, 'a decided visitor sees no popup');
@@ -103,7 +104,7 @@ await check('denied visitor (stored): no provider request and no provider storag
 });
 
 await check('reject on the popup: no provider request afterwards', async () => {
-  const { context, page, seen } = await openSite();
+  const { context, page, seen } = await openSite(START);
   try {
     await page.click('[data-consent-reject]');
     await page.waitForTimeout(3000);
@@ -115,7 +116,7 @@ await check('reject on the popup: no provider request afterwards', async () => {
 });
 
 await check('accept loads PostHog on the same page, without a reload', async () => {
-  const { context, page, seen } = await openSite();
+  const { context, page, seen } = await openSite(START);
   try {
     await page.click('[data-consent-accept]');
     await page.waitForFunction(() => window.posthog && window.posthog.__loaded === true, null, { timeout: 30000 });
@@ -126,7 +127,7 @@ await check('accept loads PostHog on the same page, without a reload', async () 
 });
 
 await check('withdrawal after a grant stops capture and clears ph_ storage', async () => {
-  const { context, page, seen } = await openSite();
+  const { context, page, seen } = await openSite(START);
   try {
     await page.click('[data-consent-accept]');
     await page.waitForFunction(() => window.posthog && window.posthog.__loaded === true, null, { timeout: 30000 });
@@ -140,7 +141,9 @@ await check('withdrawal after a grant stops capture and clears ph_ storage', asy
     await page.waitForTimeout(4000);
     const after = seen.slice(before).filter((entry) => entry.startsWith('blocked') && /\/(?:e|i\/v0\/e|batch)\b/u.test(entry));
     assert.deepEqual(after, [], 'no capture request after rejecting');
-    assert.deepEqual(await providerStorage(page), [], 'ph_ storage is cleared');
+    // The __ph_opt_in_out_ marker is kept on purpose: it keeps capture off on later loads until a re-grant clears it.
+    const leftover = (await providerStorage(page)).filter((key) => key.startsWith('ph_'));
+    assert.deepEqual(leftover, [], 'ph_ storage is cleared');
     assert.deepEqual(await providerCookies(context), [], 'ph_ cookies are cleared');
   } finally {
     await context.close();

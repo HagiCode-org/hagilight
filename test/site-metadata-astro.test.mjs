@@ -102,7 +102,8 @@ test('the integration writes the metadata file from a finalizer after the build'
   assert.deepEqual(result.metadata.languages, { default: 'en', locales: [{ code: 'en', lang: 'en', path: '/' }] });
   // llms.txt is on by default and the fixture pages are indexable, so the build produces it.
   assert.deepEqual(result.metadata.discovery, { llms: '/llms.txt' });
-  assert.deepEqual(result.metadata.features, {});
+  // No analytics provider on these pages, so the popup is not mounted and the consent feature is false.
+  assert.deepEqual(result.metadata.features, { consent: false });
   assert.equal(result.appended.length, 1, 'one finalizer is appended after the sitemap');
   assert.ok(result.messages.some((m) => /Generated \.well-known\/hagilight\.metadata\.json/u.test(m)));
 });

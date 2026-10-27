@@ -385,7 +385,7 @@ test('the metadata file is written last, lists the discovery artifacts present, 
   assert.deepEqual(metadata.build, BUILD_INFO);
   assert.deepEqual(metadata.discovery, { sitemap: '/sitemap.xml', robots: '/robots.txt', rss: '/rss.xml' });
   assert.deepEqual(metadata.analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
-  assert.deepEqual(metadata.features, { seo: true, promoto: true });
+  assert.deepEqual(metadata.features, { seo: true, promoto: true, consent: true });
 });
 
 test('metadata options override the name and description, and metadata: false writes nothing', async () => {

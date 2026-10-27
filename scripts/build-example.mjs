@@ -8,7 +8,7 @@ import { resolveSiteLinks, withCampaignUtm } from '@hagicode/hagilight-core/link
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 import { verifyBuildInfo } from './build-info-assertions.mjs';
-import { verifyPostHog, verifyPromotoAnalytics } from './posthog-assertions.mjs';
+import { verifyConsentPage, verifyPostHog, verifyPromotoAnalytics } from './posthog-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -49,6 +49,9 @@ function build(env, outputDir) {
   } else {
     for (const file of pages) assert.ok(!read(file).includes('posthog.init('), `${file} initializes no PostHog when analytics is off`);
   }
+  for (const file of pages) verifyConsentPage(read(file), file, { enabled: env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off' });
+  const consentMetadata = JSON.parse(read('.well-known/hagilight.metadata.json'));
+  assert.equal(consentMetadata.features.consent, env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off', 'the metadata consent flag matches the popup');
   read.bytes = (filename) => readFileSync(join(outputDir, filename));
   return read;
 }
@@ -86,6 +89,7 @@ function buildCoreFooter() {
   const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover the localized plain-Astro pages');
   for (const file of pages) verifyPostHog(read(file), `plain Astro ${file}`, { framework: 'astro' });
+  for (const file of pages) verifyConsentPage(read(file), `plain Astro ${file}`, { enabled: true });
   return read;
 }
 

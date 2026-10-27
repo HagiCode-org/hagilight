@@ -77,3 +77,24 @@ export function verifyPromotoAnalytics(text, label) {
   assert.ok(text.includes('promotoId'), `${label} ships the per-slide promotion id`);
   for (const name of PROMOTO_EVENT_NAMES) assert.ok(text.includes(name), `${label} ships ${name}`);
 }
+
+/**
+ * Consent checks for one built page. With consent on, a page carries one popup and no executable provider loader;
+ * the providers sit in inert descriptors. With consent off (`enabled: false`), it carries no popup or consent config.
+ * Starlight's popup is static markup; the plain-Astro integration mounts its popup at run time, so a page without the
+ * static markup is accepted when it carries the consent config.
+ */
+export function verifyConsentPage(html, label, { enabled }) {
+  const popups = [...html.matchAll(/<section\b[^>]*\bdata-hagilight-consent\b/giu)].length;
+  const config = html.includes('id="hagilight-consent-config"') || html.includes('id=\\"hagilight-consent-config\\"') || html.includes('hagilight-consent-config');
+  if (enabled) {
+    assert.ok(popups <= 1, `${label} carries at most one consent popup`);
+    assert.ok(config || popups === 1, `${label} carries the consent config or its popup`);
+    assert.doesNotMatch(executableScripts(html), /<script[^>]+\bsrc="https:\/\/(?:www\.googletagmanager\.com\/gtag\/js|sdk\.51\.la\/js-sdk-pro\.min\.js)/u, `${label} loads no provider script before consent`);
+    assert.doesNotMatch(html, /<script\b[^>]*\bsrc="https:\/\/(?:www\.googletagmanager\.com\/gtag\/js|sdk\.51\.la\/)/u, `${label} has no provider src`);
+  } else {
+    assert.equal(popups, 0, `${label} has no consent popup when consent is off`);
+    assert.equal(config, false, `${label} has no consent config when consent is off`);
+    assert.equal(html.includes('data-consent-preferences'), false, `${label} has no Cookie settings entry when consent is off`);
+  }
+}
