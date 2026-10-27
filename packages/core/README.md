@@ -496,6 +496,15 @@ resolveSiteLinks('en-US', { siteId: 'docs' });
 - Tags are added after deduplication, so a tagged and a clean destination still collapse into one entry. `normalizeUrl` is unchanged. Canonical URLs, `og:url` and sitemap entries are built from page URLs and never contain `utm_*`.
 - Footer clicks report the tagged `href` as `link_url` in the GA click event. The `link_url` dimension therefore includes `utm_source` and `utm_medium` for first-party footer clicks. No new event parameter is added.
 
+### Footer columns
+
+`resolveSiteLinks` still returns `quick`, `community` and `relatedSites` as before, and adds two regrouped views that every footer renders:
+
+- `columns`: four level, purpose-based columns in page order, `start` (get started), `learn` (docs and learning), `build` (tools and resources) and `community` (community and support), each `{ id, entries }`. Entries are `{ id, source: 'link' | 'site', label, href, target?, rel?, ariaLabel? }`; `source` tells a view whether the entry may report a GA click event (only `link` entries can). Placement is by id (`src/footer-columns.ts`); an entry the map does not know stays visible: an extra `quick` link joins `start`, an extra `community` link joins `community`, and any other site joins the shortest column. A column with no entries is dropped.
+- `feeds`: the RSS, locale RSS and sitemap links, shown in the footer's bottom row beside the filings instead of in a column.
+
+Localized headings are `labels.columns.<id>` and the feeds navigation label is `labels.navigation.feeds`. The footers draw each column's top rule as it scrolls into view (scroll-driven, with a static fallback and no motion under `prefers-reduced-motion`), run the rule across the column while it is hovered or focused, and step the other headings back. A site can tint the rule with `--hagilight-footer-accent`; it falls back to `--sl-color-accent`, then `--ifm-color-primary`, then the text color.
+
 ### Options
 
 - `links.siteId` (Starlight, Docusaurus, and the `Footer`/`Header` components) enables footer tags. The Starlight and Docusaurus promotion banners read this same value.
