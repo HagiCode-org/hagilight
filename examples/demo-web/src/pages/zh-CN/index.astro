@@ -104,6 +104,14 @@ const sections = [
         example: "import { buildBreadcrumbStructuredData } from '@hagicode/hagilight-core/seo';\nimport { seoSchema } from '@hagicode/hagilight-core/seo-schema';\nimport { classifyOgImage } from '@hagicode/hagilight-core/og-image';\n\nconst pageSeo = seoSchema.parse({ seo: { title, description } });\nconst imageFormat = classifyOgImage('/social/card.avif'); // 'convertible'",
       },
       {
+        id: 'entity-definition',
+        title: '实体定义',
+        kind: '构建时工具',
+        summary: 'getEntityDefinition 返回定义产品的那一句共享文案，按所选语言返回，缺失时回退到 en-US。buildSoftwareApplicationStructuredData 把产品事实转换为 SoftwareApplication JSON-LD。',
+        evidence: '该定义是页面导语、llms.txt 摘要和 SoftwareApplication 描述的唯一来源。',
+        example: "import { getEntityDefinition } from '@hagicode/hagilight-core/entity-definition';\nimport { buildSoftwareApplicationStructuredData } from '@hagicode/hagilight-core/seo';\n\nconst definition = getEntityDefinition(Astro.currentLocale); // 缺失时回退到 en-US\nconst app = buildSoftwareApplicationStructuredData({\n  name: 'Example App',\n  applicationCategory: 'DeveloperApplication',\n  operatingSystem: 'Linux',\n  description: definition,\n});",
+      },
+      {
         id: 'favicon',
         title: 'Favicon',
         kind: '浏览器标签页可见 · 构建集成',
