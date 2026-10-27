@@ -105,10 +105,10 @@ const translations = {
     'fr-FR': 'Assistance', 'es-ES': 'Soporte', 'pt-BR': 'Suporte', 'ru-RU': 'Поддержка',
   },
   downloadClient: {
-    'zh-CN': '下载 Hagicode', 'zh-Hant': '下載 Hagicode', 'en-US': 'Download Hagicode',
-    'ja-JP': 'Hagicode をダウンロード', 'ko-KR': 'Hagicode 다운로드',
-    'de-DE': 'Hagicode herunterladen', 'fr-FR': 'Télécharger Hagicode',
-    'es-ES': 'Descargar Hagicode', 'pt-BR': 'Baixar Hagicode', 'ru-RU': 'Скачать Hagicode',
+    'zh-CN': '下载 HagiCode', 'zh-Hant': '下載 HagiCode', 'en-US': 'Download HagiCode',
+    'ja-JP': 'HagiCode をダウンロード', 'ko-KR': 'HagiCode 다운로드',
+    'de-DE': 'HagiCode herunterladen', 'fr-FR': 'Télécharger HagiCode',
+    'es-ES': 'Descargar HagiCode', 'pt-BR': 'Baixar HagiCode', 'ru-RU': 'Скачать HagiCode',
   },
   about: {
     'zh-CN': '关于 HagiCode', 'zh-Hant': '關於 HagiCode', 'en-US': 'About HagiCode',
@@ -189,11 +189,11 @@ const translations = {
     'pt-BR': 'Grupo QQ 610394020', 'ru-RU': 'Группа QQ 610394020',
   },
   microsoftStore: {
-    'zh-CN': '下载 Hagicode Windows 版本', 'zh-Hant': '下載 Hagicode Windows 版本',
-    'en-US': 'Download Hagicode for Windows', 'ja-JP': 'Hagicode for Windows をダウンロード',
-    'ko-KR': 'Windows용 Hagicode 다운로드', 'de-DE': 'Hagicode für Windows herunterladen',
-    'fr-FR': 'Télécharger Hagicode pour Windows', 'es-ES': 'Descargar Hagicode para Windows',
-    'pt-BR': 'Baixar Hagicode para Windows', 'ru-RU': 'Скачать Hagicode для Windows',
+    'zh-CN': '下载 HagiCode Windows 版本', 'zh-Hant': '下載 HagiCode Windows 版本',
+    'en-US': 'Download HagiCode for Windows', 'ja-JP': 'HagiCode for Windows をダウンロード',
+    'ko-KR': 'Windows용 HagiCode 다운로드', 'de-DE': 'HagiCode für Windows herunterladen',
+    'fr-FR': 'Télécharger HagiCode pour Windows', 'es-ES': 'Descargar HagiCode para Windows',
+    'pt-BR': 'Baixar HagiCode para Windows', 'ru-RU': 'Скачать HagiCode для Windows',
   },
   icpFiling: {
     'zh-CN': '闽ICP备2026004153号-1',

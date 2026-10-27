@@ -143,8 +143,8 @@
       "ru-RU": "Docker Compose Builder"
     },
     "description": {
-      "zh-CN": "Docker 部署 Hagicode",
-      "zh-Hant": "使用 Docker 部署 Hagicode",
+      "zh-CN": "Docker 部署 HagiCode",
+      "zh-Hant": "使用 Docker 部署 HagiCode",
       "en-US": "Deploy HagiCode with Docker.",
       "ja-JP": "Docker で HagiCode をデプロイします。",
       "ko-KR": "Docker로 HagiCode를 배포합니다.",
