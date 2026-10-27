@@ -25,6 +25,11 @@
       "types": "./dist/consent-copy/index.d.ts",
       "default": "./dist/consent-copy/index.js"
     },
+    "./consent-markup": {
+      "types": "./dist/consent-markup.d.ts",
+      "default": "./dist/consent-markup.js"
+    },
+    "./CookieConsent": "./CookieConsent.astro",
     "./RootTransit": "./RootTransit.astro",
     "./root-transit": {
       "types": "./dist/root-transit.d.ts",

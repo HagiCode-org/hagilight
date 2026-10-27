@@ -15,6 +15,7 @@ const expectedExports = {
   '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
   '@hagicode/hagilight-core/root-transit-board': ['TRANSIT_BOARD_WINDOW', 'resolveTransitBoard'],
   '@hagicode/hagilight-core/consent-copy': ['CONSENT_COPY', 'resolveConsentCopy'],
+  '@hagicode/hagilight-core/consent-markup': ['renderConsentMarkup', 'consentDescriptor', 'validatePrivacyUrl', 'validatePolicyVersion', 'CONSENT_DESCRIPTOR_ID'],
   '@hagicode/hagilight-core/consent': ['getConsent', 'setConsent', 'onConsentChange', 'openConsentPreferences', 'configureConsent', 'isConsentRequired', 'parseConsentRecord', 'formatConsentRecord', 'decisionFromRecord', 'CONSENT_CHANGE_EVENT', 'CONSENT_PREFERENCES_EVENT'],
   '@hagicode/hagilight-core/splash-images': [
     'SPLASH_IMAGE_DEFAULTS',
