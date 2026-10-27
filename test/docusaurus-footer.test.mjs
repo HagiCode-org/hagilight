@@ -199,3 +199,12 @@ test('an enabled footer exposes the theme directory and footer stylesheet', () =
   assert.match(plugin.getThemePath(), /dist[\\/]theme$/u);
   assert.ok(plugin.getClientModules().some((path) => path.endsWith('styles.css')));
 });
+
+test('the Cookie settings entry renders only when a consent label is supplied, and calls the preferences hook', () => {
+  const resolved = resolveFooterLinks({ locale: 'de-DE', baseUrl: '/', links: {}, rssEnabled: false });
+  const on = renderToStaticMarkup(createElement(FooterView, { links: resolved, version: VERSION, year: 2026, consentLabel: 'Cookie-Einstellungen' }));
+  assert.match(on, /<button type="button" class="hagilight-footer__consent" data-consent-preferences="true">Cookie-Einstellungen<\/button>/u);
+  const off = renderToStaticMarkup(createElement(FooterView, { links: resolved, version: VERSION, year: 2026 }));
+  assert.doesNotMatch(off, /data-consent-preferences/u);
+  assert.doesNotMatch(off, /hagilight-footer__consent/u);
+});
