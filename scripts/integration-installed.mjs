@@ -393,8 +393,11 @@ function verifyCoreFooter(tarballs, astroVersion) {
   const englishHtml = readFileSync(join(coreTemp, 'dist', 'index.html'), 'utf8');
   const chineseHtml = readFileSync(join(coreTemp, 'dist', 'zh-CN', 'index.html'), 'utf8');
   const coreFeed = readFileSync(join(coreTemp, 'dist', 'rss.xml'), 'utf8');
-  assert.ok(englishHtml.includes('Quick Links'));
-  assert.ok(englishHtml.includes('Community'));
+  // The footer groups links into purpose-based columns; the column headings are HTML-escaped in the output.
+  assert.ok(englishHtml.includes('Get Started'));
+  assert.ok(englishHtml.includes('Learn &amp; Docs'));
+  assert.ok(englishHtml.includes('Community &amp; Support'));
+  assert.ok(!englishHtml.includes('Quick Links'));
   assert.ok(!englishHtml.includes('Ecosystem Sites'));
   for (const [locale, html] of [['en-US', englishHtml], ['zh-CN', chineseHtml]]) {
     assert.ok(
@@ -409,9 +412,9 @@ function verifyCoreFooter(tarballs, astroVersion) {
   assert.match(coreFeed, /<rss\b/u);
   assert.match(coreFeed, /<language>en-US<\/language>/u);
   assert.ok(coreFeed.includes('https://consumer.example.test/'));
-  assert.ok(chineseHtml.includes('生态站点'));
-  assert.ok(chineseHtml.includes('快速链接'));
-  assert.ok(chineseHtml.includes('社区'));
+  for (const heading of ['开始使用', '学习与文档', '工具与资源', '社区与支持']) {
+    assert.ok(chineseHtml.includes(heading), `zh-CN footer has the ${heading} column`);
+  }
   assert.ok(chineseHtml.includes('自有站点'));
   assert.ok(chineseHtml.includes('href="/news/"'));
   assert.ok(chineseHtml.includes('href="https://feeds.example/rss.xml"'));
