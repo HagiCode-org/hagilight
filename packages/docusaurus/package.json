@@ -33,6 +33,7 @@
     "README.md",
     "styles.css",
     "promoto.css",
+    "consent.css",
     "dist/**/*.js",
     "dist/**/*.d.ts"
   ],

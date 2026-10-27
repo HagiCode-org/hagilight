@@ -30,6 +30,14 @@
       "default": "./dist/consent-markup.js"
     },
     "./CookieConsent": "./CookieConsent.astro",
+    "./consent-gate": {
+      "types": "./dist/consent-gate.d.ts",
+      "default": "./dist/consent-gate.js"
+    },
+    "./consent-popup": {
+      "types": "./dist/consent-popup.d.ts",
+      "default": "./dist/consent-popup.js"
+    },
     "./RootTransit": "./RootTransit.astro",
     "./root-transit": {
       "types": "./dist/root-transit.d.ts",
