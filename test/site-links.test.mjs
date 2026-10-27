@@ -48,8 +48,8 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
     'fullstack-tutorial', 'gallery', 'impeccable-site',
   ]);
-  assert.equal(links.quick[0].label, 'Download Hagicode');
-  assert.equal(links.quick[1].label, 'Download Hagicode for Windows');
+  assert.equal(links.quick[0].label, 'Download HagiCode');
+  assert.equal(links.quick[1].label, 'Download HagiCode for Windows');
   assert.equal(links.quick.at(-1).label, 'About HagiCode');
   assert.equal(links.relatedSites[0].href, 'https://tasks.hagicode.com/');
   assert.equal(links.relatedSites[1].href, 'https://cost.hagicode.com');
@@ -220,8 +220,8 @@ test('localizes the renamed download entries and ecosystem defaults', () => {
   const links = resolveSiteLinks('zh-CN', { rssFeedUrl: '/rss.xml' });
 
   assert.deepEqual(links.quick.slice(0, 2).map(({ label }) => label), [
-    '下载 Hagicode',
-    '下载 Hagicode Windows 版本',
+    '下载 HagiCode',
+    '下载 HagiCode Windows 版本',
   ]);
   assert.equal(links.relatedSites[0].name, 'HagiTask');
   assert.equal(links.relatedSites[0].description, '任务与工作流管理');
