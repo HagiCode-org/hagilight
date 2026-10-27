@@ -2,6 +2,7 @@
  * Browser wiring for the consent popup. `mountConsentPopup` reveals the markup from `consent-markup.ts` only for an
  * undecided visitor, connects Accept and Reject to `setConsent`, toggles the details, reflects the current choice when
  * `openConsentPreferences()` is called, and publishes the popup's height as `--hagilight-consent-clearance` on the root.
+ * The details slide open and the panel fades out through the Web Animations API, and both snap under reduced motion.
  * It never moves or traps focus.
  */
 import { CONSENT_PREFERENCES_EVENT, getConsent, isConsentRequired, openConsentPreferences, setConsent } from './consent.js';
@@ -12,10 +13,28 @@ const CLEARANCE_GAP_PX = 12;
 
 const noop = () => {};
 
+/** Durations in ms. The details open slower than they close, and the panel leaves faster than it arrives. */
+const DETAILS_OPEN_MS = 340;
+const DETAILS_CLOSE_MS = 220;
+const PANEL_LEAVE_MS = 200;
+const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const EASE_IN = 'cubic-bezier(0.64, 0, 0.78, 0)';
+
+/** Motion is skipped under reduced motion, and wherever the Web Animations API is missing. */
+function canAnimate(element: HTMLElement): boolean {
+  try {
+    if (typeof element.animate !== 'function') return false;
+    return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
+
 function publishClearance(panel: HTMLElement): void {
   try {
     const root = document.documentElement;
-    if (panel.hidden) {
+    // A panel that is leaving no longer holds space: the banner and footer settle back while it fades.
+    if (panel.hidden || panel.dataset.leaving === 'true') {
       root.style.setProperty(CONSENT_CLEARANCE_PROPERTY, '0px');
       return;
     }
@@ -60,11 +79,45 @@ export function mountConsentPopup(root: ParentNode = document): () => void {
   const toggle = panel.querySelector<HTMLButtonElement>('[data-consent-toggle]');
   const details = panel.querySelector<HTMLElement>('[data-consent-details]');
 
+  let leaving: Animation | undefined;
+  let sliding: Animation | undefined;
+
   const hide = (): void => {
-    panel.hidden = true;
+    // The clearance drops at once, so the banner and footer start moving back while the panel is still leaving.
+    const wasVisible = !panel.hidden;
+    leaving?.cancel();
+    leaving = undefined;
+    if (!wasVisible || !canAnimate(panel)) {
+      panel.hidden = true;
+      publishClearance(panel);
+      return;
+    }
+    panel.dataset.leaving = 'true';
+    const leave = panel.animate(
+      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(0.75rem) scale(0.98)' }],
+      { duration: PANEL_LEAVE_MS, easing: EASE_IN, fill: 'forwards' },
+    );
+    leaving = leave;
     publishClearance(panel);
+    const finish = (): void => {
+      if (leaving !== leave) return;
+      leaving = undefined;
+      delete panel.dataset.leaving;
+      panel.hidden = true;
+      leave.cancel();
+      publishClearance(panel);
+    };
+    leave.addEventListener('finish', finish);
+    leave.addEventListener('cancel', () => {
+      if (leaving === leave) leaving = undefined;
+    });
   };
   const show = (): void => {
+    if (leaving) {
+      leaving.cancel();
+      leaving = undefined;
+    }
+    delete panel.dataset.leaving;
     reflectChoice(panel);
     panel.hidden = false;
     publishClearance(panel);
@@ -80,8 +133,42 @@ export function mountConsentPopup(root: ParentNode = document): () => void {
     if (!toggle || !details) return;
     const expanded = toggle.getAttribute('aria-expanded') !== 'true';
     toggle.setAttribute('aria-expanded', String(expanded));
-    details.hidden = !expanded;
-    publishClearance(panel);
+    slideDetails(details, expanded);
+  };
+  /** Opens or closes the details with a height slide; the final state is always the plain `hidden` attribute. */
+  const slideDetails = (section: HTMLElement, open: boolean): void => {
+    const current = sliding;
+    // Start from wherever an interrupted slide stopped, so a quick second click reverses instead of jumping.
+    const startHeight = current ? section.getBoundingClientRect().height : open ? 0 : section.getBoundingClientRect().height;
+    current?.cancel();
+    sliding = undefined;
+    if (!canAnimate(section)) {
+      section.hidden = !open;
+      publishClearance(panel);
+      return;
+    }
+    section.hidden = false;
+    const endHeight = open ? section.scrollHeight : 0;
+    section.style.overflow = 'hidden';
+    const slide = section.animate(
+      [
+        { height: `${startHeight}px`, opacity: open ? 0 : 1 },
+        { height: `${endHeight}px`, opacity: open ? 1 : 0 },
+      ],
+      { duration: open ? DETAILS_OPEN_MS : DETAILS_CLOSE_MS, easing: open ? EASE_OUT : EASE_IN },
+    );
+    sliding = slide;
+    slide.addEventListener('finish', () => {
+      if (sliding !== slide) return;
+      sliding = undefined;
+      section.style.overflow = '';
+      section.hidden = !open;
+      publishClearance(panel);
+    });
+    slide.addEventListener('cancel', () => {
+      if (sliding === slide) sliding = undefined;
+      section.style.overflow = '';
+    });
   };
   const onPreferences = (): void => show();
   /** The footer's "Cookie settings" entries call `openConsentPreferences()`; the popup's own listener then shows the panel. */
@@ -108,6 +195,8 @@ export function mountConsentPopup(root: ParentNode = document): () => void {
   else hide();
 
   return () => {
+    leaving?.cancel();
+    sliding?.cancel();
     accept?.removeEventListener('click', onAccept);
     reject?.removeEventListener('click', onReject);
     toggle?.removeEventListener('click', onToggle);

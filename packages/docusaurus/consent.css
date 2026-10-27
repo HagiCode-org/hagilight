@@ -1,176 +1,375 @@
-/* Consent popup (hagilight). Tokens follow Docusaurus --ifm-* variables with light fallbacks. */
+/* Consent popup (hagilight). Same rules as packages/core/CookieConsent.astro; only the tokens differ. */
+/* Tokens follow Docusaurus --ifm-* variables and fall back to light values where a theme omits them. */
 .hagilight-consent {
-    --hc-accent: var(--ifm-color-primary, #2563eb);
-    --hc-bg: var(--ifm-background-surface-color, #ffffff);
-    --hc-text: var(--ifm-font-color-base, #1f2937);
-    --hc-muted: var(--ifm-color-emphasis-700, color-mix(in srgb, var(--hc-text) 72%, transparent));
-    --hc-border: var(--ifm-color-emphasis-300, #cbd5e1);
-    --hc-action-bg: var(--ifm-color-primary-dark, var(--ifm-color-primary, #2563eb));
-    --hc-action-fg: var(--ifm-color-white, #ffffff);
-    --hc-focus: var(--ifm-color-primary-darker, var(--ifm-color-primary, #2563eb));
-    --hc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hc-accent: var(--ifm-color-primary, #2563eb);
+  --hc-bg: var(--ifm-background-surface-color, #ffffff);
+  --hc-text: var(--ifm-font-color-base, #1f2937);
+  --hc-muted: var(--ifm-color-emphasis-700, color-mix(in srgb, var(--hc-text) 72%, transparent));
+  --hc-border: var(--ifm-color-emphasis-300, #cbd5e1);
+  --hc-action-bg: var(--ifm-color-primary-dark, var(--ifm-color-primary, #2563eb));
+  --hc-action-fg: var(--ifm-color-white, #ffffff);
+  --hc-focus: var(--ifm-color-primary-darker, var(--ifm-color-primary, #2563eb));
+  /* Derived: a surface tinted toward the brand, hairlines from the theme border, motion curves. */
+  --hc-surface: color-mix(in srgb, var(--hc-accent) 5%, var(--hc-bg));
+  --hc-hairline: color-mix(in srgb, var(--hc-border) 70%, transparent);
+  --hc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hc-spring: cubic-bezier(0.22, 1, 0.36, 1);
 
-    position: fixed;
-    z-index: 45;
-    inset-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
-    inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
-    box-sizing: border-box;
-    width: min(24rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
-    max-height: calc(100dvh - 2rem);
-    overflow-y: auto;
-    padding: 1rem;
-    border: 1px solid color-mix(in srgb, var(--hc-accent) 24%, var(--hc-border));
-    border-radius: 0.75rem;
-    background: var(--hc-bg);
-    color: var(--hc-text);
-    box-shadow: 0 12px 32px color-mix(in srgb, var(--ifm-color-white, #000000) 14%, transparent);
-    font-size: 0.875rem;
-    line-height: 1.5;
+  position: fixed;
+  z-index: 45;
+  inset-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
+  inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+  width: min(24rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--hc-text) 28%, transparent) transparent;
+  padding: 1.25rem 1.25rem 0.5rem;
+  border: 0;
+  border-radius: 0.875rem;
+  background: var(--hc-surface);
+  color: var(--hc-text);
+  /* Elevation is declared once, as a shadow: a tight contact shadow under a long, soft one. */
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 18px 44px -14px rgb(0 0 0 / 0.4);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* A damped spring where linear() exists (the same curve as the promotion banner), a long ease-out elsewhere. */
+@supports (animation-timing-function: linear(0, 1)) {
+  .hagilight-consent {
+    --hc-spring: linear(0, 0.066, 0.22, 0.409, 0.597, 0.761, 0.89, 0.983, 1.042, 1.073, 1.083, 1.079, 1.067, 1.052, 1.036, 1.022, 1.011, 1.002, 0.997, 0.994, 0.993, 0.993, 1);
   }
+}
 
-  
-  @media (max-width: 36rem) {
-    .hagilight-consent {
-      inset-inline: 0;
-      inset-block-end: 0;
-      width: auto;
-      max-width: none;
-      border-radius: 0.75rem 0.75rem 0 0;
-      padding-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
-    }
+/* Below about 36rem the panel attaches to the bottom edge, full width, with its top corners rounded. */
+@media (max-width: 36rem) {
+  .hagilight-consent {
+    inset-inline: 0;
+    inset-block-end: 0;
+    width: auto;
+    max-width: none;
+    max-height: min(85dvh, calc(100dvh - 1rem));
+    border-radius: 0.875rem 0.875rem 0 0;
+    padding: 1.125rem 1rem max(0.25rem, env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -1px 2px rgb(0 0 0 / 0.06), 0 -14px 36px -14px rgb(0 0 0 / 0.4);
   }
+}
 
-  .hagilight-consent[hidden],
-  .hagilight-consent [hidden] {
-    display: none;
-  }
+.hagilight-consent[hidden],
+.hagilight-consent [hidden] {
+  display: none;
+}
 
-  .hagilight-consent:not([hidden]) {
-    animation: hagilight-consent-rise 0.5s var(--hc-ease) backwards;
-  }
+/* While the panel fades out its buttons no longer take clicks. */
+.hagilight-consent[data-leaving] {
+  pointer-events: none;
+}
 
-  @keyframes hagilight-consent-rise {
-    from { opacity: 0; transform: translateY(1rem) scale(0.98); }
-    to { opacity: 1; transform: none; }
-  }
+.hagilight-consent ::selection {
+  background: color-mix(in srgb, var(--hc-accent) 28%, transparent);
+  color: inherit;
+}
 
-  .hagilight-consent__title {
-    margin: 0 0 0.25rem;
-    color: var(--hc-text);
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
+/* The one authored moment: the panel springs up, then its parts settle in order. */
+.hagilight-consent:not([hidden]) {
+  animation: hagilight-consent-rise 0.7s var(--hc-spring) backwards;
+}
 
-  .hagilight-consent__intro,
-  .hagilight-consent__choice,
-  .hagilight-consent__withdraw,
-  .hagilight-consent__category p {
-    margin: 0.25rem 0 0;
-    color: var(--hc-muted);
-    font-size: 0.8125rem;
-  }
+.hagilight-consent:not([hidden]) .hagilight-consent__title,
+.hagilight-consent:not([hidden]) .hagilight-consent__intro,
+.hagilight-consent:not([hidden]) .hagilight-consent__actions,
+.hagilight-consent:not([hidden]) .hagilight-consent__toggle {
+  animation: hagilight-consent-settle 0.55s var(--hc-ease) backwards;
+}
 
-  .hagilight-consent__actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-  }
+.hagilight-consent:not([hidden]) .hagilight-consent__title { animation-delay: 0.1s; }
+.hagilight-consent:not([hidden]) .hagilight-consent__intro { animation-delay: 0.16s; }
+.hagilight-consent:not([hidden]) .hagilight-consent__actions { animation-delay: 0.22s; }
+.hagilight-consent:not([hidden]) .hagilight-consent__toggle { animation-delay: 0.28s; }
 
-  
-  .hagilight-consent__button {
-    flex: 1 1 0;
-    min-height: 2.75rem;
-    margin: 0;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--hc-action-bg);
-    border-radius: 0.5rem;
+@keyframes hagilight-consent-rise {
+  from { opacity: 0; transform: translateY(1.5rem) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hagilight-consent-settle {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: none; }
+}
+
+.hagilight-consent__title {
+  margin: 0;
+  color: var(--hc-text);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.hagilight-consent__intro {
+  margin: 0.375rem 0 0;
+  color: var(--hc-muted);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* The current choice only shows once there is one, as a small status chip beside the actions. */
+.hagilight-consent__choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin: 0.75rem 0 0;
+  padding: 0.1875rem 0.625rem 0.1875rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hc-text) 7%, transparent);
+  color: var(--hc-text);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.hagilight-consent[data-state='undecided'] .hagilight-consent__choice {
+  display: none;
+}
+
+.hagilight-consent__choice::before {
+  content: '';
+  flex: none;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--hc-muted);
+}
+
+.hagilight-consent[data-state='granted'] .hagilight-consent__choice::before {
+  background: var(--hc-accent);
+}
+
+.hagilight-consent__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Accept and Reject share every property, so neither reads as the primary choice. Both rest as a tint and fill on hover. */
+.hagilight-consent__button {
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--hc-action-bg) 55%, transparent);
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, var(--hc-action-bg) 10%, transparent);
+  color: var(--hc-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+  cursor: pointer;
+  transition: background-color 0.18s var(--hc-ease), border-color 0.18s var(--hc-ease), color 0.18s var(--hc-ease), transform 0.18s var(--hc-ease);
+}
+
+@media (hover: hover) {
+  .hagilight-consent__button:hover {
+    border-color: var(--hc-action-bg);
     background: var(--hc-action-bg);
     color: var(--hc-action-fg);
-    font: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
-    line-height: 1.25;
-    cursor: pointer;
   }
+}
 
-  .hagilight-consent__button:hover {
-    filter: brightness(1.08);
-  }
+.hagilight-consent__button:active {
+  transform: scale(0.98);
+}
 
-  .hagilight-consent__toggle {
-    margin-top: 0.5rem;
-    padding: 0.25rem 0;
-    border: 0;
-    background: none;
-    color: var(--hc-text);
-    font: inherit;
-    font-size: 0.8125rem;
-    text-decoration: underline;
-    cursor: pointer;
-  }
+/* A full-width disclosure row: the label on the left, a chevron that turns as the details open. */
+.hagilight-consent__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--hc-hairline);
+  border-radius: 0.25rem;
+  background: none;
+  color: var(--hc-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  transition: color 0.18s var(--hc-ease);
+}
 
-  .hagilight-consent__button:focus-visible,
-  .hagilight-consent__toggle:focus-visible,
-  .hagilight-consent a:focus-visible {
-    outline: 2px solid var(--hc-focus);
-    outline-offset: 2px;
-  }
+.hagilight-consent__toggle::after {
+  content: '';
+  flex: none;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-0.125rem) rotate(45deg);
+  transition: transform 0.3s var(--hc-ease);
+}
 
-  .hagilight-consent__details {
-    margin-top: 0.25rem;
-  }
+.hagilight-consent__toggle[aria-expanded='true']::after {
+  transform: translateY(0.125rem) rotate(225deg);
+}
 
-  .hagilight-consent__category {
-    margin: 0.5rem 0 0;
-    padding: 0.5rem 0.625rem;
-    border: 1px solid var(--hc-border);
-    border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--hc-bg) 92%, var(--hc-text) 8%);
-  }
-
-  .hagilight-consent__category h3 {
-    margin: 0;
-    color: var(--hc-text);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .hagilight-consent ul {
-    margin: 0.25rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hagilight-consent li {
-    margin: 0.125rem 0;
-    color: var(--hc-muted);
-    font-size: 0.75rem;
-  }
-
-  .hagilight-consent code {
-    color: var(--hc-text);
-    font-size: 0.75rem;
-    word-break: break-all;
-  }
-
-  .hagilight-consent a {
+@media (hover: hover) {
+  .hagilight-consent__toggle:hover {
     color: var(--hc-text);
   }
+}
 
-  .hagilight-consent__privacy {
-    margin: 0.5rem 0 0;
-    font-size: 0.8125rem;
+.hagilight-consent__button:focus-visible,
+.hagilight-consent__toggle:focus-visible,
+.hagilight-consent a:focus-visible {
+  outline: 2px solid var(--hc-focus);
+  outline-offset: 2px;
+}
+
+.hagilight-consent__details {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0 0.25rem;
+}
+
+/* Categories are open sections divided by hairlines, not boxes inside a box. */
+.hagilight-consent__category {
+  margin: 0;
+  padding: 0.875rem 0;
+  border-top: 1px solid var(--hc-hairline);
+}
+
+.hagilight-consent__category:first-child {
+  padding-top: 0.5rem;
+  border-top: 0;
+}
+
+.hagilight-consent__category h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--hc-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* A filled dot is on, a hollow one is off; the analytics dot follows the visitor's choice. */
+.hagilight-consent__category h3::before {
+  content: '';
+  flex: none;
+  box-sizing: border-box;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1.5px solid var(--hc-muted);
+  border-radius: 50%;
+}
+
+.hagilight-consent__category--necessary h3::before,
+.hagilight-consent[data-state='granted'] .hagilight-consent__category--analytics h3::before {
+  border-color: var(--hc-accent);
+  background: var(--hc-accent);
+}
+
+.hagilight-consent__category p,
+.hagilight-consent__category ul {
+  margin: 0.375rem 0 0;
+  padding-inline-start: 1rem;
+}
+
+.hagilight-consent__category p,
+.hagilight-consent__withdraw {
+  color: var(--hc-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.hagilight-consent ul {
+  list-style: none;
+}
+
+/* Storage names are code: monospace, with the kind pushed to the far edge. */
+.hagilight-consent li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.1875rem 0;
+  color: var(--hc-muted);
+  font-size: 0.75rem;
+}
+
+.hagilight-consent li span {
+  flex: 0 1 auto;
+  text-align: end;
+}
+
+.hagilight-consent code {
+  color: var(--hc-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.hagilight-consent__withdraw {
+  margin: 0;
+  padding: 0.875rem 0 0;
+  border-top: 1px solid var(--hc-hairline);
+}
+
+.hagilight-consent a {
+  color: var(--hc-text);
+  font-weight: 600;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.hagilight-consent a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.hagilight-consent__privacy {
+  margin: 0.5rem 0 0.5rem;
+  font-size: 0.8125rem;
+}
+
+/* Forced colors drop the shadow and the fills, so the panel and the dots get system-colored edges. */
+@media (forced-colors: active) {
+  .hagilight-consent {
+    border: 1px solid CanvasText;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .hagilight-consent,
-    .hagilight-consent * {
-      animation: none !important;
-      transition: none !important;
-    }
+  .hagilight-consent__button {
+    border-color: ButtonText;
   }
+
+  .hagilight-consent__category--necessary h3::before,
+  .hagilight-consent[data-state='granted'] .hagilight-consent__category--analytics h3::before {
+    border-color: CanvasText;
+    background: CanvasText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hagilight-consent,
+  .hagilight-consent * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
 .hagilight-footer__consent {
   margin: 0;

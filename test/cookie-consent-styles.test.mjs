@@ -21,6 +21,34 @@ test('the popup attaches to the bottom edge below about 36rem', () => {
 test('a hidden popup stays hidden even though the panel sets display rules of its own', () => {
   assert.match(css, /\.hagilight-consent\[hidden\][\s\S]*?display:\s*none;/u);
   assert.match(css, /\.hagilight-consent:not\(\[hidden\]\)\s*\{\s*animation:/u);
+  assert.match(css, /\.hagilight-consent\[data-state='undecided'\] \.hagilight-consent__choice\s*\{\s*display:\s*none;/u, 'the choice chip waits for a choice');
+});
+
+test('the panel declares its elevation once, as a shadow, with no border outside forced colors', () => {
+  const panel = css.match(/\n  \.hagilight-consent \{([^}]*)\}/u)?.[1] ?? '';
+  assert.match(panel, /box-shadow:\s*0 1px 2px[^;]*,\s*0 18px 44px/u);
+  assert.match(panel, /border:\s*0;/u);
+  assert.match(css, /@media \(forced-colors: active\)\s*\{\s*\.hagilight-consent\s*\{\s*border:\s*1px solid CanvasText;/u);
+});
+
+test('the entrance is keyframes with a spring where linear() exists, never @starting-style', () => {
+  assert.match(css, /@supports \(animation-timing-function: linear\(0, 1\)\)[\s\S]*?--hc-spring:\s*linear\(/u);
+  assert.match(css, /--hc-spring:\s*cubic-bezier\(/u, 'a cubic-bezier fallback is declared first');
+  assert.match(css, /@keyframes hagilight-consent-rise/u);
+  assert.doesNotMatch(css, /@starting-style/u, 'Docusaurus minifier rejects it');
+});
+
+test('the Docusaurus stylesheet carries the same rules as the Astro component, with its own tokens', () => {
+  const docusaurus = readFileSync(new URL('../packages/docusaurus/consent.css', import.meta.url), 'utf8');
+  const body = (text) => text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('/*') && !line.startsWith('--hc-') && !line.includes('--sl-color-') && !line.includes('--ifm-'))
+    .join('\n');
+  const rules = body(css);
+  const docusaurusRules = body(docusaurus.slice(0, docusaurus.indexOf('.hagilight-footer__consent')));
+  assert.equal(docusaurusRules, rules);
+  assert.doesNotMatch(docusaurus.slice(0, docusaurus.indexOf('.hagilight-footer__consent')), /--sl-color-/u);
 });
 
 test('Accept and Reject share one class and one set of properties', () => {

@@ -65,7 +65,7 @@ await check('undecided visitor sees the panel; Accept stores granted, hides it a
     assert.equal(await page.evaluate(() => document.activeElement === document.body), true, 'mounting does not move focus');
     assert.notEqual(await page.evaluate(() => document.documentElement.style.getPropertyValue('--hagilight-consent-clearance')), '0px');
     await page.click('[data-consent-accept]');
-    assert.equal(await page.locator('[data-hagilight-consent]').isHidden(), true);
+    await page.locator('[data-hagilight-consent]').waitFor({ state: 'hidden' });
     assert.equal(await page.evaluate(() => localStorage.getItem('hagicode:consent')).then((value) => /^1\|granted\|\d+\|1$/u.test(value)), true);
     assert.deepEqual(await page.evaluate(() => window.__consentEvents), [{ necessary: 'granted', analytics: 'granted' }]);
     assert.equal(await page.evaluate(() => document.documentElement.style.getPropertyValue('--hagilight-consent-clearance')), '0px');
@@ -80,7 +80,7 @@ await check('Reject stores denied and notifies with denied', async () => {
   try {
     await page.click('[data-consent-reject]');
     assert.deepEqual(await page.evaluate(() => window.__consentEvents), [{ necessary: 'granted', analytics: 'denied' }]);
-    assert.equal(await page.locator('[data-hagilight-consent]').isHidden(), true);
+    await page.locator('[data-hagilight-consent]').waitFor({ state: 'hidden' });
   } finally {
     await context.close();
   }
@@ -123,7 +123,7 @@ await check('the footer Cookie settings entry reopens the popup after a choice',
   const { context, page } = await openPopup();
   try {
     await page.click('[data-consent-accept]');
-    assert.equal(await page.locator('[data-hagilight-consent]').isHidden(), true);
+    await page.locator('[data-hagilight-consent]').waitFor({ state: 'hidden' });
     await page.click('[data-consent-preferences]');
     assert.equal(await page.locator('[data-hagilight-consent]').isVisible(), true);
     assert.equal(await page.locator('[data-consent-choice-value]').textContent(), 'Accepted');
