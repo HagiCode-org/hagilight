@@ -8,6 +8,8 @@ import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN, posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
+import { consentHeadScript } from '@hagicode/hagilight-core/consent-mount';
+import { validatePolicyVersion, validatePrivacyUrl } from '@hagicode/hagilight-core/consent-markup';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
 import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -68,6 +70,19 @@ export interface HagilightOptions {
 
 export interface HagilightAnalyticsOptions {
   posthog?: HagilightPostHogOptions;
+  /**
+   * Strict prior consent for the PostHog this integration injects. On by default; `enabled: false` injects PostHog
+   * immediately as before. Components composed by hand take their own `consent` prop.
+   */
+  consent?: HagilightConsentOptions;
+}
+
+export interface HagilightConsentOptions {
+  enabled?: boolean;
+  /** An absolute HTTP(S) URL or a site-relative path for the privacy link. */
+  privacyUrl?: string;
+  /** Defaults to `1`. 1 to 32 letters, digits, dots, underscores or hyphens. */
+  policyVersion?: string;
 }
 
 export interface HagilightPostHogOptions {
@@ -161,6 +176,26 @@ const PACKAGE_VERSION = (
 ).version;
 
 /** The plain-Astro site context: `site_id` is the configured site's hostname, when there is one. */
+/** Consent for the injected PostHog: on by default, and the core validators name any invalid option. */
+function resolveConsentOptions(analytics: unknown, posthogEnabled: boolean): {
+  enabled: boolean;
+  privacyUrl: string | undefined;
+  policyVersion: string;
+} {
+  const consent = isRecord(analytics) ? analytics.consent : undefined;
+  if (consent !== undefined && !isRecord(consent)) {
+    throw new TypeError('Hagilight analytics consent option must be an object.');
+  }
+  if (consent?.enabled !== undefined && typeof consent.enabled !== 'boolean') {
+    throw new TypeError('Hagilight analytics consent enabled option must be a boolean.');
+  }
+  return {
+    enabled: posthogEnabled && (consent?.enabled ?? true),
+    privacyUrl: validatePrivacyUrl(consent?.privacyUrl),
+    policyVersion: validatePolicyVersion(consent?.policyVersion),
+  };
+}
+
 function postHogSiteContext(site: unknown): PostHogSiteContext {
   let siteId: string | undefined;
   try {
@@ -214,6 +249,7 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata, 
     throw new TypeError('Hagilight content images enabled option must be a boolean.');
   }
   const posthogApiKey = resolvePostHogApiKey(analytics);
+  const consent = resolveConsentOptions(analytics, posthogApiKey !== undefined);
   const llmsOptions = resolveLlmsOptions(llms);
   const metadataOptions = resolveSiteMetadataOption(metadata);
   const contentImagesEnabled = typeof contentImages === 'boolean' ? contentImages : contentImages?.enabled !== false;
@@ -251,10 +287,22 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata, 
           // site gets PostHog from the Starlight plugin's generated Head instead.
           const hasStarlight = (config.integrations ?? []).some((integration) => integrationName(integration) === '@astrojs/starlight');
           if (posthogApiKey && command === 'build' && !hasStarlight) {
-            injectScript('head-inline', posthogInitScript(posthogApiKey, postHogSiteContext(config.site)));
-            // The click sink is independent of Google Analytics; it stays silent until window.posthog exists.
-            const clickSink = fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/posthog-events'));
-            injectScript('page', `import { installPostHogClickTracking } from ${JSON.stringify(clickSink)};\ninstallPostHogClickTracking();`);
+            if (consent.enabled) {
+              // The loader travels inside an inert descriptor; the shared mount places the popup and starts PostHog
+              // and its click sink only after a grant.
+              const loader = posthogInitScript(posthogApiKey, postHogSiteContext(config.site));
+              injectScript('head-inline', consentHeadScript({
+                posthog: { apiKey: posthogApiKey, loader },
+                config: { providers: ['posthog'], privacyUrl: consent.privacyUrl, policyVersion: consent.policyVersion },
+              }));
+              const mountModule = fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/consent-mount'));
+              injectScript('page', `import { mountConsent } from ${JSON.stringify(mountModule)};\nmountConsent();`);
+            } else {
+              injectScript('head-inline', posthogInitScript(posthogApiKey, postHogSiteContext(config.site)));
+              // The click sink is independent of Google Analytics; it stays silent until window.posthog exists.
+              const clickSink = fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/posthog-events'));
+              injectScript('page', `import { installPostHogClickTracking } from ${JSON.stringify(clickSink)};\ninstallPostHogClickTracking();`);
+            }
           }
           if (!enabled) return;
           resolveDiscoverySite(config.site);

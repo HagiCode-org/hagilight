@@ -25,3 +25,12 @@ void analytics;
 setConsent({ analytics: 'yes' });
 // @ts-expect-error a choice object is required.
 setConsent();
+
+// The popup's options, shared by CookieConsent and the integrations.
+import { renderConsentMarkup, type ConsentPopupOptions } from '@hagicode/hagilight-core/consent-markup';
+
+const popup: ConsentPopupOptions = { providers: ['googleAnalytics', 'posthog'], privacyUrl: '/privacy', policyVersion: '2' };
+renderConsentMarkup(popup);
+// @ts-expect-error an unknown analytics provider is not a consent provider.
+const unknownProvider: ConsentPopupOptions = { providers: ['tracker'] };
+void unknownProvider;

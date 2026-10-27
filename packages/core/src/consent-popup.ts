@@ -48,6 +48,9 @@ function reflectChoice(panel: HTMLElement): void {
 export function mountConsentPopup(root: ParentNode = document): () => void {
   const panel = root.querySelector<HTMLElement>('[data-hagilight-consent]');
   if (!panel) return noop;
+  // A page can mount the same panel from both its component and an integration; the second mount does nothing.
+  if (panel.dataset.consentMounted === 'true') return noop;
+  panel.dataset.consentMounted = 'true';
   const accept = panel.querySelector<HTMLButtonElement>('[data-consent-accept]');
   const reject = panel.querySelector<HTMLButtonElement>('[data-consent-reject]');
   const toggle = panel.querySelector<HTMLButtonElement>('[data-consent-toggle]');

@@ -2,6 +2,7 @@
 import Footer from '@hagicode/hagilight/Footer';
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
+import CookieConsent from '@hagicode/hagilight-core/CookieConsent';
 import { Picture } from 'astro:assets';
 import logo from '@hagicode/hagilight-core/logo.png';
 import favicon from '@hagicode/hagilight-core/favicon.ico';
@@ -197,7 +198,8 @@ const structuredData = [
     </main>
 
     <div id="footer-preview">
-      <Footer locale={locale} />
+      <Footer locale={locale} consent={true} />
+      <CookieConsent providers={['posthog']} privacyUrl={undefined} locale={locale} />
     </div>
   </body>
 </html>

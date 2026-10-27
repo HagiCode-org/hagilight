@@ -94,19 +94,30 @@ test('only production builds inject the script and the page-scope click sink', (
   const integration = hagilight();
   const built = runSetup(integration, { command: 'build' });
   assert.deepEqual(built.map(({ stage }) => stage), ['head-inline', 'page']);
-  assert.match(built[0].code, /"framework":"astro"/u);
-  assert.match(built[0].code, /"siteId":"posthog\.example\.com"/u);
-  assert.match(built[1].code, /installPostHogClickTracking\(\);/u);
+  // Consent on: the head inserts the inert descriptors, and the page mounts the popup, gate and post-grant sink.
+  assert.match(built[0].code, /insertAdjacentHTML/u);
+  assert.match(built[0].code, /data-hagilight-analytics="posthog"/u);
+  assert.match(built[1].code, /mountConsent\(\);/u);
+  assert.doesNotMatch(built[1].code, /installPostHogClickTracking\(\);/u, 'the click sink waits for the grant');
   assert.equal(runSetup(integration, { command: 'dev' }).length, 0);
   assert.equal(runSetup(integration, { command: 'preview' }).length, 0);
 });
 
 test('a plain Astro site registers its context in the built head', () => {
+  // With consent on (the default) the loader sits inside an inert descriptor, so its quotes are JSON-escaped in the HTML.
   const html = buildFixture('default', '');
-  assert.ok(html.includes('"framework":"astro"'));
-  assert.ok(html.includes('"siteId":"posthog.example.com"'));
-  assert.ok(html.includes('"capture_exceptions":true'));
+  assert.ok(html.includes('\\\\"framework\\\\":\\\\"astro\\\\"'));
+  assert.ok(html.includes('\\\\"siteId\\\\":\\\\"posthog.example.com\\\\"'));
+  assert.ok(html.includes('\\\\"capture_exceptions\\\\":true'));
   assert.equal(count(html, 'posthog.register('), 1);
+  assert.equal(count(html, 'data-hagilight-analytics="posthog"'), 1, 'the descriptor marker is visible to detection');
+});
+
+test('with consent off a plain Astro site keeps the executable loader and click sink as before', () => {
+  const html = buildFixture('consent-off', `{ analytics: { consent: { enabled: false } } }`);
+  assert.ok(html.includes('"framework":"astro"'));
+  assert.equal(count(html, 'data-hagilight-analytics="posthog"'), 0);
+  assert.equal(count(html, '__hagilightPosthogInitialized = true'), 1);
 });
 
 test('a registered Starlight integration owns PostHog', () => {
