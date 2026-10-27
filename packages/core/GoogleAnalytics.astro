@@ -36,8 +36,9 @@ const descriptor = JSON.stringify({ measurementId }).replace(/</g, '\\u003c');
 <script>
   import { installGaEventTracking } from './dist/analytics-events.js';
 
-  // Silent while gtag is undefined (before a grant), so a tracked click is only navigated, never sent.
   installGaEventTracking();
+  // Silent while gtag is undefined (before a grant): a tracked click is navigated, never sent.
+  // Consent-on pages carry descriptors; the gate starts from the grant, never from page load.
   if (document.querySelector('script[data-hagilight-analytics]')) {
     import('./dist/consent-gate.js').then((gate) => gate.mountConsentGate());
   }

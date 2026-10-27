@@ -10,6 +10,11 @@ import { resolveFooterAvatarOptions, type ResolvedFooterAvatarOptions } from '@h
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
+import {
+  validatePolicyVersion,
+  validatePrivacyUrl,
+  type ConsentPopupOptions,
+} from '@hagicode/hagilight-core/consent-markup';
 import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
 import {
   RSS_OWNER,
@@ -59,6 +64,16 @@ export interface HagilightAnalyticsOptions {
   googleAnalytics?: HagilightGoogleAnalyticsOptions;
   fiftyOneLa?: HagilightFiftyOneLaOptions;
   posthog?: HagilightPostHogOptions;
+  consent?: HagilightConsentOptions;
+}
+
+export interface HagilightConsentOptions {
+  /** Defaults to on when any analytics provider is enabled. `false` restores immediate loading. */
+  enabled?: boolean;
+  /** An absolute HTTP(S) URL or a site-relative path. Omitted means the details have no privacy link. */
+  privacyUrl?: string;
+  /** Defaults to `1`. Changing it asks every visitor again. 1 to 32 letters, digits, dots, underscores or hyphens. */
+  policyVersion?: string;
 }
 
 export interface HagilightPostHogOptions {
@@ -159,6 +174,10 @@ interface SerializedOptions {
   googleAnalyticsMeasurementId: string | undefined;
   fiftyOneLaId: string | undefined;
   posthogApiKey: string | undefined;
+  consentEnabled: boolean;
+  consentProviders: ConsentPopupOptions['providers'];
+  consentPrivacyUrl: string | undefined;
+  consentPolicyVersion: string;
   aiDisclosures: AIDisclosureDefaults;
   seoEnabled: boolean;
   seo: ResolvedSeoOptions;
@@ -236,6 +255,28 @@ const contentWidthHeadScript = `(() => {
   }
   document.documentElement.dataset.hagilightContentWidth = mode;
 })();`;
+
+interface ResolvedConsentOptions {
+  enabled: boolean;
+  privacyUrl: string | undefined;
+  policyVersion: string;
+  providers: ConsentPopupOptions['providers'];
+}
+
+/**
+ * Consent is on by default whenever a provider is enabled, and `enabled: false` restores immediate loading. Invalid
+ * values throw from the core validators, which name the option.
+ */
+function resolveConsentOptions(config: unknown, providers: ConsentPopupOptions['providers']): ResolvedConsentOptions {
+  const record = optionalRecord(config, 'analytics consent');
+  const requested = optionalBoolean(record, 'enabled', 'analytics consent enabled');
+  return {
+    enabled: providers.length > 0 && (requested ?? true),
+    privacyUrl: validatePrivacyUrl(record?.privacyUrl),
+    policyVersion: validatePolicyVersion(record?.policyVersion),
+    providers,
+  };
+}
 
 function resolveProvider(config: unknown, { name, idKey, pattern, defaultId }: ProviderSpec): string | undefined {
   if (config !== undefined && !isRecord(config)) {
@@ -443,13 +484,22 @@ import options from '${optionsId}';
   const analyticsImport = serializedOptions.fiftyOneLaId
     ? `import Analytics51LA from ${JSON.stringify(coreExport('Analytics51LA'))};`
     : '';
+  // Consent-off sites keep their generated markup unchanged; the attribute appears only when the popup is mounted.
+  const consentAttribute = serializedOptions.consentEnabled ? ' consent={true}' : '';
   const analyticsRender = serializedOptions.fiftyOneLaId
-    ? '<Analytics51LA siteId={options.fiftyOneLaId} />'
+    ? `<Analytics51LA siteId={options.fiftyOneLaId}${consentAttribute} />`
+    : '';
+  const consentImport = serializedOptions.consentEnabled
+    ? `import CookieConsent from ${JSON.stringify(coreExport('CookieConsent'))};`
+    : '';
+  const consentRender = serializedOptions.consentEnabled
+    ? '<CookieConsent providers={options.consentProviders} privacyUrl={options.consentPrivacyUrl} policyVersion={options.consentPolicyVersion} locale={Astro.locals?.starlightRoute?.locale} />'
     : '';
   const footerSource = `---
 import Footer from ${JSON.stringify(footerPath)};
 ${promotionImport}
 ${analyticsImport}
+${consentImport}
 import options from '${optionsId}';
 ---
 
@@ -461,9 +511,11 @@ import options from '${optionsId}';
   buildInfo={options.buildInfo}
   avatar={options.footerAvatar.avatar}
   randomAvatar={options.footerAvatar.randomAvatar}
-/>
+${consentAttribute ? `  consent={true}
+` : ''}/>
 ${promotionRender}
 ${analyticsRender}
+${consentRender}
 `;
   const pageTitleSource = `---
 import PageTitle from ${JSON.stringify(pageTitlePath)};
@@ -500,9 +552,9 @@ const pageType = isNotFound
 ---
 
 {options.seoEnabled ? <SEOHead options={options} /> : <DefaultHead />}
-${serializedOptions.posthogApiKey ? `<PostHog apiKey={options.posthogApiKey} framework="starlight" version={${JSON.stringify(PACKAGE_VERSION)}} siteId={options.links?.siteId} pageType={pageType} />` : ''}
+${serializedOptions.posthogApiKey ? `<PostHog apiKey={options.posthogApiKey} framework="starlight" version={${JSON.stringify(PACKAGE_VERSION)}} siteId={options.links?.siteId} pageType={pageType}${serializedOptions.consentEnabled ? ' consent={true}' : ''} />` : ''}
 {!isNotFound && options.googleAnalyticsMeasurementId && (
-  <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId} />
+  <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId}${serializedOptions.consentEnabled ? ' consent={true}' : ''} />
 )}
 `;
   const modules = new Map<string, string>([
@@ -626,6 +678,12 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     pattern: POSTHOG_API_KEY_PATTERN,
     defaultId: DEFAULT_POSTHOG_API_KEY,
   });
+  const consentProviders: ConsentPopupOptions['providers'] = [
+    ...(googleAnalyticsMeasurementId ? ['googleAnalytics' as const] : []),
+    ...(fiftyOneLaId ? ['fiftyOneLa' as const] : []),
+    ...(posthogApiKey ? ['posthog' as const] : []),
+  ];
+  const consent = resolveConsentOptions(analytics.consent, consentProviders);
   const promoto = optionalRecord(input.promoto, 'promoto');
   const promotoEnabled = optionalBoolean(promoto, 'enabled', 'promoto enabled') !== false;
   const contentImages = optionalRecord(input.contentImages, 'contentImages');
@@ -657,6 +715,10 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     googleAnalyticsMeasurementId,
     fiftyOneLaId,
     posthogApiKey,
+    consentEnabled: consent.enabled,
+    consentProviders: consent.providers,
+    consentPrivacyUrl: consent.privacyUrl,
+    consentPolicyVersion: consent.policyVersion,
     aiDisclosures,
     seoEnabled: seo.enabled,
     seo,
@@ -772,7 +834,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
               fiftyOneLa: serializedOptions.fiftyOneLaId !== undefined,
               posthog: serializedOptions.posthogApiKey !== undefined,
             },
-            features: { seo: seo.enabled, promoto: promotoEnabled },
+            features: { seo: seo.enabled, promoto: promotoEnabled, consent: consent.enabled },
           },
           unregisterSiteMetadataOwner,
         ));

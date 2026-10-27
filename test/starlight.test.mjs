@@ -616,7 +616,8 @@ test('PostHog owns Head independently of Google Analytics and its 404 exclusion'
   const [vite] = integrationVitePlugins(result.integrations[0]);
   const head = vite.load(vite.resolveId(result.updated.components.Head));
   assert.match(head, /import PostHog from .*PostHog\.astro/u);
-  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} framework="starlight" version=\{"0\.1\.0"\} siteId=\{options\.links\?\.siteId\} pageType=\{pageType\} \/>$/mu);
+  // Consent is on by default when a provider is enabled, so the head marks PostHog as a consent descriptor owner.
+  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} framework="starlight" version=\{"0\.1\.0"\} siteId=\{options\.links\?\.siteId\} pageType=\{pageType\} consent=\{true\} \/>$/mu);
   assert.match(head, /import \{ classifyPagePath \} from .*posthog-events/u);
   assert.match(head, /const pageType = isNotFound/u);
   assert.match(head, /!isNotFound && options.googleAnalyticsMeasurementId/u);
@@ -633,4 +634,58 @@ test('PostHog owns Head independently of Google Analytics and its 404 exclusion'
   assert.doesNotMatch(disabledVite.load(disabledVite.resolveId(disabled.updated.components.Head)), /PostHog/u);
   assert.equal(configuredOptions(disabled).googleAnalyticsMeasurementId, 'G-EN03FMT2Q4');
   assert.equal(configuredOptions(disabled).fiftyOneLaId, 'L6b88a5yK4h2Xnci');
+});
+
+test('analytics.consent is on by default with a provider, mounts the popup only then, and can be turned off', () => {
+  const on = configuredOptions(configure({}));
+  assert.equal(on.consentEnabled, true);
+  assert.deepEqual(on.consentProviders, ['googleAnalytics', 'fiftyOneLa', 'posthog']);
+  assert.equal(on.consentPolicyVersion, '1');
+  assert.equal(on.consentPrivacyUrl, undefined);
+
+  const off = configuredOptions(configure({ analytics: { consent: { enabled: false } } }));
+  assert.equal(off.consentEnabled, false, 'enabled false restores immediate loading');
+
+  const none = configuredOptions(configure({
+    analytics: { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } },
+  }));
+  assert.equal(none.consentEnabled, false, 'no provider means no popup, descriptor or consent script');
+  assert.deepEqual(none.consentProviders, []);
+
+  const explicit = configuredOptions(configure({
+    analytics: { consent: { privacyUrl: 'https://example.com/privacy', policyVersion: '2026-10.1' } },
+  }));
+  assert.equal(explicit.consentPrivacyUrl, 'https://example.com/privacy');
+  assert.equal(explicit.consentPolicyVersion, '2026-10.1');
+});
+
+test('invalid analytics.consent options fail with an error naming the option', () => {
+  assert.throws(
+    () => configure({ analytics: { consent: { privacyUrl: 'javascript:alert(1)' } } }),
+    /analytics\.consent\.privacyUrl/u,
+  );
+  assert.throws(
+    () => configure({ analytics: { consent: { policyVersion: 'has space' } } }),
+    /analytics\.consent\.policyVersion/u,
+  );
+});
+
+test('the consent popup and descriptors reach the footer and head only when consent is on', () => {
+  const on = configure({});
+  const footer = on.integrations[0];
+  assert.ok(footer);
+  const [vite] = integrationVitePlugins(footer);
+  const footerSource = vite.load(vite.resolveId(on.updated.components.Footer.replace(/^\0/u, '')));
+  assert.equal(typeof footerSource, 'string');
+  assert.match(footerSource, /import CookieConsent from/u);
+  assert.match(footerSource, /<CookieConsent /u);
+  assert.match(footerSource, /consent=\{true\}/u);
+
+  const off = configure({ analytics: { consent: { enabled: false } } });
+  const offFooter = (() => {
+    const [offVite] = integrationVitePlugins(off.integrations[0]);
+    return offVite.load(offVite.resolveId(off.updated.components.Footer.replace(/^\0/u, '')));
+  })();
+  assert.doesNotMatch(offFooter, /CookieConsent/u);
+  assert.doesNotMatch(offFooter, /consent=\{true\}/u);
 });
