@@ -76,9 +76,11 @@ test('every locale home renders the footer with attribution for this plugin vers
 
 test('production head loads Google Analytics and 51LA with their configured ids', () => {
   const html = read(enabledDist, 'index.html');
-  assert.ok(html.includes('https://www.googletagmanager.com/gtag/js?id=G-EN03FMT2Q4'), 'Google Analytics loads with its measurement id');
-  assert.ok(html.includes('https://sdk.51.la/js-sdk-pro.min.js'), 'the 51LA SDK loads');
-  assert.ok(html.includes('L6b88a5yK4h2Xnci'), 'the 51LA id is configured');
+  // Consent is on by default, so each provider is an inert descriptor until the visitor grants analytics.
+  assert.ok(html.includes('"measurementId":"G-EN03FMT2Q4"') && html.includes('data-hagilight-analytics="googleAnalytics"'), 'Google Analytics is configured as a consent descriptor');
+  assert.ok(html.includes('"siteId":"L6b88a5yK4h2Xnci"') && html.includes('data-hagilight-analytics="fiftyOneLa"'), 'the 51LA id is configured as a consent descriptor');
+  assert.equal(html.includes('https://www.googletagmanager.com/gtag/js?id='), false, 'no GA loader before a grant');
+  assert.equal(html.includes('https://sdk.51.la/js-sdk-pro.min.js'), false, 'no 51LA SDK before a grant');
 });
 
 test('the metadata file is written once by the default locale build, lists every locale, and its analytics flags match the built pages', () => {
@@ -93,11 +95,12 @@ test('the metadata file is written once by the default locale build, lists every
   assert.equal(metadata.discovery.rss, '/rss.xml');
   assert.equal(metadata.build.commit.length, 40);
   const home = read(enabledDist, 'index.html');
-  assert.equal(metadata.analytics.googleAnalytics, home.includes('https://www.googletagmanager.com/gtag/js'));
-  assert.equal(metadata.analytics.fiftyOneLa, home.includes('https://sdk.51.la/js-sdk-pro.min.js'));
-  assert.equal(metadata.analytics.posthog, home.includes('__hagilightPosthogInitialized'));
+  // The metadata reads the descriptor markers that consent-on pages carry, and reports the popup as mounted.
+  assert.equal(metadata.analytics.googleAnalytics, home.includes('data-hagilight-analytics="googleAnalytics"'));
+  assert.equal(metadata.analytics.fiftyOneLa, home.includes('data-hagilight-analytics="fiftyOneLa"'));
+  assert.equal(metadata.analytics.posthog, home.includes('data-hagilight-analytics="posthog"'));
   assert.deepEqual(metadata.analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
-  assert.deepEqual(metadata.features, { seo: true, promoto: true });
+  assert.deepEqual(metadata.features, { seo: true, promoto: true, consent: true });
 });
 
 test('the analytics-disabled build reports every analytics flag false', () => {

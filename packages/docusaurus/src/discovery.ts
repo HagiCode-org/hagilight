@@ -278,7 +278,7 @@ async function writeSiteMetadataFile(outputs: DiscoveryOutputs): Promise<void> {
       fiftyOneLa: production && options.fiftyOneLaId !== undefined,
       posthog: production && options.posthogApiKey !== undefined,
     },
-    features: { seo: options.seo.enabled, promoto: options.promoto },
+    features: { seo: options.seo.enabled, promoto: options.promoto, consent: options.consent.enabled },
   });
   writeSiteMetadata({
     outDir,

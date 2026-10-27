@@ -7,6 +7,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
+import { CONSENT_DESCRIPTOR_ID } from '@hagicode/hagilight-core/consent-markup';
 import {
   buildSiteMetadata,
   detectAnalyticsLoaders,
@@ -120,6 +121,8 @@ export function writeAstroSiteMetadata({ config, outDir, pages, build, options, 
     build,
     discovery: findDiscoveryOutputs(outDir),
     analytics: detectAnalyticsLoaders(pageHtml),
+    // The popup is mounted exactly when a built page carries its config descriptor.
+    features: { consent: pageHtml.some((html) => html.includes(CONSENT_DESCRIPTOR_ID)) },
   });
   writeSiteMetadata({
     outDir,
