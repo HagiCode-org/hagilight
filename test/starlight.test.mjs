@@ -689,3 +689,13 @@ test('the consent popup and descriptors reach the footer and head only when cons
   assert.doesNotMatch(offFooter, /CookieConsent/u);
   assert.doesNotMatch(offFooter, /consent=\{true\}/u);
 });
+
+test('the generated Head imports the page classifier whether or not PostHog is enabled', () => {
+  for (const options of [{}, { analytics: { posthog: { enabled: false } } }]) {
+    const result = configure(options);
+    const [vite] = integrationVitePlugins(result.integrations[0]);
+    const head = vite.load(vite.resolveId(result.updated.components.Head));
+    assert.match(head, /import \{ classifyPagePath \} from .*posthog-events/u, JSON.stringify(options));
+    assert.match(head, /const pageType = isNotFound/u, JSON.stringify(options));
+  }
+});

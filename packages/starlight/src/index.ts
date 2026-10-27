@@ -539,8 +539,8 @@ import options from '${optionsId}';
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
 import SEOHead from ${JSON.stringify(seoHeadPath)};
 import GoogleAnalytics from ${JSON.stringify(coreExport('GoogleAnalytics'))};
-${serializedOptions.posthogApiKey ? `import PostHog from ${JSON.stringify(coreExport('PostHog'))};
-import { classifyPagePath } from ${JSON.stringify(coreExport('posthog-events'))};` : ''}
+${serializedOptions.posthogApiKey ? `import PostHog from ${JSON.stringify(coreExport('PostHog'))};` : ''}
+import { classifyPagePath } from ${JSON.stringify(coreExport('posthog-events'))};
 import options from '${optionsId}';
 const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
 const route = Astro.locals.starlightRoute;
