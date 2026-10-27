@@ -17,13 +17,24 @@ export function executableScripts(html) {
     .map(([, , body]) => body).join('\n');
 }
 
+const CONSENT_DESCRIPTOR = /<script\b[^>]*data-hagilight-analytics="posthog"[^>]*>([\s\S]*?)<\/script>/giu;
+
+/**
+ * The PostHog loader text a markup fragment carries: its executable scripts, plus the loader inside a consent
+ * descriptor. A consent-gated page ships the same unchanged loader there, inert until the visitor grants consent.
+ */
+function loaderSources(html) {
+  const descriptors = [...html.matchAll(CONSENT_DESCRIPTOR)].map(([, body]) => JSON.parse(body).loader);
+  return [executableScripts(html), ...descriptors].join('\n');
+}
+
 /**
  * Checks one built page. `framework` is the `site_framework` the page must register; `pageType`, when given,
  * is the page type it must carry in its site context.
  */
 export function verifyPostHog(html, label, { framework, pageType } = {}) {
-  const scripts = executableScripts(html);
-  const head = executableScripts(html.slice(0, html.indexOf('</head>')));
+  const scripts = loaderSources(html);
+  const head = loaderSources(html.slice(0, html.indexOf('</head>')));
   const initialization = /\bposthog\.init\s*\(/gu;
   assert.equal([...scripts.matchAll(initialization)].length, 1, `${label} initializes PostHog once`);
   assert.equal([...head.matchAll(initialization)].length, 1, `${label} initializes PostHog in the head`);
