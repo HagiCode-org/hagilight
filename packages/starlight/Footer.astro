@@ -58,69 +58,57 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} siteId={links?.siteId} siteUrl={links?.siteUrl ?? Astro.site?.href} />
 </div>
 <div class="hagilight-site-links">
-  {resolvedLinks.relatedSites.length > 0 && (
-    <section>
-      <h2>{resolvedLinks.labels.relatedSites}</h2>
-      <nav aria-label={resolvedLinks.labels.navigation.relatedSites}>
+  <div class="hagilight-cols">
+    {resolvedLinks.columns.map((column, index) => (
+      <nav
+        class="hagilight-col"
+        data-column={column.id}
+        style={`--hagilight-col-i: ${index}`}
+        aria-labelledby={`hagilight-col-${column.id}`}
+      >
+        <h2 id={`hagilight-col-${column.id}`}>{resolvedLinks.labels.columns[column.id]}</h2>
         <ul>
-          {resolvedLinks.relatedSites.map((site) => (
+          {column.entries.map((entry) => (
             <li>
-              <a href={site.href} target={site.target} rel={site.rel}>
-                {site.name}
-              </a>
+              <a
+                href={entry.href}
+                target={entry.target}
+                rel={entry.rel}
+                {...(entry.source === 'link' ? siteLinkGaAttributes(entry, 'footer') : {})}
+              >{entry.label}</a>
             </li>
           ))}
         </ul>
       </nav>
-    </section>
-  )}
-  <section>
-    <h2>{resolvedLinks.labels.quickLinks}</h2>
-    <nav aria-label={resolvedLinks.labels.navigation.quickLinks}>
-      <ul>
-        {resolvedLinks.quick.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              target={link.target}
-              rel={link.rel}
-              {...siteLinkGaAttributes(link, 'footer')}
-            >{link.label}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </section>
-  <section>
-    <h2>{resolvedLinks.labels.community}</h2>
-    <nav aria-label={resolvedLinks.labels.navigation.community}>
-      <ul>
-        {resolvedLinks.community.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              target={link.target}
-              rel={link.rel}
-              {...siteLinkGaAttributes(link, 'footer')}
-            >{link.label}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  </section>
-  <nav class="hagilight-filings" aria-label={resolvedLinks.labels.navigation.filings}>
-    {resolvedLinks.filings.map((link) => (
-      <a
-        href={link.href}
-        target={link.target}
-        rel={link.rel}
-        aria-label={link.ariaLabel}
-      >{link.label}</a>
     ))}
-    {consent && (
-      <button type="button" class="hagilight-consent-entry" data-consent-preferences>{consentCopy.footerEntry}</button>
+  </div>
+  <div class="hagilight-footer__base">
+    {resolvedLinks.feeds.length > 0 && (
+      <nav class="hagilight-footer__feeds" aria-label={resolvedLinks.labels.navigation.feeds}>
+        {resolvedLinks.feeds.map((link) => (
+          <a
+            href={link.href}
+            target={link.target}
+            rel={link.rel}
+            {...siteLinkGaAttributes(link, 'footer')}
+          >{link.label}</a>
+        ))}
+      </nav>
     )}
-  </nav>
+    <nav class="hagilight-filings" aria-label={resolvedLinks.labels.navigation.filings}>
+      {resolvedLinks.filings.map((link) => (
+        <a
+          href={link.href}
+          target={link.target}
+          rel={link.rel}
+          aria-label={link.ariaLabel}
+        >{link.label}</a>
+      ))}
+      {consent && (
+        <button type="button" class="hagilight-consent-entry" data-consent-preferences>{consentCopy.footerEntry}</button>
+      )}
+    </nav>
+  </div>
 </div>
 <p class="hagilight-copyright">
   <Copyright name="HagiCode" />
@@ -146,9 +134,7 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
   }
 
   .hagilight-site-links {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-    gap: 1.5rem;
+    container: hagilight-cols / inline-size;
     margin: 0 auto 1rem;
     max-width: 72rem;
     padding-inline: 1rem;
@@ -156,19 +142,13 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     padding-block-end: var(--hagilight-consent-clearance, 0px);
   }
 
-  .hagilight-site-links section {
-    min-width: 0;
-  }
-
   .hagilight-site-links h2 {
-    margin: 0 0 0.75rem;
     color: var(--sl-color-white);
     font-size: var(--sl-text-sm);
   }
 
   .hagilight-site-links ul {
     display: grid;
-    gap: 0.5rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -180,7 +160,8 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     text-decoration: none;
   }
 
-  .hagilight-site-links a:hover {
+  .hagilight-site-links a:hover,
+  .hagilight-site-links a:focus-visible {
     color: var(--sl-color-white);
   }
 
@@ -195,15 +176,184 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     cursor: pointer;
   }
 
-  .hagilight-filings {
-    grid-column: 1 / -1;
+  /* Footer columns: four level, purpose-based columns. Each column owns a rule that
+     draws in as it scrolls into view and runs the full width while the column is
+     used; the other columns' headings step back. */
+  .hagilight-cols,
+  .hagilight-footer__base {
+    --_accent: var(--hagilight-footer-accent, var(--sl-color-accent, var(--ifm-color-primary, currentColor)));
+    --_track: var(--hagilight-footer-border, var(--sl-color-gray-5, color-mix(in srgb, currentColor 26%, transparent)));
+  }
+
+  .hagilight-cols {
+    margin-block-end: 1.75rem;
+    --_ease: cubic-bezier(0.16, 1, 0.3, 1);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+
+  @container hagilight-cols (max-width: 19rem) {
+    .hagilight-cols { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @container hagilight-cols (min-width: 40rem) {
+    .hagilight-cols { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 2.25rem; }
+  }
+
+  .hagilight-col {
+    --_seg: 0.12;
+    position: relative;
+    min-width: 0;
+    padding-top: 1.125rem;
+  }
+
+  .hagilight-col::before,
+  .hagilight-col::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .hagilight-col::before { background: var(--_track); }
+
+  .hagilight-col::after {
+    height: 2px;
+    margin-top: -0.5px;
+    background: var(--_accent);
+    transform-origin: left center;
+    scale: var(--_seg) 1;
+    transition: scale 0.6s var(--_ease);
+  }
+
+  .hagilight-col h2 {
+    margin: 0 0 0.875rem;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .hagilight-col ul { gap: 0.4rem; }
+
+  .hagilight-col a {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.125rem;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 0.25s ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The link's own rule draws in the gutter, so a hover never reflows the label. */
+  .hagilight-col a::before {
+    content: '';
+    position: absolute;
+    top: 0.82em;
+    left: -0.95rem;
+    width: 0.7rem;
+    height: 1px;
+    background: var(--_accent);
+    transform-origin: left center;
+    scale: 0 1;
+    transition: scale 0.35s var(--_ease);
+  }
+
+  .hagilight-col a[target='_blank']::after {
+    /* Joined to the last word by no-break spaces, so the arrow never wraps onto a line of its own. */
+    content: '\00a0\00a0\00a0';
+    background: currentColor;
+    opacity: 0.5;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 11.5l7-7M5.5 4.5h6v6' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right center / 0.62em 0.62em no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 11.5l7-7M5.5 4.5h6v6' fill='none' stroke='%23000' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right center / 0.62em 0.62em no-repeat;
+    transition: mask-position 0.3s var(--_ease), opacity 0.3s ease-out;
+  }
+
+  .hagilight-col a:is(:hover, :focus-visible) { text-decoration-color: currentColor; }
+  .hagilight-col a:is(:hover, :focus-visible)::before { scale: 1 1; }
+  .hagilight-col a[target='_blank']:is(:hover, :focus-visible)::after {
+    opacity: 0.9;
+    -webkit-mask-position: calc(100% + 0.1em) calc(50% - 0.1em);
+    mask-position: calc(100% + 0.1em) calc(50% - 0.1em);
+  }
+
+  .hagilight-col:is(:hover, :focus-within) { --_seg: 1; }
+
+  @media (hover: hover) {
+    .hagilight-cols:has(.hagilight-col:is(:hover, :focus-within)) .hagilight-col:not(:hover, :focus-within) h2 {
+      opacity: 0.5;
+    }
+  }
+
+  .hagilight-cols ::selection,
+  .hagilight-footer__base ::selection {
+    background: color-mix(in srgb, var(--_accent) 34%, transparent);
+    color: inherit;
+  }
+
+  /* The one authored moment: columns rise out of a blur, one after another, as the footer scrolls in.
+     Without scroll-driven animation support, or under reduced motion, the columns are simply there. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .hagilight-col {
+        animation-name: hagilight-col-in;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry calc(var(--hagilight-col-i, 0) * 6%) entry calc(46% + var(--hagilight-col-i, 0) * 6%);
+      }
+
+      .hagilight-col::after {
+        animation-name: hagilight-col-rule;
+        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry calc(var(--hagilight-col-i, 0) * 6%) entry calc(60% + var(--hagilight-col-i, 0) * 6%);
+      }
+    }
+  }
+
+  @keyframes hagilight-col-in {
+    from { opacity: 0; translate: 0 1.25rem; filter: blur(6px); }
+    to { opacity: 1; translate: 0 0; filter: blur(0); }
+  }
+
+  @keyframes hagilight-col-rule {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+
+  /* The bottom row: feeds on the start side, filings on the end side. */
+  .hagilight-footer__base {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem 1.5rem;
-    border-top: 1px solid var(--sl-color-gray-5);
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    border-top: 1px solid var(--_track);
     padding-top: 1rem;
   }
+
+  .hagilight-footer__feeds,
+  .hagilight-filings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+
+  .hagilight-footer__feeds a,
+  .hagilight-filings a {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 0.25s ease-out;
+  }
+
+  .hagilight-footer__feeds a:is(:hover, :focus-visible),
+  .hagilight-filings a:is(:hover, :focus-visible) { text-decoration-color: currentColor; }
 
   .hagilight-copyright {
     margin-block: 1rem;

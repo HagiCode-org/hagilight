@@ -36,26 +36,28 @@ function escapeRegExp(text) {
 
 test('English footer renders the English headings, filings label, and copyright', () => {
   const html = render();
-  assert.match(html, />Ecosystem Sites</u);
-  assert.match(html, />Quick Links</u);
-  assert.match(html, />Community</u);
+  assert.match(html, />Get Started</u);
+  assert.match(html, />Learn &amp; Docs</u);
+  assert.match(html, />Tools &amp; Resources</u);
+  assert.match(html, />Community &amp; Support</u);
   assert.match(html, /aria-label="View filing information"/u);
   assert.match(html, /© 2026 HagiCode/u);
 });
 
 test('Simplified Chinese footer renders the zh-CN headings and links', () => {
   const html = render({ locale: 'zh-CN' });
-  assert.match(html, />生态站点</u);
-  assert.match(html, />快速链接</u);
-  assert.match(html, />社区</u);
+  assert.match(html, />开始使用</u);
+  assert.match(html, />学习与文档</u);
+  assert.match(html, />工具与资源</u);
+  assert.match(html, />社区与支持</u);
   assert.match(html, /aria-label="查看备案信息"/u);
   assert.match(html, /href="https:\/\/docs\.hagicode\.com\/installation\/docker-compose\/"/u);
 });
 
 test('an unknown locale falls back to the English labels', () => {
   const html = render({ locale: 'xx-YY' });
-  assert.match(html, />Quick Links</u);
-  assert.doesNotMatch(html, />快速链接</u);
+  assert.match(html, />Get Started</u);
+  assert.doesNotMatch(html, />开始使用</u);
 });
 
 test('sitemap and RSS links follow the base URL', () => {

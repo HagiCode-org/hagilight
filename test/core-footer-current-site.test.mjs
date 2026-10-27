@@ -62,14 +62,15 @@ function buildFixture(name) {
   return readFileSync(join(dir, 'dist/index.html'), 'utf8');
 }
 
+// The columns regroup the ecosystem sites by purpose, so the whole column grid is the unit to inspect.
 function ecosystemSitesOf(html) {
-  return html.match(/<h2[^>]*>Ecosystem Sites<\/h2>[\s\S]*?<\/nav>/u)?.[0];
+  return html.match(/<div class="hagilight-cols[^>]*>[\s\S]*?<\/div>/u)?.[0];
 }
 
 test('the core footer lists the Fullstack entry on a site that is not Fullstack', () => {
   const html = buildFixture('otherSite');
   const sites = ecosystemSitesOf(html);
-  assert.ok(sites, 'the footer renders Ecosystem Sites');
+  assert.ok(sites, 'the footer renders the link columns');
   assert.ok(sites.includes(FULLSTACK_LINK), 'the Fullstack entry is listed');
   assert.match(sites, /href="https:\/\/tasks\.hagicode\.com\/"/u);
 });
@@ -77,7 +78,7 @@ test('the core footer lists the Fullstack entry on a site that is not Fullstack'
 test('the core footer omits the Fullstack entry when the Astro site is Fullstack', () => {
   const html = buildFixture('fullstackSite');
   const sites = ecosystemSitesOf(html);
-  assert.ok(sites, 'the footer renders Ecosystem Sites');
+  assert.ok(sites, 'the footer renders the link columns');
   assert.ok(!sites.includes(FULLSTACK_LINK), 'the Fullstack entry is excluded');
   assert.match(sites, /href="https:\/\/tasks\.hagicode\.com\/"/u, 'other entries still render');
   assert.ok(!html.includes('utm_source='), 'no campaign parameters are added without a siteId');
@@ -85,12 +86,12 @@ test('the core footer omits the Fullstack entry when the Astro site is Fullstack
 
 test('an explicit siteUrl wins over the Astro site', () => {
   const sites = ecosystemSitesOf(buildFixture('explicitSiteUrlOverridesAstroSite'));
-  assert.ok(sites, 'the footer renders Ecosystem Sites');
+  assert.ok(sites, 'the footer renders the link columns');
   assert.ok(sites.includes(FULLSTACK_LINK), 'the Fullstack entry is listed when siteUrl names another origin');
 });
 
 test('without any Astro site the core footer lists the Fullstack entry as before', () => {
   const sites = ecosystemSitesOf(buildFixture('noAstroSite'));
-  assert.ok(sites, 'the footer renders Ecosystem Sites');
+  assert.ok(sites, 'the footer renders the link columns');
   assert.ok(sites.includes(FULLSTACK_LINK));
 });

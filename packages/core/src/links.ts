@@ -1,6 +1,10 @@
 import docsRelatedSites from './related-sites.json' with { type: 'json' };
 import { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
 import type { LinkRel } from './link-policy.js';
+import { groupFooterColumns } from './footer-columns.js';
+import type { FooterColumnId } from './footer-columns.js';
+
+export type { FooterColumn, FooterColumnEntry, FooterColumnId } from './footer-columns.js';
 
 export { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
 export type {
@@ -471,6 +475,15 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
     }
     : link);
 
+  const taggedQuick = resolvedGroups.quick.map(tag);
+  const taggedCommunity = resolvedGroups.community.map(tag);
+  const taggedRelated = relatedSites.map(tag);
+  const { columns, feeds } = groupFooterColumns({
+    quick: taggedQuick,
+    community: taggedCommunity,
+    relatedSites: taggedRelated,
+  });
+
   return {
     locale,
     labels: {
@@ -493,7 +506,38 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
         'fr-FR': 'Communauté', 'es-ES': 'Comunidad',
         'pt-BR': 'Comunidade', 'ru-RU': 'Сообщество',
       }, locale, 'Community'),
+      columns: {
+        start: resolveLocalized({
+          'zh-CN': '开始使用', 'zh-Hant': '開始使用', 'en-US': 'Get Started',
+          'ja-JP': 'はじめる', 'ko-KR': '시작하기', 'de-DE': 'Loslegen',
+          'fr-FR': 'Démarrer', 'es-ES': 'Empezar', 'pt-BR': 'Começar', 'ru-RU': 'Начать',
+        }, locale, 'Get Started'),
+        learn: resolveLocalized({
+          'zh-CN': '学习与文档', 'zh-Hant': '學習與文件', 'en-US': 'Learn & Docs',
+          'ja-JP': '学ぶ・ドキュメント', 'ko-KR': '학습 및 문서', 'de-DE': 'Lernen & Doku',
+          'fr-FR': 'Apprendre & docs', 'es-ES': 'Aprender y docs', 'pt-BR': 'Aprender e docs',
+          'ru-RU': 'Обучение и документация',
+        }, locale, 'Learn & Docs'),
+        build: resolveLocalized({
+          'zh-CN': '工具与资源', 'zh-Hant': '工具與資源', 'en-US': 'Tools & Resources',
+          'ja-JP': 'ツールとリソース', 'ko-KR': '도구 및 리소스', 'de-DE': 'Tools & Ressourcen',
+          'fr-FR': 'Outils & ressources', 'es-ES': 'Herramientas y recursos',
+          'pt-BR': 'Ferramentas e recursos', 'ru-RU': 'Инструменты и ресурсы',
+        }, locale, 'Tools & Resources'),
+        community: resolveLocalized({
+          'zh-CN': '社区与支持', 'zh-Hant': '社群與支援', 'en-US': 'Community & Support',
+          'ja-JP': 'コミュニティとサポート', 'ko-KR': '커뮤니티 및 지원', 'de-DE': 'Community & Support',
+          'fr-FR': 'Communauté & assistance', 'es-ES': 'Comunidad y soporte',
+          'pt-BR': 'Comunidade e suporte', 'ru-RU': 'Сообщество и поддержка',
+        }, locale, 'Community & Support'),
+      } satisfies Record<FooterColumnId, string>,
       navigation: {
+        feeds: resolveLocalized({
+          'zh-CN': '订阅与站点地图', 'zh-Hant': '訂閱與網站地圖', 'en-US': 'Feeds and sitemap',
+          'ja-JP': '配信とサイトマップ', 'ko-KR': '구독 및 사이트맵', 'de-DE': 'Feeds und Sitemap',
+          'fr-FR': 'Flux et plan du site', 'es-ES': 'Feeds y mapa del sitio',
+          'pt-BR': 'Feeds e mapa do site', 'ru-RU': 'Ленты и карта сайта',
+        }, locale, 'Feeds and sitemap'),
         relatedSites: resolveLocalized({
           'zh-CN': '生态站点链接', 'zh-Hant': '生態站點連結', 'en-US': 'Ecosystem site links',
           'ja-JP': 'エコシステムサイトへのリンク', 'ko-KR': '에코시스템 사이트 링크',
@@ -524,9 +568,13 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
       },
     },
     header: resolvedGroups.header,
-    quick: resolvedGroups.quick.map(tag),
-    community: resolvedGroups.community.map(tag),
+    quick: taggedQuick,
+    community: taggedCommunity,
     filings: resolvedGroups.filings,
-    relatedSites: relatedSites.map(tag),
+    relatedSites: taggedRelated,
+    /** The same entries as `quick`, `community` and `relatedSites`, regrouped into balanced columns by purpose. */
+    columns,
+    /** RSS and sitemap links, shown in the footer's bottom row instead of a column. */
+    feeds,
   };
 }

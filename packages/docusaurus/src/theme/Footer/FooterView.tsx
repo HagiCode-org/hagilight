@@ -5,6 +5,7 @@ import { pickFooterBrandLinks, resolveFooterBrand } from '@hagicode/hagilight-co
 import { footerAvatarImageAttributes } from '@hagicode/hagilight-core/footer-avatar';
 import { randomPoolAttribute } from '@hagicode/hagilight-core/random-image';
 import { withCampaignUtm, type SiteLink } from '@hagicode/hagilight-core/links';
+import type { FooterColumnEntry } from '@hagicode/hagilight-core/links';
 import type { FooterLinks } from '../../footer.js';
 
 /** The decorative avatar: the vendored default pair and, when the random option is on, the baked pool. */
@@ -28,35 +29,17 @@ export interface FooterViewProps {
   consentLabel?: string;
 }
 
-interface LinkSectionProps {
-  heading: string;
-  navLabel: string;
-  links: readonly SiteLink[];
-  tagged: boolean;
-}
-
-function LinkSection({ heading, navLabel, links, tagged }: LinkSectionProps): ReactElement {
+function ColumnLink({ entry }: { entry: FooterColumnEntry }): ReactElement {
   return (
-    <section>
-      <h2>{heading}</h2>
-      <nav aria-label={navLabel}>
-        <ul>
-          {links.map((link) => (
-            <li key={link.id}>
-              <a
-                href={link.href}
-                target={link.target}
-                rel={link.rel}
-                aria-label={link.ariaLabel}
-                {...(tagged ? siteLinkGaAttributes(link, 'footer') : {})}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </section>
+    <a
+      href={entry.href}
+      target={entry.target}
+      rel={entry.rel}
+      aria-label={entry.ariaLabel}
+      {...(entry.source === 'link' ? siteLinkGaAttributes(entry, 'footer') : {})}
+    >
+      {entry.label}
+    </a>
   );
 }
 
@@ -156,47 +139,50 @@ export function FooterView({ links, version, year, buildInfo, avatar, siteId, si
     <footer className="hagilight-footer">
       <FooterBrand locale={links.locale} links={links.quick} avatar={avatar} siteId={siteId} siteUrl={siteUrl} />
       <div className="hagilight-footer__sections">
-        {links.relatedSites.length > 0 && (
-          <section>
-            <h2>{labels.relatedSites}</h2>
-            <nav aria-label={labels.navigation.relatedSites}>
+        <div className="hagilight-cols">
+          {links.columns.map((column, index) => (
+            <nav
+              key={column.id}
+              className="hagilight-col"
+              data-column={column.id}
+              style={{ '--hagilight-col-i': index } as CSSProperties}
+              aria-labelledby={`hagilight-col-${column.id}`}
+            >
+              <h2 id={`hagilight-col-${column.id}`}>{labels.columns[column.id]}</h2>
               <ul>
-                {links.relatedSites.map((site) => (
-                  <li key={site.id}>
-                    <a href={site.href} target={site.target} rel={site.rel}>{site.name}</a>
+                {column.entries.map((entry) => (
+                  <li key={entry.id}>
+                    <ColumnLink entry={entry} />
                   </li>
                 ))}
               </ul>
             </nav>
-          </section>
-        )}
-        <LinkSection
-          heading={labels.quickLinks}
-          navLabel={labels.navigation.quickLinks}
-          links={links.quick}
-          tagged
-        />
-        <LinkSection
-          heading={labels.community}
-          navLabel={labels.navigation.community}
-          links={links.community}
-          tagged
-        />
-      </div>
-      {(links.filings.length > 0 || consentLabel) && (
-        <nav className="hagilight-footer__filings" aria-label={labels.navigation.filings}>
-          {links.filings.map((link) => (
-            <a key={link.id} href={link.href} target={link.target} rel={link.rel} aria-label={link.ariaLabel}>
-              {link.label}
-            </a>
           ))}
-          {consentLabel && (
-            <button type="button" className="hagilight-footer__consent" data-consent-preferences>
-              {consentLabel}
-            </button>
-          )}
-        </nav>
-      )}
+        </div>
+      </div>
+      <div className="hagilight-footer__base">
+        {links.feeds.length > 0 && (
+          <nav className="hagilight-footer__feeds" aria-label={labels.navigation.feeds}>
+            {links.feeds.map((entry) => (
+              <ColumnLink key={entry.id} entry={entry} />
+            ))}
+          </nav>
+        )}
+        {(links.filings.length > 0 || consentLabel) && (
+          <nav className="hagilight-footer__filings" aria-label={labels.navigation.filings}>
+            {links.filings.map((link) => (
+              <a key={link.id} href={link.href} target={link.target} rel={link.rel} aria-label={link.ariaLabel}>
+                {link.label}
+              </a>
+            ))}
+            {consentLabel && (
+              <button type="button" className="hagilight-footer__consent" data-consent-preferences>
+                {consentLabel}
+              </button>
+            )}
+          </nav>
+        )}
+      </div>
       <p className="hagilight-footer__copyright">
         <span>© {year} HagiCode</span>
         {' | '}

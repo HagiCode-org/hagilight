@@ -110,8 +110,9 @@ test('header, footer, and showcase tag only the tracked links for GA click event
   assert.doesNotMatch(analytics, /define:vars/, 'an IIFE-wrapped init script leaves window.gtag undefined');
   assert.match(analytics, /window\.gtag = function/);
   assert.equal(header.match(/siteLinkGaAttributes\(link, 'header'\)/g)?.length, 1);
-  assert.equal(footer.match(/siteLinkGaAttributes\(link, 'footer'\)/g)?.length, 2, 'quick and community links');
-  assert.doesNotMatch(footer, /siteLinkGaAttributes\(site\b/, 'related sites stay untagged');
+  assert.equal(footer.match(/siteLinkGaAttributes\(entry, 'footer'\)/g)?.length, 1, 'column entries');
+  assert.match(footer, /entry\.source === 'link' \? siteLinkGaAttributes/, 'ecosystem sites in a column stay untagged');
+  assert.equal(footer.match(/siteLinkGaAttributes\(link, 'footer'\)/g)?.length, 1, 'feed links');
   const filings = footer.match(/<nav class="hagilight-filings"[\s\S]*?<\/nav>/)?.[0] ?? '';
   assert.ok(filings.includes('resolvedLinks.filings.map'));
   assert.doesNotMatch(filings, /GaAttributes/, 'filings stay untagged');
