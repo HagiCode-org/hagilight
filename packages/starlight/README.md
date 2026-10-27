@@ -31,7 +31,7 @@ The plugin also exposes `@hagicode/hagilight-starlight/schema` for optional SEO 
 
 ### Analytics
 
-`hagilight()` enables PostHog without analytics configuration, an enabled flag, or a consumer project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. Google Analytics and PostHog render together in the generated global Head; 51LA stays in the Footer. PostHog covers all production pages, including localized and 404 pages, independently of Google's existing 404 exclusion. Development pages emit no PostHog loader.
+`hagilight()` enables PostHog without analytics configuration, an enabled flag, or a consumer project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://t.hagicode.com` (managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only`, and SDK defaults `2026-05-30`. Sites with a strict script or connect policy must allow `t.hagicode.com`. Google Analytics and PostHog render together in the generated global Head; 51LA stays in the Footer. PostHog covers all production pages, including localized and 404 pages, independently of Google's existing 404 exclusion. Development pages emit no PostHog loader.
 
 PostHog options follow the Google Analytics provider convention:
 
@@ -65,6 +65,8 @@ hagilight({
 ```
 
 The shared component initializes once per document; SDK defaults own PostHog navigation behavior. Choose one initialization owner and disable this provider when the site already initializes PostHog. Google Analytics and 51LA keep their configured behavior when PostHog is disabled.
+
+Each page registers its site context: `site_framework` `starlight`, the plugin version, `site_id` from `links.siteId` or the site URL's hostname, and a per-page `page_type` (splash pages are `home`, the not-found page is `404`, and other routes are derived from the path, defaulting to `other`). Marked links are captured as `cta_click` on every page that initializes PostHog, including the not-found page, whether or not Google Analytics is enabled.
 
 ### Theme picker
 
@@ -170,6 +172,8 @@ The copy and assets mirror `repos/web` and `repos/docs` in the HagiCode monorepo
 - **Random illustration (R2 pool):** the `cat-head` entry in `assets/showcase/manifest.json` carries `source` (`repo: img-gen`, `album`, `objectKey`), its audit, and `pool` (`album`, `maxBytes` 200 KiB, `entries` with `key` and `bytes`). `ArticlePromotion.astro` leads the primary "visit HagiCode" call to action with the illustration as a decorative, captionless `<picture>`. When the `randomAvatar` option is on it carries `data-random-fan` and renders `ArticlePromotionPicker.astro`, so the button shows the turning fan; when it is off the illustration stays a static round avatar. Refresh: take keys from the `cat-head-gallery` album `index.json`, keep 12 to 200 unique keys each within `maxBytes`, audit them text-free and current, update `pool.entries`, and keep the footer pool in `repos/hagilight/packages/core/assets/footer/manifest.json` in step. To rebuild the WebP, resize the source to 1200 px (lanczos3) and encode at quality 88. `npm test` (`test/showcase-assets.test.mjs`) checks the entry, the pool, the byte caps and the budgets.
 - **Options:** `hagicodePromotion: { randomAvatar: false }` keeps the default illustration and loads no picker; `footer: { avatar: false }` removes the footer avatar, and `footer: { randomAvatar: false }` keeps its default. A site whose `img-src` policy blocks `https://img-gen.hagicode.com` keeps the defaults.
 - **Badge:** the product id is parsed from the Store URL and the badge language map lives in `src/windows-download.ts`. Re-check both against `repos/docs/src/components/MicrosoftStoreBadge.tsx` and the official site when the Store listing or the supported languages change.
+
+Direct `/PromotoFooter` takes an optional `siteId` prop and passes it to its banner, so the banner's call to action carries campaign tags. The plugin footer does this automatically from `links.siteId`.
 
 The plugin footer and direct `/Footer` and `/PromotoFooter` components append
 the literal `Powered By hagilight-starlight@<version>`. The version comes from

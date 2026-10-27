@@ -29,7 +29,7 @@ attribution by itself. Plain-Astro sites that want the literal
 `@hagicode/hagilight/Footer`; that component reads the exact build-time version
 from `@hagicode/hagilight`'s own manifest, not from Astro.
 
-Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, and `analytics-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
+Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, `analytics-events`, and `posthog-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
 
 ```ts
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
@@ -367,7 +367,7 @@ The file follows `schemaVersion: 1`. Fields may be added within version 1. Renam
     "llms": "/llms.txt"
   },
   "analytics": { "googleAnalytics": true, "fiftyOneLa": false, "posthog": true },
-  "features": { "seo": true, "promoto": true }
+  "features": { "seo": true, "promoto": true, "consent": true }
 }
 ```
 
@@ -439,6 +439,24 @@ With the unified processor, pass `rehypeContentImages()` in `rehypePlugins` inst
 
 The banner is a fixed card at most `42rem` wide, centered between two insets: `--hagilight-promoto-inset-start` and `--hagilight-promoto-inset-end` (both default to `0px`). A layout with a sidebar or a table of contents sets them on `:root` so the card sits in the content column instead of over those rails. `@hagicode/hagilight-starlight` derives them from Starlight's own layout tokens, and `@hagicode/hagilight-docusaurus` measures the doc content column at runtime. A plain Astro site needs nothing.
 
+## Promotion analytics
+
+The shared banner reports three PostHog events, with `promo_id` equal to the call to action's `data-ga-label` (the promotion id). Positions are 1-based, matching the visible counter.
+
+| Event | Sent when | Properties |
+|---|---|---|
+| `promoto_impression` | A promotion has stayed visible for 1000 ms. Once per promotion per page; a new page key (pathname and query) allows it again. | `promo_id`, `position`, `rotating` (automatic rotation was active) |
+| `promoto_dismissed` | The dismiss control is clicked. Sent before the existing dismissal steps, which are unchanged. A repeated click during the exit animation sends nothing. | `promo_id`, `visible_ms` (from the promotion first appearing on this page), `seen_count` (distinct promotions visible on this page, including this one) |
+| `promoto_paged` | The carousel moves. `method` is `auto` for the rotation timer and `click` for previous or next. Pausing sends nothing, and reduced motion sends no `auto` event. | `from`, `to`, `method` |
+
+Events are sent only when `window.posthog` has loaded and the visitor has not opted out. Nothing is queued while PostHog is still a stub, and a failing capture never changes display, rotation, dismissal, paging or navigation. The Astro `PromotoBanner` and the Docusaurus card share this element, so both send the same events.
+
+Per-promotion click-through is `cta_click` with `category=promotion` divided by `promoto_impression`, grouped by `promo_id`. Dismissal rate should use visitors who had an impression as its denominator, because a dismissal hides the banner for good.
+
+### Close behavior
+
+Dismissal is stored in `localStorage` under `hagilight:promoto-banner:dismissed-signature`, not `sessionStorage`. There is no expiry; the value stays until the browser clears site data or the card set changes. The stored value is the signature of all cards, not one promotion id, so one close hides the whole set and changing any card shows it again. It is scoped per origin, so each `*.hagicode.com` site dismisses on its own. If storage is unavailable, the dismissal is not kept and the banner returns on the next load. Hiding at page top (first 30 visits per hostname) and while the footer is in view are not dismissals and are not reported.
+
 ## Promotion platforms
 
 The shared banner (`PromotoBanner`, `loadActivePromotions`) displays only promotions whose `platforms` array in Index's `/promote.json` includes `web`, in addition to being enabled, inside their activation window, and matched with `/promote_content.json`. This follows the `platforms` flag documented in the Index README. An entry whose `platforms` is missing, empty, or not an array of strings is not displayed, other values such as `hagicode` are ignored, and matching is exact (`Web` does not match). When no promotion remains, the banner shows its site fallback or stays hidden, as before.
@@ -472,9 +490,9 @@ resolveSiteLinks('en-US', { siteId: 'docs' });
 // quick → downloadClient: https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=footer
 ```
 
-- Footer `quick`, `community` and related-site entries are tagged with `utm_medium=footer`. The banner call to action is tagged with `utm_medium=promoto`. Header and filing links are not tagged.
+- Footer `quick`, `community` and related-site entries are tagged with `utm_medium=footer`, `utm_campaign=<link id>` (the related site's id for ecosystem entries) and `utm_content=footer`. Footer-brand links say `utm_content=footer_brand` instead. The banner call to action is tagged with `utm_medium=promoto`, `utm_campaign=<promotion id>` and `utm_content=promoto_banner`. Article-end promotion links are tagged with `utm_medium=article`, `utm_campaign=<link id>` and `utm_content=article_promotion`. The Store badge and header links are not tagged.
 - Only `https:` destinations on `hagicode.com` hosts are tagged. GitHub, `mailto:`, `tel:`, third-party, same-origin and relative destinations are left unchanged, and so is every destination when `siteId` is absent or blank.
-- Existing `utm_source` or `utm_medium` values win. Other query parameters and the fragment are kept.
+- Existing `utm_source`, `utm_medium`, `utm_campaign` or `utm_content` values win; only missing keys are added. Other query parameters and the fragment are kept.
 - Tags are added after deduplication, so a tagged and a clean destination still collapse into one entry. `normalizeUrl` is unchanged. Canonical URLs, `og:url` and sitemap entries are built from page URLs and never contain `utm_*`.
 - Footer clicks report the tagged `href` as `link_url` in the GA click event. The `link_url` dimension therefore includes `utm_source` and `utm_medium` for first-party footer clicks. No new event parameter is added.
 
@@ -482,7 +500,7 @@ resolveSiteLinks('en-US', { siteId: 'docs' });
 
 - `links.siteId` (Starlight, Docusaurus, and the `Footer`/`Header` components) enables footer tags. The Starlight and Docusaurus promotion banners read this same value.
 - `links.siteUrl` names the hosting site's URL for same-origin classification and for excluding its own Ecosystem Sites entry. When it is not set, the core `Footer` uses the page's Astro `site` (`Astro.site`) instead, so a site built for `https://fullstack.hagicode.com` does not list the HagiCode Fullstack entry on its own footer. An explicit `siteUrl` wins, and with neither value the footer behaves as before. The fallback never sets `siteId`, so no campaign tags are added.
-- `PromotoBanner` accepts an optional `siteId` prop, written to `data-site-id`. Without it the banner keeps the class-based `rel` and leaves destinations unchanged.
+- `PromotoBanner` accepts an optional `siteId` prop, written to `data-site-id`. Without it the banner keeps the class-based `rel` and leaves destinations unchanged. The Starlight `PromotoFooter` component takes the same `siteId` prop and forwards it.
 - Each slide is classified and tagged on its own when it renders, so a rotation from a third-party campaign to a first-party one gets the first-party `rel` and tags.
 
 ### Google Analytics cross-domain linker
@@ -513,7 +531,7 @@ import GoogleAnalytics from '@hagicode/hagilight-core/GoogleAnalytics';
 </html>
 ```
 
-`<PostHog />` needs no enabled flag or project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It emits no loader or initialization outside production. The SDK is loaded asynchronously with anonymous cross-origin mode from `https://us-assets.i.posthog.com/static/array.js`.
+`<PostHog />` needs no enabled flag or project key. Optional props set the site context: `siteId` (defaults to the site URL's hostname), `framework` (`astro` by default; Starlight passes `starlight`), `version` (defaults to this package's version), and `pageType` (see below). It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://t.hagicode.com` (HagiCode's managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only` (profiles are created only for identified users), and SDK defaults `2026-05-30`. It emits no loader or initialization outside production. The SDK is loaded asynchronously with anonymous cross-origin mode from `https://t.hagicode.com/static/array.js`, so the proxy must serve both ingestion and `/static/` assets. Sites with a strict script or connect policy must allow `t.hagicode.com`.
 
 For a different project, pass `<PostHog apiKey="phc_Custom123" />`. Keys must match `^phc_[A-Za-z0-9]+$`; invalid values fail rendering before a script is emitted. The host and defaults version stay fixed.
 
@@ -528,10 +546,42 @@ import {
   POSTHOG_API_KEY_PATTERN,
 } from '@hagicode/hagilight-core/posthog';
 
-const script = posthogInitScript(); // optional custom key as the only argument
+const script = posthogInitScript(); // optional custom key as the first argument
+// Optional second argument: the site context, { siteId?, framework, version, pageType? }
+const withContext = posthogInitScript(undefined, { framework: 'astro', version: '0.1.0', siteId: 'docs.example.com' });
 ```
 
-Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro `hagilight()` integration injects the same script into every production head by default (see its README), so render this component only in a custom head where that integration is not the owner, such as a Starlight site that keeps its own `Head` or a site that sets `analytics: { posthog: { enabled: false } }`.
+Initialization runs once per document, including when the script is re-executed before or after the SDK loads. Fresh documents initialize independently. SDK defaults own navigation tracking. Beyond them, Hagilight makes one `posthog.register` call with the site context, sets `capture_exceptions`, and sends `cta_click` events through one click listener per document. It adds no other capture calls and no route listeners. Choose one initialization owner: omit this component when another integration initializes PostHog, or disable the plugin provider when composing it yourself. The plain Astro `hagilight()` integration injects the same script into every production head by default (see its README), so render this component only in a custom head where that integration is not the owner, such as a Starlight site that keeps its own `Head` or a site that sets `analytics: { posthog: { enabled: false } }`.
+
+### Site context
+
+After initialization, each page registers five super properties once. Empty values are omitted:
+
+- `site_id`: `links.siteId` when a site sets it, otherwise the site URL's hostname, otherwise the document hostname at run time. Two sites on one hostname with different base paths share a `site_id` unless `links.siteId` is set.
+- `site_framework`: `astro`, `starlight` or `docusaurus`.
+- `hagilight_version`: the version of the integration that rendered the page.
+- `locale`: the document's `<html lang>`, read at run time.
+- `page_type`: one of `home`, `docs`, `blog`, `compare`, `404` or `other`. A build-time value wins, then `<meta name="hagilight:page-type">`, then `other`. Starlight derives the value per page. Plain Astro sets it with the `pageType` prop of `SEOHead`, which emits the meta element. Docusaurus refreshes `locale` and `page_type` on every route update, including the first page load, from the path. Because it classifies by path only, its 404 page reports a path-derived type (`docs`, `blog` or `compare`) rather than `other`.
+
+The site-metadata file keeps its schema; it gains no analytics identifier.
+
+### Event vocabulary and `cta_click`
+
+`@hagicode/hagilight-core/posthog-events` is the only place PostHog event names, per-event property allowlists, super-property keys, page types and framework names are spelled. It is browser-safe, with no Astro or Node imports, and it exports `POSTHOG_EVENTS`, `POSTHOG_SUPER_PROPERTIES`, `POSTHOG_PAGE_TYPES`, `POSTHOG_FRAMEWORKS`, `capturePostHogEvent`, `sanitizePostHogProperties`, `destinationOf`, `resolvePageType`, `classifyPagePath`, `installPostHogClickTracking` and `handlePostHogClick`.
+
+A marked link (any element with `data-ga-category`, `data-ga-label` and `data-ga-location`) produces one `cta_click` event:
+
+- `category`, `label` and `location` come from the same attributes that Google Analytics reads.
+- `destination_host` is the lowercase host of the destination only. The destination comes from `data-ga-url`, then the `href` property, then the `href` attribute. No path, query string, hash or credential is ever sent.
+- `is_external` is `true` only when the destination host differs from the current page's host. A non-HTTP(S) or unparseable destination omits `destination_host` and reports `false`.
+
+The click listener is passive and capture-phase. It never cancels, stops or delays a click, and it is installed at most once per document whether or not Google Analytics is enabled. It sends nothing when `window.posthog` is absent or `has_opted_out_capturing()` returns `true`, and it never reads link text or form input or identifies the visitor. Other events in the vocabulary are documented with their features.
+
+Changing the vocabulary is a deliberate change: update the table in `packages/core/src/posthog-events.ts` and the snapshot in `test/posthog-events.test.mjs` together.
+
+### Exception capture and privacy limits
+
+`posthog.init` sets `capture_exceptions: true`, so unhandled errors are reported as `$exception` events. Project-side prerequisite: `$exception` events also need the `autocapture_exceptions_opt_in` setting enabled in the PostHog project. That setting belongs to the PostHog project owner and not to this repository, so until it is enabled, expect no `$exception` events. Hagilight does not call `identify`, `opt_in_capturing`, `opt_out_capturing` or any session-replay method, so visitors are never identified by Hagilight and no consent state changes.
 
 ## Google Analytics click events
 

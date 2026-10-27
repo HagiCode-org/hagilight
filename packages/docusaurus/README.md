@@ -74,7 +74,7 @@ The built-in analytics IDs (`G-EN03FMT2Q4`, 51LA `L6b88a5yK4h2Xnci`, and PostHog
 
 An analytics object enables its provider when it contains an ID. Set `enabled` explicitly to override that. `enabled: true` with no ID is a configuration error.
 
-PostHog needs no configuration or consumer project key when registering `hagilightDocusaurus()`. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. Its single inline initialization shares the global head with Google Analytics on every production HTML page, including localized docs, blogs and not-found pages. No PostHog loader is emitted outside production.
+PostHog needs no configuration or consumer project key when registering `hagilightDocusaurus()`. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://t.hagicode.com` (managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only`, and SDK defaults `2026-05-30`. Sites with a strict script or connect policy must allow `t.hagicode.com`. Its single inline initialization shares the global head with Google Analytics on every production HTML page, including localized docs, blogs and not-found pages. No PostHog loader is emitted outside production.
 
 | PostHog input | Behavior |
 | --- | --- |
@@ -100,7 +100,7 @@ hagilightDocusaurus({
 }); // all analytics disabled
 ```
 
-Each provider is independent: disabling Google Analytics and 51LA alone leaves PostHog enabled. Choose one PostHog initialization owner and opt out here if the site already supplies it. The loader initializes once per document, and the supplied SDK defaults own navigation tracking; Hagilight adds no PostHog capture calls or route listeners. The existing analytics client module remains registered only for Google Analytics and 51LA, preserving their navigation behavior.
+Each provider is independent: disabling Google Analytics and 51LA alone leaves PostHog enabled. Choose one PostHog initialization owner and opt out here if the site already supplies it. The loader initializes once per document, and the supplied SDK defaults own navigation tracking. The head registers the site context (`site_framework` `docusaurus`, the plugin version, and `site_id` from `links.siteId` or the site URL's hostname) once. On every route update, including the first page load, the plugin refreshes only `locale` and `page_type` through `posthog.register`, with `page_type` derived from the path, so the 404 page reports a path-derived type rather than `other`. The analytics client module is bundled whenever PostHog is enabled, even when Google Analytics and 51LA are disabled, so marked links are captured as `cta_click` without Google Analytics. Google Analytics and 51LA keep their navigation behavior.
 
 ### SEO
 

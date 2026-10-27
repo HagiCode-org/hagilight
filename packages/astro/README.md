@@ -164,7 +164,7 @@ Pass `llms: false` (or `{ enabled: false }`) to opt out. The file is only as goo
     "llms": "/llms.txt"
   },
   "analytics": { "googleAnalytics": true, "fiftyOneLa": false, "posthog": true },
-  "features": { "seo": true, "promoto": true }
+  "features": { "seo": true, "promoto": true, "consent": true }
 }
 ```
 
@@ -178,7 +178,7 @@ Pass `llms: false` (or `{ enabled: false }`) to opt out. The file is only as goo
 
 ## PostHog
 
-`hagilight()` injects PostHog into the head of every page of a production build, with no analytics option, enabled flag, or project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`, the same as the Starlight and Docusaurus plugins. `astro dev` pages emit no loader. Injection does not depend on the `enabled` option, which controls only the sitemap and `robots.txt`.
+`hagilight()` injects PostHog into the head of every page of a production build, with no analytics option, enabled flag, or project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://t.hagicode.com` (managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only`, and SDK defaults `2026-05-30`, the same as the Starlight and Docusaurus plugins. Sites with a strict script or connect policy must allow `t.hagicode.com`. `astro dev` pages emit no loader. Injection does not depend on the `enabled` option, which controls only the sitemap and `robots.txt`.
 
 | PostHog input | Behavior |
 | --- | --- |
@@ -194,7 +194,7 @@ hagilight({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
 hagilight({ analytics: { posthog: { enabled: false } } });
 ```
 
-The built-in key belongs to HagiCode, so a site that omits `analytics` sends its traffic to HagiCode's project. The loader initializes once per document. SDK defaults own navigation tracking; Hagilight adds no capture calls. Choose one initialization owner: a site that already renders `@hagicode/hagilight-core/PostHog` or another PostHog snippet should remove it or set `enabled: false`. When `@astrojs/starlight` is registered, this integration injects nothing and the Starlight plugin owns PostHog. The `analytics.posthog` flag in `hagilight.metadata.json` is `true` when the built pages contain the loader.
+The built-in key belongs to HagiCode, so a site that omits `analytics` sends its traffic to HagiCode's project. The loader initializes once per document. SDK defaults own navigation tracking. Hagilight also registers the site context once after initialization (`site_id` from `links.siteId` or the site URL's hostname, `site_framework` `astro`, `hagilight_version`, `locale` from `<html lang>`, and `page_type`), sets `capture_exceptions`, and sends `cta_click` for marked links through a click listener that works without Google Analytics; it adds no other capture calls. `page_type` is `other` unless a page sets it: pass the `pageType` prop to `SEOHead`, which emits `<meta name="hagilight:page-type">`, or render that meta element yourself. Choose one initialization owner: a site that already renders `@hagicode/hagilight-core/PostHog` or another PostHog snippet should remove it or set `enabled: false`. When `@astrojs/starlight` is registered, this integration injects nothing and the Starlight plugin owns PostHog. The `analytics.posthog` flag in `hagilight.metadata.json` is `true` when the built pages contain the loader.
 
 ## Body images
 

@@ -151,7 +151,7 @@ The built-in analytics IDs belong to HagiCode, so set your own IDs or disable ea
 
 ## PostHog analytics
 
-Starlight's `hagilight()` and Docusaurus's `hagilightDocusaurus()` enable PostHog without configuration or a consumer key. The supplied defaults are HagiCode's own PostHog project key, API host `https://us.i.posthog.com`, and SDK defaults `2026-05-30`. It loads asynchronously from `https://us-assets.i.posthog.com/static/array.js`, only in production, once per document.
+Starlight's `hagilight()` and Docusaurus's `hagilightDocusaurus()` enable PostHog without configuration or a consumer key. The supplied defaults are HagiCode's own PostHog project key, API host `https://t.hagicode.com` (HagiCode's managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only`, and SDK defaults `2026-05-30`. It loads asynchronously from `https://t.hagicode.com/static/array.js`, only in production, once per document. Sites with a strict script or connect policy must allow `t.hagicode.com`.
 
 For plain Astro, `hagilight()` from `@hagicode/hagilight/integration` injects the same loader into the head of every page of a production build, and injects nothing when `@astrojs/starlight` is registered because the Starlight plugin then owns PostHog. To own the initialization yourself, set `analytics: { posthog: { enabled: false } }` and compose `import PostHog from '@hagicode/hagilight-core/PostHog'` and `<PostHog />` once in the common layout's `<head>`, alongside `@hagicode/hagilight-core/GoogleAnalytics` when configured. Non-Astro consumers use `posthogInitScript()` from `@hagicode/hagilight-core/posthog` without requiring Astro.
 
