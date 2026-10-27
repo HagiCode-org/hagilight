@@ -112,7 +112,8 @@ test('configured title and summary win over the page values even when the home p
   const page = { path: '/guide/', url: 'https://example.test/guide/', lang: 'en-US', title: 'Guide', description: 'A guide.', siteName: 'Long Site' };
   const txt = buildLlmsTxt({ pages: [home, page], title: 'HagiCode', summary: 'The configured definition.' });
   assert.match(txt, /^# HagiCode\n\n> The configured definition\.\n/u);
-  assert.doesNotMatch(txt, /Long Marketing Title/u);
+  // The home page itself is still listed as a link; only the H1 is the configured name.
+  assert.equal(txt.split('\n')[0], '# HagiCode');
 });
 
 test('buildLlmsTxt caps links per section and in total, and honors title and summary overrides', () => {
