@@ -38,6 +38,10 @@
       "types": "./dist/consent-popup.d.ts",
       "default": "./dist/consent-popup.js"
     },
+    "./consent-mount": {
+      "types": "./dist/consent-mount.d.ts",
+      "default": "./dist/consent-mount.js"
+    },
     "./RootTransit": "./RootTransit.astro",
     "./root-transit": {
       "types": "./dist/root-transit.d.ts",
