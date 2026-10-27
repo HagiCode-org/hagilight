@@ -1,4 +1,6 @@
 import { installGaEventTracking } from '@hagicode/hagilight-core/analytics-events';
+import { getConsent } from '@hagicode/hagilight-core/consent';
+import { CONSENT_DESCRIPTOR_ID } from '@hagicode/hagilight-core/consent-markup';
 import {
   classifyPagePath,
   installPostHogClickTracking,
@@ -74,8 +76,17 @@ export function handleRouteDidUpdate(update: RouteDidUpdate, deps: RouteReportDe
   });
 }
 
+/**
+ * Navigation reports wait for the grant when consent is on: the page then carries the consent descriptor, and
+ * only a granted visitor may send a page_view. Without consent the page reports as before.
+ */
+export function navigationReportsAllowed(doc: Pick<Document, 'getElementById'> = document): boolean {
+  if (!doc.getElementById(CONSENT_DESCRIPTOR_ID)) return true;
+  return getConsent().analytics === 'granted';
+}
+
 const browserDeps: RouteReportDeps = {
-  getGtag: () => (globalThis as { gtag?: unknown }).gtag,
+  getGtag: () => (navigationReportsAllowed() ? (globalThis as { gtag?: unknown }).gtag : undefined),
   readPage: () => ({
     title: document.title,
     location: window.location.href,

@@ -115,3 +115,19 @@ test('route updates refresh only locale and page_type through posthog.register',
 
   assert.equal(client.refreshPostHogPageProperties(update, undefined, { lang: 'en', base: '/' }), false);
 });
+
+test('with consent on, navigation reports wait for the grant; without consent they are unchanged', async () => {
+  const { navigationReportsAllowed } = await import(new URL('../packages/docusaurus/dist/client/analytics.js', import.meta.url).href);
+  const withConsent = { getElementById: (id) => (id === 'hagilight-consent-config' ? { textContent: '{}' } : null) };
+  const withoutConsent = { getElementById: () => null };
+  const granted = new Map([['hagicode:consent', `1|granted|${Math.floor(Date.now() / 1000)}|1`]]);
+  globalThis.window = { location: { hostname: 'localhost' }, localStorage: { getItem: (key) => granted.get(key) ?? null, setItem() {} } };
+  try {
+    assert.equal(navigationReportsAllowed(withoutConsent), true, 'no consent config keeps the reports as before');
+    assert.equal(navigationReportsAllowed(withConsent), true, 'a granted record allows reports');
+    granted.clear();
+    assert.equal(navigationReportsAllowed(withConsent), false, 'undecided visitors send no navigation report');
+  } finally {
+    delete globalThis.window;
+  }
+});
