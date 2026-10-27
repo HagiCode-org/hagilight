@@ -56,6 +56,20 @@ test('calls to action come from the resolved quick links and follow consumer rem
   assert.equal(pickFooterBrandLinks(renamed.quick).primary?.label, 'Get the app');
 });
 
+test('brand block links re-tag from the untagged destination with footer_brand, and stay untagged without a site id', () => {
+  const tagged = resolveFooterLinks({ locale: 'en-US', baseUrl: '/', links: { siteId: 'docs' }, rssEnabled: false });
+  const html = renderToStaticMarkup(createElement(FooterView, { links: tagged, version: '0.0.0', year: 2026, siteId: 'docs' }));
+  const brandBlock = html.slice(html.indexOf('hagilight-brand'), html.indexOf('hagilight-footer__sections'));
+  assert.match(brandBlock, /utm_source=docs&amp;utm_medium=footer&amp;utm_campaign=downloadClient&amp;utm_content=footer_brand/u);
+  assert.match(brandBlock, /utm_campaign=productDocs&amp;utm_content=footer_brand/u);
+  // The quick links in the sections keep the plain footer content.
+  assert.match(html, /utm_campaign=blogPosts&amp;utm_content=footer/u);
+
+  const untagged = resolveFooterLinks({ locale: 'en-US', baseUrl: '/', links: {}, rssEnabled: false });
+  const plain = renderToStaticMarkup(createElement(FooterView, { links: untagged, version: '0.0.0', year: 2026 }));
+  assert.doesNotMatch(plain, /utm_/u);
+});
+
 test('the Docusaurus footer renders the product statement before the link sections', () => {
   const links = resolveFooterLinks({ locale: 'zh-CN', baseUrl: '/', links: {}, rssEnabled: false });
   const html = renderToStaticMarkup(createElement(FooterView, { links, version: '0.0.0', year: 2026 }));
@@ -85,9 +99,9 @@ test('the Docusaurus footer drops the buttons but keeps the statement when both 
 });
 
 test('Astro footers mount the shared brand component and ship it in the core package', () => {
-  assert.match(read('../packages/core/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} avatar=\{avatar\} randomAvatar=\{randomAvatar\} \/>/u);
+  assert.match(read('../packages/core/Footer.astro'), /<FooterBrand[\s\S]*?siteId=\{links\?\.siteId\}[\s\S]*?siteUrl=\{siteUrl\}/u);
   assert.match(read('../packages/starlight/Footer.astro'), /import FooterBrand from '@hagicode\/hagilight-core\/FooterBrand'/u);
-  assert.match(read('../packages/starlight/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} avatar=\{avatar\} randomAvatar=\{randomAvatar\} \/>/u);
+  assert.match(read('../packages/starlight/Footer.astro'), /<FooterBrand locale=\{resolvedLinks\.locale\} links=\{resolvedLinks\.quick\} avatar=\{avatar\} randomAvatar=\{randomAvatar\} siteId=\{links\?\.siteId\} siteUrl=\{links\?\.siteUrl \?\? Astro\.site\?\.href\} \/>/u);
   const manifest = JSON.parse(read('../packages/core/package.json'));
   assert.equal(manifest.exports['./FooterBrand'], './FooterBrand.astro');
 });

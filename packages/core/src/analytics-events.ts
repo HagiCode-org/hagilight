@@ -111,26 +111,45 @@ function nonEmpty(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
+/** A validated tagged click: the first `data-ga-*` element in the click path, read without side effects. */
+export interface TaggedClick {
+  category: GaCategory;
+  label: string;
+  location: string;
+  /** `data-ga-url`, then the element's `href` property, then its `href` attribute. */
+  url?: string;
+}
+
+/**
+ * Reads the first tagged element in the click's composed path. Returns `undefined` when no element
+ * is tagged or its category, label or location is invalid. Never touches the event.
+ */
+export function readTaggedClick(event: { composedPath(): readonly unknown[] }): TaggedClick | undefined {
+  const element = event.composedPath().find(isTaggedElement);
+  if (!element) return undefined;
+  const category = element.getAttribute('data-ga-category');
+  const label = nonEmpty(element.getAttribute('data-ga-label'));
+  const location = nonEmpty(element.getAttribute('data-ga-location'));
+  if (!isCategory(category) || !label || !location) return undefined;
+  const url = nonEmpty(element.getAttribute('data-ga-url'))
+    ?? nonEmpty(element.href)
+    ?? nonEmpty(element.getAttribute('href'));
+  return { category, label, location, ...(url === undefined ? {} : { url }) };
+}
+
 /**
  * Reports the first tagged element in the click's composed path. Never throws and never
  * touches the event, so navigation is unaffected.
  */
 export function handleGaClick(event: { composedPath(): readonly unknown[] }, send: GaSend): void {
   try {
-    const element = event.composedPath().find(isTaggedElement);
-    if (!element) return;
-    const category = element.getAttribute('data-ga-category');
-    const label = nonEmpty(element.getAttribute('data-ga-label'));
-    const location = nonEmpty(element.getAttribute('data-ga-location'));
-    if (!isCategory(category) || !label || !location) return;
-    const linkUrl = nonEmpty(element.getAttribute('data-ga-url'))
-      ?? nonEmpty(element.href)
-      ?? nonEmpty(element.getAttribute('href'));
-    send(GA_CATEGORY_ACTIONS[category], {
-      event_category: category,
-      event_label: label,
-      link_location: location,
-      ...(linkUrl === undefined ? {} : { link_url: linkUrl }),
+    const tagged = readTaggedClick(event);
+    if (!tagged) return;
+    send(GA_CATEGORY_ACTIONS[tagged.category], {
+      event_category: tagged.category,
+      event_label: tagged.label,
+      link_location: tagged.location,
+      ...(tagged.url === undefined ? {} : { link_url: tagged.url }),
       transport_type: 'beacon',
     });
   } catch {

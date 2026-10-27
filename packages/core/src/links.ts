@@ -44,6 +44,8 @@ export interface SiteLink {
   ariaLabel?: string;
   target?: '_blank';
   rel?: LinkRel;
+  /** The destination before footer campaign tags. Set only on tagged links; the footer brand block re-tags from it. Not rendered. */
+  untaggedHref?: string;
 }
 
 export interface SiteLinkOverride {
@@ -459,8 +461,14 @@ export function resolveSiteLinks(localeInput?: string | null, options: SiteLinks
 
   // Campaign tags are added after deduplication and never reach the
   // dedup sets above, so a tagged and a clean destination still collapse.
-  const tag = <T extends { href: string }>(link: T): T => (options.siteId
-    ? { ...link, href: withCampaignUtm(link.href, { siteId: options.siteId, medium: 'footer', origin }) }
+  // The link id is the campaign and `footer` the content; the brand block
+  // re-tags from `untaggedHref` with its own content.
+  const tag = <T extends { id: string; href: string }>(link: T): T & { untaggedHref?: string } => (options.siteId
+    ? {
+      ...link,
+      href: withCampaignUtm(link.href, { siteId: options.siteId, medium: 'footer', campaign: link.id, content: 'footer', origin }),
+      untaggedHref: link.href,
+    }
     : link);
 
   return {

@@ -1,6 +1,12 @@
 import { gaEventAttributes } from './analytics-events.js';
 import { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
 import {
+  capturePromoto,
+  createPromotoAnalytics,
+  type PromotoAnalytics,
+  type PromotoPagingMethod,
+} from './promoto-analytics.js';
+import {
   loadActivePromotions,
   type PromotionCard,
   type PromotionImage,
@@ -8,6 +14,12 @@ import {
 } from './promotions.js';
 
 const ELEMENT_NAME = 'hagilight-promoto-banner';
+/*
+ * Dismissal is recorded once for the whole card set, not per promotion: `localStorage` holds the
+ * signature of every card (id, copy, link and image), with no expiry, scoped per origin. Changing any
+ * card shows the banner again. A failed write is not persisted, so the banner returns on the next load.
+ * Hiding at page top and while the footer is in view are not dismissals.
+ */
 const DISMISSED_SIGNATURE_KEY = 'hagilight:promoto-banner:dismissed-signature';
 const VISIT_COUNT_KEY_PREFIX = 'hagilight:promoto-banner:visit-count:';
 const VISIT_EVENT = 'hagilight:promoto-visit';
@@ -206,9 +218,13 @@ export function definePromotoBannerElement(): void {
     private resizeObserver: ResizeObserver | undefined;
     private footer: HTMLElement | null = null;
     private loadedLocale: string | null = null;
+    private readonly impressions: PromotoAnalytics = createPromotoAnalytics({
+      rotating: () => this.hasAttribute('data-rotating'),
+    });
+    private impressionPage: string | null = null;
 
-    private readonly onPrevious = () => this.move(-1);
-    private readonly onNext = () => this.move(1);
+    private readonly onPrevious = () => this.move(-1, 'click');
+    private readonly onNext = () => this.move(1, 'click');
     private readonly onPause = () => {
       if (this.reducedMotion) return;
       this.paused = !this.paused;
@@ -219,6 +235,7 @@ export function definePromotoBannerElement(): void {
     private readonly onDismiss = () => {
       const signature = getPromotionSetSignature(this.cards);
       if (!signature || this.dismissing) return;
+      this.trackDismissal();
       this.dismissedSignature = signature;
       saveDismissedSignature(signature);
       this.stopRotation();
@@ -249,7 +266,7 @@ export function definePromotoBannerElement(): void {
     };
     // The progress line's fill is the rotation clock, so hover, focus and pause hold the card with it.
     private readonly onProgressEnd = (event: AnimationEvent) => {
-      if (event.target === event.currentTarget) this.move(1);
+      if (event.target === event.currentTarget) this.move(1, 'auto');
     };
     private readonly onLayoutChange = () => {
       const previousState = this.dataset.state;
@@ -264,6 +281,7 @@ export function definePromotoBannerElement(): void {
         this.syncRotation(true);
         this.startRefresh();
       }
+      this.syncImpressions();
     };
     private readonly onMotionChange = () => {
       this.reducedMotion = this.motionQuery?.matches ?? false;
@@ -272,6 +290,7 @@ export function definePromotoBannerElement(): void {
     };
     private readonly onPageLoad = () => {
       recordSiteVisit();
+      this.syncImpressions();
       // Re-fetch in the current page locale after a Starlight view-transition
       // navigation. The element may persist across a soft language switch, so
       // its previously loaded locale can differ from the new page's data-locale.
@@ -356,6 +375,7 @@ export function definePromotoBannerElement(): void {
       this.cards.forEach((card, index) => {
         const slide = document.createElement('article');
         slide.className = 'hagilight-promoto__slide';
+        slide.dataset.promotoId = card.id;
         slide.dataset.hasImage = String(Boolean(card.image));
         slide.setAttribute('aria-hidden', index === this.currentIndex ? 'false' : 'true');
         if (index !== this.currentIndex) slide.setAttribute('inert', '');
@@ -377,6 +397,8 @@ export function definePromotoBannerElement(): void {
         link.href = withCampaignUtm(card.link, {
           siteId: this.dataset.siteId,
           medium: 'promoto',
+          campaign: card.id,
+          content: 'promoto_banner',
           origin,
         });
         link.target = '_blank';
@@ -457,12 +479,51 @@ export function definePromotoBannerElement(): void {
       this.updateSlides();
     }
 
-    private move(direction: -1 | 1): void {
+    private move(direction: -1 | 1, method: PromotoPagingMethod): void {
       if (this.cards.length < 2) return;
+      const from = this.currentIndex;
       this.currentIndex = getNextPromotionIndex(this.currentIndex, this.cards.length, direction);
       this.dataset.dir = direction < 0 ? 'prev' : 'next';
       this.updateSlides();
+      this.trackPaging(from, method);
       this.syncRotation(true);
+      this.syncImpressions();
+    }
+
+    /** Reports the carousel page change. Tracking failures are contained and never affect paging. */
+    private trackPaging(from: number, method: PromotoPagingMethod): void {
+      // Reduced motion never rotates on its own, so an automatic change is not reported.
+      if (method === 'auto' && this.reducedMotion) return;
+      capturePromoto('promoto_paged', { from: from + 1, to: this.currentIndex + 1, method });
+    }
+
+    /** Reports the dismissed promotion. Called before the existing dismissal steps, which are unchanged. */
+    private trackDismissal(): void {
+      try {
+        const card = this.cards[this.currentIndex];
+        if (!card) return;
+        capturePromoto('promoto_dismissed', { promo_id: card.id, ...this.impressions.dismissed(card.id) });
+      } catch {
+        // Tracking must not stop the dismissal.
+      }
+    }
+
+    /** Tells the impression tracker which promotion is visible now. Failures are contained. */
+    private syncImpressions(): void {
+      try {
+        const page = `${window.location.pathname}${window.location.search}`;
+        if (page !== this.impressionPage) {
+          this.impressionPage = page;
+          this.impressions.resetPage();
+        }
+        const card = this.cards[this.currentIndex];
+        const presentation = card && this.dataset.state === 'ready' && document.visibilityState !== 'hidden'
+          ? { promoId: card.id, position: this.currentIndex + 1 }
+          : undefined;
+        this.impressions.show(presentation);
+      } catch {
+        // Tracking must not change what the banner shows.
+      }
     }
 
     private updateVisibility(): void {
@@ -484,6 +545,7 @@ export function definePromotoBannerElement(): void {
         shell.inert = state !== 'ready';
       }
       this.dataset.state = state;
+      this.syncImpressions();
     }
 
     private isFooterVisible(): boolean {

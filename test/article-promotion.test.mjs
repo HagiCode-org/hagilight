@@ -184,6 +184,10 @@ test('article promotion renders a themed, accessible showcase after the article 
   for (const [id, fallback] of [
     ['home', 'https://www.hagicode.com/'],
     ['productDocs', 'https://docs.hagicode.com/'],
+  ]) {
+    assert.ok(component.includes(`taggedHref('${id}', '${fallback}')`), `${id} link with fallback is tagged`);
+  }
+  for (const [id, fallback] of [
     ['microsoftStore', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW'],
     ['downloadClient', 'https://www.hagicode.com/'],
   ]) {
@@ -260,10 +264,32 @@ test('the illustration pool is never hard-coded: no data-random-pool swap, a con
   assert.doesNotMatch(component, /img-gen\.hagicode\.com/u, 'the R2 origin lives in the shared picker, not in the component');
   assert.match(component, /randomAvatar = true/u);
   assert.match(markdownContent, /hagicodePromotionRandomAvatar = true/u);
-  assert.match(markdownContent, /<ArticlePromotion lang=\{route\.lang\} randomAvatar=\{hagicodePromotionRandomAvatar\} \/>/u);
+  assert.match(markdownContent, /<ArticlePromotion lang=\{route\.lang\} randomAvatar=\{hagicodePromotionRandomAvatar\} siteId=\{siteId\} \/>/u);
   const picker = await readFile(new URL('../packages/starlight/ArticlePromotionPicker.astro', import.meta.url), 'utf8');
   assert.match(picker, /mountRandomFans\(document\)/u);
   assert.match(picker, /from '@hagicode\/hagilight-core\/random-image'/u);
+});
+
+test('article-end promotion links carry campaign tags only when the site identifies itself', async () => {
+  const component = await readFile(new URL('../packages/starlight/ArticlePromotion.astro', import.meta.url), 'utf8');
+  const markdownContent = await readFile(new URL('../packages/starlight/MarkdownContent.astro', import.meta.url), 'utf8');
+  const pluginIndex = await readFile(new URL('../packages/starlight/src/index.ts', import.meta.url), 'utf8');
+  const promotoFooter = await readFile(new URL('../packages/starlight/PromotoFooter.astro', import.meta.url), 'utf8');
+
+  // The site id reaches the component from the generated wrapper through MarkdownContent.
+  assert.match(pluginIndex, /<MarkdownContent\s+aiDisclosures=\{options\.aiDisclosures\}[\s\S]*?siteId=\{options\.links\?\.siteId\}/u);
+  assert.match(markdownContent, /siteId,\s*\} = Astro\.props;/u);
+  assert.match(component, /const \{ lang, randomAvatar = true, siteId \} = Astro\.props;/u);
+  // Campaign is the link id; medium `article`; content `article_promotion`; no siteId means withCampaignUtm adds nothing.
+  assert.match(component, /withCampaignUtm\(linkHref\(id, fallback\), \{\s*siteId,\s*medium: 'article',\s*campaign: id,\s*content: 'article_promotion',/u);
+  assert.match(component, /const homeHref = taggedHref\('home'/u);
+  assert.match(component, /const docsHref = taggedHref\('productDocs'/u);
+  // The Store badge stays untouched.
+  assert.doesNotMatch(component, /taggedHref\('microsoftStore'/u);
+  assert.match(component, /productid=\{storeProductId\}/u);
+  // The Starlight footer composition forwards the site id to the banner's call to action.
+  assert.match(promotoFooter, /siteId\?: string;/u);
+  assert.match(promotoFooter, /<PromotoBanner siteId=\{siteId\} \/>/u);
 });
 
 test('the showcase randomAvatar option is validated as a boolean and defaults on', async () => {

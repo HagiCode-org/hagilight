@@ -4,7 +4,7 @@ import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-i
 import { pickFooterBrandLinks, resolveFooterBrand } from '@hagicode/hagilight-core/footer-brand';
 import { footerAvatarImageAttributes } from '@hagicode/hagilight-core/footer-avatar';
 import { randomPoolAttribute } from '@hagicode/hagilight-core/random-image';
-import type { SiteLink } from '@hagicode/hagilight-core/links';
+import { withCampaignUtm, type SiteLink } from '@hagicode/hagilight-core/links';
 import type { FooterLinks } from '../../footer.js';
 
 /** The decorative avatar: the vendored default pair and, when the random option is on, the baked pool. */
@@ -20,6 +20,10 @@ export interface FooterViewProps {
   year: number;
   buildInfo?: BuildInfo;
   avatar?: FooterAvatar;
+  /** Identifies the hosting site in campaign tags; without it the brand links stay untagged. */
+  siteId?: string;
+  /** The hosting site's URL, used only to recognise same-origin destinations that must stay untagged. */
+  siteUrl?: string;
 }
 
 interface LinkSectionProps {
@@ -54,9 +58,30 @@ function LinkSection({ heading, navLabel, links, tagged }: LinkSectionProps): Re
   );
 }
 
-function FooterBrand({ locale, links, avatar }: { locale: string; links: readonly SiteLink[]; avatar?: FooterAvatar }): ReactElement {
+function FooterBrand({ locale, links, avatar, siteId, siteUrl }: {
+  locale: string;
+  links: readonly SiteLink[];
+  avatar?: FooterAvatar;
+  siteId?: string;
+  siteUrl?: string;
+}): ReactElement {
   const brand = resolveFooterBrand(locale);
   const { primary, secondary } = pickFooterBrandLinks(links);
+  const origin = (() => {
+    try {
+      return siteUrl ? new URL(siteUrl).origin : undefined;
+    } catch {
+      return undefined;
+    }
+  })();
+  // Re-tagged from the untagged destination, so the brand block's content reads `footer_brand`.
+  const brandHref = (link: SiteLink) => withCampaignUtm(link.untaggedHref ?? link.href, {
+    siteId,
+    medium: 'footer',
+    campaign: link.id,
+    content: 'footer_brand',
+    origin,
+  });
   return (
     <section className="hagilight-brand" lang={brand.locale} aria-labelledby="hagilight-brand-title">
       <div className="hagilight-brand__lead">
@@ -77,7 +102,7 @@ function FooterBrand({ locale, links, avatar }: { locale: string; links: readonl
               {primary && (
                 <a
                   className="hagilight-brand__primary"
-                  href={primary.href}
+                  href={brandHref(primary)}
                   target={primary.target}
                   rel={primary.rel}
                   aria-label={primary.ariaLabel}
@@ -92,7 +117,7 @@ function FooterBrand({ locale, links, avatar }: { locale: string; links: readonl
               {secondary && (
                 <a
                   className="hagilight-brand__secondary"
-                  href={secondary.href}
+                  href={brandHref(secondary)}
                   target={secondary.target}
                   rel={secondary.rel}
                   aria-label={secondary.ariaLabel}
@@ -122,12 +147,12 @@ function FooterBrand({ locale, links, avatar }: { locale: string; links: readonl
   );
 }
 
-export function FooterView({ links, version, year, buildInfo, avatar }: FooterViewProps): ReactElement {
+export function FooterView({ links, version, year, buildInfo, avatar, siteId, siteUrl }: FooterViewProps): ReactElement {
   const { labels } = links;
   const buildItems = buildInfoItems(buildInfo);
   return (
     <footer className="hagilight-footer">
-      <FooterBrand locale={links.locale} links={links.quick} avatar={avatar} />
+      <FooterBrand locale={links.locale} links={links.quick} avatar={avatar} siteId={siteId} siteUrl={siteUrl} />
       <div className="hagilight-footer__sections">
         {links.relatedSites.length > 0 && (
           <section>

@@ -81,3 +81,37 @@ test('reportPageView reports nothing when gtag is not a function', () => {
   assert.equal(client.reportPageView(undefined, { title: '', location: '', path: '' }), false);
   assert.equal(client.reportPageView('gtag', { title: '', location: '', path: '' }), false);
 });
+
+test('the PostHog sink joins the Google Analytics listener only once PostHog has initialized', () => {
+  const plain = fakeTarget();
+  assert.equal(client.installClickTracking(plain), true);
+  assert.equal(plain.listeners.length, 1, 'without PostHog only the GA listener is installed');
+
+  globalThis.__hagilightPosthogInitialized = true;
+  try {
+    const withPostHog = fakeTarget();
+    assert.equal(client.installClickTracking(withPostHog), true);
+    assert.equal(withPostHog.listeners.length, 2, 'the PostHog click sink is installed beside the GA listener');
+    assert.equal(client.installClickTracking(withPostHog), false);
+    assert.equal(withPostHog.listeners.length, 2);
+  } finally {
+    delete globalThis.__hagilightPosthogInitialized;
+  }
+});
+
+test('route updates refresh only locale and page_type through posthog.register', () => {
+  const registered = [];
+  const posthog = {
+    register(properties) { registered.push(properties); },
+    init() { throw new Error('route updates never initialize PostHog'); },
+    capture() { throw new Error('route updates never capture'); },
+  };
+  const update = { location: route('/zh-CN/blog/post'), previousLocation: route('/') };
+  assert.equal(client.refreshPostHogPageProperties(update, posthog, { lang: 'zh-CN', base: '/' }), true);
+  assert.deepEqual(registered, [{ locale: 'zh-CN', page_type: 'blog' }]);
+
+  assert.equal(client.refreshPostHogPageProperties({ location: route('/docs/intro'), previousLocation: null }, posthog, { lang: '', base: '/hagilight/' }), true);
+  assert.deepEqual(registered[1], { page_type: 'docs' });
+
+  assert.equal(client.refreshPostHogPageProperties(update, undefined, { lang: 'en', base: '/' }), false);
+});

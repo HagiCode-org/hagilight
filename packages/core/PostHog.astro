@@ -1,11 +1,32 @@
 ---
+import corePackage from './package.json';
 import { posthogInitScript } from './dist/posthog.js';
 
 interface Props {
   apiKey?: string;
+  /** Defaults to the site URL's hostname. Starlight passes `links.siteId` when it is set. */
+  siteId?: string;
+  /** The integration that renders this component. */
+  framework?: 'astro' | 'starlight' | 'docusaurus';
+  /** The integration's package version. Defaults to this package's version. */
+  version?: string;
+  /** A build-time page type from the page's vocabulary; absent falls back to the page-type meta element. */
+  pageType?: 'home' | 'docs' | 'blog' | 'compare' | '404' | 'other';
 }
 
-const script = posthogInitScript(Astro.props.apiKey);
+const { apiKey, siteId, framework = 'astro', version = corePackage.version, pageType } = Astro.props;
+const script = posthogInitScript(apiKey, {
+  siteId: siteId ?? Astro.site?.hostname,
+  framework,
+  version,
+  pageType,
+});
 ---
 
 {import.meta.env.PROD && <script is:inline set:html={script}></script>}
+
+<script>
+  import { installPostHogClickTracking } from './dist/posthog-events.js';
+
+  if (import.meta.env.PROD) installPostHogClickTracking();
+</script>

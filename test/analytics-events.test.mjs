@@ -304,3 +304,23 @@ test('installGaEventTracking is idempotent per document and silent without gtag'
   const other = new FakeElement();
   assert.equal(installGaEventTracking(other, getGtag), true, 'a different document gets its own listener');
 });
+
+test('GA output is identical after the readTaggedClick extraction', () => {
+  const linked = tag('download', 'downloadClient', 'footer', 'https://example.test/download');
+  assert.deepEqual(collect(clickPath(linked)), [[
+    'download_click',
+    {
+      event_category: 'download',
+      event_label: 'downloadClient',
+      link_location: 'footer',
+      link_url: 'https://example.test/download',
+      transport_type: 'beacon',
+    },
+  ]]);
+  const bare = new FakeElement({ 'data-ga-category': 'navigation', 'data-ga-label': 'home', 'data-ga-location': 'header' }, { href: 'https://hagilight.example/' });
+  assert.deepEqual(collect(clickPath(bare)), [[
+    'link_click',
+    { event_category: 'navigation', event_label: 'home', link_location: 'header', link_url: 'https://hagilight.example/', transport_type: 'beacon' },
+  ]]);
+  assert.deepEqual(collect(clickPath(new FakeElement({ 'data-ga-category': 'download' }))), []);
+});

@@ -127,7 +127,7 @@ test('every production HTML page initializes PostHog once in its head, including
   for (const expected of ['docs/', 'blog/', 'zh-CN/', '404.html']) {
     assert.ok(htmlFiles.some((file) => relative(enabledDist, file).replaceAll('\\', '/').includes(expected)), `covers ${expected}`);
   }
-  for (const file of htmlFiles) verifyPostHog(readFileSync(file, 'utf8'), relative(enabledDist, file));
+  for (const file of htmlFiles) verifyPostHog(readFileSync(file, 'utf8'), relative(enabledDist, file), { framework: 'docusaurus' });
 });
 
 test('client bundle mounts the promote banner', () => {

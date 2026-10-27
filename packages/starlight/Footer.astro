@@ -50,7 +50,7 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
 
 <DefaultFooter />
 <div class="hagilight-brand-host">
-  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} />
+  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} siteId={links?.siteId} siteUrl={links?.siteUrl ?? Astro.site?.href} />
 </div>
 <div class="hagilight-site-links">
   {resolvedLinks.relatedSites.length > 0 && (

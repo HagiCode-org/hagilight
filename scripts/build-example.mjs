@@ -4,11 +4,11 @@ import { existsSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
+import { resolveSiteLinks, withCampaignUtm } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 import { verifyBuildInfo } from './build-info-assertions.mjs';
-import { verifyPostHog } from './posthog-assertions.mjs';
+import { verifyPostHog, verifyPromotoAnalytics } from './posthog-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -42,7 +42,13 @@ function build(env, outputDir) {
   assert.ok(pages.some((file) => /404(?:\.html|[\\/]index\.html)$/u.test(file)), 'PostHog checks cover the 404 page');
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover localized pages');
   // The analytics-off variant disables PostHog on purpose, so no page is expected to initialize it.
-  if (env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off') for (const file of pages) verifyPostHog(read(file), file);
+  if (env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off') {
+    for (const file of pages) verifyPostHog(read(file), file, { framework: 'starlight' });
+    const notFound = pages.find((file) => /404(?:\.html|[\\/]index\.html)$/u.test(file));
+    verifyPostHog(read(notFound), notFound, { framework: 'starlight', pageType: '404' });
+  } else {
+    for (const file of pages) assert.ok(!read(file).includes('posthog.init('), `${file} initializes no PostHog when analytics is off`);
+  }
   read.bytes = (filename) => readFileSync(join(outputDir, filename));
   return read;
 }
@@ -76,7 +82,11 @@ function buildCoreFooter() {
     shell: process.platform === 'win32',
   });
   const outputDir = join(root, 'examples/demo-web/dist');
-  return (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
+  assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover the localized plain-Astro pages');
+  for (const file of pages) verifyPostHog(read(file), `plain Astro ${file}`, { framework: 'astro' });
+  return read;
 }
 
 function feedItems(xml) {
@@ -439,8 +449,15 @@ async function verifyShowcaseOutput(read) {
     assert.ok(includesText(section, copy.lead), `${filename} has the ${locale} lead`);
     assert.ok(includesText(section, copy.shareText), `${filename} has the ${locale} share sentence`);
     assert.ok(includesText(section, copy.features[0].label), `${filename} has the localized pillar labels`);
-    assert.ok(section.includes(`href="${home}"`), `${filename} primary CTA`);
-    assert.ok(section.includes(`href="${productDocs}"`), `${filename} secondary CTA`);
+    // The article-end links are campaign-tagged for the example's site id; the download link is not.
+    const articleTag = (id, href) => withCampaignUtm(href, {
+      siteId: 'hagilight-example',
+      medium: 'article',
+      campaign: id,
+      content: 'article_promotion',
+    });
+    assert.ok(section.includes(`href="${escapeHtml(articleTag('home', home))}"`), `${filename} primary CTA`);
+    assert.ok(section.includes(`href="${escapeHtml(articleTag('productDocs', productDocs))}"`), `${filename} secondary CTA`);
     assert.ok(section.includes(`href="${downloadClient}"`), `${filename} all-downloads link`);
 
     const badge = section.match(/<ms-store-badge\b([^>]*)>([\s\S]*?)<\/ms-store-badge>/u);
@@ -703,6 +720,16 @@ await verifyShowcaseOutput(defaultFeeds);
 verifyBodyImages(defaultFeeds);
 verifyMarkdownPage(defaultFeeds);
 verifyMdxPage(defaultFeeds);
+// Every built page and bundle text of a built example, for string checks on shipped code.
+function builtText(dir) {
+  assert.ok(existsSync(dir), `${dir} is built`);
+  return readdirSync(dir, { recursive: true })
+    .filter((file) => /\.(?:js|html)$/u.test(file))
+    .map((file) => readFileSync(join(dir, file), 'utf8'))
+    .join('\n');
+}
+verifyPromotoAnalytics(builtText(join(root, 'examples/demo-starlight-web/dist')), 'Starlight example');
+verifyPromotoAnalytics(builtText(join(root, 'examples/demo-docusaurus-web/build')), 'Docusaurus example');
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 assert.doesNotMatch(englishHome, /data-root-transit/u, 'the non-opted-in Starlight consumer keeps its root content');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');

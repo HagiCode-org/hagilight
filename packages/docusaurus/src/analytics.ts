@@ -1,8 +1,8 @@
 import type { HtmlTagObject } from '@docusaurus/types';
-import { posthogInitScript } from '@hagicode/hagilight-core/posthog';
+import { posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
 
-export function posthogHeadTags(apiKey: string): HtmlTagObject[] {
-  return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey) }];
+export function posthogHeadTags(apiKey: string, context?: PostHogSiteContext): HtmlTagObject[] {
+  return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey, context) }];
 }
 
 export const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';

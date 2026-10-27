@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
 import type { HookParameters, StarlightPlugin } from '@astrojs/starlight/types';
@@ -188,6 +189,9 @@ interface ProviderSpec {
 }
 
 const packageRoot = new URL('../', import.meta.url);
+const PACKAGE_VERSION = (
+  JSON.parse(readFileSync(new URL('package.json', packageRoot), 'utf8')) as { version: string }
+).version;
 const packageFile = (name: string): string => fileURLToPath(new URL(name, packageRoot));
 const coreExport = (name: string): string => fileURLToPath(import.meta.resolve(`@hagicode/hagilight-core/${name}`));
 
@@ -476,19 +480,27 @@ import options from '${optionsId}';
   aiDisclosures={options.aiDisclosures}
   hagicodePromotionEnabled={options.hagicodePromotionEnabled}
   hagicodePromotionRandomAvatar={options.hagicodePromotionRandomAvatar}
+  siteId={options.links?.siteId}
 ><slot /></MarkdownContent>
 `;
   const headSource = `---
 import DefaultHead from '@astrojs/starlight/components/Head.astro';
 import SEOHead from ${JSON.stringify(seoHeadPath)};
 import GoogleAnalytics from ${JSON.stringify(coreExport('GoogleAnalytics'))};
-${serializedOptions.posthogApiKey ? `import PostHog from ${JSON.stringify(coreExport('PostHog'))};` : ''}
+${serializedOptions.posthogApiKey ? `import PostHog from ${JSON.stringify(coreExport('PostHog'))};
+import { classifyPagePath } from ${JSON.stringify(coreExport('posthog-events'))};` : ''}
 import options from '${optionsId}';
 const isNotFound = /(?:^|\\/)404(?:\\.html)?\\/?$/u.test(Astro.url.pathname);
+const route = Astro.locals.starlightRoute;
+const pageType = isNotFound
+  ? '404'
+  : route?.entry?.data?.template === 'splash'
+    ? 'home'
+    : classifyPagePath(Astro.url.pathname, { base: import.meta.env.BASE_URL, locales: route?.locale ? [route.locale] : [] });
 ---
 
 {options.seoEnabled ? <SEOHead options={options} /> : <DefaultHead />}
-${serializedOptions.posthogApiKey ? '<PostHog apiKey={options.posthogApiKey} />' : ''}
+${serializedOptions.posthogApiKey ? `<PostHog apiKey={options.posthogApiKey} framework="starlight" version={${JSON.stringify(PACKAGE_VERSION)}} siteId={options.links?.siteId} pageType={pageType} />` : ''}
 {!isNotFound && options.googleAnalyticsMeasurementId && (
   <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId} />
 )}

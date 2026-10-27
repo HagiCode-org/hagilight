@@ -7,7 +7,7 @@ import type { BuildInfo } from '@hagicode/hagilight-core/build-info';
 import { resolveBuildInfo } from '@hagicode/hagilight-core/build-info-resolver';
 import { checkContentImageRegistration, registerContentImages } from '@hagicode/hagilight-core/content-images';
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
-import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN, posthogInitScript } from '@hagicode/hagilight-core/posthog';
+import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN, posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
 import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -156,6 +156,21 @@ function integrationName(integration: unknown): unknown {
   return isRecord(integration) ? integration.name : undefined;
 }
 
+const PACKAGE_VERSION = (
+  JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
+).version;
+
+/** The plain-Astro site context: `site_id` is the configured site's hostname, when there is one. */
+function postHogSiteContext(site: unknown): PostHogSiteContext {
+  let siteId: string | undefined;
+  try {
+    siteId = new URL(site as string | URL).hostname || undefined;
+  } catch {
+    siteId = undefined;
+  }
+  return { siteId, framework: 'astro', version: PACKAGE_VERSION };
+}
+
 function resolveDiscoverySite(site: unknown): URL {
   const message = 'Hagilight sitemap and robots require an absolute HTTP(S) Astro site URL. Set `site` in astro.config.mjs.';
   let parsed: URL;
@@ -236,7 +251,10 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata, 
           // site gets PostHog from the Starlight plugin's generated Head instead.
           const hasStarlight = (config.integrations ?? []).some((integration) => integrationName(integration) === '@astrojs/starlight');
           if (posthogApiKey && command === 'build' && !hasStarlight) {
-            injectScript('head-inline', posthogInitScript(posthogApiKey));
+            injectScript('head-inline', posthogInitScript(posthogApiKey, postHogSiteContext(config.site)));
+            // The click sink is independent of Google Analytics; it stays silent until window.posthog exists.
+            const clickSink = fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/posthog-events'));
+            injectScript('page', `import { installPostHogClickTracking } from ${JSON.stringify(clickSink)};\ninstallPostHogClickTracking();`);
           }
           if (!enabled) return;
           resolveDiscoverySite(config.site);

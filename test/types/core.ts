@@ -45,14 +45,22 @@ import {
   type SeoMetadata,
 } from '@hagicode/hagilight-core/seo';
 import { seoSchema, type SeoFrontmatter } from '@hagicode/hagilight-core/seo-schema';
-import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_HOST, POSTHOG_DEFAULTS, POSTHOG_API_KEY_PATTERN, posthogInitScript } from '@hagicode/hagilight-core/posthog';
+import {
+  DEFAULT_POSTHOG_API_KEY,
+  POSTHOG_API_HOST,
+  POSTHOG_DEFAULTS,
+  POSTHOG_PERSON_PROFILES,
+  POSTHOG_UI_HOST,
+  POSTHOG_API_KEY_PATTERN,
+  posthogInitScript,
+} from '@hagicode/hagilight-core/posthog';
 
 const posthogScript: string = posthogInitScript();
 posthogInitScript('phc_Custom123');
 POSTHOG_API_KEY_PATTERN.test(DEFAULT_POSTHOG_API_KEY);
 // @ts-expect-error Project keys must be strings.
 posthogInitScript(42);
-export { posthogScript, POSTHOG_API_HOST, POSTHOG_DEFAULTS };
+export { posthogScript, POSTHOG_API_HOST, POSTHOG_DEFAULTS, POSTHOG_PERSON_PROFILES, POSTHOG_UI_HOST };
 
 const linkOptions: SiteLinksOptions = {
   rssFeedUrl: '/rss.xml',

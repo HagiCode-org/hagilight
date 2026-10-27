@@ -616,7 +616,9 @@ test('PostHog owns Head independently of Google Analytics and its 404 exclusion'
   const [vite] = integrationVitePlugins(result.integrations[0]);
   const head = vite.load(vite.resolveId(result.updated.components.Head));
   assert.match(head, /import PostHog from .*PostHog\.astro/u);
-  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} \/>$/mu);
+  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} framework="starlight" version=\{"0\.1\.0"\} siteId=\{options\.links\?\.siteId\} pageType=\{pageType\} \/>$/mu);
+  assert.match(head, /import \{ classifyPagePath \} from .*posthog-events/u);
+  assert.match(head, /const pageType = isNotFound/u);
   assert.match(head, /!isNotFound && options.googleAnalyticsMeasurementId/u);
   assert.equal(configuredOptions(result).fiftyOneLaId, 'L6b88a5yK4h2Xnci');
   assert.throws(() => configure(options, { Head: './CustomHead.astro' }), /PostHog.*analytics\.posthog: \{ enabled: false \}.*core\/PostHog/u);

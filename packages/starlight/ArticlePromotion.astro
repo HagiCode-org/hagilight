@@ -1,6 +1,6 @@
 ---
 import { gaEventAttributes } from '@hagicode/hagilight-core/analytics-events';
-import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
+import { resolveSiteLinks, withCampaignUtm } from '@hagicode/hagilight-core/links';
 import { getArticlePromotionCopy } from './dist/article-promotion.js';
 import { randomPoolAttribute, randomPoolFromManifest } from '@hagicode/hagilight-core/random-image';
 import {
@@ -19,16 +19,26 @@ interface Props {
   lang?: string;
   /** Deal the illustration as a fan of random cat heads, like the footer avatar. Defaults to `true`. */
   randomAvatar?: boolean;
+  /** Identifies the hosting site in campaign tags; without it the call-to-action links stay untagged. */
+  siteId?: string;
 }
 
-const { lang, randomAvatar = true } = Astro.props;
+const { lang, randomAvatar = true, siteId } = Astro.props;
 if (typeof randomAvatar !== 'boolean') throw new TypeError('Hagilight hagicodePromotion randomAvatar option must be a boolean.');
 const copy = getArticlePromotionCopy(lang);
 const siteLinks = resolveSiteLinks(lang);
 const linkHref = (id: string, fallback: string) =>
   [...siteLinks.header, ...siteLinks.quick].find((link) => link.id === id)?.href ?? fallback;
-const homeHref = linkHref('home', 'https://www.hagicode.com/');
-const docsHref = linkHref('productDocs', 'https://docs.hagicode.com/');
+// The campaign is the link's stable id; the Store badge is third-party and is not tagged.
+const taggedHref = (id: string, fallback: string) => withCampaignUtm(linkHref(id, fallback), {
+  siteId,
+  medium: 'article',
+  campaign: id,
+  content: 'article_promotion',
+  origin: Astro.site?.origin,
+});
+const homeHref = taggedHref('home', 'https://www.hagicode.com/');
+const docsHref = taggedHref('productDocs', 'https://docs.hagicode.com/');
 const storeHref = linkHref('microsoftStore', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW');
 const downloadsHref = linkHref('downloadClient', 'https://www.hagicode.com/');
 const storeProductId = resolveMicrosoftStoreProductId(storeHref);

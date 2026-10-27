@@ -331,7 +331,10 @@ test('PostHog emits one shared head script only in production and stays independ
   const plugin = createPlugin();
   process.env.NODE_ENV = 'production';
   const tags = nonSeoHeadTags(plugin);
-  assert.equal(tags.filter((tag) => tag.innerHTML === posthogInitScript()).length, 1);
+  const initTags = tags.filter((tag) => tag.innerHTML?.includes('posthog.init('));
+  assert.equal(initTags.length, 1);
+  assert.ok(initTags[0].innerHTML.includes('"framework":"docusaurus"'), 'the head registers the Docusaurus site context');
+  assert.ok(initTags[0].innerHTML.includes('"version":"0.1.0"'));
   assert.ok(tags.some((tag) => tag.attributes?.src?.includes('googletagmanager')));
   assert.ok(tags.some((tag) => tag.attributes?.src?.includes('sdk.51.la')));
   for (const mode of ['development', 'test', undefined]) {
@@ -343,14 +346,17 @@ test('PostHog emits one shared head script only in production and stays independ
   const onlyPosthog = createPlugin({ analytics: {
     googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false },
   } });
-  assert.deepEqual(nonSeoHeadTags(onlyPosthog), [{ tagName: 'script', innerHTML: posthogInitScript() }]);
-  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
+  assert.deepEqual(nonSeoHeadTags(onlyPosthog).map(({ tagName, attributes }) => ({ tagName, name: attributes?.name })), [
+    { tagName: 'meta', name: 'hagilight-base-path' },
+    { tagName: 'script', name: undefined },
+  ]);
+  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
   const noPosthog = createPlugin({ analytics: { posthog: { enabled: false } } });
   assert.equal(nonSeoHeadTags(noPosthog).length, 4);
   assert.ok(nonSeoHeadTags(noPosthog).every((tag) => !tag.innerHTML?.includes('posthog.init')));
   assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'promoto.js', 'promoto.css', 'styles.css', 'random-image.js']);
   const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
-  assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML === posthogInitScript('phc_Custom123')).length, 1);
+  assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML?.includes('phc_Custom123')).length, 1);
 });
 
 test('the metadata option defaults on, opts out, and rejects invalid values with the option named', async () => {

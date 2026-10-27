@@ -22,6 +22,14 @@ export default function Footer(): ReactElement {
     rssEnabled: options.rss.enabled,
   });
   return (
-    <FooterView links={links} version={version} year={new Date().getFullYear()} buildInfo={buildInfo} avatar={avatar} />
+    <FooterView
+      links={links}
+      version={version}
+      year={new Date().getFullYear()}
+      buildInfo={buildInfo}
+      avatar={avatar}
+      siteId={options.links.siteId}
+      siteUrl={options.links.siteUrl ?? siteConfig.url}
+    />
   );
 }

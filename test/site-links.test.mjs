@@ -282,7 +282,8 @@ test('replaces bundled sites with snapshot order and localized names without dup
   assert.deepEqual(links.relatedSites.map(({ id }) => id), ['hagicode-docs', 'first']);
   assert.equal(links.relatedSites[0].name, '文件');
   // Related sites are campaign-tagged after deduplication, as footer links are.
-  assert.equal(links.relatedSites[0].href, 'https://docs.hagicode.com/zh-Hant/?utm_source=hagicode-main&utm_medium=footer');
+  assert.equal(links.relatedSites[0].href,
+    'https://docs.hagicode.com/zh-Hant/?utm_source=hagicode-main&utm_medium=footer&utm_campaign=hagicode-docs&utm_content=footer');
   assert.equal(links.relatedSites[0].rel, 'noopener');
   assert.deepEqual(resolveSiteLinks('en-US').relatedSites, defaults);
   assert.throws(
@@ -476,13 +477,14 @@ test('footer and filing links take their rel from the destination class', () => 
   assert.equal(rel(links.quick, 'downloadClient'), undefined);
 });
 
-test('footer destinations on hagicode.com are tagged with the site identifier', () => {
+test('footer destinations on hagicode.com are tagged with the site identifier, link id and footer content', () => {
   const links = resolveSiteLinks('en-US', { siteId: 'docs' });
   const href = (list, id) => list.find((link) => link.id === id)?.href;
 
   assert.equal(href(links.quick, 'downloadClient'),
-    'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=footer');
-  assert.equal(href(links.quick, 'blogPosts'), 'https://docs.hagicode.com/en-US/blog/?utm_source=docs&utm_medium=footer');
+    'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=footer&utm_campaign=downloadClient&utm_content=footer');
+  assert.equal(href(links.quick, 'blogPosts'),
+    'https://docs.hagicode.com/en-US/blog/?utm_source=docs&utm_medium=footer&utm_campaign=blogPosts&utm_content=footer');
   assert.equal(href(links.community, 'github'), 'https://github.com/HagiCode-org/site');
   assert.equal(href(links.community, 'discord'), 'https://discord.gg/qY662sJK');
   assert.equal(href(links.filings, 'icpFiling'), 'https://beian.miit.gov.cn/');
@@ -520,6 +522,32 @@ test('campaign tags keep existing values, other parameters and fragments', () =>
     withCampaignUtm('https://www.hagicode.com/?utm_source=a&utm_medium=b', { siteId: 'docs', medium: 'footer' }),
     'https://www.hagicode.com/?utm_source=a&utm_medium=b',
   );
+});
+
+test('campaign and content tags are added only when their keys are absent', () => {
+  const base = 'https://www.hagicode.com/en-US/desktop/';
+  assert.equal(withCampaignUtm(base, { siteId: 'docs', medium: 'promoto', campaign: 'omniroute', content: 'promoto_banner' }),
+    `${base}?utm_source=docs&utm_medium=promoto&utm_campaign=omniroute&utm_content=promoto_banner`);
+  assert.equal(withCampaignUtm(`${base}?utm_campaign=spring&utm_content=hero`, {
+    siteId: 'docs', medium: 'promoto', campaign: 'omniroute', content: 'promoto_banner',
+  }), `${base}?utm_campaign=spring&utm_content=hero&utm_source=docs&utm_medium=promoto`);
+  assert.equal(withCampaignUtm(base, { siteId: 'docs', medium: 'footer', campaign: '  ', content: null }),
+    `${base}?utm_source=docs&utm_medium=footer`);
+  assert.equal(withCampaignUtm(base, { siteId: 'docs', medium: 'footer', campaign: 'a b/c' }),
+    `${base}?utm_source=docs&utm_medium=footer&utm_campaign=a%20b%2Fc`);
+  assert.equal(withCampaignUtm('https://docs.hagicode.com/blog/', { siteId: 'docs', medium: 'article', campaign: 'home', content: 'article_promotion' }),
+    'https://docs.hagicode.com/blog/?utm_source=docs&utm_medium=article&utm_campaign=home&utm_content=article_promotion');
+  assert.equal(withCampaignUtm('https://discord.gg/qY662sJK', { siteId: 'docs', medium: 'article', campaign: 'x', content: 'y' }),
+    'https://discord.gg/qY662sJK');
+});
+
+test('a tagged footer link keeps its untagged destination for the brand block to re-tag', () => {
+  const links = resolveSiteLinks('en-US', { siteId: 'docs' });
+  const download = links.quick.find((link) => link.id === 'downloadClient');
+
+  assert.equal(download.untaggedHref, 'https://www.hagicode.com/en-US/desktop/');
+  assert.match(download.href, /utm_content=footer$/u);
+  assert.equal(resolveSiteLinks('en-US').quick.find((link) => link.id === 'downloadClient').untaggedHref, undefined);
 });
 
 test('a tagged extra link collapses with the clean default destination', () => {

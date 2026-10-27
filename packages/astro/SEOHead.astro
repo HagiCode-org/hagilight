@@ -16,6 +16,7 @@ import {
   OG_IMAGE_WIDTH,
   classifyOgImage,
 } from '@hagicode/hagilight-core/og-image';
+import { POSTHOG_PAGE_TYPES, type PostHogPageType } from '@hagicode/hagilight-core/posthog-events';
 
 interface Props {
   page?: {
@@ -37,6 +38,8 @@ interface Props {
   ogType?: string;
   organization?: DefaultOrganizationOptions;
   defaultStructuredData?: boolean;
+  /** The PostHog page type for this page. Emitted as `<meta name="hagilight:page-type">` when in the vocabulary. */
+  pageType?: PostHogPageType;
 }
 
 const {
@@ -50,6 +53,7 @@ const {
   ogType,
   organization,
   defaultStructuredData = true,
+  pageType,
 } = Astro.props;
 const site = configuredSite?.toString();
 const currentPageUrl = site
@@ -131,6 +135,7 @@ const defaultValues = buildDefaultStructuredData({
 ---
 
 {composedHead.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+{(POSTHOG_PAGE_TYPES as readonly string[]).includes(pageType ?? '') && <meta name="hagilight:page-type" content={pageType} />}
 {[...defaultValues, ...dataValues].map((value) => (
   <script type="application/ld+json" set:html={serializeJsonLd(value)} />
 ))}

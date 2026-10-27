@@ -21,10 +21,11 @@ const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
 const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
 const buildItems = buildInfoItems(propBuildInfo ?? buildInfoFromLocals(Astro.locals));
 const sitemapOverride = footerLinks.overrides?.sitemap;
+// Without a declared siteUrl, the page's own Astro site excludes its catalog entry.
+const siteUrl = footerLinks.siteUrl ?? Astro.site?.href;
 const resolvedLinks = resolveSiteLinks(locale, {
   ...footerLinks,
-  // Without a declared siteUrl, the page's own Astro site excludes its catalog entry.
-  siteUrl: footerLinks.siteUrl ?? Astro.site?.href,
+  siteUrl,
   overrides: {
     ...footerLinks.overrides,
     sitemap: {
@@ -36,7 +37,14 @@ const resolvedLinks = resolveSiteLinks(locale, {
 ---
 
 <footer class="hagilight-footer">
-  <FooterBrand locale={resolvedLinks.locale} links={resolvedLinks.quick} avatar={avatar} randomAvatar={randomAvatar} />
+  <FooterBrand
+    locale={resolvedLinks.locale}
+    links={resolvedLinks.quick}
+    avatar={avatar}
+    randomAvatar={randomAvatar}
+    siteId={links?.siteId}
+    siteUrl={siteUrl}
+  />
   <div class="hagilight-footer__sections">
     {resolvedLinks.relatedSites.length > 0 && (
       <section>

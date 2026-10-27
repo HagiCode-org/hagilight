@@ -14,6 +14,7 @@ const {
   aiDisclosures = { isAITranslation: false, isAIAuthor: false, sourceLocale: 'root' },
   hagicodePromotionEnabled = true,
   hagicodePromotionRandomAvatar = true,
+  siteId,
 } = Astro.props;
 const route = Astro.locals.starlightRoute;
 const isDocsEntry = route.entry.id !== '404' && !route.entry.id.endsWith('/404');
@@ -42,4 +43,4 @@ if (showTranslation) {
 {flags.isAIAuthor && <AIDisclosureNotice kind="author" lang={route.lang} />}
 <DefaultMarkdownContent><slot /></DefaultMarkdownContent>
 {showTranslation && <AIDisclosureNotice kind="translation" lang={route.lang} sourceHref={sourceHref} />}
-{showHagicodePromotion && <ArticlePromotion lang={route.lang} randomAvatar={hagicodePromotionRandomAvatar} />}
+{showHagicodePromotion && <ArticlePromotion lang={route.lang} randomAvatar={hagicodePromotionRandomAvatar} siteId={siteId} />}

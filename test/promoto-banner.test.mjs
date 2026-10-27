@@ -59,20 +59,28 @@ test('every rendered promotion CTA, including rotated slides, is tagged with its
   assert.match(render, /category: 'promotion',\s*label: card\.id,\s*location: 'promoto_banner',/);
   assert.match(render, /gaEventAttributes\(/);
   assert.match(render, /link\.setAttribute\(name, value\)/);
+  // Each slide carries its promotion id, equal to the CTA's data-ga-label, for analytics and tests.
+  assert.match(render, /slide\.dataset\.promotoId = card\.id;/u);
+  assert.match(render, /campaign: card\.id,\s*content: 'promoto_banner',/u);
 });
 
 // The banner tags and classifies each slide's call to action with the same helpers,
 // applied to that slide's own link, so rotation never reuses a previous decision.
-const ctaFor = (link, siteId) => ({
-  href: withCampaignUtm(link, { siteId, medium: 'promoto' }),
+const ctaFor = (link, siteId, campaign = 'omniroute') => ({
+  href: withCampaignUtm(link, { siteId, medium: 'promoto', campaign, content: 'promoto_banner' }),
   rel: getLinkRel(classifyLink(link)),
 });
 
-test('a first-party campaign call to action is tagged and opener-only', () => {
+test('a first-party campaign call to action is tagged with campaign and content, and opener-only', () => {
   assert.deepEqual(ctaFor('https://cost.hagicode.com/', 'docs'), {
-    href: 'https://cost.hagicode.com/?utm_source=docs&utm_medium=promoto',
+    href: 'https://cost.hagicode.com/?utm_source=docs&utm_medium=promoto&utm_campaign=omniroute&utm_content=promoto_banner',
     rel: 'noopener',
   });
+});
+
+test('an existing campaign or content value on a first-party call to action is preserved', () => {
+  assert.equal(ctaFor('https://cost.hagicode.com/?utm_campaign=spring&utm_content=hero', 'docs').href,
+    'https://cost.hagicode.com/?utm_campaign=spring&utm_content=hero&utm_source=docs&utm_medium=promoto');
 });
 
 test('a third-party campaign call to action keeps its destination and strict rel', () => {
@@ -87,7 +95,10 @@ test('a rotated slide is classified independently of the slide before it', () =>
   const second = ctaFor('https://www.hagicode.com/en-US/desktop/', 'docs');
   assert.equal(first.rel, 'noopener noreferrer');
   assert.equal(second.rel, 'noopener');
-  assert.equal(second.href, 'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=promoto');
+  assert.equal(second.href,
+    'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=promoto&utm_campaign=omniroute&utm_content=promoto_banner');
+  assert.equal(ctaFor('https://www.hagicode.com/en-US/desktop/', 'docs', 'desktop-card').href,
+    'https://www.hagicode.com/en-US/desktop/?utm_source=docs&utm_medium=promoto&utm_campaign=desktop-card&utm_content=promoto_banner');
 });
 
 test('without a site identifier the call to action keeps its destination and class rel', () => {
@@ -104,7 +115,7 @@ test('the banner element and its CTA wire the site identifier and per-slide poli
   ]);
   const render = source.slice(source.indexOf('private renderCards'), source.indexOf('private updateSlides'));
 
-  assert.match(render, /withCampaignUtm\(card\.link, \{\s*siteId: this\.dataset\.siteId,\s*medium: 'promoto',/u);
+  assert.match(render, /withCampaignUtm\(card\.link, \{\s*siteId: this\.dataset\.siteId,\s*medium: 'promoto',\s*campaign: card\.id,/u);
   assert.match(render, /link\.rel = getLinkRel\(classifyLink\(card\.link/u);
   assert.doesNotMatch(render, /link\.rel = 'noopener noreferrer'/u);
   assert.match(astro, /siteId\?: string;/u);

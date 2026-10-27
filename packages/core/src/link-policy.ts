@@ -7,7 +7,7 @@
 
 export type LinkClass = 'same-origin' | 'first-party' | 'third-party';
 export type LinkRel = 'noopener' | 'noopener noreferrer';
-export type CampaignMedium = 'footer' | 'promoto';
+export type CampaignMedium = 'article' | 'footer' | 'promoto';
 
 export interface ClassifyLinkOptions {
   /** The hosting site's origin, e.g. `https://docs.hagicode.com`, when known. */
@@ -18,6 +18,10 @@ export interface CampaignTagOptions extends ClassifyLinkOptions {
   /** The hosting site's identifier. Without it, no tag is added. */
   siteId?: string | null;
   medium: CampaignMedium;
+  /** The promotion id or stable link id, sent as `utm_campaign`. Omitted leaves the key unset. */
+  campaign?: string | null;
+  /** Where the link sits, sent as `utm_content`, for example `footer` or `promoto_banner`. */
+  content?: string | null;
 }
 
 const PLACEHOLDER_ORIGIN = 'https://hagilight.invalid';
@@ -69,7 +73,8 @@ export function getLinkRel(linkClass: LinkClass): LinkRel {
 }
 
 /**
- * Adds `utm_source=<siteId>` and `utm_medium=<medium>` to first-party
+ * Adds `utm_source=<siteId>`, `utm_medium=<medium>`, and, when given,
+ * `utm_campaign=<campaign>` and `utm_content=<content>` to first-party
  * `hagicode.com` destinations. Existing `utm_*` keys win, other parameters and
  * the fragment are preserved, and every other class of destination is returned
  * unchanged.
@@ -95,6 +100,10 @@ export function withCampaignUtm(href: string, options: CampaignTagOptions): stri
   const additions: string[] = [];
   if (!existingKeys.has('utm_source')) additions.push(`utm_source=${encodeURIComponent(siteId)}`);
   if (!existingKeys.has('utm_medium')) additions.push(`utm_medium=${options.medium}`);
+  const campaign = options.campaign?.trim();
+  if (campaign && !existingKeys.has('utm_campaign')) additions.push(`utm_campaign=${encodeURIComponent(campaign)}`);
+  const content = options.content?.trim();
+  if (content && !existingKeys.has('utm_content')) additions.push(`utm_content=${encodeURIComponent(content)}`);
   if (additions.length === 0) return href;
 
   const current = url.search.replace(/^\?/u, '');

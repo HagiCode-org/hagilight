@@ -90,11 +90,23 @@ test('analytics injection does not depend on the sitemap and robots enabled opti
   assert.equal(count(html, '__hagilightPosthogInitialized = true'), 1);
 });
 
-test('only production builds inject the script', () => {
+test('only production builds inject the script and the page-scope click sink', () => {
   const integration = hagilight();
-  assert.equal(runSetup(integration, { command: 'build' }).length, 1);
+  const built = runSetup(integration, { command: 'build' });
+  assert.deepEqual(built.map(({ stage }) => stage), ['head-inline', 'page']);
+  assert.match(built[0].code, /"framework":"astro"/u);
+  assert.match(built[0].code, /"siteId":"posthog\.example\.com"/u);
+  assert.match(built[1].code, /installPostHogClickTracking\(\);/u);
   assert.equal(runSetup(integration, { command: 'dev' }).length, 0);
   assert.equal(runSetup(integration, { command: 'preview' }).length, 0);
+});
+
+test('a plain Astro site registers its context in the built head', () => {
+  const html = buildFixture('default', '');
+  assert.ok(html.includes('"framework":"astro"'));
+  assert.ok(html.includes('"siteId":"posthog.example.com"'));
+  assert.ok(html.includes('"capture_exceptions":true'));
+  assert.equal(count(html, 'posthog.register('), 1);
 });
 
 test('a registered Starlight integration owns PostHog', () => {

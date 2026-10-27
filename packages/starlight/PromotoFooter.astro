@@ -1,7 +1,14 @@
 ---
 import PromotoBanner from '@hagicode/hagilight-core/PromotoBanner';
 import Footer from './Footer.astro';
+
+interface Props {
+  /** Identifies the hosting site in campaign tags for the banner's call to action. */
+  siteId?: string;
+}
+
+const { siteId } = Astro.props;
 ---
 
 <Footer />
-<PromotoBanner />
+<PromotoBanner siteId={siteId} />

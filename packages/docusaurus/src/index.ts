@@ -36,13 +36,29 @@ function packageFile(relativePath: string): string {
   return fileURLToPath(new URL(relativePath, import.meta.url));
 }
 
-function analyticsHeadTags(options: ResolvedHagilightOptions): HtmlTagObject[] {
+function analyticsHeadTags(options: ResolvedHagilightOptions, site: DiscoverySite): HtmlTagObject[] {
   if (process.env.NODE_ENV !== 'production') return [];
   return [
     ...(options.googleAnalyticsId === undefined ? [] : googleAnalyticsHeadTags(options.googleAnalyticsId)),
     ...(options.fiftyOneLaId === undefined ? [] : fiftyOneLaHeadTags(options.fiftyOneLaId)),
-    ...(options.posthogApiKey === undefined ? [] : posthogHeadTags(options.posthogApiKey)),
+    ...(options.posthogApiKey === undefined ? [] : [
+      // The client reads this to classify routes for `page_type`; it is emitted only with PostHog.
+      { tagName: 'meta', attributes: { name: 'hagilight-base-path', content: site.baseUrl } },
+      ...posthogHeadTags(options.posthogApiKey, {
+        siteId: options.links.siteId?.trim() || hostnameOf(site.url),
+        framework: 'docusaurus',
+        version: PACKAGE_VERSION,
+      }),
+    ]),
   ];
+}
+
+function hostnameOf(url: string): string | undefined {
+  try {
+    return new URL(url).hostname || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** Exposes the footer site identifier to the client banner, which tags its call to action with it. */
@@ -56,7 +72,8 @@ function promotoSiteIdHeadTags(options: ResolvedHagilightOptions): HtmlTagObject
 const FOOTER_AVATAR_ASSET = /[\\/]footer[\\/]avatar\.(?:avif|webp)$/u;
 
 function clientModules(options: ResolvedHagilightOptions): string[] {
-  const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined;
+  // The analytics client also installs the PostHog click sink, so PostHog alone is enough to bundle it.
+  const analyticsEnabled = options.googleAnalyticsId !== undefined || options.fiftyOneLaId !== undefined || options.posthogApiKey !== undefined;
   const footerAvatarPicker = options.footer && options.footerAvatar.randomAvatar;
   return [
     ...(analyticsEnabled ? [packageFile('./client/analytics.js')] : []),
@@ -135,7 +152,7 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
     injectHtmlTags() {
       return {
         headTags: [
-          ...analyticsHeadTags(options),
+          ...analyticsHeadTags(options, site),
           ...seoHeadTags(options.seo, site),
           ...feedHeadTags(site, options.rss, feedItems.length),
           ...promotoSiteIdHeadTags(options),

@@ -2,6 +2,7 @@
 import { siteLinkGaAttributes } from './dist/analytics-events.js';
 import type { SiteLink } from './dist/links.js';
 import { pickFooterBrandLinks, resolveFooterBrand } from './dist/footer-brand.js';
+import { withCampaignUtm } from './dist/link-policy.js';
 import { footerAvatarImageAttributes, resolveFooterAvatarOptions } from './dist/footer-avatar.js';
 import { randomPoolAttribute, randomPoolFromManifest } from './dist/random-image.js';
 import avatarAvif from './assets/footer/avatar.avif';
@@ -18,11 +19,30 @@ interface Props {
   avatar?: boolean;
   /** Deal the avatar as a fan of three random cat heads that turns through six per page view. Defaults to `true`. */
   randomAvatar?: boolean;
+  /** Identifies the hosting site in campaign tags; without it the brand links stay untagged. */
+  siteId?: string;
+  /** The hosting site's URL, used only to recognise same-origin destinations that must stay untagged. */
+  siteUrl?: string;
 }
 
-const { locale, links, avatar, randomAvatar } = Astro.props;
+const { locale, links, avatar, randomAvatar, siteId, siteUrl } = Astro.props;
 const brand = resolveFooterBrand(locale);
 const { primary, secondary } = pickFooterBrandLinks(links);
+const siteOrigin = (() => {
+  try {
+    return siteUrl ? new URL(siteUrl).origin : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+// Re-tagged from the untagged destination, so the brand block's content reads `footer_brand`, not `footer`.
+const brandHref = (link: (typeof primary) | undefined) => link && withCampaignUtm(link.untaggedHref ?? link.href, {
+  siteId,
+  medium: 'footer',
+  campaign: link.id,
+  content: 'footer_brand',
+  origin: siteOrigin,
+});
 const avatarOptions = resolveFooterAvatarOptions({ avatar, randomAvatar });
 const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarManifest.pool) : undefined;
 ---
@@ -46,7 +66,7 @@ const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarMan
           {primary && (
             <a
               class="hagilight-brand__primary"
-              href={primary.href}
+              href={brandHref(primary)}
               target={primary.target}
               rel={primary.rel}
               aria-label={primary.ariaLabel}
@@ -61,7 +81,7 @@ const avatarPool = avatarOptions.randomAvatar ? randomPoolFromManifest(avatarMan
           {secondary && (
             <a
               class="hagilight-brand__secondary"
-              href={secondary.href}
+              href={brandHref(secondary)}
               target={secondary.target}
               rel={secondary.rel}
               aria-label={secondary.ariaLabel}
