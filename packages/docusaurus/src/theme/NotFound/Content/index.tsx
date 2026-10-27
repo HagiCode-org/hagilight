@@ -1,4 +1,4 @@
-import Content from '@theme-original/NotFound/Content';
+import Content from '@theme-init/NotFound/Content';
 import { useEffect, type ComponentProps, type ReactElement } from 'react';
 import { capturePostHogEvent, referrerDomain } from '@hagicode/hagilight-core/posthog-events';
 
