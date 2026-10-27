@@ -57,6 +57,26 @@ export interface OrganizationStructuredDataInput {
   url: string | URL;
   logo?: string | URL;
   alternateName?: string;
+  sameAs?: readonly (string | URL)[];
+}
+
+export interface SoftwareApplicationOffer {
+  price: number | string;
+  priceCurrency: string;
+  url?: string | URL;
+  /** A schema.org ItemAvailability URL, or a bare term such as `InStock`. */
+  availability?: string;
+}
+
+export interface SoftwareApplicationStructuredDataInput {
+  name: string;
+  applicationCategory: string;
+  operatingSystem: string;
+  downloadUrl?: string | URL;
+  offers?: SoftwareApplicationOffer;
+  sameAs?: readonly (string | URL)[];
+  description?: string;
+  url?: string | URL;
 }
 
 export interface WebSiteStructuredDataInput {
@@ -69,6 +89,7 @@ export interface DefaultOrganizationOptions {
   name?: string;
   logo?: string | URL;
   alternateName?: string;
+  sameAs?: readonly (string | URL)[];
 }
 
 export interface DefaultStructuredDataInput {
@@ -438,11 +459,32 @@ export function buildBreadcrumbStructuredData(items: readonly BreadcrumbItem[] =
   };
 }
 
+/**
+ * Validate a list of `sameAs` URLs: each must be an absolute HTTP(S) URL, duplicates are dropped
+ * in first-seen order, and an empty input yields an empty list so the caller can omit the key.
+ */
+export function normalizeSameAs(values: readonly (string | URL)[] | undefined): string[] {
+  if (values === undefined) return [];
+  if (!Array.isArray(values)) {
+    throw new TypeError('Hagilight SEO sameAs must be an array of absolute HTTP(S) URLs.');
+  }
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    const href = resolveAbsoluteHttpUrl(value, 'sameAs URL').href;
+    if (seen.has(href)) continue;
+    seen.add(href);
+    result.push(href);
+  }
+  return result;
+}
+
 export function buildOrganizationStructuredData({
   name,
   url,
   logo,
   alternateName,
+  sameAs,
 }: OrganizationStructuredDataInput): StructuredData {
   if (typeof name !== 'string' || !name.trim()) {
     throw new TypeError('Hagilight SEO organization name must be a non-empty string.');
@@ -457,7 +499,79 @@ export function buildOrganizationStructuredData({
   if (typeof alternateName === 'string' && alternateName.trim()) {
     organization.alternateName = alternateName.trim();
   }
+  const sameAsUrls = normalizeSameAs(sameAs);
+  if (sameAsUrls.length > 0) organization.sameAs = sameAsUrls;
   return organization;
+}
+
+function requiredText(value: unknown, field: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new TypeError(`Hagilight SEO software ${field} must be a non-empty string.`);
+  }
+  return value.trim();
+}
+
+function optionalText(value: unknown, field: string): string | undefined {
+  if (value === undefined) return undefined;
+  return requiredText(value, field);
+}
+
+function offerAvailability(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) throw new TypeError('Hagilight SEO software offer availability must be a non-empty string.');
+  if (/^[A-Za-z]+$/u.test(trimmed)) return `https://schema.org/${trimmed}`;
+  return resolveAbsoluteHttpUrl(trimmed, 'offer availability').href;
+}
+
+function buildOffer({ price, priceCurrency, url, availability }: SoftwareApplicationOffer): StructuredData {
+  const offer: StructuredData = { '@type': 'Offer' };
+  if (typeof price === 'number') {
+    if (!Number.isFinite(price) || price < 0) {
+      throw new TypeError('Hagilight SEO software offer price must be a finite, non-negative number.');
+    }
+    offer.price = price;
+  } else {
+    offer.price = requiredText(price, 'offer price');
+  }
+  const currency = requiredText(priceCurrency, 'offer priceCurrency');
+  if (!/^[A-Z]{3}$/u.test(currency)) {
+    throw new TypeError('Hagilight SEO software offer priceCurrency must be an ISO 4217 code.');
+  }
+  offer.priceCurrency = currency;
+  if (url !== undefined) offer.url = resolveAbsoluteHttpUrl(url, 'offer URL').href;
+  if (availability !== undefined) offer.availability = offerAvailability(availability);
+  return offer;
+}
+
+/**
+ * Build a schema.org `SoftwareApplication` block. The required fields must be non-blank; optional
+ * values are emitted only when supplied, and nothing (price, rating, version) is invented.
+ */
+export function buildSoftwareApplicationStructuredData({
+  name,
+  applicationCategory,
+  operatingSystem,
+  downloadUrl,
+  offers,
+  sameAs,
+  description,
+  url,
+}: SoftwareApplicationStructuredDataInput): StructuredData {
+  const application: StructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: requiredText(name, 'name'),
+    applicationCategory: requiredText(applicationCategory, 'applicationCategory'),
+    operatingSystem: requiredText(operatingSystem, 'operatingSystem'),
+  };
+  if (downloadUrl !== undefined) application.downloadUrl = resolveAbsoluteHttpUrl(downloadUrl, 'download URL').href;
+  if (offers !== undefined) application.offers = buildOffer(offers);
+  const sameAsUrls = normalizeSameAs(sameAs);
+  if (sameAsUrls.length > 0) application.sameAs = sameAsUrls;
+  const text = optionalText(description, 'description');
+  if (text !== undefined) application.description = text;
+  if (url !== undefined) application.url = resolveAbsoluteHttpUrl(url, 'application URL').href;
+  return application;
 }
 
 function siteRootHref(url: string | URL, basePath: string = '/'): string {
@@ -539,6 +653,7 @@ export function buildDefaultStructuredData({
       url: siteRootHref(site, basePath),
       logo: organization.logo,
       alternateName: organization.alternateName,
+      sameAs: organization.sameAs,
     }));
   }
   return blocks;

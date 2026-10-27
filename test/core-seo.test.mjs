@@ -6,6 +6,7 @@ import {
   buildBreadcrumbStructuredData,
   buildDefaultStructuredData,
   buildOrganizationStructuredData,
+  buildSoftwareApplicationStructuredData,
   buildWebSiteStructuredData,
   collectStructuredDataTypes,
   composeCanonicalSeoHead,
@@ -301,4 +302,116 @@ test('default structured data honors the organization override and survives host
   const serialized = serializeJsonLd(hostile[0]);
   assert.doesNotMatch(serialized, /<\/script/iu);
   assert.equal(JSON.parse(serialized).name, 'Docs </script><script>alert(1)</script>');
+});
+
+test('builds SoftwareApplication data with required fields and optional extras only when supplied', () => {
+  const minimal = buildSoftwareApplicationStructuredData({
+    name: 'HagiCode',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Windows, macOS, Linux',
+  });
+  assert.deepEqual(minimal, {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'HagiCode',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Windows, macOS, Linux',
+  });
+
+  const complete = buildSoftwareApplicationStructuredData({
+    name: ' HagiCode ',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Windows',
+    downloadUrl: 'https://www.hagicode.com/desktop/',
+    url: 'https://www.hagicode.com/en-US/desktop/',
+    description: 'HagiCode is a workbench.',
+    sameAs: [
+      'https://github.com/HagiCode-org',
+      'https://github.com/HagiCode-org',
+      'https://apps.microsoft.com/detail/9N3PM0N3SVDW',
+    ],
+    offers: { price: 0, priceCurrency: 'USD', availability: 'InStock', url: 'https://www.hagicode.com/desktop/' },
+  });
+  assert.equal(complete.name, 'HagiCode');
+  assert.equal(complete.downloadUrl, 'https://www.hagicode.com/desktop/');
+  assert.equal(complete.url, 'https://www.hagicode.com/en-US/desktop/');
+  assert.equal(complete.description, 'HagiCode is a workbench.');
+  assert.deepEqual(complete.sameAs, ['https://github.com/HagiCode-org', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW']);
+  assert.deepEqual(complete.offers, {
+    '@type': 'Offer',
+    price: 0,
+    priceCurrency: 'USD',
+    url: 'https://www.hagicode.com/desktop/',
+    availability: 'https://schema.org/InStock',
+  });
+});
+
+test('SoftwareApplication never invents an offer, sameAs or download URL', () => {
+  const data = buildSoftwareApplicationStructuredData({
+    name: 'HagiCode',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux',
+  });
+  for (const key of ['offers', 'sameAs', 'downloadUrl', 'description', 'url', 'price', 'aggregateRating', 'softwareVersion']) {
+    assert.equal(key in data, false, key);
+  }
+  assert.equal(buildSoftwareApplicationStructuredData({
+    name: 'HagiCode',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux',
+    sameAs: [],
+  }).sameAs, undefined);
+});
+
+test('SoftwareApplication rejects blank required fields, blank optional text and unsafe URLs with a TypeError', () => {
+  const valid = { name: 'HagiCode', applicationCategory: 'DeveloperApplication', operatingSystem: 'Linux' };
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, name: '   ' }), /name/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, name: '' }), TypeError);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, applicationCategory: '' }), /applicationCategory/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, operatingSystem: ' ' }), /operatingSystem/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, description: '  ' }), /description/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, downloadUrl: 'javascript:alert(1)' }), /download URL/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, sameAs: ['ftp://example.test/'] }), /sameAs URL/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, sameAs: ['https://user:pw@example.test/'] }), /sameAs URL/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, offers: { price: 0, priceCurrency: 'us' } }), /priceCurrency/u);
+  assert.throws(() => buildSoftwareApplicationStructuredData({ ...valid, offers: { price: -1, priceCurrency: 'USD' } }), /price/u);
+});
+
+test('Organization and default Organization blocks accept sameAs in order without duplicates', () => {
+  const organization = buildOrganizationStructuredData({
+    name: 'HagiCode',
+    url: 'https://www.hagicode.com/',
+    sameAs: ['https://github.com/HagiCode-org', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW', 'https://github.com/HagiCode-org'],
+  });
+  assert.deepEqual(organization.sameAs, ['https://github.com/HagiCode-org', 'https://apps.microsoft.com/detail/9N3PM0N3SVDW']);
+
+  const blocks = buildDefaultStructuredData({
+    siteName: 'HagiCode',
+    site: 'https://www.hagicode.com/',
+    organization: { sameAs: ['https://github.com/HagiCode-org'] },
+  });
+  const defaultOrganization = blocks.find((block) => block['@type'] === 'Organization');
+  assert.deepEqual(defaultOrganization.sameAs, ['https://github.com/HagiCode-org']);
+
+  const withoutSameAs = buildOrganizationStructuredData({ name: 'Example', url: 'https://docs.example.test/' });
+  assert.equal('sameAs' in withoutSameAs, false);
+  assert.deepEqual(Object.keys(withoutSameAs), ['@context', '@type', 'name', 'url']);
+  assert.throws(() => buildOrganizationStructuredData({
+    name: 'Example',
+    url: 'https://docs.example.test/',
+    sameAs: ['not a url'],
+  }), /sameAs URL/u);
+});
+
+test('SoftwareApplication and sameAs values with markup characters stay inside one inert script element', () => {
+  const hostile = buildSoftwareApplicationStructuredData({
+    name: 'Hagi "</script><script>alert(1)</script>',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux',
+    description: 'Quote " and </script> inside',
+    sameAs: ['https://example.test/?q="</script>'],
+  });
+  const serialized = serializeJsonLd(hostile);
+  assert.doesNotMatch(serialized, /<\/script/iu);
+  assert.equal(JSON.parse(serialized).name, 'Hagi "</script><script>alert(1)</script>');
 });

@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { getEntityDefinition } from '../packages/core/dist/entity-definition.js';
 import {
   listStructuredArticleLocales,
   listStructuredArticleSlugs,
@@ -355,24 +360,65 @@ test('rewritten articles: interactive-question and agent-work items only for the
   }
 });
 
+// The HagiCode entity definition is deliberately the opening sentence of every rewritten article in
+// its locale, so it is removed before the repeat count. Any other repeated text is still counted.
+function repeatedParagraphs(articles, locale) {
+  const definition = getEntityDefinition(locale);
+  const seen = new Map();
+  for (const article of articles) {
+    for (const paragraph of new Set(collectParagraphs(article.detail))) {
+      const body = paragraph.split(definition).join('').trim();
+      if (body.length < SHARED_PARAGRAPH_MIN_LENGTH) continue;
+      if (!seen.has(body)) seen.set(body, []);
+      seen.get(body).push(article.slug);
+    }
+  }
+  return [...seen].filter(([, slugs]) => slugs.length > SHARED_PARAGRAPH_MAX_ARTICLES);
+}
+
 test('rewritten articles share no long paragraph across more than two articles of a locale', async () => {
   const articles = (await articlesPromise).filter(isRewritten);
 
   for (const locale of REWRITTEN_LOCALES) {
-    const seen = new Map();
-    for (const article of articles.filter((entry) => entry.locale === locale)) {
-      for (const paragraph of new Set(collectParagraphs(article.detail))) {
-        if (paragraph.length < SHARED_PARAGRAPH_MIN_LENGTH) continue;
-        if (!seen.has(paragraph)) seen.set(paragraph, []);
-        seen.get(paragraph).push(article.slug);
-      }
-    }
-
-    const boilerplate = [...seen].filter(([, slugs]) => slugs.length > SHARED_PARAGRAPH_MAX_ARTICLES);
+    const boilerplate = repeatedParagraphs(articles.filter((entry) => entry.locale === locale), locale);
     assert.deepEqual(
       boilerplate.map(([paragraph, slugs]) => `${slugs.length}x ${paragraph.slice(0, 70)}`),
       [],
       `[${locale}]: paragraphs repeated across more than ${SHARED_PARAGRAPH_MAX_ARTICLES} articles`,
     );
   }
+});
+
+test('the entity definition is not boilerplate, but another paragraph repeated in three articles still fails', () => {
+  const definition = getEntityDefinition('en-US');
+  const shared = 'Another paragraph of more than sixty characters that repeats across three comparison articles.';
+  const article = (slug, paragraphs) => ({
+    slug,
+    locale: 'en-US',
+    detail: { summary: paragraphs[0], sections: [{ id: 'section-1', blocks: [{ id: 'section-1-intro', content: paragraphs.slice(1) }] }] },
+  });
+  const withDefinition = ['a', 'b', 'c'].map((slug) => article(slug, [`${definition} Article ${slug} summary.`, shared]));
+  const failing = repeatedParagraphs(withDefinition, 'en-US');
+  assert.deepEqual(failing.map(([paragraph, slugs]) => [paragraph, slugs.length]), [[shared, 3]]);
+
+  const onlyDefinition = ['a', 'b', 'c'].map((slug) => article(slug, [`${definition} Article ${slug} summary.`]));
+  assert.deepEqual(repeatedParagraphs(onlyDefinition, 'en-US'), []);
+});
+
+test('no comparison article uses "Hagicode" as a display name', () => {
+  const root = fileURLToPath(new URL('../packages/core/data/comparison-articles/', import.meta.url));
+  const files = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name);
+      if (statSync(path).isDirectory()) walk(path);
+      else if (name.endsWith('.json')) files.push(path);
+    }
+  };
+  walk(root);
+  assert.ok(files.length > 0, 'no comparison article files were found');
+  // The display name is "HagiCode". Lowercase identifiers such as slugs and domains are not display names.
+  const display = /(?<![\w/.@-])Hagicode(?![\w.-])/u;
+  const offenders = files.filter((file) => display.test(readFileSync(file, 'utf8'))).map((file) => relative(root, file));
+  assert.deepEqual(offenders, []);
 });
