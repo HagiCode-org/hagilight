@@ -14,6 +14,8 @@ const packages = ['core', 'astro', 'starlight', 'mermaid'].map((directory) => ({
 const expectedExports = {
   '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
   '@hagicode/hagilight-core/root-transit-board': ['TRANSIT_BOARD_WINDOW', 'resolveTransitBoard'],
+  '@hagicode/hagilight-core/consent-copy': ['CONSENT_COPY', 'resolveConsentCopy'],
+  '@hagicode/hagilight-core/consent': ['getConsent', 'setConsent', 'onConsentChange', 'openConsentPreferences', 'configureConsent', 'isConsentRequired', 'parseConsentRecord', 'formatConsentRecord', 'decisionFromRecord', 'CONSENT_CHANGE_EVENT', 'CONSENT_PREFERENCES_EVENT'],
   '@hagicode/hagilight-core/splash-images': [
     'SPLASH_IMAGE_DEFAULTS',
     'loadSplashImage',
@@ -24,7 +26,7 @@ const expectedExports = {
     'splashKey',
     'storeSplashImage',
   ],
-  '@hagicode/hagilight-core/posthog': ['DEFAULT_POSTHOG_API_KEY', 'POSTHOG_API_HOST', 'POSTHOG_DEFAULTS', 'POSTHOG_API_KEY_PATTERN', 'posthogInitScript'],
+  '@hagicode/hagilight-core/posthog': ['DEFAULT_POSTHOG_API_KEY', 'POSTHOG_API_HOST', 'POSTHOG_UI_HOST', 'POSTHOG_DEFAULTS', 'POSTHOG_PERSON_PROFILES', 'POSTHOG_API_KEY_PATTERN', 'posthogInitScript'],
   '@hagicode/hagilight-core/links': ['resolveSiteLinks'],
   '@hagicode/hagilight-core/favicon': ['getHagilightFaviconDataUri', 'resolveFaviconHeadEntry'],
   '@hagicode/hagilight-core/seo': ['composeCanonicalSeoHead', 'composeSeoHead', 'resolveSeoMetadata', 'serializeJsonLd'],
@@ -60,6 +62,24 @@ const expectedExports = {
     'selectPromotionCards',
     'shouldAutoRotate',
   ],
+  '@hagicode/hagilight-core/promoto-analytics': [
+    'PROMOTO_IMPRESSION_DELAY_MS',
+    'capturePromoto',
+    'createPromotoAnalytics',
+  ],
+  '@hagicode/hagilight-core/posthog-events': [
+    'POSTHOG_EVENTS',
+    'POSTHOG_FRAMEWORKS',
+    'POSTHOG_PAGE_TYPES',
+    'POSTHOG_SUPER_PROPERTIES',
+    'capturePostHogEvent',
+    'classifyPagePath',
+    'destinationOf',
+    'handlePostHogClick',
+    'installPostHogClickTracking',
+    'resolvePageType',
+    'sanitizePostHogProperties',
+  ],
   '@hagicode/hagilight-core/analytics-events': [
     'GA_CATEGORIES',
     'GA_CATEGORY_ACTIONS',
@@ -68,6 +88,7 @@ const expectedExports = {
     'gaEventAttributes',
     'handleGaClick',
     'installGaEventTracking',
+    'readTaggedClick',
     'siteLinkGaAttributes',
   ],
   '@hagicode/hagilight-core/content-images': [

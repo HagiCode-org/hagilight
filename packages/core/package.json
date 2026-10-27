@@ -17,6 +17,14 @@
     "prepack": "tsc -b"
   },
   "exports": {
+    "./consent": {
+      "types": "./dist/consent.d.ts",
+      "default": "./dist/consent.js"
+    },
+    "./consent-copy": {
+      "types": "./dist/consent-copy/index.d.ts",
+      "default": "./dist/consent-copy/index.js"
+    },
     "./RootTransit": "./RootTransit.astro",
     "./root-transit": {
       "types": "./dist/root-transit.d.ts",
@@ -87,6 +95,10 @@
       "types": "./dist/promoto-banner.d.ts",
       "default": "./dist/promoto-banner.js"
     },
+    "./promoto-analytics": {
+      "types": "./dist/promoto-analytics.d.ts",
+      "default": "./dist/promoto-analytics.js"
+    },
     "./analytics-events": {
       "types": "./dist/analytics-events.d.ts",
       "default": "./dist/analytics-events.js"
@@ -124,6 +136,10 @@
     "./posthog": {
       "types": "./dist/posthog.d.ts",
       "default": "./dist/posthog.js"
+    },
+    "./posthog-events": {
+      "types": "./dist/posthog-events.d.ts",
+      "default": "./dist/posthog-events.js"
     },
     "./Analytics51LA": "./Analytics51LA.astro",
     "./logo.png": "./logo.png",
