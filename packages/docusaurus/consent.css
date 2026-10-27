@@ -1,0 +1,184 @@
+/* Consent popup (hagilight). Tokens follow Docusaurus --ifm-* variables with light fallbacks. */
+.hagilight-consent {
+    --hc-accent: var(--ifm-color-primary, #2563eb);
+    --hc-bg: var(--ifm-background-surface-color, #ffffff);
+    --hc-text: var(--ifm-font-color-base, #1f2937);
+    --hc-muted: var(--ifm-color-emphasis-700, color-mix(in srgb, var(--hc-text) 72%, transparent));
+    --hc-border: var(--ifm-color-emphasis-300, #cbd5e1);
+    --hc-action-bg: var(--ifm-color-primary-dark, var(--ifm-color-primary, #2563eb));
+    --hc-action-fg: var(--ifm-color-white, #ffffff);
+    --hc-focus: var(--ifm-color-primary-darker, var(--ifm-color-primary, #2563eb));
+    --hc-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    position: fixed;
+    z-index: 45;
+    inset-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
+    inset-inline-end: max(1rem, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+    width: min(24rem, calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    padding: 1rem;
+    border: 1px solid color-mix(in srgb, var(--hc-accent) 24%, var(--hc-border));
+    border-radius: 0.75rem;
+    background: var(--hc-bg);
+    color: var(--hc-text);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--ifm-color-white, #000000) 14%, transparent);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  
+  @media (max-width: 36rem) {
+    .hagilight-consent {
+      inset-inline: 0;
+      inset-block-end: 0;
+      width: auto;
+      max-width: none;
+      border-radius: 0.75rem 0.75rem 0 0;
+      padding-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  .hagilight-consent[hidden],
+  .hagilight-consent [hidden] {
+    display: none;
+  }
+
+  .hagilight-consent:not([hidden]) {
+    animation: hagilight-consent-rise 0.5s var(--hc-ease) backwards;
+  }
+
+  @keyframes hagilight-consent-rise {
+    from { opacity: 0; transform: translateY(1rem) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .hagilight-consent__title {
+    margin: 0 0 0.25rem;
+    color: var(--hc-text);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .hagilight-consent__intro,
+  .hagilight-consent__choice,
+  .hagilight-consent__withdraw,
+  .hagilight-consent__category p {
+    margin: 0.25rem 0 0;
+    color: var(--hc-muted);
+    font-size: 0.8125rem;
+  }
+
+  .hagilight-consent__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  
+  .hagilight-consent__button {
+    flex: 1 1 0;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--hc-action-bg);
+    border-radius: 0.5rem;
+    background: var(--hc-action-bg);
+    color: var(--hc-action-fg);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    cursor: pointer;
+  }
+
+  .hagilight-consent__button:hover {
+    filter: brightness(1.08);
+  }
+
+  .hagilight-consent__toggle {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0;
+    border: 0;
+    background: none;
+    color: var(--hc-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .hagilight-consent__button:focus-visible,
+  .hagilight-consent__toggle:focus-visible,
+  .hagilight-consent a:focus-visible {
+    outline: 2px solid var(--hc-focus);
+    outline-offset: 2px;
+  }
+
+  .hagilight-consent__details {
+    margin-top: 0.25rem;
+  }
+
+  .hagilight-consent__category {
+    margin: 0.5rem 0 0;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--hc-border);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--hc-bg) 92%, var(--hc-text) 8%);
+  }
+
+  .hagilight-consent__category h3 {
+    margin: 0;
+    color: var(--hc-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .hagilight-consent ul {
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hagilight-consent li {
+    margin: 0.125rem 0;
+    color: var(--hc-muted);
+    font-size: 0.75rem;
+  }
+
+  .hagilight-consent code {
+    color: var(--hc-text);
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+
+  .hagilight-consent a {
+    color: var(--hc-text);
+  }
+
+  .hagilight-consent__privacy {
+    margin: 0.5rem 0 0;
+    font-size: 0.8125rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hagilight-consent,
+    .hagilight-consent * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+.hagilight-footer__consent {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

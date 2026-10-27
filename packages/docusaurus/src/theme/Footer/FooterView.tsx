@@ -24,6 +24,8 @@ export interface FooterViewProps {
   siteId?: string;
   /** The hosting site's URL, used only to recognise same-origin destinations that must stay untagged. */
   siteUrl?: string;
+  /** The localized "Cookie settings" label. Set only when the consent popup is mounted. */
+  consentLabel?: string;
 }
 
 interface LinkSectionProps {
@@ -147,7 +149,7 @@ function FooterBrand({ locale, links, avatar, siteId, siteUrl }: {
   );
 }
 
-export function FooterView({ links, version, year, buildInfo, avatar, siteId, siteUrl }: FooterViewProps): ReactElement {
+export function FooterView({ links, version, year, buildInfo, avatar, siteId, siteUrl, consentLabel }: FooterViewProps): ReactElement {
   const { labels } = links;
   const buildItems = buildInfoItems(buildInfo);
   return (
@@ -181,13 +183,18 @@ export function FooterView({ links, version, year, buildInfo, avatar, siteId, si
           tagged
         />
       </div>
-      {links.filings.length > 0 && (
+      {(links.filings.length > 0 || consentLabel) && (
         <nav className="hagilight-footer__filings" aria-label={labels.navigation.filings}>
           {links.filings.map((link) => (
             <a key={link.id} href={link.href} target={link.target} rel={link.rel} aria-label={link.ariaLabel}>
               {link.label}
             </a>
           ))}
+          {consentLabel && (
+            <button type="button" className="hagilight-footer__consent" data-consent-preferences>
+              {consentLabel}
+            </button>
+          )}
         </nav>
       )}
       <p className="hagilight-footer__copyright">

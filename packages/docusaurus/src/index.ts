@@ -5,7 +5,8 @@ import footerAvatarManifest from '@hagicode/hagilight-core/assets/footer/manifes
 import { randomPoolFromManifest } from '@hagicode/hagilight-core/random-image';
 import type { RssFeedItem } from '@hagicode/hagilight-core/rss';
 import type { HtmlTagObject, LoadContext, Plugin, PluginModule } from '@docusaurus/types';
-import { fiftyOneLaHeadTags, googleAnalyticsHeadTags, posthogHeadTags } from './analytics.js';
+import { consentConfigTag, consentDescriptorTag, fiftyOneLaHeadTags, googleAnalyticsHeadTags, posthogHeadTags } from './analytics.js';
+import { posthogInitScript } from '@hagicode/hagilight-core/posthog';
 import { collectFeedItems, feedHeadTags, writeDiscoveryOutputs, type DiscoverySite } from './discovery.js';
 import { PLUGIN_NAME, type HagilightGlobalData } from './global-data.js';
 import { resolveOptions, type HagilightDocusaurusOptions, type ResolvedHagilightOptions } from './options.js';
@@ -38,18 +39,32 @@ function packageFile(relativePath: string): string {
 
 function analyticsHeadTags(options: ResolvedHagilightOptions, site: DiscoverySite): HtmlTagObject[] {
   if (process.env.NODE_ENV !== 'production') return [];
+  const consent = options.consent.enabled;
+  const posthogContext = {
+    siteId: options.links.siteId?.trim() || hostnameOf(site.url),
+    framework: 'docusaurus' as const,
+    version: PACKAGE_VERSION,
+  };
   return [
-    ...(options.googleAnalyticsId === undefined ? [] : googleAnalyticsHeadTags(options.googleAnalyticsId)),
-    ...(options.fiftyOneLaId === undefined ? [] : fiftyOneLaHeadTags(options.fiftyOneLaId)),
+    // With consent on, each provider leaves inert data for the gate instead of an executable loader.
+    ...(options.googleAnalyticsId === undefined ? [] : consent
+      ? [consentDescriptorTag('googleAnalytics', { measurementId: options.googleAnalyticsId })]
+      : googleAnalyticsHeadTags(options.googleAnalyticsId)),
+    ...(options.fiftyOneLaId === undefined ? [] : consent
+      ? [consentDescriptorTag('fiftyOneLa', { siteId: options.fiftyOneLaId })]
+      : fiftyOneLaHeadTags(options.fiftyOneLaId)),
     ...(options.posthogApiKey === undefined ? [] : [
       // The client reads this to classify routes for `page_type`; it is emitted only with PostHog.
       { tagName: 'meta', attributes: { name: 'hagilight-base-path', content: site.baseUrl } },
-      ...posthogHeadTags(options.posthogApiKey, {
-        siteId: options.links.siteId?.trim() || hostnameOf(site.url),
-        framework: 'docusaurus',
-        version: PACKAGE_VERSION,
-      }),
+      ...(consent
+        ? [consentDescriptorTag('posthog', { apiKey: options.posthogApiKey, loader: posthogInitScript(options.posthogApiKey, posthogContext) })]
+        : posthogHeadTags(options.posthogApiKey, posthogContext)),
     ]),
+    ...(consent ? [consentConfigTag({
+      providers: options.consent.providers,
+      privacyUrl: options.consent.privacyUrl,
+      policyVersion: options.consent.policyVersion,
+    })] : []),
   ];
 }
 
@@ -77,8 +92,10 @@ function clientModules(options: ResolvedHagilightOptions): string[] {
   const footerAvatarPicker = options.footer && options.footerAvatar.randomAvatar;
   return [
     ...(analyticsEnabled ? [packageFile('./client/analytics.js')] : []),
+    ...(options.consent.enabled ? [packageFile('./client/consent.js')] : []),
     ...(options.promoto ? [packageFile('./client/promoto.js'), packageFile('../promoto.css')] : []),
     ...(options.footer ? [packageFile('../styles.css')] : []),
+    ...(options.consent.enabled ? [packageFile('../consent.css')] : []),
     ...(footerAvatarPicker ? [packageFile('./client/random-image.js')] : []),
   ];
 }

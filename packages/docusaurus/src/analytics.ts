@@ -1,8 +1,23 @@
 import type { HtmlTagObject } from '@docusaurus/types';
+import { consentDescriptor, type ConsentPopupOptions, CONSENT_DESCRIPTOR_ID } from '@hagicode/hagilight-core/consent-markup';
 import { posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
 
 export function posthogHeadTags(apiKey: string, context?: PostHogSiteContext): HtmlTagObject[] {
   return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey, context) }];
+}
+
+/** Inert data for the consent gate: a JSON script that never executes, so no provider loads before a grant. */
+export function consentDescriptorTag(provider: string, payload: Record<string, string>): HtmlTagObject {
+  return {
+    tagName: 'script',
+    attributes: { type: 'application/json', 'data-hagilight-analytics': provider },
+    innerHTML: JSON.stringify(payload).replace(/</gu, '\\u003c'),
+  };
+}
+
+/** The popup's config descriptor, read by the client module once. It holds no IDs. */
+export function consentConfigTag(config: ConsentPopupOptions): HtmlTagObject {
+  return { tagName: 'script', attributes: { type: 'application/json', id: CONSENT_DESCRIPTOR_ID }, innerHTML: consentDescriptor(config) };
 }
 
 export const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';

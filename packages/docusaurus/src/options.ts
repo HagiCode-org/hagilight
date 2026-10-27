@@ -1,6 +1,11 @@
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { resolveFooterAvatarOptions, type ResolvedFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
+import {
+  validatePolicyVersion,
+  validatePrivacyUrl,
+  type ConsentPopupOptions,
+} from '@hagicode/hagilight-core/consent-markup';
 import { isValidSeoImageReference, resolveAbsoluteHttpUrl } from '@hagicode/hagilight-core/seo';
 import { resolveSiteMetadataOption, type SiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
 import {
@@ -26,6 +31,23 @@ export interface AnalyticsOptions {
   googleAnalytics?: GoogleAnalyticsOptions;
   fiftyOneLa?: FiftyOneLaOptions;
   posthog?: PostHogOptions;
+  consent?: ConsentOptions;
+}
+
+export interface ConsentOptions {
+  /** Defaults to on when any analytics provider is enabled. `false` restores immediate loading. */
+  enabled?: boolean;
+  /** An absolute HTTP(S) URL or a site-relative path. Omitted means the details have no privacy link. */
+  privacyUrl?: string;
+  /** Defaults to `1`. Changing it asks every visitor again. */
+  policyVersion?: string;
+}
+
+export interface ResolvedConsentOptions {
+  enabled: boolean;
+  privacyUrl: string | undefined;
+  policyVersion: string;
+  providers: ConsentPopupOptions['providers'];
 }
 
 export interface PostHogOptions extends FeatureToggle {
@@ -100,6 +122,7 @@ export interface ResolvedHagilightOptions {
   googleAnalyticsId: string | undefined;
   fiftyOneLaId: string | undefined;
   posthogApiKey: string | undefined;
+  consent: ResolvedConsentOptions;
   promoto: boolean;
   languageSelector: boolean;
   seo: ResolvedSeoOptions;
@@ -209,35 +232,59 @@ function resolveRss(value: unknown): ResolvedRssOptions {
   };
 }
 
+/**
+ * Consent is on by default whenever a provider is enabled; `enabled: false` restores immediate loading. Invalid values
+ * throw from the core validators, which name the option.
+ */
+function resolveConsent(config: unknown, providers: ConsentPopupOptions['providers']): ResolvedConsentOptions {
+  const record = config === undefined ? {} : (objectOption(config, 'analytics.consent') as ConsentOptions);
+  const requested = booleanOption(record.enabled, 'analytics.consent.enabled');
+  return {
+    enabled: providers.length > 0 && (requested ?? true),
+    privacyUrl: validatePrivacyUrl(record.privacyUrl),
+    policyVersion: validatePolicyVersion(record.policyVersion),
+    providers,
+  };
+}
+
 export function resolveOptions(input: HagilightDocusaurusOptions | undefined): ResolvedHagilightOptions {
   const options: HagilightDocusaurusOptions = input === undefined ? {} : objectOption(input, 'options') as HagilightDocusaurusOptions;
   const analytics = options.analytics === undefined ? {} : objectOption(options.analytics, 'analytics');
+
+  const googleAnalyticsId = resolveProvider(
+    analytics.googleAnalytics,
+    'analytics.googleAnalytics',
+    'measurementId',
+    GOOGLE_ANALYTICS_ID_PATTERN,
+    DEFAULT_GOOGLE_ANALYTICS_ID,
+  );
+  const fiftyOneLaId = resolveProvider(
+    analytics.fiftyOneLa,
+    'analytics.fiftyOneLa',
+    'siteId',
+    FIFTY_ONE_LA_ID_PATTERN,
+    DEFAULT_FIFTY_ONE_LA_ID,
+  );
+  const posthogApiKey = resolveProvider(
+    analytics.posthog,
+    'analytics.posthog',
+    'apiKey',
+    POSTHOG_API_KEY_PATTERN,
+    DEFAULT_POSTHOG_API_KEY,
+  );
 
   return {
     footer: featureEnabled(options.footer, 'footer'),
     footerAvatar: resolveFooterAvatar(options.footer),
     links: options.links === undefined ? {} : (objectOption(options.links, 'links') as SiteLinksOptions),
-    googleAnalyticsId: resolveProvider(
-      analytics.googleAnalytics,
-      'analytics.googleAnalytics',
-      'measurementId',
-      GOOGLE_ANALYTICS_ID_PATTERN,
-      DEFAULT_GOOGLE_ANALYTICS_ID,
-    ),
-    fiftyOneLaId: resolveProvider(
-      analytics.fiftyOneLa,
-      'analytics.fiftyOneLa',
-      'siteId',
-      FIFTY_ONE_LA_ID_PATTERN,
-      DEFAULT_FIFTY_ONE_LA_ID,
-    ),
-    posthogApiKey: resolveProvider(
-      analytics.posthog,
-      'analytics.posthog',
-      'apiKey',
-      POSTHOG_API_KEY_PATTERN,
-      DEFAULT_POSTHOG_API_KEY,
-    ),
+    googleAnalyticsId,
+    fiftyOneLaId,
+    posthogApiKey,
+    consent: resolveConsent(analytics.consent, [
+      ...(googleAnalyticsId === undefined ? [] : ['googleAnalytics' as const]),
+      ...(fiftyOneLaId === undefined ? [] : ['fiftyOneLa' as const]),
+      ...(posthogApiKey === undefined ? [] : ['posthog' as const]),
+    ]),
     promoto: featureEnabled(options.promoto, 'promoto'),
     languageSelector: featureEnabled(options.languageSelector, 'languageSelector'),
     seo: resolveSeo(options.seo),
