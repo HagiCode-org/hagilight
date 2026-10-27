@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "必要：始终开启",
   necessaryBody: "用于保证网站正常运行，并记住你的选择、语言和主题。",
   analyticsTitle: "分析：接受前关闭",
-  analyticsBody: "会话回放和屏幕录制属于分析功能。",
+  analyticsBody: "会话回放（在提供商记录会话时）属于分析功能。没有任何提供商录制屏幕。",
   storageHeading: "Cookie 与存储",
   privacyLink: "隐私政策",
   withdraw: "你可以随时在「Cookie 设置」中更改。",

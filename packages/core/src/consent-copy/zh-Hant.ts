@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "必要：永遠開啟",
   necessaryBody: "用於維持網站正常運作，並記住你的選擇、語言和主題。",
   analyticsTitle: "分析：接受前關閉",
-  analyticsBody: "工作階段重播和螢幕錄製屬於分析功能。",
+  analyticsBody: "工作階段重播（提供商記錄工作階段時）屬於分析功能。沒有任何提供商錄製螢幕。",
   storageHeading: "Cookie 與儲存",
   privacyLink: "隱私權政策",
   withdraw: "你可以隨時在「Cookie 設定」中變更。",

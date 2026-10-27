@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "Notwendig: immer aktiv",
   necessaryBody: "Für den Betrieb der Website und zum Speichern Ihrer Auswahl, Sprache und Design erforderlich.",
   analyticsTitle: "Analyse: bis zur Zustimmung aus",
-  analyticsBody: "Sitzungswiedergabe und Bildschirmaufzeichnung gehören zur Analyse.",
+  analyticsBody: "Sitzungswiedergabe (wenn ein Anbieter Sitzungen aufzeichnet) gehört zur Analyse. Kein Anbieter zeichnet den Bildschirm auf.",
   storageHeading: "Cookies und Speicher",
   privacyLink: "Datenschutzerklärung",
   withdraw: "Sie können dies jederzeit unter „Cookie-Einstellungen“ ändern.",

@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "Nécessaires : toujours actifs",
   necessaryBody: "Nécessaires au fonctionnement du site et pour mémoriser vos choix, la langue et le thème.",
   analyticsTitle: "Analyse : désactivée jusqu'à acceptation",
-  analyticsBody: "La relecture de session et l'enregistrement d'écran font partie de l'analyse.",
+  analyticsBody: "La relecture de session (lorsqu'un fournisseur enregistre les sessions) fait partie de l'analyse. Aucun fournisseur n'enregistre l'écran.",
   storageHeading: "Cookies et stockage",
   privacyLink: "Politique de confidentialité",
   withdraw: "Vous pouvez modifier ce choix à tout moment dans « Paramètres des cookies ».",

@@ -54,7 +54,7 @@ export interface ConsentDetails {
   };
 }
 
-/** The details for the providers a site enables. Replay and screen recording are always part of analytics. */
+/** The details for the providers a site enables. Session replay belongs to the providers that record sessions; 51LA records no screen. */
 export function consentDetails(enabled: readonly ConsentProvider[]): ConsentDetails {
   const providers = enabled.filter((provider, index) => enabled.indexOf(provider) === index);
   const storage = providers.flatMap((provider) => PROVIDER_STORAGE[provider] ?? []);

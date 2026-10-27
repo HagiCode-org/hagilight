@@ -176,7 +176,8 @@ const TABLE: Record<GateProvider, ProviderSpec> = {
       if (!siteId) return;
       injectScript(env, { charset: 'UTF-8', id: 'LA_COLLECT', src: 'https://sdk.51.la/js-sdk-pro.min.js' }, () => {
         const la = (env.window as unknown as { LA?: { init: (options: object) => void } }).LA;
-        la?.init({ id: siteId, ck: siteId, autoTrack: true, hashMode: true, screenRecord: true });
+        // No screenRecord: 51LA records no screen and has no session replay.
+        la?.init({ id: siteId, ck: siteId, autoTrack: true, hashMode: true });
       });
     },
     stop() {

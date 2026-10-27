@@ -21,7 +21,7 @@ const descriptor = JSON.stringify({ siteId }).replace(/</g, '\\u003c');
   <>
     <script is:inline charset="UTF-8" id="LA_COLLECT" src="https://sdk.51.la/js-sdk-pro.min.js"></script>
     <script is:inline define:vars={{ siteId }}>
-      LA.init({ id: siteId, ck: siteId, autoTrack: true, hashMode: true, screenRecord: true });
+      LA.init({ id: siteId, ck: siteId, autoTrack: true, hashMode: true });
     </script>
   </>
 )}

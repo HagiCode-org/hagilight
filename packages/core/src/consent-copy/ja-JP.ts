@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "必須：常にオン",
   necessaryBody: "サイトの動作と、言語やテーマなどの選択内容の保存に必要です。",
   analyticsTitle: "分析：許可するまでオフ",
-  analyticsBody: "セッションリプレイと画面録画は分析に含まれます。",
+  analyticsBody: "セッションリプレイ（提供元がセッションを記録する場合）は分析に含まれます。画面を録画する提供元はありません。",
   storageHeading: "Cookieとストレージ",
   privacyLink: "プライバシーポリシー",
   withdraw: "いつでも「Cookie設定」から変更できます。",

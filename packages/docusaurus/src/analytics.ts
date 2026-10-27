@@ -51,7 +51,7 @@ export function fiftyOneLaHeadTags(siteId: string): HtmlTagObject[] {
     },
     {
       tagName: 'script',
-      innerHTML: `LA.init(${JSON.stringify({ id: siteId, ck: siteId, autoTrack: true, hashMode: true, screenRecord: true })});`,
+      innerHTML: `LA.init(${JSON.stringify({ id: siteId, ck: siteId, autoTrack: true, hashMode: true })});`,
     },
   ];
 }

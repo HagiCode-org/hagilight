@@ -135,7 +135,7 @@ test('a stored denial starts nothing, and a granted choice loads each provider o
   assert.equal(granted.appended.filter((element) => element.textContent === PH_LOADER).length, 1);
 });
 
-test('gtag is configured after gtag.js loads, and LA.init runs after the SDK loads with screen recording on', () => {
+test('gtag is configured after gtag.js loads, and LA.init runs after the SDK loads without screen recording', () => {
   const browser = fakeBrowser();
   browser.win.LA = { init: (options) => { browser.win.laOptions = options; } };
   installConsentGate(browser.env, fakeConsent('granted').api);
@@ -146,7 +146,8 @@ test('gtag is configured after gtag.js loads, and LA.init runs after the SDK loa
   assert.equal(browser.win.dataLayer.at(-1)[0], 'config');
   assert.equal(browser.win.dataLayer.at(-1)[1], GA_ID);
   browser.appended.find((element) => element.attributes.id === 'LA_COLLECT').fire('load');
-  assert.deepEqual(browser.win.laOptions, { id: LA_ID, ck: LA_ID, autoTrack: true, hashMode: true, screenRecord: true });
+  assert.deepEqual(browser.win.laOptions, { id: LA_ID, ck: LA_ID, autoTrack: true, hashMode: true });
+  assert.equal('screenRecord' in browser.win.laOptions, false, '51LA never enables screen recording');
 });
 
 test('accepting on the current page starts the providers without a reload', () => {

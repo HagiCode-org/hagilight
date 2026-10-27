@@ -11,7 +11,7 @@ export const copy: ConsentCopy = {
   necessaryTitle: "필수: 항상 켜짐",
   necessaryBody: "사이트가 작동하고 언어 및 테마 등 선택 사항을 기억하는 데 필요합니다.",
   analyticsTitle: "분석: 허용 전까지 꺼짐",
-  analyticsBody: "세션 리플레이와 화면 녹화는 분석에 포함됩니다.",
+  analyticsBody: "세션 리플레이(제공자가 세션을 기록하는 경우)는 분석에 포함됩니다. 화면을 녹화하는 제공자는 없습니다.",
   storageHeading: "쿠키 및 저장소",
   privacyLink: "개인정보처리방침",
   withdraw: "언제든지 '쿠키 설정'에서 변경할 수 있습니다.",
