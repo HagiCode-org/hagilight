@@ -617,7 +617,7 @@ test('PostHog owns Head independently of Google Analytics and its 404 exclusion'
   const head = vite.load(vite.resolveId(result.updated.components.Head));
   assert.match(head, /import PostHog from .*PostHog\.astro/u);
   // Consent is on by default when a provider is enabled, so the head marks PostHog as a consent descriptor owner.
-  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} framework="starlight" version=\{"0\.1\.0"\} siteId=\{options\.links\?\.siteId\} pageType=\{pageType\} consent=\{true\} \/>$/mu);
+  assert.match(head, /^<PostHog apiKey=\{options\.posthogApiKey\} framework="starlight" version=\{"0\.1\.0"\} siteId=\{options\.links\?\.siteId\} pageType=\{pageType\} consent=\{true\} searchQuery=\{options\.posthogSearchQuery\} \/>$/mu);
   assert.match(head, /import \{ classifyPagePath \} from .*posthog-events/u);
   assert.match(head, /const pageType = isNotFound/u);
   assert.match(head, /!isNotFound && options.googleAnalyticsMeasurementId/u);
@@ -698,4 +698,32 @@ test('the generated Head imports the page classifier whether or not PostHog is e
     assert.match(head, /import \{ classifyPagePath \} from .*posthog-events/u, JSON.stringify(options));
     assert.match(head, /const pageType = isNotFound/u, JSON.stringify(options));
   }
+});
+
+test('the PostHog search option defaults to off, validates its value, and never changes enablement', () => {
+  const defaults = configuredOptions(configure({}));
+  assert.equal(defaults.posthogSearchQuery, 'off');
+  assert.ok(defaults.posthogApiKey);
+
+  const zero = configuredOptions(configure({ analytics: { posthog: { searchQuery: 'zero-results' } } }));
+  assert.equal(zero.posthogSearchQuery, 'zero-results');
+  assert.equal(zero.posthogApiKey, defaults.posthogApiKey, 'an object holding only searchQuery keeps the default key');
+
+  const explicitOff = configuredOptions(configure({ analytics: { posthog: { searchQuery: 'off' } } }));
+  assert.equal(explicitOff.posthogSearchQuery, 'off');
+  assert.ok(explicitOff.posthogApiKey);
+
+  const disabled = configuredOptions(configure({ analytics: { posthog: { enabled: false, searchQuery: 'zero-results' } } }));
+  assert.equal(disabled.posthogApiKey, undefined);
+  assert.equal(disabled.posthogSearchQuery, 'zero-results');
+
+  assert.equal(configuredOptions(configure({ analytics: { posthog: {} } })).posthogApiKey, undefined, 'empty provider options stay disabled');
+  assert.throws(
+    () => configure({ analytics: { posthog: { searchQuery: 'everything' } } }),
+    /analytics\.posthog\.searchQuery/u,
+  );
+  assert.throws(
+    () => configure({ analytics: { posthog: { enabled: true, searchQuery: 'zero-results' } } }),
+    /apiKey/u,
+  );
 });

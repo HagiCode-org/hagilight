@@ -6,6 +6,7 @@ import { consentDescriptor, CONSENT_DESCRIPTOR_ID, renderConsentMarkup, type Con
 import { mountConsentGate, onPostHogStarted } from './consent-gate.js';
 import { mountConsentPopup } from './consent-popup.js';
 import { installPostHogClickTracking } from './posthog-events.js';
+import { installPostHogInteractions } from './posthog-interactions.js';
 
 /** Reads the head's config descriptor. A missing or malformed descriptor means consent is not mounted. */
 export function readConsentConfig(doc: Document): ConsentPopupOptions | undefined {
@@ -37,7 +38,11 @@ export function mountConsent(doc: Document = document, win: Window = window): vo
     if (!doc.querySelector('[data-hagilight-consent]')) {
       doc.body.insertAdjacentHTML('beforeend', renderConsentMarkup(config));
     }
-    onPostHogStarted(() => installPostHogClickTracking(doc));
+    onPostHogStarted(() => {
+      installPostHogClickTracking(doc);
+      // The interaction observers wait for the grant too; they read the page only after PostHog may start.
+      installPostHogInteractions(doc as unknown as Parameters<typeof installPostHogInteractions>[0]);
+    });
     mountConsentGate(win, doc);
     mountConsentPopup(doc);
   } catch {

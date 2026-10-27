@@ -19,7 +19,7 @@ const homeLabel = getNotFoundHomeLabel(route.lang);
 
 {
   isNotFound ? (
-    <div class="not-found-hero">
+    <div class="not-found-hero" data-hagilight-not-found>
       <DefaultHero />
       <div class="recovery-action">
         <a class="sl-link-button primary" href={homeHref}>{homeLabel}</a>
@@ -29,6 +29,18 @@ const homeLabel = getNotFoundHomeLabel(route.lang);
     <DefaultHero />
   )
 }
+
+<script>
+  import { capturePostHogEvent, referrerDomain } from '@hagicode/hagilight-core/posthog-events';
+
+  // Once per page view: the script runs once per load and only the not-found hero carries the marker.
+  if (document.querySelector('[data-hagilight-not-found]')) {
+    capturePostHogEvent('not_found_viewed', {
+      path: window.location.pathname,
+      referrer_domain: referrerDomain(document.referrer),
+    });
+  }
+</script>
 
 <style>
   .not-found-hero {

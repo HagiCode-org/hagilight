@@ -119,6 +119,7 @@ const navigationOptions = options.map((option) => ({
     getKeyboardTargetIndex,
     persistStarlightLocaleSelection,
   } from './dist/language-routing.js';
+  import { capturePostHogEvent } from '@hagicode/hagilight-core/posthog-events';
 
   class HagilightLanguageChooser extends HTMLElement {
     connectedCallback() {
@@ -176,6 +177,8 @@ const navigationOptions = options.map((option) => ({
           if (!locale || !href) return;
           closeDialog();
           if (option.getAttribute('aria-selected') === 'true') return;
+          // Sent before navigation: the capture uses sendBeacon, so it survives the page unloading.
+          capturePostHogEvent('locale_changed', { from: document.documentElement.lang, to: locale });
           persistStarlightLocaleSelection(locale);
           const target = new URL(href, window.location.origin);
           target.search = window.location.search;

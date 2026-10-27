@@ -22,6 +22,21 @@ function serializeLiteral(value: unknown): string {
   return JSON.stringify(value).replace(/</gu, '\\u003c');
 }
 
+/** Options for the interaction layer. Omitted or `off` keeps search text out of every event. */
+export interface PostHogInitOptions {
+  searchQuery?: PostHogSearchQueryMode;
+}
+
+export const POSTHOG_SEARCH_QUERY_MODES = ['off', 'zero-results'] as const;
+export type PostHogSearchQueryMode = (typeof POSTHOG_SEARCH_QUERY_MODES)[number];
+
+function resolveInteractionConfig(options: PostHogInitOptions): { searchQuery: PostHogSearchQueryMode } {
+  if (!(POSTHOG_SEARCH_QUERY_MODES as readonly unknown[]).includes(options.searchQuery)) {
+    throw new TypeError('PostHog searchQuery must be one of: off, zero-results.');
+  }
+  return { searchQuery: options.searchQuery as PostHogSearchQueryMode };
+}
+
 function resolveSiteContext(context: PostHogSiteContext): PostHogSiteContext {
   if (typeof context !== 'object' || context === null) {
     throw new TypeError('PostHog site context must be an object.');
@@ -45,13 +60,21 @@ function resolveSiteContext(context: PostHogSiteContext): PostHogSiteContext {
  * Browser-safe, once-per-document initialization using the supplied PostHog loader. With a site context,
  * the page also registers its super properties once, right after initialization.
  */
-export function posthogInitScript(apiKey: string = DEFAULT_POSTHOG_API_KEY, context?: PostHogSiteContext): string {
+export function posthogInitScript(
+  apiKey: string = DEFAULT_POSTHOG_API_KEY,
+  context?: PostHogSiteContext,
+  options?: PostHogInitOptions,
+): string {
   if (typeof apiKey !== 'string' || !POSTHOG_API_KEY_PATTERN.test(apiKey)) {
     throw new TypeError('PostHog apiKey must be phc_ followed by ASCII letters or digits.');
   }
   const key = serializeLiteral(apiKey);
   const siteContext = serializeLiteral(context === undefined ? {} : resolveSiteContext(context));
-  return `(() => {
+  // Only a non-default search option adds a line, so default output stays byte-identical.
+  const interactionConfig = options?.searchQuery === undefined || options.searchQuery === 'off'
+    ? ''
+    : `window.__hagilightPosthogConfig = ${serializeLiteral(resolveInteractionConfig(options))};\n`;
+  return `${interactionConfig}(() => {
   if (window.__hagilightPosthogInitialized) return;
   !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
   posthog.init(${key}, ${JSON.stringify({

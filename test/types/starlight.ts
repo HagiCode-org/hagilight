@@ -75,3 +75,8 @@ hagilight({ metadata: 'yes' });
 hagilight({ metadata: { description: 42 } });
 // @ts-expect-error Misspelled metadata fields are rejected.
 hagilight({ metadata: { site: 'HagiCode Docs' } });
+// The search option: off by default, zero-results is the only other value, and it is a closed set.
+hagilight({ analytics: { posthog: { searchQuery: 'off' } } });
+hagilight({ analytics: { posthog: { searchQuery: 'zero-results' } } });
+// @ts-expect-error searchQuery accepts only off or zero-results.
+hagilight({ analytics: { posthog: { searchQuery: 'everything' } } });

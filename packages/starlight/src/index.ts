@@ -80,7 +80,12 @@ export interface HagilightPostHogOptions {
   /** Defaults to true when the provider options are omitted, otherwise to whether apiKey is set. */
   enabled?: boolean;
   apiKey?: string;
+  /** `zero-results` sends the search text only for searches with no results. Defaults to `off`; never changes enablement. */
+  searchQuery?: PostHogSearchQueryOption;
 }
+
+const POSTHOG_SEARCH_QUERY_OPTIONS = ['off', 'zero-results'] as const;
+export type PostHogSearchQueryOption = (typeof POSTHOG_SEARCH_QUERY_OPTIONS)[number];
 
 export interface HagilightSeoOptions {
   /** Replace Starlight's Head with Hagilight SEO metadata. Defaults to `true`; requires Astro `site`. */
@@ -178,6 +183,7 @@ interface SerializedOptions {
   consentProviders: ConsentPopupOptions['providers'];
   consentPrivacyUrl: string | undefined;
   consentPolicyVersion: string;
+  posthogSearchQuery: PostHogSearchQueryOption;
   aiDisclosures: AIDisclosureDefaults;
   seoEnabled: boolean;
   seo: ResolvedSeoOptions;
@@ -276,6 +282,22 @@ function resolveConsentOptions(config: unknown, providers: ConsentPopupOptions['
     policyVersion: validatePolicyVersion(record?.policyVersion),
     providers,
   };
+}
+
+function resolvePostHogSearchQuery(value: unknown): PostHogSearchQueryOption {
+  if (value === undefined) return 'off';
+  if ((POSTHOG_SEARCH_QUERY_OPTIONS as readonly unknown[]).includes(value)) return value as PostHogSearchQueryOption;
+  throw new TypeError('Hagilight analytics.posthog.searchQuery must be one of: off, zero-results.');
+}
+
+/**
+ * Removes `searchQuery` before provider resolution, because it never changes whether PostHog is enabled.
+ * An object that held only `searchQuery` therefore counts as omitted, so the default key stays on.
+ */
+function providerOptionsWithoutSearchQuery(config: unknown): unknown {
+  if (!isRecord(config) || !Object.hasOwn(config, 'searchQuery')) return config;
+  const { searchQuery: _searchQuery, ...rest } = config;
+  return Object.keys(rest).length === 0 ? undefined : rest;
 }
 
 function resolveProvider(config: unknown, { name, idKey, pattern, defaultId }: ProviderSpec): string | undefined {
@@ -552,7 +574,8 @@ const pageType = isNotFound
 ---
 
 {options.seoEnabled ? <SEOHead options={options} /> : <DefaultHead />}
-${serializedOptions.posthogApiKey ? `<PostHog apiKey={options.posthogApiKey} framework="starlight" version={${JSON.stringify(PACKAGE_VERSION)}} siteId={options.links?.siteId} pageType={pageType}${serializedOptions.consentEnabled ? ' consent={true}' : ''} />` : ''}
+${serializedOptions.posthogApiKey ? `<PostHog apiKey={options.posthogApiKey} framework="starlight" version={${JSON.stringify(PACKAGE_VERSION)}} siteId={options.links?.siteId} pageType={pageType}${serializedOptions.consentEnabled ? ' consent={true}' : ''} searchQuery={options.posthogSearchQuery} />` : ''}
+
 {!isNotFound && options.googleAnalyticsMeasurementId && (
   <GoogleAnalytics measurementId={options.googleAnalyticsMeasurementId}${serializedOptions.consentEnabled ? ' consent={true}' : ''} />
 )}
@@ -670,9 +693,11 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     pattern: FIFTY_ONE_LA_ID_PATTERN,
     defaultId: DEFAULT_51LA_ID,
   });
-  const posthog = optionalRecord(analytics.posthog, 'PostHog analytics');
+  const posthogSearchQuery = resolvePostHogSearchQuery(optionalRecord(analytics.posthog, 'PostHog analytics')?.searchQuery);
+  const posthogProviderOptions = providerOptionsWithoutSearchQuery(analytics.posthog);
+  const posthog = optionalRecord(posthogProviderOptions, 'PostHog analytics');
   optionalBoolean(posthog, 'enabled', 'PostHog analytics enabled');
-  const posthogApiKey = resolveProvider(analytics.posthog, {
+  const posthogApiKey = resolveProvider(posthogProviderOptions, {
     name: 'PostHog',
     idKey: 'apiKey',
     pattern: POSTHOG_API_KEY_PATTERN,
@@ -719,6 +744,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     consentProviders: consent.providers,
     consentPrivacyUrl: consent.privacyUrl,
     consentPolicyVersion: consent.policyVersion,
+    posthogSearchQuery,
     aiDisclosures,
     seoEnabled: seo.enabled,
     seo,

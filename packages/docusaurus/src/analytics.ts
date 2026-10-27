@@ -1,9 +1,9 @@
 import type { HtmlTagObject } from '@docusaurus/types';
 import { consentDescriptor, type ConsentPopupOptions, CONSENT_DESCRIPTOR_ID } from '@hagicode/hagilight-core/consent-markup';
-import { posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
+import { posthogInitScript, type PostHogInitOptions, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
 
-export function posthogHeadTags(apiKey: string, context?: PostHogSiteContext): HtmlTagObject[] {
-  return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey, context) }];
+export function posthogHeadTags(apiKey: string, context?: PostHogSiteContext, options?: PostHogInitOptions): HtmlTagObject[] {
+  return [{ tagName: 'script', innerHTML: posthogInitScript(apiKey, context, options) }];
 }
 
 /** Inert data for the consent gate: a JSON script that never executes, so no provider loads before a grant. */

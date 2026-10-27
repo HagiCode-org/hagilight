@@ -167,8 +167,8 @@ test('custom extra links render untagged and removed links disappear', () => {
   assert.doesNotMatch(html, /href="https:\/\/www\.hagicode\.com\/en-US\/about\/"/u);
 });
 
-test('a disabled footer with SEO off exposes no theme directory and no footer stylesheet', () => {
-  const plugin = hagilightDocusaurus({ footer: { enabled: false }, seo: { enabled: false } })({
+test('a disabled footer with SEO and PostHog off exposes no theme directory and no footer stylesheet', () => {
+  const plugin = hagilightDocusaurus({ footer: { enabled: false }, seo: { enabled: false }, analytics: { posthog: { enabled: false } } })({
     siteDir: fileURLToPath(new URL('.', import.meta.url)),
     siteConfig: { title: 'HagiCode', url: 'https://example.com', themeConfig: {} },
     i18n,

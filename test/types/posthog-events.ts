@@ -29,3 +29,20 @@ capturePostHogEvent('cta_click', { unknown_prop: 'x' });
 // @ts-expect-error The page-type vocabulary is closed.
 const outsidePageType: PostHogPageType = 'landing';
 export { host, eventName, page, pagePath, category, outsidePageType, POSTHOG_EVENTS };
+// Interaction vocabulary: required properties are typed as keys of the closed event map.
+import {
+  POSTHOG_REQUIRED_PROPERTIES,
+  referrerDomain,
+  sanitizePath,
+} from '@hagicode/hagilight-core/posthog-events';
+import { installPostHogInteractions, sanitizeSearchQuery } from '@hagicode/hagilight-core/posthog-interactions';
+
+const pathOnly: string | undefined = sanitizePath('/docs/a?token=1#top');
+const referrer: string | undefined = referrerDomain('https://example.org/x');
+const required: readonly string[] | undefined = POSTHOG_REQUIRED_PROPERTIES.search_used;
+const safeQuery: string | undefined = sanitizeSearchQuery('install guide');
+capturePostHogEvent('locale_changed', { from: 'en-US', to: 'zh-CN' });
+capturePostHogEvent('search_result_clicked', { rank: 3, results_count: 12 });
+installPostHogInteractions(document as unknown as Parameters<typeof installPostHogInteractions>[0]);
+// @ts-expect-error Interaction event names stay in the closed vocabulary.
+capturePostHogEvent('search_typed', { query_length: 3 });

@@ -57,8 +57,8 @@ function analyticsHeadTags(options: ResolvedHagilightOptions, site: DiscoverySit
       // The client reads this to classify routes for `page_type`; it is emitted only with PostHog.
       { tagName: 'meta', attributes: { name: 'hagilight-base-path', content: site.baseUrl } },
       ...(consent
-        ? [consentDescriptorTag('posthog', { apiKey: options.posthogApiKey, loader: posthogInitScript(options.posthogApiKey, posthogContext) })]
-        : posthogHeadTags(options.posthogApiKey, posthogContext)),
+        ? [consentDescriptorTag('posthog', { apiKey: options.posthogApiKey, loader: posthogInitScript(options.posthogApiKey, posthogContext, { searchQuery: options.posthogSearchQuery }) })]
+        : posthogHeadTags(options.posthogApiKey, posthogContext, { searchQuery: options.posthogSearchQuery })),
     ]),
     ...(consent ? [consentConfigTag({
       providers: options.consent.providers,
@@ -93,6 +93,8 @@ function clientModules(options: ResolvedHagilightOptions): string[] {
   return [
     ...(analyticsEnabled ? [packageFile('./client/analytics.js')] : []),
     ...(options.consent.enabled ? [packageFile('./client/consent.js')] : []),
+    // Interaction observers are independent of Google Analytics and 51LA, so PostHog alone registers them.
+    ...(options.posthogApiKey === undefined ? [] : [packageFile('./client/posthog-interactions.js')]),
     ...(options.promoto ? [packageFile('./client/promoto.js'), packageFile('../promoto.css')] : []),
     ...(options.footer ? [packageFile('../styles.css')] : []),
     ...(options.consent.enabled ? [packageFile('../consent.css')] : []),
@@ -114,7 +116,8 @@ function createPlugin(context: LoadContext, options: ResolvedHagilightOptions): 
       ? randomPoolFromManifest(footerAvatarManifest.pool)
       : undefined,
   };
-  const themeEnabled = options.footer || options.seo.enabled;
+  // The PostHog 404 wrapper lives in the theme, so PostHog alone also enables the theme path.
+  const themeEnabled = options.footer || options.seo.enabled || options.posthogApiKey !== undefined;
   const site: DiscoverySite = {
     title: context.siteConfig.title,
     tagline: context.siteConfig.tagline,

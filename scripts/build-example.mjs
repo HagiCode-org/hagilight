@@ -8,7 +8,7 @@ import { resolveSiteLinks, withCampaignUtm } from '@hagicode/hagilight-core/link
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
 import { verifyBuildInfo } from './build-info-assertions.mjs';
-import { verifyConsentPage, verifyPostHog, verifyPromotoAnalytics } from './posthog-assertions.mjs';
+import { verifyConsentPage, verifyPostHog, verifyPostHogInteractions, verifyPromotoAnalytics } from './posthog-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -43,9 +43,13 @@ function build(env, outputDir) {
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover localized pages');
   // The analytics-off variant disables PostHog on purpose, so no page is expected to initialize it.
   if (env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off') {
-    for (const file of pages) verifyPostHog(read(file), file, { framework: 'starlight' });
+    for (const file of pages) {
+      verifyPostHog(read(file), file, { framework: 'starlight' });
+      verifyPostHogInteractions(read(file), file, { searchQuery: 'off' });
+    }
     const notFound = pages.find((file) => /404(?:\.html|[\\/]index\.html)$/u.test(file));
     verifyPostHog(read(notFound), notFound, { framework: 'starlight', pageType: '404' });
+    verifyPostHogInteractions(read(notFound), notFound, { searchQuery: 'off' });
   } else {
     for (const file of pages) assert.ok(!read(file).includes('posthog.init('), `${file} initializes no PostHog when analytics is off`);
   }
@@ -88,7 +92,10 @@ function buildCoreFooter() {
   const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
   const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover the localized plain-Astro pages');
-  for (const file of pages) verifyPostHog(read(file), `plain Astro ${file}`, { framework: 'astro' });
+  for (const file of pages) {
+    verifyPostHog(read(file), `plain Astro ${file}`, { framework: 'astro' });
+    verifyPostHogInteractions(read(file), `plain Astro ${file}`, { searchQuery: 'off' });
+  }
   for (const file of pages) verifyConsentPage(read(file), `plain Astro ${file}`, { enabled: true });
   return read;
 }

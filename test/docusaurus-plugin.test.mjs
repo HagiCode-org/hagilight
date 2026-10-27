@@ -87,7 +87,7 @@ test('registering with no options enables every standard feature', () => {
   assert.equal(plugin.name, '@hagicode/hagilight-docusaurus');
   assert.ok(plugin.getThemePath, 'theme path is exposed while footer is enabled');
   // Consent is on by default with the default providers, so its client module and stylesheet ship with them.
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'posthog-interactions.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
   // The footer avatar picker follows the footer and its randomAvatar option, and only those.
   assert.ok(plugin.getClientModules().some((path) => fileName(path) === 'random-image.js'));
 
@@ -287,7 +287,7 @@ test('a disabled provider leaves no head tags behind', () => {
 
 test('a disabled promote card ships neither its client module nor its stylesheet', () => {
   const plugin = createPlugin({ promoto: { enabled: false } });
-  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'styles.css', 'consent.css', 'random-image.js']);
+  assert.deepEqual(plugin.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'posthog-interactions.js', 'styles.css', 'consent.css', 'random-image.js']);
 });
 
 test('a sharing image is required by default and the warning is silent when either source sets one', () => {
@@ -305,9 +305,11 @@ test('the sharing-image warning is silent when SEO is disabled', () => {
   assert.deepEqual(warnings, []);
 });
 
-test('the theme path is omitted when the footer and SEO are both disabled', () => {
-  const plugin = createPlugin({ footer: { enabled: false }, seo: { enabled: false } });
+test('the theme path is omitted when the footer, SEO and PostHog are all disabled', () => {
+  const plugin = createPlugin({ footer: { enabled: false }, seo: { enabled: false }, analytics: { posthog: { enabled: false } } });
   assert.equal(plugin.getThemePath, undefined);
+  const withPosthog = createPlugin({ footer: { enabled: false }, seo: { enabled: false } });
+  assert.ok(withPosthog.getThemePath, 'theme path is exposed for the PostHog 404 wrapper');
 });
 
 test('the theme path stays while only the footer is disabled, for the SEO sharing wrapper', () => {
@@ -369,11 +371,14 @@ test('PostHog emits one shared head script only in production and stays independ
     { tagName: 'script', name: undefined },
     { tagName: 'script', name: undefined },
   ]);
-  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
+  assert.deepEqual(onlyPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'posthog-interactions.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
   const noPosthog = createPlugin({ analytics: { posthog: { enabled: false } } });
   assert.equal(nonSeoHeadTags(noPosthog).length, 3, 'two inert provider descriptors and the popup config');
   assert.ok(nonSeoHeadTags(noPosthog).every((tag) => !tag.innerHTML?.includes('posthog.init')));
   assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
+  assert.deepEqual(noPosthog.getClientModules().map(fileName), ['analytics.js', 'consent.js', 'promoto.js', 'promoto.css', 'styles.css', 'consent.css', 'random-image.js']);
+  assert.ok(!noPosthog.getClientModules().map(fileName).includes('posthog-interactions.js'), 'no interaction observers without PostHog');
+  assert.equal(createPlugin({ analytics: { posthog: { searchQuery: 'zero-results' } } }).getClientModules().map(fileName).includes('posthog-interactions.js'), true);
   const custom = createPlugin({ analytics: { posthog: { apiKey: 'phc_Custom123' } } });
   assert.equal(nonSeoHeadTags(custom).filter((tag) => tag.innerHTML?.includes('phc_Custom123')).length, 1);
 });
@@ -387,4 +392,18 @@ test('the metadata option defaults on, opts out, and rejects invalid values with
   assert.throws(() => resolveOptions({ metadata: 'yes' }), /metadata/u);
   assert.throws(() => resolveOptions({ metadata: { name: '' } }), /metadata name/u);
   assert.throws(() => resolveOptions({ metadata: { enabled: 'no' } }), /metadata enabled/u);
+});
+
+test('the PostHog search option defaults to off, validates its value, and never changes enablement', () => {
+  const defaults = createPlugin({});
+  assert.ok(defaults.getClientModules().map(fileName).includes('posthog-interactions.js'));
+  const zero = createPlugin({ analytics: { posthog: { searchQuery: 'zero-results' } } });
+  assert.ok(zero.getClientModules().map(fileName).includes('posthog-interactions.js'), 'an object holding only searchQuery keeps PostHog on');
+  const off = createPlugin({ analytics: { posthog: { searchQuery: 'off' } } });
+  assert.ok(off.getClientModules().map(fileName).includes('posthog-interactions.js'));
+  assert.deepEqual(createPlugin({ analytics: { posthog: {} } }).getClientModules().map(fileName).includes('posthog-interactions.js'), false, 'empty provider options stay disabled');
+  assert.throws(
+    () => createPlugin({ analytics: { posthog: { searchQuery: 'everything' } } }),
+    /analytics\.posthog\.searchQuery/u,
+  );
 });

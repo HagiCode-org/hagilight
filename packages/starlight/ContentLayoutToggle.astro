@@ -19,12 +19,14 @@ const labels = getContentWidthLabels(lang);
     setContentWidth,
     synchronizeContentWidthFromStorage,
   } from './dist/content-width.js';
+  import { capturePostHogEvent } from '@hagicode/hagilight-core/posthog-events';
 
   const root = document.documentElement;
   restoreContentWidth(root);
   document.querySelectorAll('[data-hagilight-content-width-choice]').forEach((button) => {
     button.addEventListener('click', () => {
       setContentWidth(button.dataset.hagilightContentWidthChoice, root);
+      capturePostHogEvent('content_width_changed', { choice: button.dataset.hagilightContentWidthChoice });
     });
   });
   window.addEventListener('storage', (event) => synchronizeContentWidthFromStorage(event, root));

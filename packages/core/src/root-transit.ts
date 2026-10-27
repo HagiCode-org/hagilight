@@ -2,6 +2,10 @@ import {
   SPLASH_IMAGE_DEFAULTS, loadSplashImage, pickSplashIndex, splashImageUrl, storeSplashImage, type SplashConfig,
 } from './splash-images.js';
 import { mountLocaleMonitor } from './root-transit-monitor.js';
+import {
+  LEGACY_SITE_LOCALE_STORAGE_KEY, SITE_LOCALE_CODES, SITE_LOCALE_STORAGE_KEY, resolveTransitLocale, type LocaleSource,
+} from './root-transit-locale.js';
+import { capturePostHogEvent, type PostHogClient } from './posthog-events.js';
 
 export {
   DEFAULT_LOCALE, LEGACY_SITE_LOCALE_STORAGE_KEY, SITE_LOCALE_STORAGE_KEY, SITE_LOCALES, normalizeTransitLocale,
@@ -188,6 +192,40 @@ function mountLoadingPhase(win: Window, doc: Document): { enter: () => void; rel
 }
 
 /** Mount once per rendered root; decoration never controls the navigation clock. */
+/** Reads a browser value, returning `undefined` when the read throws (private mode, blocked storage). */
+function safeRead<T>(read: () => T): T | undefined {
+  try {
+    return read();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Reports the automatic locale-driven forward as `locale_redirected`. It names the destination only when its first
+ * path segment after `base` is a known site locale, and the reason is the source the existing resolver reports.
+ * Called only from the timer-driven forward, never from a click. Never throws, and sends nothing when PostHog
+ * cannot capture.
+ */
+export function reportLocaleRedirect(win: Window, destination: string, base = '/'): void {
+  try {
+    const path = new URL(destination, win.location.href).pathname;
+    const relative = base !== '/' && path.startsWith(base) ? path.slice(base.length) : path.replace(/^\//u, '');
+    const to = relative.split('/').find(Boolean);
+    if (!to || !(SITE_LOCALE_CODES as readonly string[]).includes(to)) return;
+    const resolution = resolveTransitLocale({
+      requestedLang: safeRead(() => new URLSearchParams(win.location.search).get('lang')),
+      storedLocale: safeRead(() => win.localStorage.getItem(SITE_LOCALE_STORAGE_KEY)),
+      legacyStoredLocale: safeRead(() => win.localStorage.getItem(LEGACY_SITE_LOCALE_STORAGE_KEY)),
+      clientLanguages: safeRead(() => [...win.navigator.languages]) ?? [],
+    });
+    const reason: LocaleSource = resolution.source;
+    capturePostHogEvent('locale_redirected', { from: 'root', to, reason }, safeRead(() => (win as { posthog?: PostHogClient }).posthog));
+  } catch {
+    // Analytics must never change the forward.
+  }
+}
+
 export function mountRootTransit(win: Window = window): () => void {
   const doc = win.document;
   const page = doc.querySelector<HTMLElement>('[data-root-transit]');
@@ -231,7 +269,10 @@ export function mountRootTransit(win: Window = window): () => void {
     event.preventDefault();
     forward((event.currentTarget as HTMLAnchorElement).getAttribute('href') ?? target);
   };
-  timer = win.setTimeout(() => forward(), ROOT_TRANSIT_DELAY_MS);
+  timer = win.setTimeout(() => {
+    if (!finished) reportLocaleRedirect(win, target, page.dataset.base || '/');
+    forward();
+  }, ROOT_TRANSIT_DELAY_MS);
   mounted.set(page, cleanup);
   for (const link of links) link.addEventListener('click', continueNow);
   win.addEventListener('pagehide', cleanup);

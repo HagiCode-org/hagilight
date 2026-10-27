@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import { DEFAULT_POSTHOG_API_KEY, posthogInitScript } from '@hagicode/hagilight-core/posthog';
 
@@ -56,4 +56,43 @@ test('the locale catalog matches the Starlight locales', () => {
   }
   assert.equal(catalog.defaultLocale, 'en-US');
   assert.equal(catalog.i18n.defaultLocale, 'en-US');
+});
+
+// Interaction parity: the same event names and property sets on both platforms, and no search event on Docusaurus.
+const docusaurusSourceDir = new URL('../packages/docusaurus/src/', import.meta.url);
+const coreSource = (path) => readFileSync(new URL(`../packages/core/src/${path}`, import.meta.url), 'utf8');
+const starlightComponent = (path) => readFileSync(new URL(`../packages/starlight/${path}`, import.meta.url), 'utf8');
+
+function docusaurusSourceFiles(dir = docusaurusSourceDir, found = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const child = new URL(`${entry.name}${entry.isDirectory() ? '/' : ''}`, dir);
+    if (entry.isDirectory()) docusaurusSourceFiles(child, found);
+    else if (/\.(?:ts|tsx)$/u.test(entry.name)) found.push(child);
+  }
+  return found;
+}
+
+test('404 views, code copies and language switches share event names and property sets with Starlight', async () => {
+  const { POSTHOG_EVENTS } = await import('@hagicode/hagilight-core/posthog-events');
+  assert.deepEqual(POSTHOG_EVENTS.not_found_viewed, ['path', 'referrer_domain']);
+  assert.deepEqual(POSTHOG_EVENTS.code_copied, ['language', 'page_type', 'is_install_page']);
+  assert.deepEqual(POSTHOG_EVENTS.locale_changed, ['from', 'to']);
+  // Starlight: 404 view in NotFoundHero, language switch in LanguageChooser; both reach the same vocabulary.
+  assert.match(starlightComponent('NotFoundHero.astro'), /'not_found_viewed'/u);
+  assert.match(starlightComponent('LanguageChooser.astro'), /'locale_changed'/u);
+  // Docusaurus: 404 view in the NotFound wrapper; copy and locale links in the shared observers it installs.
+  const notFound = readFileSync(new URL('../packages/docusaurus/src/theme/NotFound/Content/index.tsx', import.meta.url), 'utf8');
+  assert.match(notFound, /'not_found_viewed'/u);
+  const observers = coreSource('posthog-interactions.ts');
+  assert.match(observers, /capturePostHogEvent\('code_copied'/u);
+  assert.match(observers, /capturePostHogEvent\('locale_changed'/u);
+  assert.match(readFileSync(new URL('../packages/docusaurus/src/client/posthog-interactions.ts', import.meta.url), 'utf8'), /installPostHogInteractions/u);
+});
+
+test('Docusaurus emits no search event: Pagefind search is Starlight-only, and no Docusaurus source names a search event', () => {
+  for (const file of docusaurusSourceFiles()) {
+    const source = readFileSync(file, 'utf8');
+    assert.doesNotMatch(source, /search_used|search_result_clicked/u, file.pathname);
+    assert.doesNotMatch(source, /pagefind/iu, file.pathname);
+  }
 });

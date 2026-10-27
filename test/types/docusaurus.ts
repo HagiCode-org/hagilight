@@ -70,3 +70,8 @@ hagilightDocusaurus({ analytics: { posthog: { enabled: 'yes' } } });
 hagilightDocusaurus({ analytics: { posthog: { apiKey: 42 } } });
 // @ts-expect-error The PostHog key field is apiKey.
 hagilightDocusaurus({ analytics: { posthog: { key: 'phc_Test' } } });
+// The search option: off by default, zero-results is the only other value, and it is a closed set.
+hagilightDocusaurus({ analytics: { posthog: { searchQuery: 'off' } } });
+hagilightDocusaurus({ analytics: { posthog: { searchQuery: 'zero-results' } } });
+// @ts-expect-error searchQuery accepts only off or zero-results.
+hagilightDocusaurus({ analytics: { posthog: { searchQuery: 'everything' } } });

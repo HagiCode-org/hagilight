@@ -78,6 +78,7 @@ const groupOptionLabel = (prefix: string, choice: ThemeChoice): string =>
 
 <script>
   import { applyThemeChoice, parseThemeChoice, readStoredThemeChoice, type ThemeChoice } from './dist/themes.js';
+  import { capturePostHogEvent } from '@hagicode/hagilight-core/posthog-events';
 
   const modeClass = (choice: ThemeChoice): string =>
     choice.endsWith('-light') ? 'mode-light' : choice.endsWith('-dark') ? 'mode-dark' : 'mode-auto';
@@ -102,6 +103,7 @@ const groupOptionLabel = (prefix: string, choice: ThemeChoice): string =>
       select.addEventListener('change', () => {
         const choice = parseThemeChoice(select.value);
         applyThemeChoice(choice);
+        capturePostHogEvent('theme_changed', { theme: choice });
         sync(choice);
       });
 

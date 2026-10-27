@@ -52,7 +52,11 @@ export interface ResolvedConsentOptions {
 
 export interface PostHogOptions extends FeatureToggle {
   apiKey?: string;
+  /** `zero-results` sends search text only for searches with no results. Defaults to `off`; never changes enablement. */
+  searchQuery?: PostHogSearchQueryOption;
 }
+
+export type PostHogSearchQueryOption = 'off' | 'zero-results';
 
 export interface SeoOrganizationOptions {
   name?: string;
@@ -123,6 +127,7 @@ export interface ResolvedHagilightOptions {
   fiftyOneLaId: string | undefined;
   posthogApiKey: string | undefined;
   consent: ResolvedConsentOptions;
+  posthogSearchQuery: PostHogSearchQueryOption;
   promoto: boolean;
   languageSelector: boolean;
   seo: ResolvedSeoOptions;
@@ -168,6 +173,24 @@ function resolveFooterAvatar(value: unknown): ResolvedFooterAvatarOptions {
 function featureEnabled(value: unknown, path: string): boolean {
   if (value === undefined) return true;
   return booleanOption(objectOption(value, path).enabled, `${path}.enabled`) ?? true;
+}
+
+function resolvePostHogSearchQuery(value: unknown): PostHogSearchQueryOption {
+  if (value === undefined) return 'off';
+  const mode = objectOption(value, 'analytics.posthog').searchQuery;
+  if (mode === undefined || mode === 'off') return 'off';
+  if (mode === 'zero-results') return mode;
+  throw invalid('analytics.posthog.searchQuery', 'must be one of: off, zero-results');
+}
+
+/**
+ * Removes `searchQuery` before provider resolution, because it never changes whether PostHog is enabled.
+ * An object that held only `searchQuery` therefore counts as omitted, so the default key stays on.
+ */
+function providerOptionsWithoutSearchQuery(value: unknown): unknown {
+  if (value === undefined || typeof value !== 'object' || value === null || !Object.hasOwn(value, 'searchQuery')) return value;
+  const { searchQuery: _searchQuery, ...rest } = value as Record<string, unknown>;
+  return Object.keys(rest).length === 0 ? undefined : rest;
 }
 
 function resolveProvider(
@@ -265,8 +288,9 @@ export function resolveOptions(input: HagilightDocusaurusOptions | undefined): R
     FIFTY_ONE_LA_ID_PATTERN,
     DEFAULT_FIFTY_ONE_LA_ID,
   );
+  const posthogSearchQuery = resolvePostHogSearchQuery(analytics.posthog);
   const posthogApiKey = resolveProvider(
-    analytics.posthog,
+    providerOptionsWithoutSearchQuery(analytics.posthog),
     'analytics.posthog',
     'apiKey',
     POSTHOG_API_KEY_PATTERN,
@@ -280,6 +304,7 @@ export function resolveOptions(input: HagilightDocusaurusOptions | undefined): R
     googleAnalyticsId,
     fiftyOneLaId,
     posthogApiKey,
+    posthogSearchQuery,
     consent: resolveConsent(analytics.consent, [
       ...(googleAnalyticsId === undefined ? [] : ['googleAnalytics' as const]),
       ...(fiftyOneLaId === undefined ? [] : ['fiftyOneLa' as const]),

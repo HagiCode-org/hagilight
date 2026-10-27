@@ -12,9 +12,39 @@ export const POSTHOG_EVENTS = Object.freeze({
   promoto_impression: ['promo_id', 'position', 'rotating'],
   promoto_dismissed: ['promo_id', 'visible_ms', 'seen_count'],
   promoto_paged: ['from', 'to', 'method'],
+  // Interaction events. Search text, code contents and full URLs never appear in any property.
+  not_found_viewed: ['path', 'referrer_domain'],
+  search_used: ['query_length', 'results_count', 'locale', 'query'],
+  search_result_clicked: ['rank', 'results_count'],
+  code_copied: ['language', 'page_type', 'is_install_page'],
+  article_promotion_impression: ['variant', 'path'],
+  locale_changed: ['from', 'to'],
+  locale_redirected: ['from', 'to', 'reason'],
+  theme_changed: ['theme'],
+  content_width_changed: ['choice'],
 } as const);
 export type PostHogEventName = keyof typeof POSTHOG_EVENTS;
 export type PostHogEventProperty<E extends PostHogEventName> = (typeof POSTHOG_EVENTS)[E][number];
+
+/**
+ * Properties an event cannot be sent without. When one is missing or invalid after sanitizing, the whole
+ * event is dropped. Events absent from this map need no required property.
+ */
+export const POSTHOG_REQUIRED_PROPERTIES: Readonly<Partial<Record<PostHogEventName, readonly string[]>>> = Object.freeze({
+  not_found_viewed: ['path'],
+  search_used: ['query_length', 'results_count', 'locale'],
+  search_result_clicked: ['rank', 'results_count'],
+  code_copied: ['language', 'page_type', 'is_install_page'],
+  article_promotion_impression: ['variant', 'path'],
+  locale_changed: ['from', 'to'],
+  locale_redirected: ['from', 'to', 'reason'],
+  theme_changed: ['theme'],
+  content_width_changed: ['choice'],
+});
+
+/** Closed value lists for enumerated properties. */
+export const POSTHOG_REDIRECT_REASONS = ['query', 'stored', 'browser', 'default'] as const;
+export const POSTHOG_CONTENT_WIDTHS = ['narrow', 'wide'] as const;
 
 export const POSTHOG_SUPER_PROPERTIES = ['site_id', 'site_framework', 'hagilight_version', 'locale', 'page_type'] as const;
 export type PostHogSuperProperty = (typeof POSTHOG_SUPER_PROPERTIES)[number];
@@ -33,7 +63,7 @@ export type PostHogProperties<E extends PostHogEventName> = Partial<Record<PostH
 
 /** The part of the PostHog SDK that Hagilight reads and writes. */
 export interface PostHogClient {
-  capture?: (event: string, properties: Record<string, PostHogPropertyValue>) => unknown;
+  capture?: (event: string, properties: Record<string, PostHogPropertyValue>, options?: { transport: 'sendBeacon' }) => unknown;
   register?: (properties: Record<string, string>) => unknown;
   has_opted_out_capturing?: () => boolean;
   __loaded?: boolean;
@@ -81,17 +111,79 @@ export function destinationOf(url: unknown, baseHref?: string): PostHogDestinati
   }
 }
 
+const MAX_QUERY_CODE_POINTS = 64;
+const LANGUAGE_PATTERN = /^[a-z0-9+#._-]{1,32}$/u;
+const VARIANT_PATTERN = /^[a-z0-9._-]{1,64}$/u;
+const LOCALE_PATTERN = /^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{2,8})*$/u;
+const THEME_PATTERN = /^[a-z0-9-]{1,40}$/u;
+const COUNT_PROPERTIES: ReadonlySet<string> = new Set(['query_length', 'results_count']);
+
+/** Returns the path with its query and fragment removed, or `undefined` unless it starts with `/`. */
+export function sanitizePath(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  let path = value.trim();
+  if (ABSOLUTE_URL_PATTERN.test(path)) {
+    try {
+      path = new URL(path).pathname;
+    } catch {
+      return undefined;
+    }
+  }
+  path = path.split(/[?#]/u, 1)[0] ?? '';
+  return path.startsWith('/') ? path : undefined;
+}
+
+/** The lowercase host name of a referrer, or `undefined` when it is empty, relative, or unparseable. */
+export function referrerDomain(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  const host = destinationOf(value).host;
+  return host !== undefined && HOST_PATTERN.test(host) ? host : undefined;
+}
+
 function sanitizeValue(property: string, value: unknown): PostHogPropertyValue | undefined {
   if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return Number.isFinite(value) ? value : undefined;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return undefined;
+    if (COUNT_PROPERTIES.has(property)) return Number.isInteger(value) && value >= 0 ? value : undefined;
+    if (property === 'rank') return Number.isInteger(value) && value >= 1 ? value : undefined;
+    return value;
+  }
   if (typeof value !== 'string') return undefined;
+  // Numeric and boolean properties never accept text, whatever it contains.
+  if (COUNT_PROPERTIES.has(property) || property === 'rank' || property === 'is_install_page') return undefined;
+  if (property === 'path') return sanitizePath(value);
+  if (property === 'referrer_domain') return referrerDomain(value) ?? (HOST_PATTERN.test(value.toLowerCase()) ? value.toLowerCase() : undefined);
   // A URL-valued input keeps only its host: never a path, query, hash or embedded credentials.
   if (ABSOLUTE_URL_PATTERN.test(value)) return destinationOf(value, undefined).host;
   if (property === 'destination_host') {
     const host = value.toLowerCase();
     return HOST_PATTERN.test(host) ? host : undefined;
   }
-  return value;
+  switch (property) {
+    case 'query': {
+      const text = value.trim();
+      if (!text || /[/\\]/u.test(text)) return undefined;
+      return [...text].slice(0, MAX_QUERY_CODE_POINTS).join('');
+    }
+    case 'language':
+      return LANGUAGE_PATTERN.test(value) || value === 'unknown' ? value : undefined;
+    case 'page_type':
+      return (POSTHOG_PAGE_TYPES as readonly string[]).includes(value) ? value : undefined;
+    case 'variant':
+      return VARIANT_PATTERN.test(value) || value === 'default' ? value : undefined;
+    case 'locale':
+    case 'from':
+    case 'to':
+      return LOCALE_PATTERN.test(value) ? value : undefined;
+    case 'reason':
+      return (POSTHOG_REDIRECT_REASONS as readonly string[]).includes(value) ? value : undefined;
+    case 'theme':
+      return THEME_PATTERN.test(value) ? value : undefined;
+    case 'choice':
+      return (POSTHOG_CONTENT_WIDTHS as readonly string[]).includes(value) ? value : undefined;
+    default:
+      return value;
+  }
 }
 
 /**
@@ -153,9 +245,11 @@ export function capturePostHogEvent<E extends PostHogEventName>(
     if (!Object.hasOwn(POSTHOG_EVENTS, event)) return;
     const properties = sanitizePostHogProperties(event, input) as Record<string, PostHogPropertyValue>;
     if (Object.keys(properties).length === 0) return;
+    const required: readonly string[] = POSTHOG_REQUIRED_PROPERTIES[event] ?? [];
+    if (required.some((name) => properties[name] === undefined)) return;
     if (!posthog || typeof posthog.capture !== 'function') return;
     if (posthog.__loaded === true && typeof posthog.has_opted_out_capturing === 'function' && posthog.has_opted_out_capturing()) return;
-    posthog.capture(event, properties);
+    posthog.capture(event, properties, { transport: 'sendBeacon' });
   } catch {
     // Analytics must never interfere with the page.
   }

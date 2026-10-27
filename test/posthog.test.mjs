@@ -166,3 +166,27 @@ test('the supplied loader is byte-identical to the previous release', () => {
   const loader = posthogInitScript().split('\n').find((line) => line.startsWith('  !function'));
   assert.equal(createHash('sha256').update(`${loader.slice(2)}\n`).digest('hex'), '349073f6b0be9d1c9c2aaeab243248dcac6c326bc5d438d2c7154fdc28ef0a18');
 });
+
+test('the default search option adds no config line, so the default script is unchanged', () => {
+  const plain = posthogInitScript();
+  assert.equal(posthogInitScript(DEFAULT_POSTHOG_API_KEY, undefined, { searchQuery: 'off' }), plain);
+  assert.equal(posthogInitScript(DEFAULT_POSTHOG_API_KEY, undefined, {}), plain);
+  assert.doesNotMatch(plain, /__hagilightPosthogConfig/u);
+});
+
+test('zero-results adds exactly one config line before the unchanged loader, and the page can read it', () => {
+  const script = posthogInitScript(DEFAULT_POSTHOG_API_KEY, undefined, { searchQuery: 'zero-results' });
+  const line = 'window.__hagilightPosthogConfig = {"searchQuery":"zero-results"};\n';
+  assert.equal(script.split('window.__hagilightPosthogConfig').length - 1, 1);
+  assert.equal(script, `${line}${posthogInitScript()}`);
+  const { context, execute } = browser();
+  execute(script);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.__hagilightPosthogConfig)), { searchQuery: 'zero-results' });
+});
+
+test('an unknown search option is rejected before any script is produced', () => {
+  assert.throws(
+    () => posthogInitScript(DEFAULT_POSTHOG_API_KEY, undefined, { searchQuery: 'everything' }),
+    /searchQuery/u,
+  );
+});

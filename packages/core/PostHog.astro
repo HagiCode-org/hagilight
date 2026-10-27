@@ -17,15 +17,17 @@ interface Props {
    * The click listener is installed from the post-grant hook. When false (the default), PostHog renders as before.
    */
   consent?: boolean;
+  /** `zero-results` allows the search text to be sent for searches with no results. Defaults to `off`. */
+  searchQuery?: 'off' | 'zero-results';
 }
 
-const { apiKey, siteId, framework = 'astro', version = corePackage.version, pageType, consent = false } = Astro.props;
+const { apiKey, siteId, framework = 'astro', version = corePackage.version, pageType, consent = false, searchQuery } = Astro.props;
 const script = posthogInitScript(apiKey, {
   siteId: siteId ?? Astro.site?.hostname,
   framework,
   version,
   pageType,
-});
+}, { searchQuery });
 // Inert data for the consent gate: the key and the unchanged loader, which runs only after a grant.
 const descriptor = JSON.stringify({ apiKey: apiKey ?? DEFAULT_POSTHOG_API_KEY, loader: script }).replace(/</g, '\\u003c');
 ---
@@ -37,16 +39,25 @@ const descriptor = JSON.stringify({ apiKey: apiKey ?? DEFAULT_POSTHOG_API_KEY, l
 
 <script>
   import { installPostHogClickTracking } from './dist/posthog-events.js';
+  import { installPostHogInteractions, installPromotionImpression } from './dist/posthog-interactions.js';
+
+  // Every listener that reports to PostHog installs together, and only once PostHog may start.
+  const installPostHogListeners = () => {
+    installPostHogClickTracking();
+    installPostHogInteractions();
+    // The end-of-article card is in the body; module scripts run after parsing, so it exists here.
+    installPromotionImpression();
+  };
 
   if (import.meta.env.PROD) {
     if (document.querySelector('script[data-hagilight-analytics="posthog"]')) {
       // Listeners that need PostHog install only from the post-grant seam, never while undecided.
       import('./dist/consent-gate.js').then((gate) => {
-        gate.onPostHogStarted(() => installPostHogClickTracking());
+        gate.onPostHogStarted(installPostHogListeners);
         gate.mountConsentGate();
       });
     } else {
-      installPostHogClickTracking();
+      installPostHogListeners();
     }
   }
 </script>

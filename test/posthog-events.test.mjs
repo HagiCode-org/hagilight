@@ -2,15 +2,20 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { installGaEventTracking } from '@hagicode/hagilight-core/analytics-events';
 import {
+  POSTHOG_CONTENT_WIDTHS,
   POSTHOG_EVENTS,
   POSTHOG_FRAMEWORKS,
   POSTHOG_PAGE_TYPES,
+  POSTHOG_REDIRECT_REASONS,
+  POSTHOG_REQUIRED_PROPERTIES,
   POSTHOG_SUPER_PROPERTIES,
   capturePostHogEvent,
   classifyPagePath,
   destinationOf,
   installPostHogClickTracking,
+  referrerDomain,
   resolvePageType,
+  sanitizePath,
   sanitizePostHogProperties,
 } from '@hagicode/hagilight-core/posthog-events';
 
@@ -88,6 +93,15 @@ test('the vocabulary is a deliberate snapshot: changing it fails here until this
     promoto_impression: ['promo_id', 'position', 'rotating'],
     promoto_dismissed: ['promo_id', 'visible_ms', 'seen_count'],
     promoto_paged: ['from', 'to', 'method'],
+    not_found_viewed: ['path', 'referrer_domain'],
+    search_used: ['query_length', 'results_count', 'locale', 'query'],
+    search_result_clicked: ['rank', 'results_count'],
+    code_copied: ['language', 'page_type', 'is_install_page'],
+    article_promotion_impression: ['variant', 'path'],
+    locale_changed: ['from', 'to'],
+    locale_redirected: ['from', 'to', 'reason'],
+    theme_changed: ['theme'],
+    content_width_changed: ['choice'],
   });
   assert.deepEqual([...POSTHOG_SUPER_PROPERTIES], ['site_id', 'site_framework', 'hagilight_version', 'locale', 'page_type']);
   assert.deepEqual([...POSTHOG_PAGE_TYPES], ['home', 'docs', 'blog', 'compare', '404', 'other']);
@@ -298,4 +312,83 @@ test('the sink is installed once per document and never cancels or stops a click
     assert.equal(event.defaultPrevented, false);
     assert.equal(event.propagationStopped, false);
   });
+});
+
+const INTERACTION_EVENTS = [
+  'not_found_viewed', 'search_used', 'search_result_clicked', 'code_copied',
+  'article_promotion_impression', 'locale_changed', 'locale_redirected', 'theme_changed', 'content_width_changed',
+];
+
+test('the interaction vocabulary has the reviewed closed value lists and required properties', () => {
+  assert.deepEqual([...POSTHOG_REDIRECT_REASONS], ['query', 'stored', 'browser', 'default']);
+  assert.deepEqual([...POSTHOG_CONTENT_WIDTHS], ['narrow', 'wide']);
+  assert.deepEqual(POSTHOG_REQUIRED_PROPERTIES.search_used, ['query_length', 'results_count', 'locale']);
+  assert.deepEqual(POSTHOG_REQUIRED_PROPERTIES.locale_redirected, ['from', 'to', 'reason']);
+  for (const name of INTERACTION_EVENTS) {
+    for (const required of POSTHOG_REQUIRED_PROPERTIES[name] ?? []) {
+      assert.ok(POSTHOG_EVENTS[name].includes(required), `${name}.${required} must be allowlisted`);
+    }
+  }
+});
+
+test('path drops the query and fragment, and referrers reduce to a host name', () => {
+  assert.equal(sanitizePath('/docs/a?token=1#top'), '/docs/a');
+  assert.equal(sanitizePath('https://hagilight.example/docs/b/?x=1'), '/docs/b/');
+  assert.equal(sanitizePath('docs/relative'), undefined);
+  assert.equal(sanitizePath(42), undefined);
+  assert.equal(referrerDomain('https://Example.org/path?q=secret#frag'), 'example.org');
+  assert.equal(referrerDomain(''), undefined);
+  assert.equal(referrerDomain('not a url'), undefined);
+  assert.equal(referrerDomain(undefined), undefined);
+});
+
+test('not_found_viewed sends the path without query or fragment and an optional referrer domain', () => {
+  const sdk = fakeSdk();
+  capturePostHogEvent('not_found_viewed', { path: '/docs/a?token=1#top', referrer_domain: 'example.org' }, sdk);
+  capturePostHogEvent('not_found_viewed', { path: '/docs/missing/' }, sdk);
+  capturePostHogEvent('not_found_viewed', { referrer_domain: 'example.org' }, sdk);
+  assert.deepEqual(sdk.calls, [
+    ['not_found_viewed', { path: '/docs/a', referrer_domain: 'example.org' }],
+    ['not_found_viewed', { path: '/docs/missing/' }],
+  ]);
+});
+
+test('a required property that is missing or invalid drops the whole event', () => {
+  const sdk = fakeSdk();
+  capturePostHogEvent('search_used', { query_length: 4, results_count: -1, locale: 'en-US' }, sdk);
+  capturePostHogEvent('search_used', { query_length: '4', results_count: 2, locale: 'en-US' }, sdk);
+  capturePostHogEvent('search_used', { query_length: 4, results_count: 2 }, sdk);
+  capturePostHogEvent('search_result_clicked', { rank: 0, results_count: 3 }, sdk);
+  capturePostHogEvent('locale_changed', { from: 'en-US', to: 'not a locale!' }, sdk);
+  capturePostHogEvent('locale_redirected', { from: 'root', to: 'zh-CN', reason: 'guess' }, sdk);
+  capturePostHogEvent('theme_changed', { theme: 'Ocean Light!' }, sdk);
+  capturePostHogEvent('content_width_changed', { choice: 'huge' }, sdk);
+  assert.deepEqual(sdk.calls, []);
+});
+
+test('every capture passes the send-beacon transport option', () => {
+  const seen = [];
+  const sdk = {
+    __loaded: true,
+    capture(name, properties, options) { seen.push(options); },
+    has_opted_out_capturing() { return false; },
+  };
+  capturePostHogEvent('locale_changed', { from: 'en-US', to: 'zh-CN' }, sdk);
+  assert.deepEqual(seen, [{ transport: 'sendBeacon' }]);
+});
+
+test('enumerated and numeric properties reject free text, so no search text or code can enter an event', () => {
+  const canary = 'Sec ret/?#CANARY';
+  const sdk = fakeSdk();
+  for (const name of INTERACTION_EVENTS) {
+    const input = Object.fromEntries(POSTHOG_EVENTS[name].map((property) => [property, canary]));
+    capturePostHogEvent(name, input, sdk);
+  }
+  assert.deepEqual(sdk.calls, []);
+  assert.doesNotMatch(JSON.stringify(sdk.calls), /CANARY/u);
+});
+
+test('a numeric property receiving a fraction or negative number is dropped', () => {
+  assert.deepEqual(sanitizePostHogProperties('search_used', { query_length: 1.5, results_count: -2, locale: 'en' }), { locale: 'en' });
+  assert.deepEqual(sanitizePostHogProperties('search_result_clicked', { rank: 1, results_count: 0 }), { rank: 1, results_count: 0 });
 });

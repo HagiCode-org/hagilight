@@ -98,3 +98,15 @@ export function verifyConsentPage(html, label, { enabled }) {
     assert.equal(html.includes('data-consent-preferences'), false, `${label} has no Cookie settings entry when consent is off`);
   }
 }
+
+/**
+ * The search option reaches a built page only when it is not the default: `off` (or omitted) adds no config
+ * line, and `zero-results` adds exactly one. The interaction observers ship in the bundled scripts, which the
+ * browser step checks; here the markup must carry the option and nothing else.
+ */
+export function verifyPostHogInteractions(html, label, { searchQuery = 'off' } = {}) {
+  const scripts = executableScripts(html);
+  const configLines = [...scripts.matchAll(/window\.__hagilightPosthogConfig = /gu)].length;
+  assert.equal(configLines, searchQuery === 'off' ? 0 : 1, `${label} carries the ${searchQuery} search option`);
+  if (searchQuery === 'off') assert.doesNotMatch(scripts, /__hagilightPosthogConfig/u, `${label} omits the default search option`);
+}
