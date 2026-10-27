@@ -39,6 +39,9 @@ export const DEFAULT_MAX_LINKS_PER_SECTION = 12;
 export const DEFAULT_MAX_LINKS = 120;
 const OVERVIEW_LIMIT_FACTOR = 3;
 const GENERIC_DESCRIPTION_MIN_PAGES = 3;
+/** `<meta name="hagilight:llms" content="exclude">` keeps an immediate-redirect page out of llms.txt. */
+export const LLMS_EXCLUDE_META_NAME = 'hagilight:llms';
+export const LLMS_EXCLUDE_META_VALUE = 'exclude';
 const LOCALE_SEGMENT = /^[a-z]{2,3}(?:-[a-z0-9]{2,8})?$/iu;
 
 const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
@@ -108,6 +111,9 @@ export function parsePageMeta(html: string, pageUrl: string): LlmsPageMeta | und
 
   if (/noindex/iu.test(named('robots') ?? '')) return undefined;
   if (metas.some((meta) => meta['http-equiv']?.toLowerCase() === 'refresh')) return undefined;
+  // A page that redirects as soon as it loads (for example an inline script) opts out explicitly.
+  if (metas.some((meta) => meta.name?.toLowerCase() === LLMS_EXCLUDE_META_NAME
+    && meta.content?.trim().toLowerCase() === LLMS_EXCLUDE_META_VALUE)) return undefined;
 
   const canonicalTag = [...head.matchAll(/<link\b[^>]*>/giu)]
     .map(([tag]) => attributes(tag))

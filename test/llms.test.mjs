@@ -78,6 +78,43 @@ test('buildLlmsTxt names the site from og:site_name and strips it from page titl
   assert.match(text, /- \[Alpha\]\(https:\/\/example\.test\/guides\/a\/\): Alpha\./u);
 });
 
+test('parsePageMeta omits a script-redirect page that declares the llms exclude marker', () => {
+  const url = 'https://example.test/about/';
+  const redirect = '<!doctype html><html lang="en-US"><head><title>The localized about page has moved</title>'
+    + '<meta name="robots" content="index,follow"/><meta name="hagilight:llms" content="exclude"/></head>'
+    + '<body><script>window.location.replace("/en-US/about/");</script></body></html>';
+  assert.equal(parsePageMeta(redirect, url), undefined);
+  // The same script redirect without the marker is still listed: only the marker opts it out.
+  const unmarked = redirect.replace('<meta name="hagilight:llms" content="exclude"/>', '');
+  assert.ok(parsePageMeta(unmarked, url));
+  // Another meta name never opts a page out.
+  assert.ok(parsePageMeta(html({ head: '<meta name="hagilight:other" content="exclude"/>' }), 'https://example.test/a/'));
+});
+
+test('the marker is left out next to a normal page and meta-refresh pages stay omitted', () => {
+  const pages = [
+    { path: '/', url: 'https://example.test/', lang: 'en-US', title: 'HagiCode', description: 'Home.', siteName: undefined },
+  ];
+  const marked = parsePageMeta(
+    html({ title: 'The localized about page has moved', head: '<meta name="hagilight:llms" content="exclude"/>' }),
+    'https://example.test/about/',
+  );
+  assert.equal(marked, undefined);
+  assert.equal(parsePageMeta(html({ title: 'Moved', head: '<meta http-equiv="refresh" content="0; url=/"/>' }), 'https://example.test/desktop/'), undefined);
+  const normal = parsePageMeta(html({ title: 'Guide', description: 'A guide.' }), 'https://example.test/guide/');
+  const txt = buildLlmsTxt({ pages: [...pages, { ...normal, path: '/guide/', url: 'https://example.test/guide/' }], title: 'HagiCode' });
+  assert.match(txt, /- \[Guide\]\(https:\/\/example\.test\/guide\/\): A guide\./u);
+  assert.doesNotMatch(txt, /has moved/u);
+});
+
+test('configured title and summary win over the page values even when the home page has its own', () => {
+  const home = { path: '/', url: 'https://example.test/', lang: 'en-US', title: 'HagiCode - Long Marketing Title', description: 'Page description.', siteName: 'Long Site' };
+  const page = { path: '/guide/', url: 'https://example.test/guide/', lang: 'en-US', title: 'Guide', description: 'A guide.', siteName: 'Long Site' };
+  const txt = buildLlmsTxt({ pages: [home, page], title: 'HagiCode', summary: 'The configured definition.' });
+  assert.match(txt, /^# HagiCode\n\n> The configured definition\.\n/u);
+  assert.doesNotMatch(txt, /Long Marketing Title/u);
+});
+
 test('buildLlmsTxt caps links per section and in total, and honors title and summary overrides', () => {
   const pages = [page('/', 'Home', 'Welcome.')];
   for (let i = 0; i < 30; i += 1) pages.push(page(`/guides/g${String(i).padStart(2, '0')}/`, `Guide ${i}`, `About ${i}.`));
