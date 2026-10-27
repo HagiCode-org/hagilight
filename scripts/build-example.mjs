@@ -739,8 +739,21 @@ function builtText(dir) {
     .map((file) => readFileSync(join(dir, file), 'utf8'))
     .join('\n');
 }
+// A fresh checkout has no Docusaurus build; build it here rather than trust a leftover directory.
+const DOCUSAURUS_BUILD = join(root, 'examples/demo-docusaurus-web/build');
+rmSync(DOCUSAURUS_BUILD, { recursive: true, force: true });
+execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example'], {
+  cwd: root,
+  env: {
+    ...process.env,
+    // The ten-locale build overruns Node's default heap (about 2 GB on CI runners).
+    NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=6144'].filter(Boolean).join(' '),
+  },
+  stdio: 'inherit',
+  shell: process.platform === 'win32',
+});
 verifyPromotoAnalytics(builtText(join(root, 'examples/demo-starlight-web/dist')), 'Starlight example');
-verifyPromotoAnalytics(builtText(join(root, 'examples/demo-docusaurus-web/build')), 'Docusaurus example');
+verifyPromotoAnalytics(builtText(DOCUSAURUS_BUILD), 'Docusaurus example');
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
 assert.doesNotMatch(englishHome, /data-root-transit/u, 'the non-opted-in Starlight consumer keeps its root content');
 const chineseHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/zh-CN/index.html'), 'utf8');
