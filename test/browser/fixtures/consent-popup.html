@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Consent popup fixture</title>
+  </head>
+  <body>
+    <main><p>Page content</p></main>
+    <div id="host"></div>
+    <button type="button" data-consent-preferences>Cookie settings</button>
+    <script type="module">
+      import { renderConsentMarkup } from '/packages/core/dist/consent-markup.js';
+      import { mountConsentPopup } from '/packages/core/dist/consent-popup.js';
+      const params = new URLSearchParams(location.search);
+      const providers = JSON.parse(params.get('providers') ?? '["googleAnalytics","posthog"]');
+      const privacyUrl = params.get('privacy') ?? undefined;
+      const locale = params.get('locale') ?? 'en-US';
+      document.getElementById('host').innerHTML = renderConsentMarkup({ providers, privacyUrl, locale });
+      window.__consentUnmount = mountConsentPopup(document);
+      window.__consentEvents = [];
+      document.addEventListener('hagilight:consent-change', (event) => window.__consentEvents.push(event.detail));
+    </script>
+  </body>
+</html>

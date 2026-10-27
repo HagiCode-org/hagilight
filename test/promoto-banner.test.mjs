@@ -441,3 +441,14 @@ test('call to action, muted copy and hover colors follow the card instead of fix
   assert.match(component, /--promoto-muted:\s*var\(--sl-color-gray-2,\s*color-mix\(/u);
   assert.doesNotMatch(component, /color:\s*#fff;/u);
 });
+
+test('the banner and footers consume the consent clearance, falling back to 0px when no popup publishes it', async () => {
+  const banner = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
+  const coreFooter = await readFile(new URL('../packages/core/Footer.astro', import.meta.url), 'utf8');
+  const starlightFooter = await readFile(new URL('../packages/starlight/Footer.astro', import.meta.url), 'utf8');
+  const clearance = /var\(--hagilight-consent-clearance, 0px\)/gu;
+  assert.equal(banner.match(clearance)?.length, 3, 'every bottom offset of the shell adds the clearance');
+  assert.match(banner, /z-index:\s*40;/u, 'the banner keeps z-index 40');
+  assert.match(coreFooter, /padding:\s*1\.5rem 1rem calc\(1rem \+ var\(--hagilight-consent-clearance, 0px\)\);/u);
+  assert.match(starlightFooter, /padding-block-end:\s*var\(--hagilight-consent-clearance, 0px\);/u);
+});

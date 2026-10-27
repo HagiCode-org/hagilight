@@ -5,6 +5,7 @@ import DefaultFooter from '@astrojs/starlight/components/Footer.astro';
 import { siteLinkGaAttributes } from '@hagicode/hagilight-core/analytics-events';
 import { resolveSiteLinks, type SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { buildInfoItems, type BuildInfo } from '@hagicode/hagilight-core/build-info';
+import { resolveConsentCopy } from '@hagicode/hagilight-core/consent-copy';
 import manifest from './package.json';
 
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
   buildInfo?: BuildInfo;
   avatar?: boolean;
   randomAvatar?: boolean;
+  /** Adds the "Cookie settings" entry. Set only when the site mounts the consent popup. Defaults to `false`. */
+  consent?: boolean;
 }
 
 const {
@@ -25,7 +28,9 @@ const {
   buildInfo,
   avatar,
   randomAvatar,
+  consent = false,
 } = Astro.props;
+const consentCopy = resolveConsentCopy(locale);
 const buildItems = buildInfoItems(buildInfo);
 if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
   throw new Error('@hagicode/hagilight-starlight requires a nonempty string version in its package.json.');
@@ -112,6 +117,9 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
         aria-label={link.ariaLabel}
       >{link.label}</a>
     ))}
+    {consent && (
+      <button type="button" class="hagilight-consent-entry" data-consent-preferences>{consentCopy.footerEntry}</button>
+    )}
   </nav>
 </div>
 <p class="hagilight-copyright">
@@ -144,6 +152,8 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     margin: 0 auto 1rem;
     max-width: 72rem;
     padding-inline: 1rem;
+    /* Keeps the last links scrollable clear of the consent popup; 0 when no popup is visible. */
+    padding-block-end: var(--hagilight-consent-clearance, 0px);
   }
 
   .hagilight-site-links section {
@@ -172,6 +182,17 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
 
   .hagilight-site-links a:hover {
     color: var(--sl-color-white);
+  }
+
+  .hagilight-consent-entry {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .hagilight-filings {

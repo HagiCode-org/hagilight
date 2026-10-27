@@ -5,6 +5,7 @@ import { siteLinkGaAttributes } from './dist/analytics-events.js';
 import { resolveSiteLinks, type SiteLinksOptions } from './dist/links.js';
 import { resolveRssFooterLinks } from './dist/rss-footer-context.js';
 import { buildInfoFromLocals, buildInfoItems, type BuildInfo } from './dist/build-info.js';
+import { resolveConsentCopy } from './dist/consent-copy/index.js';
 
 interface Props {
   locale?: string;
@@ -14,12 +15,15 @@ interface Props {
   avatar?: boolean;
   /** Swap the avatar for one random pool entry per page view. Defaults to `true`. */
   randomAvatar?: boolean;
+  /** Adds the "Cookie settings" entry. Set only when the site mounts the consent popup. Defaults to `false`. */
+  consent?: boolean;
 }
 
-const { locale: propLocale, links, buildInfo: propBuildInfo, avatar, randomAvatar } = Astro.props;
+const { locale: propLocale, links, buildInfo: propBuildInfo, avatar, randomAvatar, consent = false } = Astro.props;
 const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
 const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
 const buildItems = buildInfoItems(propBuildInfo ?? buildInfoFromLocals(Astro.locals));
+const consentCopy = resolveConsentCopy(propLocale ?? Astro.currentLocale ?? 'en-US');
 const sitemapOverride = footerLinks.overrides?.sitemap;
 // Without a declared siteUrl, the page's own Astro site excludes its catalog entry.
 const siteUrl = footerLinks.siteUrl ?? Astro.site?.href;
@@ -106,6 +110,9 @@ const resolvedLinks = resolveSiteLinks(locale, {
         aria-label={link.ariaLabel}
       >{link.label}</a>
     ))}
+    {consent && (
+      <button type="button" class="hagilight-footer__consent" data-consent-preferences>{consentCopy.footerEntry}</button>
+    )}
   </nav>
   <p class="hagilight-footer__copyright">
     <Copyright name="HagiCode" />
@@ -133,7 +140,7 @@ const resolvedLinks = resolveSiteLinks(locale, {
   .hagilight-footer {
     border-top: 1px solid var(--hagilight-footer-border, currentColor);
     color: var(--hagilight-footer-color, inherit);
-    padding: 1.5rem 1rem 1rem;
+    padding: 1.5rem 1rem calc(1rem + var(--hagilight-consent-clearance, 0px));
   }
 
   .hagilight-footer__sections {
@@ -176,6 +183,17 @@ const resolvedLinks = resolveSiteLinks(locale, {
     border-radius: 0.125rem;
     outline: 2px solid currentColor;
     outline-offset: 0.2rem;
+  }
+
+  .hagilight-footer__consent {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .hagilight-footer__filings {
