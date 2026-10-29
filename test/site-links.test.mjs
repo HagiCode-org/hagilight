@@ -44,7 +44,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
   ]);
   assert.deepEqual(links.relatedSites.map(({ id }) => id), [
     'hagitask', 'costCalculator',
-    'hagicode-main', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
+    'hagicode-main', 'hagicode-docs', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
     'fullstack-tutorial', 'gallery', 'impeccable-site',
   ]);
@@ -381,6 +381,17 @@ test('filters the bundled Docs sites by the consumer ID and URL', () => {
 
   assert.ok(!links.relatedSites.some(({ id }) => id === 'newbe-blog'));
   assert.ok(!links.relatedSites.some(({ id }) => id === 'index-data'));
+});
+
+test('lists the Docs site for other sites and leaves it out of its own footer', () => {
+  const other = resolveSiteLinks('en-US', { siteId: 'soul-builder', siteUrl: 'https://soul.hagicode.com/' });
+  const docs = other.relatedSites.find(({ id }) => id === 'hagicode-docs');
+  assert.equal(docs?.untaggedHref, 'https://docs.hagicode.com/');
+  assert.equal(new URL(docs.href).origin, 'https://docs.hagicode.com');
+  assert.equal(docs?.name, 'HagiCode Docs');
+
+  const own = resolveSiteLinks('en-US', { siteId: 'hagicode-docs', siteUrl: 'https://docs.hagicode.com/' });
+  assert.ok(!own.relatedSites.some(({ id }) => id === 'hagicode-docs'));
 });
 
 test('external links open safely in a new tab and unsafe protocols are rejected', () => {

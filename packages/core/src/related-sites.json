@@ -73,6 +73,34 @@
     "supportsLocalePath": true
   },
   {
+    "id": "hagicode-docs",
+    "name": {
+      "zh-CN": "HagiCode 文档",
+      "zh-Hant": "HagiCode 文件",
+      "en-US": "HagiCode Docs",
+      "ja-JP": "HagiCode ドキュメント",
+      "ko-KR": "HagiCode 문서",
+      "de-DE": "HagiCode-Dokumentation",
+      "fr-FR": "Documentation HagiCode",
+      "es-ES": "Documentación de HagiCode",
+      "pt-BR": "Documentação da HagiCode",
+      "ru-RU": "Документация HagiCode"
+    },
+    "description": {
+      "zh-CN": "产品文档与使用指南",
+      "zh-Hant": "產品文件與使用指南",
+      "en-US": "Product docs and usage guides.",
+      "ja-JP": "製品ドキュメントと使い方ガイドです。",
+      "ko-KR": "제품 문서와 사용 가이드입니다.",
+      "de-DE": "Produktdokumentation und Anleitungen.",
+      "fr-FR": "Documentation produit et guides d'utilisation.",
+      "es-ES": "Documentación del producto y guías de uso.",
+      "pt-BR": "Documentação do produto e guias de uso.",
+      "ru-RU": "Документация продукта и руководства."
+    },
+    "url": "https://docs.hagicode.com/"
+  },
+  {
     "id": "newbe-blog",
     "name": {
       "zh-CN": "newbe",

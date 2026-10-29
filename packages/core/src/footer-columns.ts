@@ -20,7 +20,7 @@ export const FOOTER_FEED_IDS: readonly string[] = ['rss', 'rssLocale', 'sitemap'
  * ecosystem site ids share one namespace on purpose: they never collide.
  */
 const ASSIGNMENT: Readonly<Record<FooterColumnId, readonly string[]>> = {
-  start: ['downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'about', 'hagicode-main'],
+  start: ['downloadClient', 'microsoftStore', 'dockerCompose', 'productDocs', 'about', 'hagicode-main', 'hagicode-docs'],
   learn: [
     'blogPosts', 'openspec-docs', 'omniroute-docs', 'fullstack-tutorial',
     'impeccable-site', 'awesome-sites', 'awesome-design-gallery',
