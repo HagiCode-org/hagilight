@@ -18,6 +18,25 @@ export function stableVersion(tag) {
   return match.slice(1).join('.');
 }
 
+const PUBLISH_VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-dev\.[1-9]\d*\.[1-9]\d*\.(?:(?=[0-9]*[a-f])[0-9a-f]{7}|g[0-9]{7}))?$/;
+
+/**
+ * Development version `<base>-dev.<run>.<attempt>.<sha7>`. SemVer reads an all-digit identifier as a number (and refuses
+ * one with a leading zero), so a sha made only of digits gets a `g` prefix, as in `git describe`. A sha with a letter in
+ * it is already a valid identifier and is left alone.
+ */
+export function devVersion(base, run, attempt, sha) {
+  const short = sha?.slice(0, 7).toLowerCase();
+  if (!/^[1-9]\d*$/.test(run ?? '') || !/^[1-9]\d*$/.test(attempt ?? '') || !/^[0-9a-f]{7}$/.test(short ?? '')) {
+    throw new Error('GITHUB_RUN_NUMBER, GITHUB_RUN_ATTEMPT, and GITHUB_SHA are required');
+  }
+  return `${base}-dev.${run}.${attempt}.${/^\d+$/.test(short) ? `g${short}` : short}`;
+}
+
+export function isPublishVersion(version) {
+  return PUBLISH_VERSION.test(version ?? '');
+}
+
 export function compareVersions(left, right) {
   const a = left.split('.').map(Number);
   const b = right.split('.').map(Number);
@@ -91,19 +110,13 @@ async function main() {
   assertPackageGraph();
   if (command === 'dev') {
     const base = nextBaseVersion(await fetchReleases(), packageVersion);
-    const run = process.env.GITHUB_RUN_NUMBER;
-    const attempt = process.env.GITHUB_RUN_ATTEMPT;
-    const sha = process.env.GITHUB_SHA?.slice(0, 7).toLowerCase();
-    if (!/^[1-9]\d*$/.test(run ?? '') || !/^[1-9]\d*$/.test(attempt ?? '') || !/^[0-9a-f]{7}$/.test(sha ?? '')) {
-      throw new Error('GITHUB_RUN_NUMBER, GITHUB_RUN_ATTEMPT, and GITHUB_SHA are required');
-    }
-    process.stdout.write(`${base}-dev.${run}.${attempt}.${sha}`);
+    process.stdout.write(devVersion(base, process.env.GITHUB_RUN_NUMBER, process.env.GITHUB_RUN_ATTEMPT, process.env.GITHUB_SHA));
   } else if (command === 'verify') {
     const version = stableVersion(argument ?? '');
     if (compareVersions(version, packageVersion) < 0) throw new Error(`Release ${version} predates package ${packageVersion}`);
     process.stdout.write(version);
   } else if (command === 'stamp') {
-    if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-dev\.[1-9]\d*\.[1-9]\d*\.[0-9a-f]{7})?$/.test(argument ?? '')) {
+    if (!isPublishVersion(argument)) {
       throw new Error(`Invalid publish version: ${argument}`);
     }
     for (const { workspace, values } of dependencyStamps(argument)) {

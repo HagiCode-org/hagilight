@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { PACKAGES, assertPackageGraph, readManifest } from '../scripts/packages.mjs';
-import { compareVersions, dependencyStamps, nextBaseVersion, stableVersion } from '../scripts/release.mjs';
+import { compareVersions, dependencyStamps, devVersion, isPublishVersion, nextBaseVersion, stableVersion } from '../scripts/release.mjs';
 
 test('accepts only stable release tags', () => {
   assert.equal(stableVersion('v1.2.3'), '1.2.3');
@@ -80,4 +80,16 @@ test('rejects a standalone package that depends on another feature package', () 
   assert.throws(() => assertPackageGraph(manifests), {
     message: '@hagicode/hagilight-mermaid must not depend on @hagicode/hagilight-docusaurus (peerDependencies)',
   });
+});
+
+test('keeps a sha with a letter as is and prefixes a sha made only of digits so SemVer keeps it a string', () => {
+  assert.equal(devVersion('0.19.1', '189', '1', '6e24429ffff'), '0.19.1-dev.189.1.6e24429');
+  assert.equal(devVersion('0.19.1', '189', '1', '0a9f22fffff'), '0.19.1-dev.189.1.0a9f22f');
+  assert.equal(devVersion('0.19.1', '189', '1', '1008756ffff'), '0.19.1-dev.189.1.g1008756');
+  assert.equal(devVersion('0.19.1', '189', '1', '0123456ffff'), '0.19.1-dev.189.1.g0123456');
+  assert.throws(() => devVersion('0.19.1', '0', '1', '6e24429ffff'), /required/);
+  for (const ok of ['0.19.1', '0.19.1-dev.189.1.6e24429', '0.19.1-dev.189.1.g1008756']) assert.equal(isPublishVersion(ok), true, ok);
+  for (const bad of ['v0.19.1', '0.19.1-dev.189.1.1008756', '0.19.1-dev.189.1.g6e24429', '0.19.1-dev.0.1.6e24429']) {
+    assert.equal(isPublishVersion(bad), false, bad);
+  }
 });
