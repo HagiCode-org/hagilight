@@ -7,7 +7,7 @@ const { scripts } = JSON.parse(readFileSync(new URL('../package.json', import.me
 const workflows = [
   {
     file: 'demo-starlight-web.yml',
-    build: 'npm run build:starlight-example',
+    build: 'pnpm run build:starlight-example',
     output: './examples/demo-starlight-web/dist',
     branch: 'demo-starlight-web',
     environment: 'demo-starlight-web',
@@ -17,7 +17,7 @@ const workflows = [
   },
   {
     file: 'demo-web.yml',
-    build: 'npm run build:core-footer-example',
+    build: 'pnpm run build:core-footer-example',
     output: './examples/demo-web/dist',
     branch: 'demo-web',
     environment: 'demo-web',
@@ -27,7 +27,7 @@ const workflows = [
   },
   {
     file: 'demo-docusaurus-web.yml',
-    build: 'npm run build:docusaurus-example',
+    build: 'pnpm run build:docusaurus-example',
     output: './examples/demo-docusaurus-web/build',
     branch: 'demo-docusaurus-web',
     environment: 'demo-docusaurus-web',
@@ -46,7 +46,7 @@ for (const { file, build, output, branch, environment, url, domain, concurrency,
     assert.equal(trigger, '  push:\n    branches: [main]');
     assert.ok(source.includes(`    environment:\n      name: ${environment}\n      url: ${url}`));
     assert.ok(source.includes(`- run: ${build}`));
-    assert.ok(build.replace('npm run ', '') in scripts, `${build} is a root package script`);
+    assert.ok(build.replace('pnpm run ', '') in scripts, `${build} is a root package script`);
     assert.ok(source.includes(`publish_dir: ${output}`));
     assert.ok(source.includes(`publish_branch: ${branch}`));
     assert.ok(source.includes('force_orphan: true'));

@@ -1,0 +1,19 @@
+# pnpm settings (pnpm 12 reads these here, not from package.json).
+# Replaces the npm `workspaces` field.
+packages:
+  - packages/*
+  - examples/*
+
+# Workspace members depend on each other by plain version ("0.1.0"), because the packages are published
+# with npm, which does not understand the `workspace:` protocol. Link them locally by version instead.
+linkWorkspacePackages: true
+
+# Dependency lifecycle scripts run only for approved packages. Reviewed from the old lockfile's
+# `hasInstallScript` entries:
+#   core-js  - postinstall only prints a donation banner, denied.
+#   esbuild  - its install step selects/verifies the platform binary.
+#   fsevents - macOS-only optional file watcher; ships a prebuilt binary, no script needed.
+allowBuilds:
+  core-js: false
+  esbuild: true
+  fsevents: false

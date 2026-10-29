@@ -9,21 +9,34 @@
   "scripts": {
     "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b",
     "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -p tsconfig.routes.json && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -p test/types/tsconfig.json",
-    "pretest": "npm run build",
+    "pretest": "pnpm run build",
     "test": "node --test test/*.test.mjs",
     "test:viewport": "node test/viewport-regression.mjs && node test/root-transit-browser.mjs && node test/mermaid-browser.mjs",
     "build:example": "node scripts/build-example.mjs",
-    "build:starlight-example": "npm run build && npm run build --workspace=hagilight-example",
-    "build:core-footer-example": "npm run build && npm run build --workspace=hagilight-core-footer-example",
-    "prebuild:docusaurus-example": "npm run build",
-    "build:docusaurus-example": "npm run build --workspace=hagilight-docusaurus-example",
+    "build:starlight-example": "pnpm run build && pnpm --filter hagilight-example run build",
+    "build:core-footer-example": "pnpm run build && pnpm --filter hagilight-core-footer-example run build",
+    "prebuild:docusaurus-example": "pnpm run build",
+    "build:docusaurus-example": "pnpm --filter hagilight-docusaurus-example run build",
     "pack:check": "node scripts/verify-pack.mjs",
-    "integration:installed": "node scripts/integration-installed.mjs"
+    "integration:installed": "node scripts/integration-installed.mjs",
+    "check:registry": "node scripts/check-registry-neutrality.mjs",
+    "test:registry": "node --test scripts/check-registry-neutrality.node-test.mjs"
   },
   "devDependencies": {
+    "@astrojs/starlight": "^0.42.4",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/types": "^3.10.2",
+    "@hagicode/hagilight": "0.1.0",
+    "@hagicode/hagilight-core": "0.1.0",
+    "@hagicode/hagilight-docusaurus": "0.1.0",
+    "@hagicode/hagilight-mermaid": "0.1.0",
+    "@hagicode/hagilight-starlight": "0.1.0",
     "@types/node": "^24.19.0",
+    "astro": "^7.3.5",
     "mermaid": "11.16.1",
     "playwright": "^1.63.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "typescript": "^6.0.3"
   },
   "version": "1.0.0",
@@ -41,5 +54,6 @@
   "bugs": {
     "url": "https://github.com/HagiCode-org/hagilight/issues"
   },
-  "homepage": "https://github.com/HagiCode-org/hagilight#readme"
+  "homepage": "https://github.com/HagiCode-org/hagilight#readme",
+  "packageManager": "pnpm@12.16.1"
 }
