@@ -9,6 +9,7 @@ import { chromium } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const viewports = [
   { width: 1536, height: 864 },
   { width: 1920, height: 1080 },
@@ -46,14 +47,14 @@ const artifactDir = resolve(
 );
 
 function buildExamples() {
-  execFileSync(npm, ['run', 'build'], {
+  execFileSync(pnpm, ['run', 'build'], {
     cwd: root,
     env: { ...process.env, HAGILIGHT_BUILD_BRANCH: LONG_BRANCH },
     shell: process.platform === 'win32',
     stdio: 'inherit',
   });
   for (const workspace of ['hagilight-core-footer-example', 'hagilight-example']) {
-    execFileSync(npm, ['run', 'build', `--workspace=${workspace}`], {
+    execFileSync(pnpm, ['--filter', workspace, 'run', 'build'], {
       cwd: root,
       env: { ...process.env, HAGILIGHT_VIEWPORT_TEST: 'true', HAGILIGHT_BUILD_BRANCH: LONG_BRANCH },
       shell: process.platform === 'win32',

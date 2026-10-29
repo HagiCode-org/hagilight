@@ -10,8 +10,9 @@ import { SITE_METADATA_PATH } from '@hagicode/hagilight-core/site-metadata';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const outputDir = join(root, 'examples/demo-web/dist');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
-execFileSync(npm, ['run', 'build:core-footer-example'], {
+execFileSync(pnpm, ['run', 'build:core-footer-example'], {
   cwd: root,
   stdio: 'pipe',
   shell: process.platform === 'win32',
@@ -375,7 +376,7 @@ test('built body images are normalized while logos and the plain-Astro config st
 test('sitemap and robots output use the configured base path', () => {
   for (const base of ['/', '/discovery-base/']) {
     if (base !== '/') {
-      execFileSync(npm, ['run', 'build:core-footer-example'], {
+      execFileSync(pnpm, ['run', 'build:core-footer-example'], {
         cwd: root,
         env: { ...process.env, HAGILIGHT_DEMO_BASE: base },
         stdio: 'pipe',

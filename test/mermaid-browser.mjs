@@ -243,7 +243,7 @@ try {
   if (demoServer) {
     await demoChecks(browser, demoServer);
   } else {
-    fail('demo', 'built demo present', 'run npm run build:core-footer-example before the browser checks');
+    fail('demo', 'built demo present', 'run pnpm run build:core-footer-example before the browser checks');
   }
 } finally {
   await browser.close();

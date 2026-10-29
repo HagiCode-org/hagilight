@@ -5,6 +5,7 @@ import {
   PACKAGES,
   STANDALONE,
   assertPackageGraph,
+  pnpm,
   readManifest,
   root,
 } from './packages.mjs';
@@ -108,7 +109,7 @@ async function main() {
     for (const { workspace, values } of dependencyStamps(argument)) {
       execFileSync('npm', ['pkg', 'set', ...values, '-w', workspace], { cwd: root, stdio: 'inherit' });
     }
-    execFileSync('npm', ['install', '--package-lock-only', '--ignore-scripts', '--offline'], { cwd: root, stdio: 'inherit' });
+    execFileSync(pnpm, ['install', '--lockfile-only', '--ignore-scripts', '--prefer-offline'], { cwd: root, stdio: 'inherit' });
     assertPackageGraph();
   } else {
     throw new Error('Usage: node scripts/release.mjs dev|verify <tag>|stamp <version>');

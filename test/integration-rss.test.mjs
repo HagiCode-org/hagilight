@@ -11,6 +11,7 @@ import hagilightStarlight from '@hagicode/hagilight-starlight';
 const fixtureRoot = new URL('./fixtures/core-rss-integration/', import.meta.url);
 const repositoryRoot = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const baseLocales = {
   root: { label: 'English', lang: 'en-US' },
   'zh-CN': { label: '简体中文', lang: 'zh-CN' },
@@ -187,7 +188,7 @@ test('Starlight-only RSS stays enabled, plain-Astro RSS owns routes, and disable
 });
 
 test('real Astro builds keep Starlight as the sole owner', () => {
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-example'], {
+  execFileSync(pnpm, ['--filter', 'hagilight-example', 'run', 'build'], {
     cwd: repositoryRoot,
     stdio: 'pipe',
     shell: process.platform === 'win32',

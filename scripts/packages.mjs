@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 export const root = fileURLToPath(new URL('../', import.meta.url));
 export const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+export const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 export const CORE_PACKAGE = '@hagicode/hagilight-core';
 
 /** Publishable workspaces in dependency (and therefore publication) order: shared core first. */
@@ -41,7 +42,7 @@ export function run(command, args, options = {}) {
 
 /** Compile every package to ESM and declarations in core-first order. */
 export function buildPackages() {
-  run(npm, ['run', 'build']);
+  run(pnpm, ['run', 'build']);
 }
 
 /**

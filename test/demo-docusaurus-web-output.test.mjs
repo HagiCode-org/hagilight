@@ -11,12 +11,13 @@ import { executableScripts, verifyPostHog } from '../scripts/posthog-assertions.
 const root = fileURLToPath(new URL('../', import.meta.url));
 const variants = join(root, 'examples/demo-docusaurus-web/node_modules/.hagilight-variants');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const siteUrl = 'https://docusaurus.hagicode.com';
 const pluginVersion = JSON.parse(readFileSync(join(root, 'packages/docusaurus/package.json'), 'utf8')).version;
 
 function buildExample(outDir, analytics) {
   rmSync(outDir, { recursive: true, force: true });
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example', '--', '--out-dir', outDir], {
+  execFileSync(pnpm, ['--filter', 'hagilight-docusaurus-example', 'run', 'build', '--out-dir', outDir], {
     cwd: root,
     env: {
       ...process.env,

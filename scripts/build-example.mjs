@@ -14,11 +14,12 @@ const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const EXAMPLE_IMAGE_CACHE = join(root, 'examples/demo-starlight-web/node_modules/.astro/assets');
 // Inside the project so Astro can rename assets into outDir; a tmpdir can sit on another device (EXDEV).
 const EXAMPLE_OUTPUT_ROOT = join(root, 'examples/demo-starlight-web/node_modules/.hagilight-variants');
 
-execFileSync(npm, ['run', 'build'], {
+execFileSync(pnpm, ['run', 'build'], {
   cwd: root,
   stdio: 'inherit',
   shell: process.platform === 'win32',
@@ -29,7 +30,7 @@ function build(env, outputDir) {
   rmSync(EXAMPLE_IMAGE_CACHE, { recursive: true, force: true });
   // Astro's cleanup silently skips files Windows will not delete, so each variant gets a fresh outDir.
   rmSync(outputDir, { recursive: true, force: true });
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-example', '--', '--outDir', outputDir], {
+  execFileSync(pnpm, ['--filter', 'hagilight-example', 'run', 'build', '--outDir', outputDir], {
     cwd: root,
     env: { ...process.env, ...env },
     stdio: 'inherit',
@@ -83,7 +84,7 @@ function verifySiteMetadataCoexistence(afterStarlight, beforeStarlight) {
 }
 
 function buildCoreFooter() {
-  execFileSync(npm, ['run', 'build', '-w', 'hagilight-core-footer-example'], {
+  execFileSync(pnpm, ['--filter', 'hagilight-core-footer-example', 'run', 'build'], {
     cwd: root,
     stdio: 'inherit',
     shell: process.platform === 'win32',
@@ -742,7 +743,7 @@ function builtText(dir) {
 // A fresh checkout has no Docusaurus build; build it here rather than trust a leftover directory.
 const DOCUSAURUS_BUILD = join(root, 'examples/demo-docusaurus-web/build');
 rmSync(DOCUSAURUS_BUILD, { recursive: true, force: true });
-execFileSync(npm, ['run', 'build', '-w', 'hagilight-docusaurus-example'], {
+execFileSync(pnpm, ['--filter', 'hagilight-docusaurus-example', 'run', 'build'], {
   cwd: root,
   env: {
     ...process.env,

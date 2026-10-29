@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createElement, Fragment } from 'react';
 import { renderToString } from 'react-dom/server';
 import { test } from 'node:test';
 
-const docusaurusCore = createRequire(new URL('../node_modules/@docusaurus/core/package.json', import.meta.url));
+// Resolve through the real path: under pnpm node_modules/@docusaurus/core is a symlink and Docusaurus's own
+// dependencies (the aliased react-helmet-async) sit beside its real location.
+const docusaurusCore = createRequire(realpathSync(fileURLToPath(new URL('../node_modules/@docusaurus/core/package.json', import.meta.url))));
 const { Helmet, HelmetProvider } = docusaurusCore('react-helmet-async');
 const { hagilightDocusaurus } = await import(new URL('../packages/docusaurus/dist/index.js', import.meta.url).href);
 const { SharingMetadata } = await import(

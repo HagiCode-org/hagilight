@@ -221,7 +221,7 @@ test('uses the page description, then a clean truncated body excerpt, before sha
 This guide explains **desktop installation** with [official packages](https://example.test). Use \`astro build\` after setup.
 
 \`\`\`sh
-npm install
+pnpm install
 \`\`\`
 `;
   assert.equal(
