@@ -45,7 +45,7 @@ The footer brand block shows one decorative HagiCode avatar beside the headline.
 
 A site with a strict `img-src` policy must allow `https://img-gen.hagicode.com` for the cat fan. Without it the fan fails and the default stays.
 
-**Pool refresh.** The pool is the `pool` object in `assets/footer/manifest.json`: `album`, `maxBytes` (40 KiB) and `entries` (`key`, `bytes`). To change it, take keys from the album's `index.json`, keep 12 to 200 unique keys each at or under `maxBytes`, audit each one as text-free, current and private-data free, and update the list. Then run `npm test`: `test/footer-imagery.test.mjs` fails on a missing file, a size or dimension mismatch, an entry over the cap, or a pool outside 12 to 200. The vendored default is `source.objectKey` in the same manifest.
+**Pool refresh.** The pool is the `pool` object in `assets/footer/manifest.json`: `album`, `maxBytes` (40 KiB) and `entries` (`key`, `bytes`). To change it, take keys from the album's `index.json`, keep 12 to 200 unique keys each at or under `maxBytes`, audit each one as text-free, current and private-data free, and update the list. Then run `pnpm test`: `test/footer-imagery.test.mjs` fails on a missing file, a size or dimension mismatch, an entry over the cap, or a pool outside 12 to 200. The vendored default is `source.objectKey` in the same manifest.
 
 ## Root transit (explicit opt-in)
 
@@ -116,7 +116,7 @@ request query into that link; automatic forwarding requires scripting.
 Run `node --test test/root-transit.test.mjs` after building for URL/timer checks,
 and `node test/root-transit-browser.mjs` for the minimal-consumer, responsive,
 no-script, reduced-motion, base and history checks.
-The latter also runs through `npm run test:viewport`. To compare a locally built
+The latter also runs through `pnpm run test:viewport`. To compare a locally built
 reference without changing it, set `HAGILIGHT_TRANSIT_REFERENCE_DIR` to the
 official site's `dist` directory. Matching 1440/375 px captures at 625/1,250 ms
 are written to `HAGILIGHT_ARTIFACT_DIR` (default `/tmp/hagilight-root-transit`),

@@ -44,7 +44,7 @@ The values come from `HAGILIGHT_BUILD_BRANCH` and `HAGILIGHT_BUILD_COMMIT`, then
 - name: Build site
   env:
     HAGILIGHT_BUILD_BRANCH: ${{ github.head_ref || github.ref_name }}
-  run: npm run build
+  run: pnpm run build
 ```
 
 `github.head_ref` is set on pull requests and `github.ref_name` on pushes. A shallow clone still reports its commit, because `git rev-parse HEAD` reads the checkout.

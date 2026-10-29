@@ -13,17 +13,17 @@ Five publishable, TypeScript-authored npm packages that provide shared Astro, St
 ## Commands
 
 ```sh
-npm install                 # install all workspaces
-npm run build              # tsc -b: compile packages/*/src to packages/*/dist (core first)
-npm run typecheck          # build + check Astro route files and test/types fixtures
-npm test                   # build, then run node --test on test/*.test.mjs
-npm run build:example      # build packages, the core-footer demo, and the Starlight demo variants, then verify their output
-npm run build:starlight-example  # build only the default Starlight demo
-npm run build:core-footer-example  # build only the plain-Astro demo (examples/demo-web)
-npm run build:docusaurus-example  # build the Docusaurus demo alone
-npm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
-npm run integration:installed  # validate an installed tarball (scripts/integration-installed.mjs)
-npm run test:viewport      # Playwright desktop viewport regression, RootTransit and Mermaid browser checks (needs Chromium; run in CI on Linux)
+pnpm install                 # install all workspaces
+pnpm run build              # tsc -b: compile packages/*/src to packages/*/dist (core first)
+pnpm run typecheck          # build + check Astro route files and test/types fixtures
+pnpm test                   # build, then run node --test on test/*.test.mjs
+pnpm run build:example      # build packages, the core-footer demo, and the Starlight demo variants, then verify their output
+pnpm run build:starlight-example  # build only the default Starlight demo
+pnpm run build:core-footer-example  # build only the plain-Astro demo (examples/demo-web)
+pnpm run build:docusaurus-example  # build the Docusaurus demo alone
+pnpm run pack:check         # verify the tarball contents (scripts/verify-pack.mjs)
+pnpm run integration:installed  # validate an installed tarball (scripts/integration-installed.mjs)
+pnpm run test:viewport      # Playwright desktop viewport regression, RootTransit and Mermaid browser checks (needs Chromium; run in CI on Linux)
 node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-motion and 390px suites, plus the built demo (run build:core-footer-example first)
 ```
 
@@ -63,13 +63,13 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 
 ## Testing
 
-- Run `npm test` after any change to link resolution, header/language logic, theme picker logic, promotions, AI disclosures, Google Analytics click events, or body-image handling, footer avatar and random picker (`test/footer-imagery.test.mjs`, `test/random-image.test.mjs`, `test/footer-avatar.test.mjs`), or the showcase illustration.
-- `npm run build:example` must succeed as a consumer integration check. It builds four Starlight configurations (default; blog-only with a base path; unified processor plus `hagilight()` discovery; promotion off plus `contentImages` opt-out) and checks the body images of each. The RSS include filters are unit-tested, not built.
+- Run `pnpm test` after any change to link resolution, header/language logic, theme picker logic, promotions, AI disclosures, Google Analytics click events, or body-image handling, footer avatar and random picker (`test/footer-imagery.test.mjs`, `test/random-image.test.mjs`, `test/footer-avatar.test.mjs`), or the showcase illustration.
+- `pnpm run build:example` must succeed as a consumer integration check. It builds four Starlight configurations (default; blog-only with a base path; unified processor plus `hagilight()` discovery; promotion off plus `contentImages` opt-out) and checks the body images of each. The RSS include filters are unit-tested, not built.
 
 ## Deployment / Publishing
 
 - The `demo-*.yml` deploy workflows only build and publish their own demo (`build:starlight-example`, `build:core-footer-example`, `build:docusaurus-example`); the multi-variant verification in `build:example` runs in CI, not on deploy.
-- CI (`.github/workflows/ci.yml`) type-checks all five packages and runs `npm test` (which includes real Astro and Docusaurus demo builds) on Linux, Windows, and macOS; the OS-independent `build:example`, pack checks, installed-tarball consumers, and viewport regression run on Linux only. `npm-publish.yml` repeats only type-check and test, then packs and installs the stamped tarballs.
+- CI (`.github/workflows/ci.yml`) type-checks all five packages and runs `pnpm test` (which includes real Astro and Docusaurus demo builds) on Linux, Windows, and macOS; the OS-independent `build:example`, pack checks, installed-tarball consumers, and viewport regression run on Linux only. `npm-publish.yml` repeats only type-check and test, then packs and installs the stamped tarballs.
 - `npm-publish.yml` uses npm OIDC provenance (no token) with npm trusted publishers: owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`. Configure trusted publishers before enabling publication; an initial authorized publish may be required first.
 - `@hagicode/hagilight-mermaid` is published by `npm-publish.yml` with the other packages. Before its first publish it needs its own npm trusted publisher (owner `HagiCode-org`, repo `hagilight`, workflow `npm-publish.yml`) and `@hagicode` scope permission.
 - Every push to `main` publishes a unique `dev` dist-tag prerelease; a GitHub release with a `vX.Y.Z` tag publishes all five packages to `latest` (core first; existing versions are skipped).
@@ -79,3 +79,10 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 - A successful deployment means its workflow built the example and published its branch; it does not verify that the separate Starlight host has consumed the snapshot or that either site is reachable.
 - All three demo workflows run independently on pushes to `main`; none updates `gh-pages`. Each force-pushes its branch as one latest commit (`force_orphan: true`, with `CNAME` and `.nojekyll` kept) on every publish, so a demo branch is not a rollback source; roll back by reverting the offending source commit on `main`.
 - `release-draft-action.yml` maintains the next stable draft through `HagiCode-org/hagi-release-drafter@v0.1.2`, from Conventional Commit messages since the latest `vX.Y.Z` tag (no PR labels needed, direct pushes to `main` are included). A feature bumps the minor, a breaking change bumps the minor while 0.x (major afterwards), anything else bumps the patch; run the workflow manually with the `version` input to override. Publishing the draft triggers `npm-publish.yml`.
+
+## Package management
+
+- The repository uses pnpm, pinned in `package.json` `packageManager`. Run `corepack enable` once, then `pnpm install`. `pnpm-lock.yaml` is the only lockfile; do not commit `package-lock.json`.
+- Settings live in `pnpm-workspace.yaml`. `allowBuilds` lists the dependencies whose install scripts may run (reviewed individually, `false` means reviewed and denied); review any new dependency that has an install script and add it there.
+- A local registry mirror belongs in `~/.npmrc` only. Never commit a `registry=` line or a mirror URL; `pnpm run check:registry` (also run in CI) fails on any non-`registry.npmjs.org` `tarball` in the lockfile and on mirror hosts in tracked files.
+- Undeclared imports fail under pnpm's strict layout: declare the package instead of hoisting it.

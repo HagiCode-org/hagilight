@@ -8,9 +8,9 @@ builds English and Simplified Chinese pages and separate localized RSS feeds for
 From the Hagilight repository root:
 
 ```sh
-npm run build              # compile the packages before running the dev server
-npm run dev --workspace=hagilight-core-footer-example
-npm run build:core-footer-example
+pnpm run build              # compile the packages before running the dev server
+pnpm --filter hagilight-core-footer-example run dev
+pnpm run build:core-footer-example
 node --test test/demo-web-output.test.mjs
 ```
 
