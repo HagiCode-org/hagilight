@@ -1,0 +1,1 @@
+import{a as e,n as t}from"./posthog-events.vu9_tvA-.js";document.querySelector(`[data-hagilight-not-found]`)&&t(`not_found_viewed`,{path:window.location.pathname,referrer_domain:e(document.referrer)});
