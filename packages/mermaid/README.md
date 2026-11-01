@@ -10,6 +10,8 @@ npm install @hagicode/hagilight-mermaid mermaid
 
 `mermaid` is a peer dependency (`^11`). The package never bundles it, and it is imported the first time a non-empty diagram renders.
 
+`pele` is an optional peer (`^1.13.0`) for the Pele engine described below. Install it only if a site selects Pele: `npm install pele@^1.13.0`. A site that never selects Pele does not need it.
+
 ## Quick start
 
 ```ts
@@ -46,7 +48,46 @@ handle.destroy(); // discard pending renders and empty the element
 | `viewer` | `true` | Adds an enlarge button to the toolbar and makes `handle.expand()` open the viewer. `false` removes both. |
 | `fit` | `'width'` | `'width'` fills the host's width and lets the height follow. `'contain'` fits the whole diagram in the host's height, for fixed-height tiles: give the host a height. |
 | `loadMermaid` | `import('mermaid')` | Supplies the `mermaid` module. Use it to control chunking or to test. |
+| `engine` | `'mermaid'` | `'mermaid'` or `'pele'`. Resolved from this option, then the stored choice (see below), then `'mermaid'`. An unrecognized value is ignored. |
+| `peleLoader` | `import('pele')` | Supplies the `pele` module when the Pele engine renders. Use it to control chunking or to test. |
 | `className` | | Extra class names on the diagram container. |
+
+## Pele engine (optional)
+
+[Pele](https://pele.run) renders the same Mermaid source to SVG without Mermaid's runtime. It is synchronous and small. Mermaid stays the default, so a site that does nothing keeps its current output.
+
+```ts
+import { mountMermaidDiagrams, writeStoredEngine } from '@hagicode/hagilight-mermaid';
+
+mountMermaidDiagrams(document, { engine: 'pele' }); // this page, whatever is stored
+writeStoredEngine('pele'); // remember the choice in this browser for later renders
+```
+
+The engine is resolved in this order, and an unrecognized value is ignored:
+
+1. the `engine` option, when given (so `engine: 'mermaid'` outranks a stored `pele`);
+2. the choice stored under the key `hagilight-mermaid:engine` in `localStorage`;
+3. `mermaid`.
+
+Rendering never writes the stored choice. Only `writeStoredEngine` does, so `update({ engine })` for one page does not change later pages. `readStoredEngine()` returns the stored value or `undefined`. Storage that throws or is absent is treated as no choice, and no call here throws.
+
+**Version.** `pele` is pinned to `^1.13.0` as a peer. The package's tests render one sample per supported type with the installed Pele and fail if a marker the adapters need (node and edge classes, `data-id`, `aria-roledescription`) is missing. Pele has no release page, so a Pele upgrade is checked by those tests before it is accepted.
+
+**What Pele changes.** The theme maps `--hagilight-mermaid-*` tokens to Pele's `--pele-*` variables on the container, so a mode or preset change restyles the diagram without calling Pele again. Pie series colors are set explicitly. The error panel shows Pele's position and writes every message with `textContent`.
+
+**Flowchart, state, class and ER under Pele.** Tracing, keyboard focus and the dependency-order reveal use the geometry of the rendered SVG: each edge's first and last points are matched to the nearest node box. Edge identifiers are never read for endpoints. For class and ER relations the drawn direction, from the start of the line to its end, is the trace direction. ER relations have no true direction, so this is a convention: in the fixtures the line leaves the entity named first in the relation (`Animal` to `Duck`, `CUSTOMER` to `ORDER`).
+
+**Other Pele types** (pie, sequence and the rest) reveal with the generic reveal and have no part focus in this version. Diagram types listed in the degraded set show a notice above the diagram.
+
+**Degraded types.** Pele draws these types in a clearly simpler way, so the container shows the notice `peleDegradedNotice` (overridable through `labels`) above the diagram:
+
+- `c4`: the scaled-down diagram's text is hard to read at the same width.
+- `gitGraph`: branch labels sit on mid-tone fills and are hard to read.
+- `treemap`: leaf labels are small and light on their fills.
+
+The list was set from a same-size screenshot comparison of the 36 demo samples, both engines at 440 px. It is a constant in the package and is extended only with that kind of comparison.
+
+**Phase 2 limits.** Part focus and type-specific reveals for pie, sequence and the other types are not included. Pele's own `mount()` is not used, so its zoom and resize behaviour is not available. Layouts differ from Mermaid's, so a Pele diagram is not a pixel match for the Mermaid one.
 
 ## What each diagram type does
 
@@ -104,6 +145,8 @@ Blue and teal lead the order, then amber and violet, so neighbouring series neve
 To use a site's own names, pass `tokens` instead of redefining the package tokens:
 
 ```ts
+import { mountMermaidDiagrams } from '@hagicode/hagilight-mermaid';
+
 mountMermaidDiagrams(document, {
   tokens: { background: '--background', foreground: '--foreground', primary: '--primary', accent: '--accent', primaryForeground: '--primary-foreground' },
 });
@@ -116,6 +159,8 @@ Colors in `oklch()` or `lab()` are converted to `rgb()` through a canvas before 
 All visible text comes from `labels`. Unspecified keys keep the English defaults, and `{value}` is replaced by the count in trace labels.
 
 ```ts
+import { mountMermaidDiagrams } from '@hagicode/hagilight-mermaid';
+
 mountMermaidDiagrams(document, {
   labels: {
     rendering: 'Rendering diagram...',
@@ -158,6 +203,7 @@ With Mermaid 11.16.1, every diagram type the demo covers renders an SVG, and non
 - **Part focus and the reveal** read Mermaid 11.16.1's SVG structure, which has no shared shape across diagram types. A later Mermaid release can rename a class: the affected type then loses its part focus, and its reveal falls back to the generic one, until the table in `src/adapters.ts` is updated. The browser checks pin the installed version.
 - **Thin lines** (a sequence message, a git branch) are hard to hit on their own, so the part includes its label: hover the label or the text beside the line.
 - **Block**, **kanban**, **architecture** and **Wardley** have no dependency graph the tracing can read, so they get part focus rather than upstream and downstream paths.
+- **Pele engine**: the layout is Pele's own, not Mermaid's. The degraded list above is the only place that says where Pele draws less clearly. Part focus and type-specific reveals wait for a later phase.
 - **Text halo**: the default preset draws a halo behind diagram text, white in light mode and `#111827` in dark mode. Set `--hagilight-mermaid-halo` to the page color when it differs. Text printed on a colored mark (pie slices, Gantt bars, timeline and branch labels) has no halo.
 
 ## Parity

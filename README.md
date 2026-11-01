@@ -42,6 +42,8 @@ point.
 | [`@hagicode/hagilight-docusaurus`](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-docusaurus?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-docusaurus)](https://www.npmjs.com/package/@hagicode/hagilight-docusaurus) |
 | [`@hagicode/hagilight-mermaid`](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) | [![npm](https://img.shields.io/npm/v/@hagicode/hagilight-mermaid?logo=npm)](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) | [![downloads](https://img.shields.io/npm/dm/@hagicode/hagilight-mermaid)](https://www.npmjs.com/package/@hagicode/hagilight-mermaid) |
 
+`@hagicode/hagilight-mermaid` renders with Mermaid by default and can render with the optional [Pele](https://pele.run) engine (`engine: 'pele'`, with `pele` as an optional peer). Its README covers the engine choice, the stored preference, and which diagram types Pele draws in a simplified way.
+
 ## `@hagicode/hagilight-core`
 
 Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Astro components require `astro`
