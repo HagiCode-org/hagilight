@@ -5,7 +5,6 @@ import { MERMAID_SAMPLES } from '../mermaid-samples';
 
 // Diagrams whose shape needs more room than one tile: wide ones span two columns, tall ones two rows.
 const WIDE = new Set(['flowchart-v2', 'gantt', 'eventmodeling', 'timeline', 'packet', 'xychart', 'sankey']);
-const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDiagram', 'er', 'swimlane']);
 ---
 <!doctype html>
 <html lang="en">
@@ -151,9 +150,10 @@ const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDia
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
-        grid-auto-rows: 16rem;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 28rem), 1fr));
+        grid-auto-rows: auto;
         grid-auto-flow: dense;
+        align-items: start;
         gap: 1rem;
       }
       .tile {
@@ -192,7 +192,7 @@ const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDia
         font-weight: 400;
       }
       .stage {
-        flex: 1 1 0;
+        flex: none;
         min-height: 0;
         padding: 0 0.5rem 0.5rem;
       }
@@ -211,9 +211,6 @@ const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDia
         .tile-wide {
           grid-column: span 2;
         }
-      }
-      .tile-tall {
-        grid-row: span 2;
       }
       @media (pointer: coarse) {
         .tip {
@@ -263,7 +260,7 @@ const TALL = new Set(['sequence', 'stateDiagram', 'ishikawa', 'class', 'classDia
       </header>
       <div class="grid">
         {types.types.map((type) => (
-          <section class:list={['tile', { 'tile-wide': WIDE.has(type.id), 'tile-tall': TALL.has(type.id) }]} data-mermaid-type={type.id}>
+          <section class:list={['tile', { 'tile-wide': WIDE.has(type.id) }]} data-mermaid-type={type.id}>
             <h2>{type.label}<code>{type.keyword}</code></h2>
             <div class="stage">
               <pre class="mermaid">{MERMAID_SAMPLES[type.id]}</pre>

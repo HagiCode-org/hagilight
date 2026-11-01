@@ -3,7 +3,7 @@ import '@hagicode/hagilight-mermaid/styles.css';
 
 // Tiles are fixed-height: each diagram fits whole inside its tile. A click is left to the tile, which
 // opens the enlarged viewer, so tiles do not pin; the viewer has the full path tracing.
-const mermaid = mountMermaidDiagrams(document, { mode: 'auto', preset: 'default', fit: 'contain', interaction: { pin: false } });
+const mermaid = mountMermaidDiagrams(document, { mode: 'auto', preset: 'default', fit: 'width', interaction: { pin: false } });
 
 // Handles come back in document order, which is the tile order.
 const tiles = Array.from(document.querySelectorAll<HTMLElement>('section[data-mermaid-type]'));

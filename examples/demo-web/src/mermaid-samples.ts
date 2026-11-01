@@ -7,6 +7,8 @@ function largeFlowchart(): string {
   const stages = ['ingest', 'parse', 'index', 'rank', 'render'];
   for (const stage of stages) {
     lines.push(`  subgraph ${stage}_group["${stage.toUpperCase()} stage"]`);
+    // Each stage runs top to bottom inside its subgraph, so the five stages sit side by side.
+    lines.push('    direction TB');
     for (let index = 0; index < 18; index += 1) lines.push(`    ${stage}${index}["${stage} step ${index}"]`);
     lines.push('  end');
   }
