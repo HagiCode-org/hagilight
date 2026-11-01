@@ -59,7 +59,13 @@
     "dist/**/*.d.ts"
   ],
   "peerDependencies": {
-    "mermaid": "^11"
+    "mermaid": "^11",
+    "pele": "^1.13.0"
+  },
+  "peerDependenciesMeta": {
+    "pele": {
+      "optional": true
+    }
   },
   "keywords": [
     "hagicode",
