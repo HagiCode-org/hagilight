@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 import { resolveMode, watchMode, watcherCount } from '../packages/mermaid/dist/mode.js';
+import { fakeBlock, fakeNode, installMermaidStub, restoreMermaidStub, settle } from './support/mermaid-dom-stub.mjs';
+
+const hadStorage = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
 
 /** A document root whose data-theme attribute and class list are set by the test. */
 function root({ theme = null, dark = false } = {}) {
@@ -92,4 +95,110 @@ afterEach(() => {
 
 beforeEach(() => {
   delete globalThis.document;
+});
+
+// Engine resolution through the public entry points. The loaders are injected, so the test sees which
+// module each render asked for; the DOM stub is in test/support/mermaid-dom-stub.mjs.
+const { renderMermaid } = await import('../packages/mermaid/dist/render.js');
+const { mountMermaidDiagrams } = await import('../packages/mermaid/dist/mount.js');
+const { ENGINE_STORAGE_KEY } = await import('../packages/mermaid/dist/engine.js');
+
+let storedEngine = null;
+const probeStubOptions = () => ({ storageKey: ENGINE_STORAGE_KEY, storedEngine });
+
+/** Loaders that record their calls and then stop: the render is judged by which module was requested. */
+function probeLoaders() {
+  const calls = { mermaid: 0, pele: 0 };
+  const loadMermaid = async () => {
+    calls.mermaid += 1;
+    throw new Error('mermaid probe');
+  };
+  const peleLoader = async () => {
+    calls.pele += 1;
+    throw new Error('pele probe');
+  };
+  return { calls, loadMermaid, peleLoader };
+}
+
+beforeEach(() => {
+  storedEngine = null;
+  installMermaidStub(probeStubOptions());
+});
+
+afterEach(() => restoreMermaidStub(hadStorage));
+
+test('the engine option selects the loader through renderMermaid', async () => {
+  const probe = probeLoaders();
+  renderMermaid(fakeNode(), 'flowchart LR; A-->B', { engine: 'pele', ...probe });
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 0, pele: 1 });
+});
+
+test('a stored engine selects the loader when no option is given', async () => {
+  storedEngine = 'pele';
+  restoreMermaidStub(hadStorage);
+  installMermaidStub(probeStubOptions());
+  const probe = probeLoaders();
+  renderMermaid(fakeNode(), 'flowchart LR; A-->B', probe);
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 0, pele: 1 });
+});
+
+test('an explicit mermaid engine outranks a stored pele choice', async () => {
+  storedEngine = 'pele';
+  restoreMermaidStub(hadStorage);
+  installMermaidStub(probeStubOptions());
+  const probe = probeLoaders();
+  renderMermaid(fakeNode(), 'flowchart LR; A-->B', { engine: 'mermaid', ...probe });
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 1, pele: 0 });
+});
+
+test('with nothing selected, renderMermaid loads mermaid as before', async () => {
+  const probe = probeLoaders();
+  renderMermaid(fakeNode(), 'flowchart LR; A-->B', probe);
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 1, pele: 0 });
+});
+
+test('an unrecognized engine option falls through to the stored choice', async () => {
+  storedEngine = 'pele';
+  restoreMermaidStub(hadStorage);
+  installMermaidStub(probeStubOptions());
+  const probe = probeLoaders();
+  renderMermaid(fakeNode(), 'flowchart LR; A-->B', { engine: 'sepia', ...probe });
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 0, pele: 1 });
+});
+
+test('mountMermaidDiagrams forwards engine and peleLoader to every block', async () => {
+  const probe = probeLoaders();
+  const mounted = mountMermaidDiagrams({ querySelectorAll: () => [fakeBlock('pie title Pets\n  "Dogs" : 386')] }, { engine: 'pele', ...probe });
+  await settle();
+  assert.equal(mounted.handles.length, 1);
+  assert.deepEqual(probe.calls, { mermaid: 0, pele: 1 });
+});
+
+test('mountMermaidDiagrams with a stored engine and no option renders with Pele', async () => {
+  storedEngine = 'pele';
+  restoreMermaidStub(hadStorage);
+  installMermaidStub(probeStubOptions());
+  const probe = probeLoaders();
+  mountMermaidDiagrams({ querySelectorAll: () => [fakeBlock('pie title Pets\n  "Dogs" : 386')] }, probe);
+  await settle();
+  assert.deepEqual(probe.calls, { mermaid: 0, pele: 1 });
+});
+
+test('an explicit engine on render and on update never writes the stored choice', async () => {
+  const writes = [];
+  globalThis.localStorage = {
+    getItem: () => null,
+    setItem: (key, value) => writes.push([key, value]),
+  };
+  const probe = probeLoaders();
+  const handle = renderMermaid(fakeNode(), 'flowchart LR; A-->B', { engine: 'pele', ...probe });
+  await settle();
+  handle.update({ engine: 'mermaid', loadMermaid: probe.loadMermaid });
+  await settle();
+  assert.deepEqual(writes, [], 'no write reaches storage');
 });

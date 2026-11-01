@@ -88,6 +88,8 @@ export function playMermaidEntrance(svg: SVGSVGElement, graph: MermaidGraph): Me
           draw.finished.then(land, land);
         }
       }
+      // Pele draws its arrowhead apart from the line; it arrives as the line lands, so it never leads the edge.
+      edge.markers.forEach((marker) => add(marker, [{ opacity: 0 }, { opacity: 1 }], { duration: edgeMs, delay: delay + edgeMs * 0.8 }));
       if (edge.labelEl) {
         add(edge.labelEl, [{ opacity: 0 }, { opacity: 1 }], { duration: LABEL_MS, delay: delay + edgeMs * 0.65 });
       }

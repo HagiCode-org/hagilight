@@ -749,6 +749,16 @@
   line-height: 1.5;
 }
 
+.mermaid-container .mermaid-engine-notice {
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border: 1px dashed var(--hagilight-mermaid-muted-ink, #64748b);
+  border-radius: 6px;
+  color: var(--hagilight-mermaid-muted-ink, #64748b);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
 .mermaid-container .mermaid-error-message {
   margin: 0 0 12px 0;
   font-size: 0.875rem;

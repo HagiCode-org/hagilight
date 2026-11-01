@@ -1,4 +1,4 @@
-import type { MermaidSvgPostProcessorConfig } from './types.js';
+import type { MermaidEngine, MermaidSvgPostProcessorConfig } from './types.js';
 
 const DEFAULTS: Required<MermaidSvgPostProcessorConfig> = {
   gradients: true,
@@ -32,12 +32,15 @@ export function ensureSvgViewBox(svg: SVGSVGElement, padding = 8): void {
 }
 
 /**
- * Adds scoped semantic classes to Mermaid output. Non-SVG input is returned
- * unchanged so unrelated application SVGs can never be affected.
+ * Adds scoped semantic classes to Mermaid or Pele output. Non-SVG input is returned
+ * unchanged so unrelated application SVGs can never be affected. Pele output gets only the
+ * engine-neutral steps: Mermaid's node, cluster and edge classes, gradients and shadows are skipped,
+ * because they target Mermaid's markup.
  */
 export function postProcessMermaidSvg(
   svg: string,
   options: MermaidSvgPostProcessorConfig = {},
+  engine: MermaidEngine = 'mermaid',
 ): string {
   if (typeof DOMParser === 'undefined') return svg;
   // C4 diagrams use `xlink:href` on their icons without declaring the prefix, which an XML parser rejects.
@@ -60,6 +63,25 @@ export function postProcessMermaidSvg(
       .trim();
     if (cleanedStyle) root.setAttribute('style', cleanedStyle);
     else root.removeAttribute('style');
+  }
+  if (engine === 'pele') {
+    // Pele's root carries a fixed width and height; the viewBox keeps the proportions, so both attributes go.
+    // The origin marker lets graph.ts choose Pele's geometry adapters for this SVG.
+    root.setAttribute('data-mermaid-engine', 'pele');
+    const pele = root.getAttribute('aria-roledescription');
+    if (pele) root.setAttribute('data-mermaid-type', pele);
+    if (!root.getAttribute('viewBox')) {
+      root.setAttribute('viewBox', `0 0 ${root.getAttribute('width') ?? 0} ${root.getAttribute('height') ?? 0}`);
+    }
+    root.removeAttribute('height');
+    root.setAttribute('width', '100%');
+    // The neutral node class lets hover, pinning and keyboard focus find Pele nodes. Core emphasis stays Mermaid's.
+    document.querySelectorAll('g.pele-node').forEach((node) => node.classList.add('mermaid-node'));
+    document.querySelectorAll('text, foreignObject').forEach((label) => {
+      label.classList.add('mermaid-label');
+      label.setAttribute('aria-hidden', 'true');
+    });
+    return new XMLSerializer().serializeToString(root);
   }
   root.setAttribute('width', '100%');
 

@@ -69,3 +69,12 @@ test('the archify preset and base styles are both loadable and share the token n
   }
   assert.match(archify, /\.mermaid-container\.mermaid-preset-archify/u);
 });
+
+test('the degraded-type notice is styled inside the container and reads only package tokens', () => {
+  const base = stylesOf('styles.css');
+  const rule = base.match(/\.mermaid-container \.mermaid-engine-notice \{([^}]*)\}/u);
+  assert.ok(rule, 'the notice has a scoped rule');
+  for (const [, name] of rule[1].matchAll(/var\(\s*(--[\w-]+)/g)) {
+    assert.ok(name.startsWith(PREFIX), `${name} is package-prefixed`);
+  }
+});

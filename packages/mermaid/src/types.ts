@@ -9,6 +9,39 @@ export type MermaidThemeMode = 'light' | 'dark';
 /** Appearance preset. `archify` uses fixed palettes and its own stylesheet. */
 export type MermaidPreset = 'default' | 'archify';
 
+/** Diagram renderer. `mermaid` is the default; `pele` is the optional Pele engine (`pele` must be installed). */
+export type MermaidEngine = 'mermaid' | 'pele';
+
+/**
+ * Shape of the `pele` module this package calls. Declared here instead of imported, because `pele` is an
+ * optional peer and its types must not be required when a site never selects it.
+ */
+export interface PeleRenderResult {
+  svg: string;
+  width: number;
+  height: number;
+  /** Pele's diagram type, for example `flowchart` or `pie`. */
+  type: string;
+  mermaidType: string;
+}
+
+export interface PeleModule {
+  render: (source: string) => PeleRenderResult;
+}
+
+/**
+ * Shape of a `PeleError`, recognized by its fields because the class itself is only reachable after `pele`
+ * loads. `line` and `column` are 1-based; Pele reports 0 when it could not locate the error.
+ */
+export interface PeleErrorShape extends Error {
+  code: string;
+  line?: number;
+  column?: number;
+  type?: string | null;
+  mermaidType?: string | null;
+  snippet?: string;
+}
+
 /** Semantic roles a site color can map to. */
 export type MermaidTokenRole = 'background' | 'foreground' | 'primary' | 'accent' | 'primaryForeground';
 
@@ -25,6 +58,8 @@ export interface MermaidLabels {
   renderingErrorPrefix: string;
   noValidDiagram: string;
   unknownDiagramType: string;
+  /** Shown above a diagram of a type the Pele engine draws in a simplified way. */
+  peleDegradedNotice: string;
   diagramLabel: string;
   replay: string;
   /** Opens the enlarged viewer. */
@@ -150,8 +185,15 @@ export interface MermaidRenderOptions {
    * Defaults to `width`.
    */
   fit?: 'width' | 'contain';
+  /**
+   * Diagram renderer. Resolved from this option, then the choice stored in this browser by
+   * `writeStoredEngine`, then `mermaid`. An unrecognized value is ignored. Explicit `mermaid` outranks storage.
+   */
+  engine?: MermaidEngine;
   /** Supplies the `mermaid` module. Defaults to a dynamic import of `mermaid`. */
   loadMermaid?: () => Promise<MermaidModule>;
+  /** Supplies the `pele` module when the Pele engine renders. Defaults to a dynamic import of `pele`. */
+  peleLoader?: () => Promise<PeleModule>;
   /** Extra class names for the diagram container. */
   className?: string;
 }

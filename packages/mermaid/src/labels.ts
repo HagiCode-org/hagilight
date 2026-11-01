@@ -9,6 +9,7 @@ export const DEFAULT_LABELS: MermaidLabels = {
   renderingErrorPrefix: 'Rendering error:',
   noValidDiagram: 'No valid diagram detected',
   unknownDiagramType: 'Unknown diagram type',
+  peleDegradedNotice: 'This diagram type is simplified by the Pele engine. Switch to Mermaid for the full layout.',
   diagramLabel: 'Diagram',
   replay: 'Replay animation',
   expand: 'Enlarge diagram',

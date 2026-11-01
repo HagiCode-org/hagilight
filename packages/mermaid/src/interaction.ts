@@ -149,7 +149,8 @@ export function attachMermaidDiagramInteraction(
     graph.edges.forEach((edge) => {
       const up = trace.upstreamEdges.has(edge.index);
       const down = trace.downstreamEdges.has(edge.index);
-      const targets = edge.labelEl ? [edge.el, edge.labelEl] : [edge.el];
+      // Arrowheads drawn apart from the line (Pele) dim and light with their edge.
+      const targets: Element[] = [edge.el, ...edge.markers, ...(edge.labelEl ? [edge.labelEl] : [])];
       targets.forEach((el) => {
         if (!up && !down) el.classList.add('mermaid-trace-dim');
         if (up) el.classList.add('mermaid-trace-edge-up');
@@ -175,7 +176,7 @@ export function attachMermaidDiagramInteraction(
     if (!host) return;
     layer = svgEl('g', 'mermaid-trace-layer');
     layer.setAttribute('aria-hidden', 'true');
-    host.insertBefore(layer, svg.querySelector('g.edgePaths')?.nextSibling ?? null);
+    host.insertBefore(layer, svg.querySelector('g.edgePaths, g.pele-edges')?.nextSibling ?? null);
 
     edgesWithHop.forEach(({ index, delay, direction }) => {
       const source = graph.edges[index].el;

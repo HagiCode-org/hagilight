@@ -1,6 +1,8 @@
 export { renderMermaid } from './render.js';
 export { mountMermaidDiagrams } from './mount.js';
+export { ENGINE_STORAGE_KEY, readStoredEngine, resolveEngine, writeStoredEngine } from './engine.js';
 export type {
+  MermaidEngine,
   MermaidHandle,
   MermaidInteractionConfig,
   MermaidLabelOverrides,
@@ -14,4 +16,7 @@ export type {
   MermaidTokens,
   MermaidTraceSummary,
   MermaidUpdate,
+  PeleErrorShape,
+  PeleModule,
+  PeleRenderResult,
 } from './types.js';

@@ -6,6 +6,9 @@ import {
   DEFAULT_LIGHT_SERIES,
   buildSeriesVariables,
 } from './palette.js';
+
+// Shared with the Pele mapping (pele-theme.ts): the preset palettes are read from here, not copied.
+export { ARCHIFY_DARK_SERIES, ARCHIFY_LIGHT_SERIES, DEFAULT_DARK_SERIES, DEFAULT_LIGHT_SERIES };
 import type {
   MermaidLayoutConfig,
   MermaidPreset,
@@ -169,7 +172,8 @@ export function getContrastRatio(foreground: string, background: string): number
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function buildTheme(mode: MermaidThemeMode, tokens: MermaidTokens): MermaidSemanticTheme {
+/** Resolves the site tokens for a mode into the semantic theme. Shared by Mermaid and Pele. */
+export function buildTheme(mode: MermaidThemeMode, tokens: MermaidTokens): MermaidSemanticTheme {
   const fallback = mode === 'dark' ? DARK_THEME : LIGHT_THEME;
   const read = (role: MermaidTokenRole) => readCssToken(tokens[role] ?? TOKEN_PROPERTIES[role], fallback[role]);
   const background = read('background');

@@ -36,3 +36,12 @@ test('count placeholders are replaced and unknown placeholders are kept', () => 
   assert.equal(formatLabel('{value} and {missing}', { value: 'x' }), 'x and {missing}');
   assert.equal(formatLabel('no placeholders'), 'no placeholders');
 });
+
+test('the Pele degraded notice has an English default and can be overridden', () => {
+  assert.equal(
+    DEFAULT_LABELS.peleDegradedNotice,
+    'This diagram type is simplified by the Pele engine. Switch to Mermaid for the full layout.',
+  );
+  assert.equal(resolveLabels({ peleDegradedNotice: 'Vereinfacht.' }).peleDegradedNotice, 'Vereinfacht.');
+  assert.equal(resolveLabels().peleDegradedNotice, DEFAULT_LABELS.peleDegradedNotice);
+});

@@ -1,9 +1,14 @@
 // Type fixture for @hagicode/hagilight-mermaid. Each `@ts-expect-error` line must stay an error.
 import {
   mountMermaidDiagrams,
+  readStoredEngine,
   renderMermaid,
+  resolveEngine,
+  writeStoredEngine,
+  type MermaidEngine,
   type MermaidHandle,
   type MermaidRenderOptions,
+  type PeleModule,
 } from '@hagicode/hagilight-mermaid';
 
 const host = document.createElement('div');
@@ -16,9 +21,16 @@ const options: MermaidRenderOptions = {
   entrance: false,
   viewer: false,
   fit: 'contain',
+  engine: 'pele',
+  peleLoader: async (): Promise<PeleModule> => ({ render: () => ({ svg: '<svg></svg>', width: 1, height: 1, type: 'flowchart', mermaidType: 'flowchart-v2' }) }),
 };
 const handle: MermaidHandle = renderMermaid(host, 'flowchart LR; A-->B', options);
-handle.update({ mode: 'light', source: 'flowchart LR; B-->C' });
+handle.update({ mode: 'light', source: 'flowchart LR; B-->C', engine: 'mermaid' });
+const engine: MermaidEngine = resolveEngine('pele');
+const stored: MermaidEngine | undefined = readStoredEngine();
+writeStoredEngine('pele');
+void engine;
+void stored;
 handle.replay();
 handle.clearFocus();
 handle.expand();
@@ -42,5 +54,11 @@ renderMermaid(host, 'flowchart LR; A-->B', { tokens: { background: 'background' 
 renderMermaid(host, 'flowchart LR; A-->B', { fit: 'cover' });
 // @ts-expect-error A viewer label key must exist.
 renderMermaid(host, 'flowchart LR; A-->B', { labels: { viewer: { zoomInn: 'typo' } } });
+// @ts-expect-error An engine is mermaid or pele.
+renderMermaid(host, 'flowchart LR; A-->B', { engine: 'sepia' });
+// @ts-expect-error An engine update must be a known engine.
+handle.update({ engine: 'chrome' });
+// @ts-expect-error A Pele loader resolves to a module with render.
+renderMermaid(host, 'flowchart LR; A-->B', { peleLoader: async () => ({}) });
 // @ts-expect-error A mode update cannot be a number.
 handle.update({ mode: 1 });

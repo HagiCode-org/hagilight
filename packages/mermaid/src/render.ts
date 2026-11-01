@@ -6,19 +6,26 @@ import { playMermaidEntrance, type MermaidEntranceHandle } from './entrance.js';
 import { attachMermaidPartFocus } from './focus.js';
 import { buildMermaidGraph, type MermaidGraph } from './graph.js';
 import { attachMermaidDiagramInteraction, type MermaidInteractionHandle } from './interaction.js';
+import { resolveEngine } from './engine.js';
 import { resolveLabels } from './labels.js';
 import { resolveMode, watchMode } from './mode.js';
+import { isPeleDegraded } from './pele-degraded.js';
+import { applyPeleVariables, peleFontFamily, peleVariables } from './pele-theme.js';
 import { ensureSvgViewBox, normalizeMermaidSvgViewBox, postProcessMermaidSvg } from './svg.js';
 import { getMermaidThemeConfig, resolvePreset } from './theme.js';
 import type {
+  MermaidEngine,
   MermaidHandle,
   MermaidInteractionConfig,
   MermaidLabels,
   MermaidModule,
+  MermaidPreset,
   MermaidRenderOptions,
   MermaidThemeMode,
   MermaidTraceSummary,
   MermaidUpdate,
+  PeleErrorShape,
+  PeleModule,
 } from './types.js';
 import { openMermaidViewer, type MermaidViewerHandle } from './viewer.js';
 
@@ -67,6 +74,48 @@ function defaultLoader(): Promise<MermaidModule> {
   return import('mermaid');
 }
 
+function defaultPeleLoader(): Promise<PeleModule> {
+  return import('pele') as Promise<PeleModule>;
+}
+
+/** Pele is loaded once per loader. A failed import is not kept, so the next render tries again. */
+const PELE_MODULES = new WeakMap<() => Promise<PeleModule>, Promise<PeleModule>>();
+
+function loadPele(loader: () => Promise<PeleModule>): Promise<PeleModule> {
+  let pending = PELE_MODULES.get(loader);
+  if (!pending) {
+    pending = loader().catch((error: unknown) => {
+      PELE_MODULES.delete(loader);
+      throw error;
+    });
+    PELE_MODULES.set(loader, pending);
+  }
+  return pending;
+}
+
+/** Mermaid backend: the shared Mermaid instance, queued so renders never overlap. */
+function renderWithMermaid(
+  source: string,
+  options: MermaidRenderOptions,
+  mode: MermaidThemeMode,
+  preset: MermaidPreset,
+): Promise<string> {
+  return enqueue(async () => {
+    const { default: mermaid } = await (options.loadMermaid ?? defaultLoader)();
+    const config = getMermaidThemeConfig(mode, preset, { tokens: options.tokens });
+    await initializeOnce(mermaid, config);
+    const id = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    return (await mermaid.render(id, source)).svg;
+  });
+}
+
+/** Pele backend: a direct synchronous call, never Pele's own mount. Mermaid is not loaded on this path. */
+async function renderWithPele(source: string, options: MermaidRenderOptions): Promise<{ svg: string; type: string }> {
+  const pele = await loadPele(options.peleLoader ?? defaultPeleLoader);
+  const { svg, type } = pele.render(source);
+  return { svg, type };
+}
+
 /** Maps Mermaid's parser messages onto the labels, as the web app does. */
 /** Trace for a graph the model can read, part focus for every other type, nothing when interaction is off. */
 function attachInteraction(
@@ -81,15 +130,41 @@ function attachInteraction(
   return attachMermaidPartFocus(host, wired, describeParts(svg));
 }
 
+/** Pele's `PeleError` is recognized by its shape, because the class is only reachable once `pele` has loaded. */
+function isPeleError(error: unknown): error is PeleErrorShape {
+  if (!(error instanceof Error)) return false;
+  const candidate = error as Partial<PeleErrorShape>;
+  return error.name === 'PeleError' || (typeof candidate.code === 'string' && typeof candidate.line === 'number');
+}
+
+/**
+ * Keeps the position visible after the Mermaid label replaces "Parse error on line N:": the first line gets
+ * "(line N, column M)" unless the message already names a line. Only the first line changes.
+ */
+function withPosition(message: string, error: PeleErrorShape): string {
+  if (!error.line || /\bline \d+/i.test(message)) return message;
+  const position = `line ${error.line}${error.column ? `, column ${error.column}` : ''}`;
+  const [first = '', ...rest] = message.split('\n');
+  const head = first.endsWith(':') ? `${first.slice(0, -1)} (${position}):` : `${first} (${position})`;
+  return [head, ...rest].join('\n');
+}
+
 function describeError(error: unknown, labels: MermaidLabels): string {
   let message = labels.unableToRender;
   if (error instanceof Error) message = error.message;
   else if (typeof error === 'string') message = error;
-  return message
+  const described = message
     .replace(/^Parse error on line \d+:/, labels.syntaxErrorPrefix)
     .replace(/^Error:/, labels.renderingErrorPrefix)
     .replace(/no diagram type detected/i, labels.noValidDiagram)
     .replace(/unknown diagram type/i, labels.unknownDiagramType);
+  return isPeleError(error) ? withPosition(described, error) : described;
+}
+
+/** The options a Pele restyle may change without a render. Everything else still needs a render. */
+function withoutRestyleKeys(options: MermaidRenderOptions): MermaidRenderOptions {
+  const { mode: _mode, preset: _preset, tokens: _tokens, ...rest } = options;
+  return rest;
 }
 
 /** Objects compare by value and functions by identity, so a new loader or callback counts as a change. */
@@ -121,6 +196,11 @@ class MermaidDiagram {
   private entrance: MermaidEntranceHandle | null = null;
   private observer: IntersectionObserver | null = null;
   private unwatchMode: (() => void) | null = null;
+  /** What the shown diagram was rendered from, so a Pele restyle is only taken when nothing else changed. */
+  private renderedEngine: MermaidEngine | null = null;
+  private renderedSource = '';
+  private renderedOptions: MermaidRenderOptions = {};
+  private renderedPreset: MermaidPreset = 'default';
 
   constructor(
     private readonly host: HTMLElement,
@@ -180,6 +260,7 @@ class MermaidDiagram {
 
   private async render(): Promise<void> {
     const version = ++this.version;
+    if (this.restylePele()) return;
     this.teardownDiagram();
     if (!this.source.trim()) {
       this.host.replaceChildren();
@@ -190,16 +271,14 @@ class MermaidDiagram {
     const { source, options } = this;
     const mode = resolveMode(options.mode ?? 'auto');
     const preset = resolvePreset(options.preset);
+    const engine = resolveEngine(options.engine);
     try {
-      const svg = await enqueue(async () => {
-        const { default: mermaid } = await (options.loadMermaid ?? defaultLoader)();
-        const config = getMermaidThemeConfig(mode, preset, { tokens: options.tokens });
-        await initializeOnce(mermaid, config);
-        const id = `mermaid-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-        return (await mermaid.render(id, source)).svg;
-      });
+      const rendered = engine === 'pele' ? await renderWithPele(source, options) : { svg: await renderWithMermaid(source, options, mode, preset), type: '' };
       if (this.isStale(version)) return;
-      this.showDiagram(postProcessMermaidSvg(svg), mode, preset);
+      this.renderedSource = source;
+      this.renderedOptions = withoutRestyleKeys(options);
+      this.renderedEngine = engine;
+      this.showDiagram(postProcessMermaidSvg(rendered.svg, {}, engine), mode, preset, rendered.type);
     } catch (error) {
       if (this.isStale(version)) return;
       console.error('Mermaid rendering error:', error);
@@ -207,8 +286,9 @@ class MermaidDiagram {
     }
   }
 
-  private showDiagram(svg: string, mode: MermaidThemeMode, preset: 'default' | 'archify'): void {
+  private showDiagram(svg: string, mode: MermaidThemeMode, preset: MermaidPreset, peleType = ''): void {
     this.renderedMode = mode;
+    this.renderedPreset = preset;
     this.markup = svg;
     const container = el('div', [this.baseClasses(), `mermaid-preset-${preset}`].join(' '));
     container.dataset.mermaidPreset = preset;
@@ -219,6 +299,13 @@ class MermaidDiagram {
     container.appendChild(diagramHost);
     this.container = container;
     this.diagramHost = diagramHost;
+    // Pele's SVG reads its colors from these variables, so they are written once here and restyled in place.
+    if (this.renderedEngine === 'pele') this.paintPele(container, mode, preset);
+    if (this.renderedEngine === 'pele' && isPeleDegraded(peleType)) {
+      const notice = el('p', 'mermaid-engine-notice', this.labels.peleDegradedNotice);
+      notice.setAttribute('role', 'note');
+      container.insertBefore(notice, diagramHost);
+    }
 
     // Layout-dependent work runs once the SVG is in the document: the viewBox needs getBBox, and the
     // reveal's hidden first frame has to be in place before the browser paints.
@@ -248,6 +335,32 @@ class MermaidDiagram {
       );
     }
     this.scheduleEntrance(svgElement, graph, diagramHost);
+  }
+
+  /** Writes the Pele variables for a mode and preset onto the container. No Pele call is made. */
+  private paintPele(container: HTMLElement, mode: MermaidThemeMode, preset: MermaidPreset): void {
+    applyPeleVariables(container, peleVariables(mode, preset, { tokens: this.options.tokens, font: peleFontFamily(container) }));
+  }
+
+  /**
+   * A mode, preset or token change on a shown Pele diagram only rewrites its variables and classes. Source,
+   * engine and every other option still take the full render path. Returns false when a render is needed.
+   */
+  private restylePele(): boolean {
+    if (this.renderedEngine !== 'pele' || !this.container || this.renderedSource !== this.source) return false;
+    if (resolveEngine(this.options.engine) !== 'pele') return false;
+    if (!sameOptions(withoutRestyleKeys(this.options), this.renderedOptions)) return false;
+    const mode = resolveMode(this.options.mode ?? 'auto');
+    const preset = resolvePreset(this.options.preset);
+    const container = this.container;
+    container.classList.remove(`mermaid-preset-${this.renderedPreset}`);
+    container.classList.add(`mermaid-preset-${preset}`);
+    container.dataset.mermaidPreset = preset;
+    container.dataset.mermaidMode = mode;
+    this.renderedMode = mode;
+    this.renderedPreset = preset;
+    this.paintPele(container, mode, preset);
+    return true;
   }
 
   private scheduleEntrance(svg: SVGSVGElement, graph: MermaidGraph, diagramHost: HTMLElement): void {

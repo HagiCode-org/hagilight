@@ -24,9 +24,13 @@ const FRAMEWORK_PACKAGES = [
   '@hagicode/hagilight-docusaurus',
 ];
 
-test('the manifest keeps mermaid as the only peer and no framework or core dependency', () => {
-  assert.deepEqual(Object.keys(manifest.peerDependencies), ['mermaid']);
+test('the manifest keeps mermaid as the required peer and pele as an optional, bounded peer', () => {
+  assert.deepEqual(Object.keys(manifest.peerDependencies).sort(), ['mermaid', 'pele']);
   assert.equal(manifest.peerDependencies.mermaid, '^11');
+  // Upper-bounded: ^1.13.0 stops before 2.0.0, and pele is never a hard dependency.
+  assert.equal(manifest.peerDependencies.pele, '^1.13.0');
+  assert.deepEqual(manifest.peerDependenciesMeta, { pele: { optional: true } });
+  assert.equal(manifest.dependencies?.pele, undefined);
   for (const field of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
     for (const name of FRAMEWORK_PACKAGES) {
       assert.equal(manifest[field]?.[name], undefined, `${name} must not appear in ${field}`);

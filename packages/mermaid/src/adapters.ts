@@ -11,6 +11,8 @@
  * the table does not know falls back to its top-level pieces, so a new Mermaid diagram still moves.
  */
 
+import type { Box, EdgeEnds, Point } from './geometry.js';
+
 export type BeatKind = 'fade' | 'rise' | 'drop' | 'pop' | 'growX' | 'growY' | 'draw' | 'swing' | 'wipe';
 
 export interface Beat {
@@ -432,4 +434,97 @@ export function describeParts(svg: Element): PartFamily[] {
       if (family.group === 'message' && family.parts[1]) return { ...family, label: textOf(family.parts[1]) };
       return family;
     });
+}
+
+/** Pele types whose graph is read from geometry: a node box per `g.pele-node`, an edge per `g.pele-edge`. */
+const PELE_GRAPH_TYPES = new Set(['flowchart', 'state', 'class', 'er']);
+
+/** Pele's element for one node or edge of a graph, with what the geometry needs and nothing parsed from ids. */
+export interface PeleGraphNodePart {
+  el: SVGGElement;
+  /** The node's `data-id`, the stable key. Never parsed for endpoints. */
+  key: string;
+  label: string;
+  box: Box;
+}
+
+export interface PeleGraphEdgePart {
+  /** The line of the edge: the first child path that is not a marker. */
+  el: SVGPathElement;
+  /** Arrowheads and other `pele-marker` children, which travel with the line. */
+  markers: SVGElement[];
+  ends: EdgeEnds;
+}
+
+export interface PeleGraphParts {
+  nodes: PeleGraphNodePart[];
+  edges: PeleGraphEdgePart[];
+}
+
+/**
+ * The element's matrix into the root SVG's user space (its viewBox coordinates, the units Pele draws in). A
+ * child's own CTM also carries the viewBox-to-viewport scale, so that scale is divided out here. Every
+ * geometry check uses this one space, so distances are measured in the same units as the drawing.
+ */
+function toUserSpace(svg: SVGSVGElement, el: SVGGraphicsElement): DOMMatrix | null {
+  const root = svg.getCTM();
+  const own = el.getCTM();
+  if (!root || !own) return null;
+  return root.inverse().multiply(own);
+}
+
+/** A box in the root SVG's user space: the element's bounding box, carried through its own transform. */
+function boxInRoot(svg: SVGSVGElement, el: SVGGraphicsElement): Box | null {
+  if (typeof el.getBBox !== 'function' || typeof el.getCTM !== 'function') return null;
+  const bounds = el.getBBox();
+  const matrix = toUserSpace(svg, el);
+  if (!matrix || (bounds.width === 0 && bounds.height === 0)) return null;
+  const corners = [
+    [bounds.x, bounds.y],
+    [bounds.x + bounds.width, bounds.y],
+    [bounds.x, bounds.y + bounds.height],
+    [bounds.x + bounds.width, bounds.y + bounds.height],
+  ].map(([x, y]) => ({ x: matrix.a * x + matrix.c * y + matrix.e, y: matrix.b * x + matrix.d * y + matrix.f }));
+  const xs = corners.map((corner) => corner.x);
+  const ys = corners.map((corner) => corner.y);
+  return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs), bottom: Math.max(...ys) };
+}
+
+/** A point along a path, in the same root user space as `boxInRoot`. */
+function pointInRoot(svg: SVGSVGElement, path: SVGPathElement, distance: number): Point {
+  const local = path.getPointAtLength(distance);
+  const matrix = toUserSpace(svg, path);
+  if (!matrix) return { x: local.x, y: local.y };
+  return { x: matrix.a * local.x + matrix.c * local.y + matrix.e, y: matrix.b * local.x + matrix.d * local.y + matrix.f };
+}
+
+function peleLabel(node: Element): string {
+  for (const label of Array.from(node.querySelectorAll('.pele-label'))) {
+    const text = textOf(label);
+    if (text) return text;
+  }
+  return '';
+}
+
+/**
+ * The nodes and edges of a Pele flowchart, state, class or ER diagram, for the geometry matcher. Other Pele
+ * types have no graph here and return null, so they reveal and focus by their own parts instead.
+ */
+export function peleGraphParts(svg: SVGSVGElement): PeleGraphParts | null {
+  if (!PELE_GRAPH_TYPES.has(diagramType(svg))) return null;
+  const nodes: PeleGraphNodePart[] = [];
+  svg.querySelectorAll<SVGGElement>('g.pele-node[data-id]').forEach((el) => {
+    const box = boxInRoot(svg, el);
+    if (!box) return;
+    nodes.push({ el, key: el.getAttribute('data-id') ?? '', label: peleLabel(el), box });
+  });
+  const edges: PeleGraphEdgePart[] = [];
+  svg.querySelectorAll<SVGGElement>('g.pele-edge').forEach((group) => {
+    const line = Array.from(group.children).find((child): child is SVGPathElement => child.tagName.toLowerCase() === 'path' && !child.classList.contains('pele-marker'));
+    if (!line || typeof line.getTotalLength !== 'function') return;
+    const length = line.getTotalLength();
+    const markers = Array.from(group.querySelectorAll<SVGElement>('.pele-marker'));
+    edges.push({ el: line, markers, ends: { start: pointInRoot(svg, line, 0), end: pointInRoot(svg, line, length) } });
+  });
+  return { nodes, edges };
 }

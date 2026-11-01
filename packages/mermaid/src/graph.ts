@@ -1,3 +1,6 @@
+import { linkEdges } from './geometry.js';
+import { peleGraphParts } from './adapters.js';
+
 /**
  * Graph model of a rendered Mermaid SVG. Mermaid's unified renderer (flowchart, state, class, ER,
  * requirement, mindmap, swimlane) emits `g.nodes > g.node` and `g.edgePaths > path`, and Sankey draws
@@ -20,6 +23,8 @@ export interface MermaidGraphEdge {
   from: number;
   to: number;
   labelEl: SVGGElement | null;
+  /** Arrowheads drawn apart from the line (Pele). They reveal and dim with their edge. Empty for Mermaid. */
+  markers: SVGElement[];
 }
 
 export interface MermaidGraph {
@@ -100,7 +105,45 @@ function nearestNode(boxes: Array<ReturnType<typeof nodeCenterAndBox>>, x: numbe
   return best;
 }
 
+/** Pele output carries the `data-mermaid-engine` marker the post-processor sets, or at least its `pele` root class. */
+function isPeleSvg(svg: SVGSVGElement): boolean {
+  return svg.getAttribute('data-mermaid-engine') === 'pele' || svg.classList.contains('pele');
+}
+
+/** Builds the graph of a Pele flowchart, state, class or ER diagram from geometry. Ids are keys, never endpoints. */
+function buildPeleGraph(svg: SVGSVGElement): MermaidGraph {
+  const parts = peleGraphParts(svg);
+  const nodes: MermaidGraphNode[] = (parts?.nodes ?? []).map((part, index) => ({
+    index,
+    el: part.el,
+    key: part.key,
+    label: part.label,
+  }));
+  const edges: MermaidGraphEdge[] = [];
+  for (const link of linkEdges(
+    parts?.edges.map((edge) => edge.ends) ?? [],
+    parts?.nodes.map((node) => node.box) ?? [],
+  )) {
+    const edge = parts!.edges[link.edge];
+    edges.push({ index: edges.length, el: edge.el, from: link.from, to: link.to, labelEl: null, markers: edge.markers });
+  }
+  return finishGraph(nodes, edges);
+}
+
+/** Per-node adjacency from the edge list. */
+function finishGraph(nodes: MermaidGraphNode[], edges: MermaidGraphEdge[]): MermaidGraph {
+  const out: number[][] = nodes.map(() => []);
+  const inc: number[][] = nodes.map(() => []);
+  edges.forEach((edge) => {
+    out[edge.from].push(edge.index);
+    inc[edge.to].push(edge.index);
+  });
+  return { nodes, edges, out, inc };
+}
+
 export function buildMermaidGraph(svg: SVGSVGElement): MermaidGraph {
+  // The adapter set follows the SVG's origin: Pele's geometry for Pele output, Mermaid's classes otherwise.
+  if (isPeleSvg(svg)) return buildPeleGraph(svg);
   const nodeEls = Array.from(svg.querySelectorAll<SVGGElement>('g.nodes > g.node'));
   const edgeEls = Array.from(svg.querySelectorAll<SVGPathElement>(EDGE_PATHS));
   const nodes: MermaidGraphNode[] = nodeEls.map((el, index) => ({
@@ -147,16 +190,11 @@ export function buildMermaidGraph(svg: SVGSVGElement): MermaidGraph {
       from: ends[0],
       to: ends[1],
       labelEl: labelById.get(dataId)?.closest<SVGGElement>('g.edgeLabel') ?? null,
+      markers: [],
     });
   });
 
-  const out: number[][] = nodes.map(() => []);
-  const inc: number[][] = nodes.map(() => []);
-  edges.forEach((edge) => {
-    out[edge.from].push(edge.index);
-    inc[edge.to].push(edge.index);
-  });
-  return { nodes, edges, out, inc };
+  return finishGraph(nodes, edges);
 }
 
 /**
