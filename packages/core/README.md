@@ -367,11 +367,13 @@ The file follows `schemaVersion: 1`. Fields may be added within version 1. Renam
     "llms": "/llms.txt"
   },
   "analytics": { "googleAnalytics": true, "fiftyOneLa": false, "posthog": true },
-  "features": { "seo": true, "promoto": true, "consent": true }
+  "features": { "seo": true, "promoto": true, "consent": true, "consentMode": "globalRequired" }
 }
 ```
 
 Rules that every writer applies:
+
+- `features.consentMode` is `globalRequired` (every visitor requires consent) or `regional` (the site sets `analytics.consent.regions`) when consent is on, and is absent otherwise. It never holds the country list, the hook name or any identifier. See [Regional analytics consent](#regional-analytics-consent).
 
 - `site.name` comes from the `name` option, then the site's own title, then the home page name, then the URL hostname. `site.description` is omitted when no description exists.
 - `build` holds the same branch, commit, and build time as the footer, with `unknown` for any value that cannot be resolved.
@@ -624,7 +626,7 @@ The vocabulary, the required properties of each event and the value rules live i
 
 Analytics is off until a visitor grants it. With consent on (the default whenever a provider is enabled), Google Analytics, 51LA and PostHog leave only inert `application/json` descriptors in the page. The gate (`@hagicode/hagilight-core/consent-gate`) injects each loader once, after a grant, and nothing from the undecided period is queued or replayed. Consent-off output (`consent` prop `false`, or `analytics.consent.enabled: false` in a framework plugin) keeps the static loaders as before.
 
-- `@hagicode/hagilight-core/consent` (browser-safe): `getConsent()` returns `{ necessary: 'granted', analytics: 'granted' | 'denied' | 'undecided' }`; `setConsent({ analytics })`; `onConsentChange(callback)` returns an unsubscribe function; `openConsentPreferences()` reopens the popup. None of them throw. `configureConsent({ regionHook })` takes an optional region check: returning `false` means consent is not required; any other result or a throw means it is.
+- `@hagicode/hagilight-core/consent` (browser-safe): `getConsent()` returns `{ necessary: 'granted', analytics: 'granted' | 'denied' | 'undecided' }`; `setConsent({ analytics })`; `onConsentChange(callback)` returns an unsubscribe function; `openConsentPreferences()` reopens the popup. None of them throw. `configureConsent({ regionHook })` takes an optional region check: returning `false` means consent is not required; any other result or a throw means it is. The hook may also answer `'required'`, `'notRequired'`, `'unknown'` or a promise of one of these. The regional options are described in [Regional analytics consent](#regional-analytics-consent).
 - Events: `hagilight:consent-change` on `document`, with the new state as `detail`, after each effective change.
 - Storage: cookie `hagicode_consent` (`Domain=.hagicode.com`, `Path=/`, `SameSite=Lax`, `Secure`, 180 days) on hagicode.com hosts only, and localStorage `hagicode:consent` everywhere. The record is `1|granted|<epoch seconds>|<policyVersion>`, expires after 180 days, and a changed policy version asks again. With storage blocked the choice holds for the page session only.
 - `@hagicode/hagilight-core/CookieConsent` (Astro): renders the popup. Pass `providers` (the enabled analytics providers), and optionally `privacyUrl` (an absolute HTTP(S) URL or a `/` path; omitted means no privacy link) and `policyVersion` (1 to 32 letters, digits, dots, underscores or hyphens). Mount it only when a provider is enabled. The popup publishes `--hagilight-consent-clearance` so the banner and footers stay clear of it.
@@ -635,6 +637,89 @@ Analytics is off until a visitor grants it. With consent on (the default wheneve
 Storage names that the details list (and that cleanup removes on withdrawal) are verified in `test/fixtures/consent-sdk-storage.json`: PostHog writes `ph_<key>_posthog` (cookie and localStorage), `__ph_opt_in_out_<key>` and two `ph_<key>_` sessionStorage keys; Google Analytics writes `_ga` and `_ga_<id>`. 51LA's names are not verified yet. Re-verify the SDK names whenever an SDK is upgraded, and update `packages/core/src/consent-gate.ts` and the fixture together.
 
 Withdrawal stops collection: PostHog opts out and its `ph_` entries are removed; GA sets `ga-disable-<id>` and its cookies are removed; any provider that cannot stop in place (51LA always, GA and PostHog until the consent browser check confirms otherwise) reloads the page after the denial is saved.
+
+## Regional analytics consent
+
+Regional mode lets a site start Google Analytics, 51LA and PostHog without a click for visitors whose region does not require consent. It is off unless a site sets `analytics.consent.regions`; without it every visitor requires consent and the output is unchanged. The Starlight, Docusaurus and Astro integrations accept the same options under `analytics.consent`, with the same names, defaults and errors.
+
+### Options
+
+| Option | Default | Values and errors |
+| --- | --- | --- |
+| `regions` | absent (global consent) | `'default'` for the default country set, or an array of upper-case ISO 3166-1 alpha-2 codes that replaces the whole set. `regions` with `enabled: false` fails configuration with an error naming `regions`. |
+| `countryCode` | none | One upper-case ISO code that overrides detection. Requires `regions`. |
+| `regionHook` | none | Name of a function the site defines on `window` (an identifier or dotted path). It returns `'required'`, `'notRequired'`, `'unknown'`, a boolean (`true` required, `false` not required) or a promise of one of these. Requires `regions`. |
+| `settingsEntry` | `'requiredOnly'` | `requiredOnly` shows the footer "Cookie settings" entry only to required and unknown visitors, and while the decision is pending it stays hidden. `always` shows it to every visitor. Requires `regions`. |
+| `sessionReplay` | `'optIn'` | `optIn`: replay stays off in not-required regions until the visitor allows it in the footer. `projectDefault`: replay follows the PostHog project. `off`: replay never runs in not-required regions and no opt-in entry is rendered. Requires `regions`. |
+
+A value of the wrong shape fails configuration with an error naming the option. So does a country code that is not an assigned upper-case ISO code, and a `regionHook` name that is not a valid identifier or dotted path. A regional-only option (`countryCode`, `regionHook`, `settingsEntry`, `sessionReplay`) set without `regions` fails with an error that names the option and says `regions` is required. In the browser an invalid `countryCode` yields `unknown`.
+
+```js
+hagilight({
+  analytics: {
+    consent: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' },
+  },
+});
+```
+
+### Default consent-required countries
+
+`regions: 'default'` requires consent for these countries. This is a product configuration, not a legal determination:
+
+- EU27: AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE
+- EEA: IS LI NO
+- GB, CH, BR
+
+China, South Korea, India and other regions are not in the set. A site-supplied list replaces the whole set. A visitor from a country outside the set does not require consent.
+
+### Resolution order
+
+The decision is resolved at most once per document, and the popup, the footer entries and the gate share the result. Sources are consulted in this order, and a later source never overrides an earlier one that produced a result:
+
+1. The explicit `countryCode`. An invalid value yields `unknown` and no later source is consulted.
+2. The `regionHook`.
+3. The same-origin `/cdn-cgi/trace` endpoint, requested without credentials and without caching, with a 1200 ms timeout. Only the `loc` line is read, and it is accepted only when it is an assigned upper-case ISO code. The IP line is never read, stored or sent, and no request goes to a third-party host.
+4. A coarse fallback from the browser's `Intl` time zone:
+   - required: `Europe/*`, `Atlantic/Reykjavik`, `Arctic/Longyearbyen`, the zones of EU and EEA territories outside Europe (for example `Atlantic/Canary`), Cyprus (`Asia/Nicosia`, `Asia/Famagusta`), `Asia/Istanbul`, the Brazilian zones (for example `America/Sao_Paulo`) and the French outermost-region zones (for example `America/Martinique`, `Indian/Reunion`);
+   - not required: other `America/*`, `Asia/*`, `Australia/*` and `Pacific/*` zones;
+   - unknown: `UTC`, `Etc/*`, other `Africa/*` and `Indian/*` zones, `Antarctica/*`, and empty or unreadable values.
+5. Otherwise `unknown`.
+
+The whole resolution has a 1800 ms deadline. If nothing has answered by then the result is `required`, and a late answer does not change a decision that already resolved. A hook that does not settle before the deadline counts as `unknown`.
+
+### Fail-closed rules
+
+`unknown`, a hook that throws or rejects, a hook that returns an unrecognized value, a timeout, an invalid `countryCode` and an uncertain time zone all require consent. For these visitors the popup appears and no provider loads until the visitor accepts. An explicit `granted` or `denied` record is honored in every region, and a visitor with a valid record does not wait for the decision. A record that has expired (180 days) or whose policy version changed makes the visitor undecided again, so the region rule applies.
+
+### Cloudflare trace dependency and the `www` caveat
+
+`/cdn-cgi/trace` answers only for hostnames proxied through Cloudflare. It was verified on the docs, design and omniroute `hagicode.com` subdomains. `www.hagicode.com` returned no `loc`, so on `www` the time-zone fallback decides, unless the site sets `countryCode` or `regionHook` for exact behavior. When the trace is unavailable, its failed request costs little and the time-zone fallback runs.
+
+### Consent records and Consent Mode
+
+A visitor whose analytics start because of a not-required decision gets no consent record: `getConsent()` still reports `undecided`, and neither the `hagicode_consent` cookie nor the `hagicode:consent` key is written. The record format, the storage names and the 180-day lifetime are unchanged, and an explicit `denied` record blocks analytics in every region. Google Consent Mode and cookieless pings stay off, and no `gtag` consent default is added.
+
+### Session replay opt-in
+
+Session replay belongs to PostHog. In a not-required region with `sessionReplay: 'optIn'`, the gate calls `set_config({ disable_session_recording: true })` and `stopSessionRecording()` even when the PostHog project enables replay, so no replay data is sent. The footer then offers "Allow session replay", with "Allow session replay" and "Not now" at equal prominence. Allowing it stores an ordinary `granted` record (the same record a popup acceptance stores), starts replay on the current page, and on later visits replay follows the PostHog project setting. "Not now" stores nothing and leaves replay off. A visitor who allows replay is also treated as having granted analytics in general. `projectDefault` skips the replay calls, and `off` renders no entry. The replay hold was verified with the real PostHog SDK in headless Chromium (`test/fixtures/posthog-replay-facts.json`).
+
+### Settings entry
+
+On a regional site the footer "Cookie settings" entry is hidden for not-required visitors by default (`settingsEntry: 'requiredOnly'`). Set `settingsEntry: 'always'` to show it to them. Required and unknown visitors always see it.
+
+### Metadata
+
+`features.consentMode` reports `globalRequired` or `regional` (see [Site metadata file](#site-metadata-file)). The file never contains the country list or the hook name.
+
+### Browser-safe region module
+
+`@hagicode/hagilight-core/consent-region` exports `resolveRegionDecision()`, `startRegionResolution()`, `getRegionDecision()`, `onRegionDecision()`, `DEFAULT_REQUIRED_COUNTRIES`, `isAssignedCountryCode()` and `classifyTimeZone()`. It does not throw and needs no Node or Astro. Where `window` or `fetch` is unavailable, it resolves to `unknown`.
+
+### Measurement discontinuity
+
+For a site that enables regional mode, GA4 and PostHog collection expands again after deployment. Data from then on is a second discontinuity and is not directly comparable with data collected since 2026-10-29. Operators must annotate the deployment date in GA4. In the monorepo, `docs/google-analytics-integration-reference.md` (section 3.2) has the full rules; this package README is published separately and does not link to it.
+
+> **Legal notice:** This feature is product configuration and is not legal advice. The default country set, the inclusion of Brazil and the default hiding of "Cookie settings" for not-required visitors need confirmation by legal counsel. Site privacy notices may need matching updates; this project does not provide their wording.
 
 ## Google Analytics click events
 

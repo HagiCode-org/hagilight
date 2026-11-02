@@ -109,6 +109,40 @@ Docusaurus sends `not_found_viewed` from its 404 page, `code_copied` from its co
 Each provider is independent: disabling Google Analytics and 51LA alone leaves PostHog enabled. Choose one PostHog initialization owner and opt out here if the site already supplies it. The loader initializes once per document, and the supplied SDK defaults own navigation tracking. The head registers the site context (`site_framework` `docusaurus`, the plugin version, and `site_id` from `links.siteId` or the site URL's hostname) once. On every route update, including the first page load, the plugin refreshes only `locale` and `page_type` through `posthog.register`, with `page_type` derived from the path, so the 404 page reports a path-derived type rather than `other`. The analytics client module is bundled whenever PostHog is enabled, even when Google Analytics and 51LA are disabled, so marked links are captured as `cta_click` without Google Analytics. Google Analytics and 51LA keep their navigation behavior.
 
 
+### Regional consent
+
+> Legal notice: this is a product configuration, not legal advice. The default country set, Brazil's inclusion and the default hiding of "Cookie settings" for not-required visitors need confirmation by counsel, and site privacy notices may need matching updates. The `features.consentMode` metadata reports `globalRequired` or `regional`.
+
+Regional consent starts analytics without a click for visitors whose country does not require consent. It is off unless `analytics.consent.regions` is set. Without it every visitor sees the popup first, and the output is unchanged.
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `regions` | absent (global consent) | `'default'` for the built-in country set, or an array of upper-case ISO 3166-1 alpha-2 codes that replaces it. Setting it enables regional mode. |
+| `countryCode` | none | One upper-case ISO code that overrides detection. Needs `regions`. |
+| `regionHook` | none | Name of a function on `window`, such as `"siteRegion"`. It returns `'required'`, `'notRequired'`, `'unknown'`, a boolean, or a promise of one of these. Needs `regions`. |
+| `settingsEntry` | `'requiredOnly'` | `'always'` shows the footer "Cookie settings" entry to every visitor. Needs `regions`. |
+| `sessionReplay` | `'optIn'` | `'projectDefault'` lets replay follow the PostHog project. `'off'` removes the replay entry. Needs `regions`. |
+
+```js
+hagilightDocusaurus({
+  analytics: { consent: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' } },
+});
+```
+
+Invalid values fail at configuration time with a `TypeError` that names the option. The messages come from the core validator, so they match the Starlight and Astro integrations. A regional-only option without `regions` fails, and so does `regions` with `enabled: false`.
+
+**Default country set.** `'default'` requires consent for the EU27, the EEA (IS, LI, NO), GB, CH and BR. This is a product configuration, not a legal determination. A list replaces the whole set.
+
+**Sources.** The decision uses the first answer from: `countryCode`, `regionHook`, the same-origin `/cdn-cgi/trace` endpoint (only its `loc` line is read, with a 1200 ms timeout), and a coarse time-zone fallback. The whole decision has a 1800 ms deadline. It is resolved once per document, so client-side navigation does not resolve it again, and each provider starts once.
+
+**Fail-closed.** `unknown` requires consent: no country, an unrecognized hook result, a timeout, an invalid `countryCode`, or an uncertain time zone. The popup appears, and no provider loads until the visitor accepts.
+
+**Cloudflare trace and `www`.** `/cdn-cgi/trace` answers only for hostnames proxied through Cloudflare. `www.hagicode.com` returned no `loc` when verified, so on a `www` host the time-zone fallback decides unless `countryCode` or `regionHook` is set.
+
+**Session replay.** With `sessionReplay: 'optIn'`, a not-required visitor gets replay off and an "Allow session replay" footer entry. Replay stays off until the visitor allows it. The settings and replay entries belong to the Hagilight footer, so `footer: { enabled: false }` removes them.
+
+Google Consent Mode and cookieless pings stay off, and no `gtag` consent default is added. Turning regional mode on changes what GA4 and PostHog collect, so annotate the deployment date in GA4.
+
 ### SEO
 
 - `seo.image` is an absolute HTTP(S) URL or a site-root path. When it is unset, `themeConfig.image` is the fallback sharing image.
@@ -194,4 +228,4 @@ The demo site for this package lives in the monorepo at `examples/demo-docusauru
 
 ### Consent
 
-`analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) mirrors the Starlight option. With consent on, providers leave inert descriptors in the head, the client module mounts the popup and gate, PostHog's click sink installs only after a grant, and the swizzled footer shows the localized "Cookie settings" entry. The popup styles ship in `consent.css`. `enabled: false` restores immediate loading.
+`analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) mirrors the Starlight option. With consent on, providers leave inert descriptors in the head, the client module mounts the popup and gate, PostHog's click sink installs only after a grant, and the swizzled footer shows the localized "Cookie settings" entry. The popup styles ship in `consent.css`. `enabled: false` restores immediate loading. Regional options (`regions` and the four related options) are under [Regional consent](#regional-consent).

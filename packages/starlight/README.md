@@ -190,3 +190,30 @@ See the [repository documentation](https://github.com/HagiCode-org/hagilight#rea
 ### Consent
 
 `analytics.consent` (`enabled`, `privacyUrl`, `policyVersion`) is on by default whenever a provider is enabled. The plugin mounts the popup through its generated Footer and Head, on every page including 404, and passes `consent` to the Google Analytics, 51LA and PostHog components. `enabled: false` restores immediate loading; invalid `privacyUrl` or `policyVersion` values fail with the option named. See the core README, "Analytics consent", for the storage names and rules.
+
+#### Regional consent
+
+Set `analytics.consent.regions` to let visitors outside the consent-required countries start analytics without a click. Without it every visitor sees the popup and the output is unchanged. All options sit under `analytics.consent`, with the same names, defaults and errors as the Docusaurus and Astro integrations:
+
+| Option | Default | Values and errors |
+| --- | --- | --- |
+| `regions` | absent (global consent) | `'default'`, or a non-empty array of upper-case ISO 3166-1 alpha-2 codes that replaces the default set. Other values fail with an error naming `analytics.consent.regions`, which also fails when `enabled` is `false`. |
+| `countryCode` | none | One upper-case ISO code that skips detection. Needs `regions`. |
+| `regionHook` | none | Name of a function on `window` that returns `'required'`, `'notRequired'`, `'unknown'`, a boolean or a promise of one of these. Needs `regions`. |
+| `settingsEntry` | `'requiredOnly'` | `always` also shows Cookie settings to visitors who do not need consent. Needs `regions`. |
+| `sessionReplay` | `'optIn'` | `projectDefault` follows the PostHog project. `off` never runs replay in these regions and renders no entry. Needs `regions`. |
+
+A regional-only option set without `regions` fails with an error that names the option and says `regions` is required.
+
+```js
+hagilight({ analytics: { consent: { regions: 'default' } } });
+hagilight({ analytics: { consent: { regions: ['DE', 'FR'], settingsEntry: 'always' } } });
+```
+
+The default consent-required set is the EU27 (AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE), the EEA (IS LI NO), GB, CH and BR. It is a product configuration, not legal advice, and needs confirmation by counsel. A site list replaces it entirely.
+
+Resolution runs in this order: `countryCode`, `regionHook`, the same-origin `/cdn-cgi/trace` `loc` line (1200 ms timeout, no credentials, the IP line is never read), then a time-zone fallback. The whole decision is bounded by 1800 ms. **Fail-closed:** an unknown location, a failing hook, a timeout or an invalid code means consent is required, so the popup appears and no provider loads until the visitor accepts.
+
+`/cdn-cgi/trace` answers only for hostnames proxied through Cloudflare. On `www` it returned no `loc` in verification, so the time-zone fallback decides there unless the site sets `countryCode` or `regionHook`.
+
+With `sessionReplay: 'optIn'`, replay stays off in not-required regions until the visitor allows it from the footer entry "Allow session replay". Google Consent Mode and cookieless pings stay off in every region.
