@@ -37,6 +37,8 @@ const REQUIRED_FILES = {
     'dist/consent-popup.d.ts',
     'dist/consent-markup.js',
     'dist/consent-markup.d.ts',
+    'dist/consent-region.js',
+    'dist/consent-region.d.ts',
     'dist/consent-copy/index.js',
     'dist/consent-copy/index.d.ts',
     'CookieConsent.astro',
@@ -118,6 +120,8 @@ const REQUIRED_FILES = {
     'dist/integration.d.ts',
     'dist/rss-middleware.js',
     'dist/rss-runtime.js',
+    'dist/consent-middleware.js',
+    'dist/consent-middleware.d.ts',
   ],
   '@hagicode/hagilight-starlight': [
     'SEOHead.astro',
@@ -150,6 +154,19 @@ const REQUIRED_FILES = {
     'dist/showcase.js',
     'dist/windows-download.js',
     'dist/article-promotion-copy/index.js',
+  ],
+};
+
+// Subpaths the integrations import from and consumers may import directly; each must stay exported.
+const REQUIRED_EXPORTS = {
+  '@hagicode/hagilight-core': [
+    './consent',
+    './consent-copy',
+    './consent-region',
+    './consent-markup',
+    './consent-gate',
+    './consent-popup',
+    './consent-mount',
   ],
 };
 
@@ -222,6 +239,9 @@ for (const [index, { name, directory }] of PACKAGES.entries()) {
   }
   for (const file of FORBIDDEN_FILES[name] ?? []) {
     if (files.has(file)) throw new Error(`${name} must not ship the retired ${file}`);
+  }
+  for (const subpath of REQUIRED_EXPORTS[name] ?? []) {
+    if (!manifest.exports?.[subpath]) throw new Error(`${name} must export ${subpath}`);
   }
   if (EXPECTED_EXPORTS[name] && JSON.stringify(Object.keys(manifest.exports)) !== JSON.stringify(EXPECTED_EXPORTS[name])) {
     throw new Error(`${name} must export exactly ${EXPECTED_EXPORTS[name].join(', ')}`);

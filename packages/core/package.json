@@ -25,6 +25,10 @@
       "types": "./dist/consent-copy/index.d.ts",
       "default": "./dist/consent-copy/index.js"
     },
+    "./consent-region": {
+      "types": "./dist/consent-region.d.ts",
+      "default": "./dist/consent-region.js"
+    },
     "./consent-markup": {
       "types": "./dist/consent-markup.d.ts",
       "default": "./dist/consent-markup.js"

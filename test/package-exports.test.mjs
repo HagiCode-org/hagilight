@@ -18,7 +18,8 @@ const expectedExports = {
   '@hagicode/hagilight-core/consent-gate': ['installConsentGate', 'mountConsentGate', 'readDescriptors', 'onPostHogStarted'],
   '@hagicode/hagilight-core/consent-mount': ['readConsentConfig', 'mountConsent', 'consentHeadScript'],
   '@hagicode/hagilight-core/consent-popup': ['mountConsentPopup', 'CONSENT_CLEARANCE_PROPERTY'],
-  '@hagicode/hagilight-core/consent-markup': ['renderConsentMarkup', 'consentDescriptor', 'validatePrivacyUrl', 'validatePolicyVersion', 'CONSENT_DESCRIPTOR_ID'],
+  '@hagicode/hagilight-core/consent-region': ['DEFAULT_REQUIRED_COUNTRIES', 'isAssignedCountryCode', 'classifyTimeZone', 'resolveRegionDecision', 'startRegionResolution', 'getRegionDecision', 'onRegionDecision', 'pageRegionSource', 'parseTraceCountry', 'TRACE_TIMEOUT_MS', 'RESOLUTION_DEADLINE_MS'],
+  '@hagicode/hagilight-core/consent-markup': ['renderConsentMarkup', 'consentDescriptor', 'validatePrivacyUrl', 'validatePolicyVersion', 'CONSENT_DESCRIPTOR_ID', 'resolveRegionalOptions', 'validateRegions', 'validateCountryCode', 'validateHookName', 'validateSettingsEntry', 'validateSessionReplay'],
   '@hagicode/hagilight-core/consent': ['getConsent', 'setConsent', 'onConsentChange', 'openConsentPreferences', 'configureConsent', 'isConsentRequired', 'parseConsentRecord', 'formatConsentRecord', 'decisionFromRecord', 'CONSENT_CHANGE_EVENT', 'CONSENT_PREFERENCES_EVENT'],
   '@hagicode/hagilight-core/splash-images': [
     'SPLASH_IMAGE_DEFAULTS',
@@ -45,6 +46,7 @@ const expectedExports = {
     'SITE_METADATA_SCHEMA_VERSION',
     'buildSiteMetadata',
     'detectAnalyticsLoaders',
+    'detectConsentMode',
     'resolveSiteMetadataOption',
     'serializeSiteMetadata',
     'validateSiteMetadata',
