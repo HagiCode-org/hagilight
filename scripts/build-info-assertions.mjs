@@ -44,3 +44,26 @@ export function verifyBuildInfo(html, label) {
   assert.equal(info.builtAt.text, `Built: ${datetime}`, `${label} shows the build time`);
   return info;
 }
+
+/**
+ * Checks the consent fields of `.well-known/hagilight.metadata.json`. `consentMode` is absent when consent is off, and
+ * `globalRequired` or `regional` otherwise. A regional file never names its countries, its hook or its country code.
+ */
+export function verifyConsentMetadata(metadata, label, { enabled, regional } = {}) {
+  const features = metadata.features ?? {};
+  assert.equal(features.consent, enabled, `${label} metadata consent flag matches the popup`);
+  if (!enabled) {
+    assert.equal(features.consentMode, undefined, `${label} metadata has no consentMode when consent is off`);
+    return;
+  }
+  assert.equal(features.consentMode, regional === undefined ? 'globalRequired' : 'regional', `${label} metadata consentMode`);
+  if (regional === undefined) return;
+  const text = JSON.stringify(metadata);
+  for (const key of ['regions', 'countryCode', 'regionHook']) {
+    assert.ok(!text.includes(`"${key}"`), `${label} metadata omits ${key}`);
+  }
+  if (regional.regionHook !== undefined) assert.ok(!text.includes(regional.regionHook), `${label} metadata omits the region hook name`);
+  if (Array.isArray(regional.regions)) {
+    for (const code of regional.regions) assert.ok(!text.includes(`"${code}"`), `${label} metadata omits country ${code}`);
+  }
+}

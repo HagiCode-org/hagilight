@@ -67,6 +67,16 @@ const {
   fallback,
 } = Astro.props;
 const isChinese = locale === 'zh-CN';
+// The hand-written popup must describe the same consent setup as the integration: HAGILIGHT_EXAMPLE_CONSENT_REGIONS
+// selects the regional variant, which the astro.config.mjs also reads.
+const consentRegions = process.env.HAGILIGHT_EXAMPLE_CONSENT_REGIONS;
+const regional = consentRegions === undefined
+  ? undefined
+  : {
+    regions: consentRegions === 'default' ? 'default' as const : consentRegions.split(',').map((code) => code.trim()),
+    settingsEntry: 'requiredOnly' as const,
+    sessionReplay: 'optIn' as const,
+  };
 const site = Astro.site?.href;
 if (!site) throw new Error('The Hagilight core demo requires an absolute Astro site URL.');
 
@@ -199,7 +209,7 @@ const structuredData = [
 
     <div id="footer-preview">
       <Footer locale={locale} consent={true} />
-      <CookieConsent providers={['posthog']} privacyUrl={undefined} locale={locale} />
+      <CookieConsent providers={['posthog']} privacyUrl={undefined} locale={locale} regional={regional} />
     </div>
   </body>
 </html>

@@ -7,8 +7,16 @@ import { fileURLToPath } from 'node:url';
 import { resolveSiteLinks, withCampaignUtm } from '@hagicode/hagilight-core/links';
 import { COPY } from '../packages/starlight/dist/article-promotion.js';
 import { resolveMicrosoftStoreBadgeLanguage } from '../packages/starlight/dist/windows-download.js';
-import { verifyBuildInfo } from './build-info-assertions.mjs';
-import { verifyConsentPage, verifyPostHog, verifyPostHogInteractions, verifyPromotoAnalytics } from './posthog-assertions.mjs';
+import { verifyBuildInfo, verifyConsentMetadata } from './build-info-assertions.mjs';
+import {
+  readConsentDescriptor,
+  verifyConsentDescriptor,
+  verifyConsentEntries,
+  verifyConsentPage,
+  verifyPostHog,
+  verifyPostHogInteractions,
+  verifyPromotoAnalytics,
+} from './posthog-assertions.mjs';
 
 const sharp = createRequire(import.meta.resolve('astro/package.json'))('sharp');
 
@@ -18,12 +26,37 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const EXAMPLE_IMAGE_CACHE = join(root, 'examples/demo-starlight-web/node_modules/.astro/assets');
 // Inside the project so Astro can rename assets into outDir; a tmpdir can sit on another device (EXDEV).
 const EXAMPLE_OUTPUT_ROOT = join(root, 'examples/demo-starlight-web/node_modules/.hagilight-variants');
+// Each example reads HAGILIGHT_EXAMPLE_CONSENT_REGIONS and builds its regional consent variant from it.
+const REGIONAL_VARIANT = { HAGILIGHT_EXAMPLE_CONSENT_REGIONS: 'DE,FR,GB' };
 
 execFileSync(pnpm, ['run', 'build'], {
   cwd: root,
   stdio: 'inherit',
   shell: process.platform === 'win32',
 });
+
+/** The regional options a build's env selects, or undefined for a global build. */
+function expectedRegional(env) {
+  const value = env.HAGILIGHT_EXAMPLE_CONSENT_REGIONS;
+  if (value === undefined) return undefined;
+  return {
+    regions: value === 'default' ? 'default' : value.split(',').map((code) => code.trim()),
+    settingsEntry: 'requiredOnly',
+    sessionReplay: 'optIn',
+  };
+}
+
+function verifyConsentArtifacts(read, pages, label, { enabled, regional }) {
+  verifyConsentMetadata(JSON.parse(read('.well-known/hagilight.metadata.json')), `${label} metadata`, { enabled, regional });
+  for (const file of pages) {
+    const html = read(file);
+    if (enabled) verifyConsentDescriptor(readConsentDescriptor(html, `${label} ${file}`), `${label} ${file}`, regional);
+    verifyConsentEntries(html, `${label} ${file}`, enabled ? regional : undefined);
+  }
+  if (enabled && regional !== undefined) {
+    assert.ok(pages.some((file) => read(file).includes('data-consent-entry="settings"')), `${label} renders the regional settings entry`);
+  }
+}
 
 function build(env, outputDir) {
   // A warm image cache makes Astro copy files into dist, which fails intermittently on Windows runners.
@@ -57,6 +90,10 @@ function build(env, outputDir) {
   for (const file of pages) verifyConsentPage(read(file), file, { enabled: env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off' });
   const consentMetadata = JSON.parse(read('.well-known/hagilight.metadata.json'));
   assert.equal(consentMetadata.features.consent, env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off', 'the metadata consent flag matches the popup');
+  verifyConsentArtifacts(read, pages, `Starlight ${outputDir}`, {
+    enabled: env.HAGILIGHT_EXAMPLE_ANALYTICS !== 'off',
+    regional: expectedRegional(env),
+  });
   read.bytes = (filename) => readFileSync(join(outputDir, filename));
   return read;
 }
@@ -83,13 +120,14 @@ function verifySiteMetadataCoexistence(afterStarlight, beforeStarlight) {
   assert.deepEqual(normalize(before), normalize(after));
 }
 
-function buildCoreFooter() {
-  execFileSync(pnpm, ['--filter', 'hagilight-core-footer-example', 'run', 'build'], {
+function buildCoreFooter(env = {}, outputDir = join(root, 'examples/demo-web/dist')) {
+  rmSync(outputDir, { recursive: true, force: true });
+  execFileSync(pnpm, ['--filter', 'hagilight-core-footer-example', 'run', 'build', '--outDir', outputDir], {
     cwd: root,
+    env: { ...process.env, ...env },
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
-  const outputDir = join(root, 'examples/demo-web/dist');
   const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
   const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
   assert.ok(pages.some((file) => file.includes('zh-CN')), 'PostHog checks cover the localized plain-Astro pages');
@@ -98,6 +136,29 @@ function buildCoreFooter() {
     verifyPostHogInteractions(read(file), `plain Astro ${file}`, { searchQuery: 'off' });
   }
   for (const file of pages) verifyConsentPage(read(file), `plain Astro ${file}`, { enabled: true });
+  verifyConsentArtifacts(read, pages, 'plain Astro', { enabled: true, regional: expectedRegional(env) });
+  return read;
+}
+
+// The Docusaurus build is ten locales deep, so it gets a generous heap and its own output directory per variant.
+function buildDocusaurus(env, outputDir) {
+  rmSync(outputDir, { recursive: true, force: true });
+  execFileSync(pnpm, ['--filter', 'hagilight-docusaurus-example', 'run', 'build', '--out-dir', outputDir], {
+    cwd: root,
+    env: {
+      ...process.env,
+      ...env,
+      // The ten-locale build overruns Node's default heap (about 2 GB on CI runners).
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=6144'].filter(Boolean).join(' '),
+    },
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+  const read = (filename) => readFileSync(join(outputDir, filename), 'utf8');
+  const pages = readdirSync(outputDir, { recursive: true }).filter((file) => file.endsWith('.html'));
+  assert.ok(pages.length > 0, 'the Docusaurus build wrote pages');
+  for (const file of pages) verifyConsentPage(read(file), `Docusaurus ${file}`, { enabled: true });
+  verifyConsentArtifacts(read, pages, 'Docusaurus', { enabled: true, regional: expectedRegional(env) });
   return read;
 }
 
@@ -742,17 +803,8 @@ function builtText(dir) {
 }
 // A fresh checkout has no Docusaurus build; build it here rather than trust a leftover directory.
 const DOCUSAURUS_BUILD = join(root, 'examples/demo-docusaurus-web/build');
-rmSync(DOCUSAURUS_BUILD, { recursive: true, force: true });
-execFileSync(pnpm, ['--filter', 'hagilight-docusaurus-example', 'run', 'build'], {
-  cwd: root,
-  env: {
-    ...process.env,
-    // The ten-locale build overruns Node's default heap (about 2 GB on CI runners).
-    NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=6144'].filter(Boolean).join(' '),
-  },
-  stdio: 'inherit',
-  shell: process.platform === 'win32',
-});
+buildDocusaurus({}, DOCUSAURUS_BUILD);
+buildDocusaurus(REGIONAL_VARIANT, join(EXAMPLE_OUTPUT_ROOT, 'docusaurus-regional'));
 verifyPromotoAnalytics(builtText(join(root, 'examples/demo-starlight-web/dist')), 'Starlight example');
 verifyPromotoAnalytics(builtText(DOCUSAURUS_BUILD), 'Docusaurus example');
 const englishHome = readFileSync(join(root, 'examples/demo-starlight-web/dist/index.html'), 'utf8');
@@ -811,6 +863,9 @@ const analyticsOff = build({
   HAGILIGHT_EXAMPLE_ANALYTICS: 'off',
 }, join(EXAMPLE_OUTPUT_ROOT, 'analytics-off'));
 assert.deepEqual(readSiteMetadata(analyticsOff).analytics, { googleAnalytics: false, fiftyOneLa: false, posthog: false });
+// The regional variant: consentMode regional, hidden footer entries and a descriptor that names the regions.
+const starlightRegional = build(REGIONAL_VARIANT, join(EXAMPLE_OUTPUT_ROOT, 'consent-regional'));
+assert.equal(readSiteMetadata(starlightRegional).features.consentMode, 'regional');
 
 const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'disabled');
 const disabledFeeds = build({
@@ -823,6 +878,7 @@ verifyMarkdownPage(disabledFeeds, false);
 verifyMdxPage(disabledFeeds, false);
 const coreFooterFeeds = buildCoreFooter();
 verifyCoreFooterOutput(coreFooterFeeds);
+buildCoreFooter(REGIONAL_VARIANT, join(EXAMPLE_OUTPUT_ROOT, 'core-footer-regional'));
 for (const page of ['en-US/index.html', 'zh-CN/index.html']) verifyBuildInfo(coreFooterFeeds(page), `core footer ${page}`);
 verifyMarkdownPictures(coreFooterFeeds);
 assert.deepEqual(showcaseFilesIn(CORE_DIST), [], 'the core-only demo emits no showcase image');

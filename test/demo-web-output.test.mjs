@@ -231,7 +231,7 @@ test('built page heads contain route metadata, truthful JSON-LD, RSS discovery, 
   }
   assert.match(config, /import \{ hagilight, hagilightFavicon \} from '@hagicode\/hagilight\/integration'/u);
   assert.match(config, /hagilightFavicon\(\)/u);
-  assert.match(config, /hagilight\(\{ rss: \{ getFeed: '\.\/src\/rss-feed\.ts' \} \}\)/u);
+  assert.match(config, /hagilight\(\{ rss: \{ getFeed: '\.\/src\/rss-feed\.ts' \}/u);
 });
 
 test('integration feeds keep English and Chinese metadata, items, and links separate', () => {

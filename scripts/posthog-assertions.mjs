@@ -99,6 +99,87 @@ export function verifyConsentPage(html, label, { enabled }) {
   }
 }
 
+const CONSENT_CONFIG_TAG = /<script\b([^>]*\bid="hagilight-consent-config"[^>]*)>([\s\S]*?)<\/script>/gu;
+const REGIONAL_KEYS = ['mode', 'regions', 'countryCode', 'regionHook', 'settingsEntry', 'sessionReplay'];
+
+/**
+ * The parsed consent descriptor of one built page. It is read from the page and from the markup the plain-Astro head
+ * inserts, where a page may carry a copy in both places. Every copy must be inert JSON and must agree on everything
+ * but `locale`: the head copy is written once per site, so its locale is the default one, and the runtime reads the
+ * page locale from `documentElement.lang`. The JSON never executes and is parsed here.
+ */
+export function readConsentDescriptor(html, label) {
+  const tags = [html, ...insertedMarkup(html)].flatMap((markup) => [...markup.matchAll(CONSENT_CONFIG_TAG)]);
+  assert.ok(tags.length >= 1, `${label} carries a consent descriptor`);
+  const descriptors = tags.map(([, attrs, body]) => {
+    assert.match(attrs, /\btype="application\/json"/u, `${label} keeps the consent descriptor inert JSON`);
+    return JSON.parse(body);
+  });
+  const withoutLocale = ({ locale: _locale, ...rest }) => rest;
+  for (const descriptor of descriptors) {
+    assert.deepEqual(withoutLocale(descriptor), withoutLocale(descriptors[0]), `${label} copies of the consent descriptor agree`);
+  }
+  return descriptors[0];
+}
+
+/**
+ * Checks the consent descriptor. `regional` is undefined for a global site, which must carry no regional key at all, or
+ * the options the regional build was given. Defaults apply to the options a build leaves unset.
+ */
+export function verifyConsentDescriptor(descriptor, label, regional) {
+  if (regional === undefined) {
+    for (const key of REGIONAL_KEYS) assert.equal(key in descriptor, false, `${label} global descriptor has no ${key}`);
+    return;
+  }
+  assert.equal(descriptor.mode, 'regional', `${label} descriptor mode is regional`);
+  assert.deepEqual(descriptor.regions, regional.regions, `${label} descriptor lists the configured regions`);
+  assert.equal(descriptor.settingsEntry, regional.settingsEntry, `${label} descriptor settingsEntry`);
+  assert.equal(descriptor.sessionReplay, regional.sessionReplay, `${label} descriptor sessionReplay`);
+  assert.equal(descriptor.countryCode, regional.countryCode, `${label} descriptor countryCode`);
+  assert.equal(descriptor.regionHook, regional.regionHook, `${label} descriptor regionHook`);
+}
+
+function consentEntries(html, attribute) {
+  return [...html.matchAll(/<[a-z][\w-]*\b[^>]*>/giu)]
+    .map(([tag]) => tag)
+    .filter((tag) => new RegExp(`\\s${attribute}(?:=|\\s|/?>)`, 'u').test(tag));
+}
+
+/**
+ * Checks the footer entries and the popup's replay markup of one built page. A global page renders no regional entry and
+ * no replay markup. A regional page renders the Cookie settings entry hidden, and the replay entry hidden as well when
+ * session replay is opt-in; the replay section of the static popup follows the same option.
+ */
+export function verifyConsentEntries(html, label, regional) {
+  const settings = consentEntries(html, 'data-consent-entry').filter((tag) => /\bdata-consent-entry="settings"/u.test(tag));
+  const replay = consentEntries(html, 'data-consent-entry').filter((tag) => /\bdata-consent-entry="replay"/u.test(tag));
+  const replayPopup = html.includes('data-hagilight-consent-replay');
+  const staticPopup = /<section\b[^>]*\bdata-hagilight-consent\b/u.test(html);
+  if (regional === undefined) {
+    assert.equal(consentEntries(html, 'data-consent-entry').length, 0, `${label} renders no regional consent entry`);
+    assert.equal(html.includes('data-consent-mode="replay"'), false, `${label} renders no replay entry`);
+    assert.equal(replayPopup, false, `${label} renders no replay section in the popup`);
+    return;
+  }
+  // A page without a consent footer, such as the RootTransit splash, renders no entry at all; that is allowed.
+  if (!html.includes('data-consent-preferences')) {
+    assert.equal(settings.length + replay.length, 0, `${label} renders no consent entry without a consent footer`);
+    return;
+  }
+  assert.equal(settings.length, 1, `${label} renders one Cookie settings entry for the regional footer`);
+  assert.match(settings[0], /\shidden(?=[\s>=])/u, `${label} hides the Cookie settings entry until the popup reveals it`);
+  if (regional.sessionReplay === 'optIn') {
+    assert.equal(replay.length, 1, `${label} renders one session replay entry`);
+    assert.match(replay[0], /\bdata-consent-mode="replay"/u, `${label} marks the replay entry`);
+    assert.match(replay[0], /\shidden(?=[\s>=])/u, `${label} hides the replay entry until the popup reveals it`);
+  } else {
+    assert.equal(replay.length, 0, `${label} renders no session replay entry`);
+    assert.equal(html.includes('data-consent-mode="replay"'), false, `${label} renders no replay entry`);
+  }
+  // The popup is static markup on Starlight and Docusaurus pages; plain-Astro pages mount it at run time.
+  if (staticPopup) assert.equal(replayPopup, regional.sessionReplay === 'optIn', `${label} replay section follows sessionReplay`);
+}
+
 /**
  * The search option reaches a built page only when it is not the default: `off` (or omitted) adds no config
  * line, and `zero-results` adds exactly one. The interaction observers ship in the bundled scripts, which the

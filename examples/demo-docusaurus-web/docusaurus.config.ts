@@ -4,6 +4,11 @@ import { hagilightDocusaurus } from '@hagicode/hagilight-docusaurus';
 import { i18n } from '@hagicode/hagilight-docusaurus/locales';
 
 const analyticsDisabled = process.env.HAGILIGHT_DEMO_ANALYTICS === 'off';
+// HAGILIGHT_EXAMPLE_CONSENT_REGIONS=default (or a comma-separated list of ISO codes) builds the regional consent variant.
+const consentRegions = process.env.HAGILIGHT_EXAMPLE_CONSENT_REGIONS;
+const regionalConsent = consentRegions === undefined
+  ? {}
+  : { consent: { regions: consentRegions === 'default' ? 'default' as const : consentRegions.split(',').map((code) => code.trim()) } };
 
 const config: Config = {
   title: 'Hagilight for Docusaurus',
@@ -48,6 +53,7 @@ const config: Config = {
         googleAnalytics: { enabled: !analyticsDisabled, measurementId: 'G-EN03FMT2Q4' },
         fiftyOneLa: { enabled: !analyticsDisabled, siteId: 'L6b88a5yK4h2Xnci' },
         ...(analyticsDisabled ? { posthog: { enabled: false } } : {}),
+        ...regionalConsent,
       },
     }),
   ],

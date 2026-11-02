@@ -16,6 +16,14 @@ const discoveryMode = process.env.HAGILIGHT_EXAMPLE_DISCOVERY;
 const discovery = discoveryMode === 'true' || discoveryMode === 'first'
   ? [(await import('@hagicode/hagilight/integration')).hagilight()]
   : [];
+// HAGILIGHT_EXAMPLE_CONSENT_REGIONS=default (or a comma-separated list of ISO codes) builds the regional consent variant.
+const consentRegions = process.env.HAGILIGHT_EXAMPLE_CONSENT_REGIONS;
+const withRegionalConsent = (analytics) => (consentRegions === undefined
+  ? analytics
+  : {
+    ...analytics,
+    consent: { regions: consentRegions === 'default' ? 'default' : consentRegions.split(',').map((code) => code.trim()) },
+  });
 const contentImages = process.env.HAGILIGHT_EXAMPLE_CONTENT_IMAGES === 'off'
   ? { contentImages: { enabled: false } }
   : {};
@@ -47,11 +55,11 @@ export default defineConfig({
         },
         hagicodePromotion: { enabled: process.env.HAGILIGHT_EXAMPLE_PROMOTION !== 'false' },
         promoto: { enabled: true },
-        analytics: process.env.HAGILIGHT_EXAMPLE_ANALYTICS === 'off'
+        analytics: withRegionalConsent(process.env.HAGILIGHT_EXAMPLE_ANALYTICS === 'off'
           ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false }, posthog: { enabled: false } }
           : process.env.HAGILIGHT_VIEWPORT_TEST === 'true'
             ? { googleAnalytics: { enabled: false }, fiftyOneLa: { enabled: false } }
-            : undefined,
+            : undefined),
         aiDisclosures: {
           isAITranslation: true,
           isAIAuthor: true,

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createReadStream } from 'node:fs';
+import { createReadStream, rmSync } from 'node:fs';
 import { access, mkdir } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { execFileSync } from 'node:child_process';
@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+// A regional build of the plain-Astro example: the settings entry is hidden and the Replay entry exists only there.
+const REGIONAL_CORE_DIST = join(root, 'examples/demo-web/node_modules/.hagilight-variants/viewport-consent-regional');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const viewports = [
@@ -61,6 +63,13 @@ function buildExamples() {
       stdio: 'inherit',
     });
   }
+  rmSync(REGIONAL_CORE_DIST, { recursive: true, force: true });
+  execFileSync(pnpm, ['--filter', 'hagilight-core-footer-example', 'run', 'build', '--outDir', REGIONAL_CORE_DIST], {
+    cwd: root,
+    env: { ...process.env, HAGILIGHT_EXAMPLE_CONSENT_REGIONS: 'DE,FR,GB' },
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  });
 }
 
 function serve(directory) {
@@ -606,7 +615,7 @@ async function main() {
     core: await serve(coreDist),
     starlight: await serve(starlightDist),
   };
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.HAGILIGHT_CHROMIUM_EXECUTABLE || undefined });
 
   try {
     for (const viewport of viewports) {
@@ -617,6 +626,20 @@ async function main() {
     await Promise.all(servers.map((server) => new Promise((resolveServer, reject) => {
       server.close((error) => (error ? reject(error) : resolveServer()));
     })));
+  }
+
+  // The consent popup and replay panel are measured on the regional build, in their own process.
+  let consentLayoutFailed = false;
+  try {
+    execFileSync(process.execPath, [fileURLToPath(new URL('./browser/consent-layout.mjs', import.meta.url)), REGIONAL_CORE_DIST, '/en-US/'], {
+      cwd: root,
+      env: process.env,
+      stdio: 'inherit',
+    });
+  } catch {
+    consentLayoutFailed = true;
+    console.error('\nThe consent popup and replay layout check failed (see its lines above).');
+    process.exitCode = 1;
   }
 
   if (failures.length > 0) {
@@ -631,7 +654,7 @@ async function main() {
     return;
   }
 
-  console.log(`\nAll ${viewports.length * routes.length} route/viewport cases passed.`);
+  if (!consentLayoutFailed) console.log(`\nAll ${viewports.length * routes.length} route/viewport cases passed.`);
 }
 
 main().catch(async (error) => {
