@@ -248,6 +248,6 @@ test('feature packages depend on the matching shared core and not on each other'
 test('typed consumer fixtures accept the documented APIs and reject invalid options', () => {
   const tsc = join(root, 'node_modules', 'typescript', 'bin', 'tsc');
   for (const project of ['test/types/tsconfig.json', 'tsconfig.routes.json']) {
-    execFileSync(process.execPath, [tsc, '-p', project], { cwd: root, stdio: 'pipe' });
+    execFileSync(process.execPath, [tsc, '-p', project], { cwd: root, stdio: 'pipe', timeout: 600000, killSignal: 'SIGKILL' });
   }
 });

@@ -15,6 +15,8 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 execFileSync(pnpm, ['run', 'build:core-footer-example'], {
   cwd: root,
   stdio: 'pipe',
+  timeout: 600000,
+  killSignal: 'SIGKILL',
   shell: process.platform === 'win32',
 });
 
@@ -380,6 +382,8 @@ test('sitemap and robots output use the configured base path', () => {
         cwd: root,
         env: { ...process.env, HAGILIGHT_DEMO_BASE: base },
         stdio: 'pipe',
+        timeout: 600000,
+        killSignal: 'SIGKILL',
         shell: process.platform === 'win32',
       });
     }

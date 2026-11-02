@@ -37,6 +37,8 @@ function buildFixture(name, options) {
     cwd: root,
     env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1' },
     stdio: 'pipe',
+    timeout: 600000,
+    killSignal: 'SIGKILL',
   });
   return readFileSync(join(dir, 'dist/index.html'), 'utf8');
 }

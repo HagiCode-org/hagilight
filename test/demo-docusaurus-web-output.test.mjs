@@ -26,6 +26,8 @@ function buildExample(outDir, analytics) {
       NODE_OPTIONS: [process.env.NODE_OPTIONS, '--max-old-space-size=6144'].filter(Boolean).join(' '),
     },
     stdio: 'pipe',
+    timeout: 600000,
+    killSignal: 'SIGKILL',
     shell: process.platform === 'win32',
   });
   return outDir;

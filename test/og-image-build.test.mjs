@@ -12,6 +12,7 @@ const remote = join(fixture, 'remote');
 const variants = join(root, 'node_modules/.hagilight-variants');
 const astroCli = join(root, 'node_modules/astro/bin/astro.mjs');
 const SITE = 'https://og-image.example.test';
+const BUILD_TIMEOUT_MS = 300000;
 
 let imageServer;
 let imageOrigin;
@@ -39,9 +40,17 @@ function runAstro(dir, env) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, [astroCli, 'build', '--root', dir], { cwd: root, env });
     let output = '';
+    // A hung build must fail this test instead of holding the whole run open.
+    const timer = setTimeout(() => {
+      output += `\nastro build killed after ${BUILD_TIMEOUT_MS} ms`;
+      child.kill('SIGKILL');
+    }, BUILD_TIMEOUT_MS);
     child.stdout.on('data', (chunk) => { output += chunk; });
     child.stderr.on('data', (chunk) => { output += chunk; });
-    child.on('close', (status) => resolve({ status, output }));
+    child.on('close', (status) => {
+      clearTimeout(timer);
+      resolve({ status, output });
+    });
   });
 }
 

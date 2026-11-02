@@ -191,6 +191,8 @@ test('real Astro builds keep Starlight as the sole owner', () => {
   execFileSync(pnpm, ['--filter', 'hagilight-example', 'run', 'build'], {
     cwd: repositoryRoot,
     stdio: 'pipe',
+    timeout: 600000,
+    killSignal: 'SIGKILL',
     shell: process.platform === 'win32',
   });
 
