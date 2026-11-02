@@ -10,18 +10,39 @@
  * | PostHog (`phc_qiVV...PER5`, loader from `posthogInitScript`) | `ph_<key>_posthog` (written after the first `capture` on an opted-in page) | `ph_<key>_posthog`, `__ph_opt_in_out_<key>` (opt-out state) | `ph_<key>_session_registered_properties`, `ph_<key>_primary_window_exists` | `opt_out_capturing()` writes the opt-out state; `opt_in_capturing()` not observed; `clear_opt_in_out_capturing()` removes `__ph_opt_in_out_<key>` only. Opt-out is not a cleanup: `ph_` cookie and storage stay and must be removed by the gate. | Documented: opting out stops all capture, autocapture and session replay on the client. Not observed: the harness never let capture reach the network, so `stopInPlace` stays false until the group-10 browser check (10.2) confirms no request after reject. |
  * | Google Analytics (`G-EN03FMT2Q4`, `gtag.js`) | `_ga`, `_ga_<id>` where `<id>` is the measurement ID without the `G-` prefix (`_ga_EN03FMT2Q4`), both set on the page host after `config` | none | none | `window['ga-disable-<id>'] = true` set before `gtag.js` runs: no cookie and no `collect` request. Set after `config` (the in-place case): `collect` requests are still attempted, so the flag does not stop an initialized page in place. | false, reload on withdrawal |
  * | 51LA (`L6b88a5yK4h2Xnci`, `sdk.51.la/js-sdk-pro.min.js`) | not observed: `sdk.51.la` does not resolve from this machine (DNS) | not observed | not observed | task 1.3 is open: the SDK source could not be fetched here, so no stop or consent API is recorded | always reload (hard-coded) |
+ *
+ * PostHog replay under `notRequired` (verified 2026-11-01, real posthog-js 1.444.0 with the shipped loader; fixture
+ * test/fixtures/posthog-replay-facts.json). Queuing `set_config({ disable_session_recording: true })` and
+ * `stopSessionRecording()` right after the loader keeps every `/s/` request silent while events still flow, and a
+ * remote config that arrives 1500 ms late does not re-enable recording. An opt-in (`set_config` false plus
+ * `startSessionRecording()`) starts recording on the same page. So the init-time flag fallback is not used. The probe
+ * needed a non-bot user agent and `navigator.webdriver` false, because posthog-js drops events from headless browsers.
  */
-import { getConsent as readConsent, onConsentChange as subscribeConsent, type ConsentState } from './consent.js';
+import {
+  getConsent as readConsent, onConsentChange as subscribeConsent, regionalBehavior, type ConsentState,
+} from './consent.js';
+import { pageRegionSource, type RegionDecision, type RegionHolder, type RegionSource } from './consent-region.js';
 
 export type GateProvider = 'googleAnalytics' | 'fiftyOneLa' | 'posthog';
+/** `project` follows the PostHog project's recording setting. `off` keeps session replay disabled until a grant. */
+export type ReplayMode = 'project' | 'off';
+/** What started the providers in this document: an explicit record, or a `notRequired` region decision. */
+export type StartReason = 'consent' | 'region';
+export type SessionReplayOption = 'optIn' | 'projectDefault' | 'off';
 
-/** The consent reads and subscriptions the gate uses. The page uses the module functions; tests inject a fake. */
+/** The consent reads, subscriptions and region-replay option the gate uses. The page uses the module functions; tests inject a fake. */
 export interface ConsentApi {
   getConsent: () => ConsentState;
   onConsentChange: (listener: (state: ConsentState) => void) => () => void;
+  /** The session-replay option for `notRequired` starts. Defaults to `optIn`. */
+  sessionReplay?: () => SessionReplayOption;
 }
 
-const moduleConsentApi: ConsentApi = { getConsent: readConsent, onConsentChange: subscribeConsent };
+const moduleConsentApi: ConsentApi = {
+  getConsent: readConsent,
+  onConsentChange: subscribeConsent,
+  sessionReplay: () => regionalBehavior().sessionReplay,
+};
 
 /** The minimal document and window surface the gate touches. Tests pass fakes; the page passes the real globals. */
 export interface GateEnvironment {
@@ -135,12 +156,36 @@ function safeStorage(env: GateEnvironment, kind: 'localStorage' | 'sessionStorag
   }
 }
 
+/** Sets PostHog's session recording through its stub methods. They queue safely before the SDK loads. */
+function setPostHogReplay(env: GateEnvironment, enabled: boolean): void {
+  try {
+    const posthog = (env.window as unknown as { posthog?: PostHogReplayApi }).posthog;
+    if (enabled) {
+      posthog?.set_config?.({ disable_session_recording: false });
+      posthog?.startSessionRecording?.();
+    } else {
+      posthog?.set_config?.({ disable_session_recording: true });
+      posthog?.stopSessionRecording?.();
+    }
+  } catch {
+    // The SDK's stub may be absent in a test page; nothing to change.
+  }
+}
+
+interface PostHogReplayApi {
+  set_config?: (config: object) => void;
+  startSessionRecording?: () => void;
+  stopSessionRecording?: () => void;
+}
+
 /** The provider table. `stopInPlace` is true only where the SDK's stop call is verified; otherwise withdrawal reloads. */
 interface ProviderSpec {
   /** Whether withdrawal may leave the page as it is. False means the gate reloads after persisting the denial. */
   stopInPlace: boolean;
-  start(env: GateEnvironment, descriptors: ProviderDescriptors): void;
+  start(env: GateEnvironment, descriptors: ProviderDescriptors, options: { replay: ReplayMode }): void;
   stop(env: GateEnvironment, descriptors: ProviderDescriptors): void;
+  /** Turns a held replay on after an explicit grant. Only PostHog has replay. */
+  enableReplay?(env: GateEnvironment): void;
 }
 
 const TABLE: Record<GateProvider, ProviderSpec> = {
@@ -186,12 +231,14 @@ const TABLE: Record<GateProvider, ProviderSpec> = {
   },
   posthog: {
     stopInPlace: false,
-    start(env, descriptors) {
+    start(env, descriptors, options) {
       const ph = descriptors.posthog;
       if (!ph) return;
       // A previous opt-out would keep capture off after the grant, so the stored opt-out state is cleared first.
       removeStorageKey(safeStorage(env, 'localStorage'), `__ph_opt_in_out_${ph.apiKey}`);
       injectInline(env, ph.loader);
+      // Replay is switched off right after the loader runs, in the same frame, so the queued calls precede the SDK.
+      if (options.replay === 'off') setPostHogReplay(env, false);
       for (const hook of postGrantHooks) {
         try {
           hook();
@@ -199,6 +246,9 @@ const TABLE: Record<GateProvider, ProviderSpec> = {
           // A failing hook must not stop the others.
         }
       }
+    },
+    enableReplay(env) {
+      setPostHogReplay(env, true);
     },
     stop(env) {
       try {
@@ -227,28 +277,41 @@ function removeStorageKey(storage: Storage | undefined, key: string): void {
 export interface ConsentGate {
   /** The providers this document has started, in the order they started. */
   started(): readonly GateProvider[];
-  /** Removes the subscription. It does not stop providers that are already running. */
+  /** Why the providers started, or undefined before any start. */
+  startReason(): StartReason | undefined;
+  /** Removes the subscriptions. It does not stop providers that are already running. */
   dispose(): void;
 }
 
 /**
- * Starts enabled providers once the visitor grants analytics and stops them on withdrawal. A provider starts at most
- * once per document. Nothing is queued while undecided, and the gate never starts a provider while the decision is
- * denied or undecided. Withdrawal stops each started provider, then reloads if any of them cannot stop in place.
+ * Starts enabled providers and stops them on withdrawal. A provider starts at most once per document, and nothing
+ * starts while the decision is denied. An explicit record starts providers without waiting for the region. An
+ * undecided visitor starts providers only when the region decision is `notRequired`, and then writes no record. The
+ * region decision is awaited only for an undecided visitor. Withdrawal stops each started provider, then reloads if
+ * any of them cannot stop in place.
  */
-export function installConsentGate(env: GateEnvironment, consent: ConsentApi = moduleConsentApi): ConsentGate {
+export function installConsentGate(
+  env: GateEnvironment,
+  consent: ConsentApi = moduleConsentApi,
+  region: RegionSource = pageRegionSource({ holder: env.window as unknown as RegionHolder }),
+): ConsentGate {
   /** Providers running now. Withdrawal empties it. */
   const startedOrder: GateProvider[] = [];
   /** Providers ever started in this document. A provider starts at most once per document, even after a withdrawal. */
   const everStarted = new Set<GateProvider>();
+  /** PostHog started with replay off and has not been granted replay yet. */
+  let replayHeld = false;
+  let reason: StartReason | undefined;
   let descriptors: ProviderDescriptors = readDescriptors(env.document);
 
-  const startAll = (): void => {
+  const startAll = (why: StartReason, replay: ReplayMode): void => {
     for (const provider of PROVIDERS) {
       if (everStarted.has(provider) || !descriptors[provider]) continue;
       everStarted.add(provider);
       startedOrder.push(provider);
-      TABLE[provider].start(env, descriptors);
+      reason ??= why;
+      if (provider === 'posthog' && replay === 'off') replayHeld = true;
+      TABLE[provider].start(env, descriptors, { replay });
     }
   };
 
@@ -259,19 +322,43 @@ export function installConsentGate(env: GateEnvironment, consent: ConsentApi = m
       if (!TABLE[provider].stopInPlace) needsReload = true;
     }
     startedOrder.length = 0;
+    replayHeld = false;
     if (needsReload) env.reload();
   };
 
+  /** An explicit grant turns on a replay that was held, unless the site set replay to stay off. */
+  const enableHeldReplay = (): void => {
+    if (!replayHeld || !startedOrder.includes('posthog') || consent.sessionReplay?.() === 'off') return;
+    replayHeld = false;
+    TABLE.posthog.enableReplay?.(env);
+  };
+
   const apply = (state: ConsentState): void => {
-    if (state.analytics === 'granted') startAll();
-    else if (state.analytics === 'denied' && startedOrder.length > 0) stopAll();
+    if (state.analytics === 'granted') {
+      startAll('consent', 'project');
+      enableHeldReplay();
+    } else if (state.analytics === 'denied' && startedOrder.length > 0) {
+      stopAll();
+    }
+  };
+
+  /** A `notRequired` decision starts the providers only for a visitor with no record. Other decisions do nothing. */
+  const applyRegion = (decision: RegionDecision): void => {
+    if (decision !== 'notRequired') return;
+    if (consent.getConsent().analytics !== 'undecided') return;
+    startAll('region', consent.sessionReplay?.() === 'projectDefault' ? 'project' : 'off');
   };
 
   const unsubscribe = consent.onConsentChange(apply);
   apply(consent.getConsent());
+  const unsubscribeRegion = region.subscribe(applyRegion);
   return {
     started: () => [...startedOrder],
-    dispose: unsubscribe,
+    startReason: () => reason,
+    dispose: () => {
+      unsubscribe();
+      unsubscribeRegion();
+    },
   };
 }
 

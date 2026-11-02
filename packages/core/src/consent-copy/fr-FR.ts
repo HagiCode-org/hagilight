@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Accepté",
   choiceRejected: "Refusé",
   choiceUndecided: "Pas encore choisi",
+  replayEntry: "Autoriser l'enregistrement de session",
+  replayTitle: "Enregistrement de session",
+  replayBody: "L'analyse fonctionne déjà sur cette page. L'enregistrement de session retrace votre utilisation de la page et reste désactivé tant que vous ne l'autorisez pas.",
+  replayAllow: "Autoriser l'enregistrement de session",
+  replayDecline: "Pas maintenant",
 };

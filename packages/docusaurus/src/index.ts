@@ -64,6 +64,7 @@ function analyticsHeadTags(options: ResolvedHagilightOptions, site: DiscoverySit
       providers: options.consent.providers,
       privacyUrl: options.consent.privacyUrl,
       policyVersion: options.consent.policyVersion,
+      regional: options.consent.regional,
     })] : []),
   ];
 }

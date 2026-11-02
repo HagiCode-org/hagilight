@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Aceptado",
   choiceRejected: "Rechazado",
   choiceUndecided: "Aún sin elegir",
+  replayEntry: "Permitir la repetición de sesión",
+  replayTitle: "Repetición de sesión",
+  replayBody: "El análisis ya se ejecuta en esta página. La repetición de sesión registra cómo usas la página y está desactivada hasta que la permitas.",
+  replayAllow: "Permitir la repetición de sesión",
+  replayDecline: "Ahora no",
 };

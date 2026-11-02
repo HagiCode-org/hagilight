@@ -19,4 +19,9 @@ export interface ConsentCopy {
   choiceAccepted: string;
   choiceRejected: string;
   choiceUndecided: string;
+  replayEntry: string;
+  replayTitle: string;
+  replayBody: string;
+  replayAllow: string;
+  replayDecline: string;
 }

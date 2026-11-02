@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "已接受",
   choiceRejected: "已拒绝",
   choiceUndecided: "尚未选择",
+  replayEntry: "允许会话回放",
+  replayTitle: "会话回放",
+  replayBody: "分析已在本页运行。会话回放会记录你如何使用本页，在你允许之前保持关闭。",
+  replayAllow: "允许会话回放",
+  replayDecline: "暂不",
 };

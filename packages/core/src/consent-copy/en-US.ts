@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Accepted",
   choiceRejected: "Rejected",
   choiceUndecided: "Not chosen yet",
+  replayEntry: "Allow session replay",
+  replayTitle: "Session replay",
+  replayBody: "Analytics is already running here. Session replay records how you use this page and stays off until you allow it.",
+  replayAllow: "Allow session replay",
+  replayDecline: "Not now",
 };

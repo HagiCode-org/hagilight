@@ -1,0 +1,29 @@
+{
+  "recorded": "2026-11-01",
+  "method": "Headless Chromium 1248 (Playwright 1.63), shipped posthogInitScript() loader, real posthog-js served from t.hagicode.com/static/array.js (SDK 1.444.0 static assets). Event and recording POSTs to t.hagicode.com stubbed and recorded; no request left the machine. Harness overrides: a non-HeadlessChrome user agent and navigator.webdriver = false, because posthog-js drops every event from a bot-looking browser before any request is made.",
+  "cases": [
+    {
+      "id": "control-no-queued-calls",
+      "description": "Loader only, no replay calls. Recording is on by project default.",
+      "beforeOptIn": { "recordingRequests": 1, "eventRequests": 1, "sessionRecordingStarted": true }
+    },
+    {
+      "id": "1.1-queued-replay-off",
+      "description": "set_config({ disable_session_recording: true }) and stopSessionRecording() queued right after the loader, in the same synchronous frame.",
+      "beforeOptIn": { "recordingRequests": 0, "eventRequests": 1, "sessionRecordingStarted": false }
+    },
+    {
+      "id": "1.1b-queued-replay-off-remote-config-delayed",
+      "description": "As 1.1, with the remote config answer delayed by 1500 ms, to check that a late config does not re-enable recording.",
+      "beforeOptIn": { "recordingRequests": 0, "eventRequests": 1, "sessionRecordingStarted": false }
+    },
+    {
+      "id": "1.2-replay-off-then-opt-in",
+      "description": "As 1.1, then set_config({ disable_session_recording: false }) and startSessionRecording() after the visitor opts in, on the same page.",
+      "beforeOptIn": { "recordingRequests": 0, "eventRequests": 1, "sessionRecordingStarted": false },
+      "afterOptIn": { "recordingRequests": 1, "eventRequests": 0, "sessionRecordingStarted": true }
+    }
+  ],
+  "conclusion": "The queued calls keep /s/ silent while events flow and survive a late remote config. An explicit opt-in starts recording on the same page. The init-time flag fallback (design decision 6) is not needed. Activity matters: the recorder flushes only after DOM or pointer changes, so each case drives mouse moves and DOM mutations before it counts /s/ requests.",
+  "caveat": "One run per case. Re-run the probe before changing the posthog-js version or the loader."
+}

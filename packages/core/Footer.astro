@@ -17,9 +17,13 @@ interface Props {
   randomAvatar?: boolean;
   /** Adds the "Cookie settings" entry. Set only when the site mounts the consent popup. Defaults to `false`. */
   consent?: boolean;
+  /** A regional site: the "Cookie settings" entry is rendered hidden and revealed by the consent popup's decision. */
+  regional?: boolean;
+  /** A regional site with session replay opt-in: renders the replay entry, hidden until the decision reveals it. */
+  replayEntry?: boolean;
 }
 
-const { locale: propLocale, links, buildInfo: propBuildInfo, avatar, randomAvatar, consent = false } = Astro.props;
+const { locale: propLocale, links, buildInfo: propBuildInfo, avatar, randomAvatar, consent = false, regional = false, replayEntry = false } = Astro.props;
 const locale = propLocale ?? Astro.currentLocale ?? 'en-US';
 const footerLinks = resolveRssFooterLinks(Astro.locals, locale, links);
 const buildItems = buildInfoItems(propBuildInfo ?? buildInfoFromLocals(Astro.locals));
@@ -100,7 +104,23 @@ const resolvedLinks = resolveSiteLinks(locale, {
         >{link.label}</a>
       ))}
       {consent && (
-        <button type="button" class="hagilight-footer__consent" data-consent-preferences>{consentCopy.footerEntry}</button>
+        <button
+          type="button"
+          class="hagilight-footer__consent"
+          data-consent-preferences
+          data-consent-entry={regional ? 'settings' : undefined}
+          hidden={regional}
+        >{consentCopy.footerEntry}</button>
+      )}
+      {consent && replayEntry && (
+        <button
+          type="button"
+          class="hagilight-footer__consent"
+          data-consent-preferences
+          data-consent-mode="replay"
+          data-consent-entry="replay"
+          hidden
+        >{consentCopy.replayEntry}</button>
       )}
     </nav>
   </div>
@@ -171,6 +191,10 @@ const resolvedLinks = resolveSiteLinks(locale, {
     border-radius: 0.125rem;
     outline: 2px solid currentColor;
     outline-offset: 0.2rem;
+  }
+
+  .hagilight-footer__consent[hidden] {
+    display: none;
   }
 
   .hagilight-footer__consent {

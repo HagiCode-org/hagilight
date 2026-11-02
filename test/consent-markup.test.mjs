@@ -55,3 +55,96 @@ test('an unsupported page locale renders en-US copy and the descriptor names en-
   assert.match(markup, /Cookies and analytics/u);
   assert.equal(JSON.parse(consentDescriptor({ providers: ['posthog'], locale: 'it-IT' })).locale, 'en-US');
 });
+
+test('the replay opt-in section renders only for a regional site with sessionReplay optIn, with equal actions', () => {
+  const regional = renderConsentMarkup({ providers: ['googleAnalytics', 'posthog'], regional: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' } });
+  assert.match(regional, /data-hagilight-consent-replay hidden>/u);
+  assert.match(regional, /<div class="hagilight-consent__main" data-consent-main>/u);
+  const allow = regional.match(/<button type="button" class="([^"]+)" data-consent-replay-allow>/u);
+  const decline = regional.match(/<button type="button" class="([^"]+)" data-consent-replay-decline>/u);
+  assert.ok(allow && decline, 'both replay actions render');
+  assert.equal(allow[1], decline[1], 'Allow and Not now share one class');
+  assert.match(regional, /Allow session replay/u);
+  assert.match(regional, /Not now/u);
+  assert.doesNotMatch(regional, /data-consent-replay-allow[^>]*>[^<]*<\/button><\/div>[\s\S]*data-consent-replay-decline=/u, 'the actions sit in one row');
+
+  for (const sessionReplay of ['projectDefault', 'off']) {
+    const markup = renderConsentMarkup({ providers: ['googleAnalytics'], regional: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay } });
+    assert.doesNotMatch(markup, /data-hagilight-consent-replay/u, sessionReplay);
+  }
+});
+
+test('a regional site without a privacy URL has no privacy link in the replay section', () => {
+  const markup = renderConsentMarkup({ providers: ['posthog'], regional: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' } });
+  assert.equal((markup.match(/hagilight-consent__privacy/gu) ?? []).length, 0);
+  const withPrivacy = renderConsentMarkup({ providers: ['posthog'], privacyUrl: '/privacy', regional: { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' } });
+  assert.equal((withPrivacy.match(/hagilight-consent__privacy/gu) ?? []).length, 2, 'privacy link in main and replay sections only when configured');
+});
+
+test('a global site renders exactly the markup of the previous release', () => {
+  const markup = renderConsentMarkup({ providers: ['googleAnalytics', 'posthog'] });
+  assert.doesNotMatch(markup, /data-consent-main|data-hagilight-consent-replay/u);
+  assert.match(markup, /^<section class="hagilight-consent" data-hagilight-consent data-state="undecided" role="region" aria-labelledby="hagilight-consent-title" hidden><h2 class="hagilight-consent__title" id="hagilight-consent-title">/u);
+});
+
+// Task 4.1: validators and descriptor for the regional options.
+import { resolveRegionalOptions, validateCountryCode, validateHookName, validateRegions, validateSessionReplay, validateSettingsEntry } from '../packages/core/dist/consent-markup.js';
+
+test('valid regional options resolve with their defaults', () => {
+  assert.deepEqual(resolveRegionalOptions({ regions: 'default' }), { regions: 'default', settingsEntry: 'requiredOnly', sessionReplay: 'optIn' });
+  assert.deepEqual(resolveRegionalOptions({ regions: ['DE', 'FR'], settingsEntry: 'always', sessionReplay: 'off', countryCode: 'DE', regionHook: 'siteRegion' }), {
+    regions: ['DE', 'FR'], countryCode: 'DE', regionHook: 'siteRegion', settingsEntry: 'always', sessionReplay: 'off',
+  });
+  assert.equal(validateRegions('default'), 'default');
+  assert.equal(validateSettingsEntry('always'), 'always');
+  assert.equal(validateSessionReplay('projectDefault'), 'projectDefault');
+  assert.equal(validateHookName('window.site.region'), 'window.site.region');
+});
+
+test('invalid country codes name the option', () => {
+  for (const bad of ['de', 'Germany', 'DEU', 'XX', 'EU', '']) {
+    assert.throws(() => validateCountryCode(bad), /analytics\.consent\.countryCode/u, bad);
+  }
+  for (const bad of [['Germany'], ['de'], [], 'DE']) {
+    assert.throws(() => validateRegions(bad), /analytics\.consent\.regions/u, JSON.stringify(bad));
+  }
+});
+
+test('a hook name that contains code is rejected and names the option', () => {
+  for (const bad of ['x(); alert(1)', 'a-b', '1abc', '', 'window..x', 42]) {
+    assert.throws(() => validateHookName(bad), /analytics\.consent\.regionHook/u, String(bad));
+  }
+});
+
+test('a regional-only option without regions fails and says regions is required', () => {
+  assert.throws(() => resolveRegionalOptions({ countryCode: 'US' }), /analytics\.consent\.countryCode.*regions is required/u);
+  assert.throws(() => resolveRegionalOptions({ sessionReplay: 'off' }), /analytics\.consent\.sessionReplay.*regions is required/u);
+});
+
+test('regions with consent disabled fails and names regions', () => {
+  assert.throws(() => resolveRegionalOptions({ regions: 'default' }, false), /analytics\.consent\.regions/u);
+});
+
+test('an unconfigured site resolves to no regional options and keeps the previous descriptor', () => {
+  assert.equal(resolveRegionalOptions({}), undefined);
+  assert.equal(resolveRegionalOptions(undefined), undefined);
+  assert.equal(
+    consentDescriptor({ providers: ['posthog'], locale: 'en-US' }),
+    '{"policyVersion":"1","privacyUrl":null,"providers":["posthog"],"locale":"en-US"}',
+  );
+});
+
+test('a regional descriptor carries the mode and the regional data, and no executable code', () => {
+  const text = consentDescriptor({
+    providers: ['posthog'],
+    locale: 'en-US',
+    regional: { regions: ['DE'], countryCode: 'DE', regionHook: 'siteRegion', settingsEntry: 'always', sessionReplay: 'optIn' },
+  });
+  const parsed = JSON.parse(text);
+  assert.equal(parsed.mode, 'regional');
+  assert.deepEqual(parsed.regions, ['DE']);
+  assert.equal(parsed.regionHook, 'siteRegion');
+  assert.equal(parsed.settingsEntry, 'always');
+  assert.equal(parsed.sessionReplay, 'optIn');
+  assert.doesNotMatch(text, /function|=>|</u);
+});

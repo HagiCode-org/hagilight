@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Aceita",
   choiceRejected: "Recusada",
   choiceUndecided: "Ainda não escolhida",
+  replayEntry: "Permitir gravação de sessão",
+  replayTitle: "Gravação de sessão",
+  replayBody: "A análise já está em execução nesta página. A gravação de sessão registra como você usa a página e fica desativada até você permitir.",
+  replayAllow: "Permitir gravação de sessão",
+  replayDecline: "Agora não",
 };

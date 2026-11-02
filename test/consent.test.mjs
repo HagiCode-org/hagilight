@@ -311,3 +311,39 @@ test('the policy version comes from the config descriptor and falls back to 1', 
   assert.doesNotThrow(() => fallback.setConsent({ analytics: false }));
   assert.match(browser.values.get(CONSENT_STORAGE_KEY), /\|1$/u);
 });
+
+test('regional options: regions decide through the region module and the legacy hook keeps its meaning', async () => {
+  installBrowser();
+  const consent = await loadFresh();
+  const region = await import('../packages/core/dist/consent-region.js');
+  // The page holder is the fake window, which is where consent.js reads the shared region decision.
+  const env = { href: 'https://docs.hagicode.com/en-US/', holder: globalThis.window, fetch: async () => new Response('loc=US'), timeZone: () => 'UTC' };
+  assert.equal(consent.isConsentRequired(), true, 'no regions and no hook requires consent');
+  assert.deepEqual(consent.regionalBehavior(), { settingsEntry: 'requiredOnly', sessionReplay: 'optIn' });
+
+  consent.configureConsent({ regions: 'default' });
+  assert.equal(consent.isConsentRequired(), true, 'a pending decision requires consent');
+  await region.startRegionResolution(consent.currentRegionConfig(), env);
+  assert.equal(consent.isConsentRequired(), false, 'a resolved notRequired decision does not require consent');
+
+  consent.configureConsent({ regions: ['DE'], countryCode: 'DE', settingsEntry: 'always', sessionReplay: 'off' });
+  assert.deepEqual(consent.currentRegionConfig(), { regions: ['DE'], countryCode: 'DE', regionHook: undefined });
+  assert.deepEqual(consent.regionalBehavior(), { settingsEntry: 'always', sessionReplay: 'off' });
+
+  consent.configureConsent({ regionHook: () => false });
+  const legacy = consent.currentRegionConfig();
+  assert.equal(await region.resolveRegionDecision(legacy, env), 'notRequired', 'legacy false is not required');
+  consent.configureConsent({ regionHook: () => 'notRequired' });
+  assert.equal(await region.resolveRegionDecision(consent.currentRegionConfig(), env), 'required', 'legacy strings other than false are required');
+  consent.configureConsent({ regionHook: () => true });
+  assert.equal(consent.isConsentRequired(), true);
+});
+
+test('regional options ignore unusable values and keep defaults', async () => {
+  installBrowser();
+  const consent = await loadFresh();
+  consent.configureConsent({ regions: 42, settingsEntry: 'sometimes', sessionReplay: 'always', countryCode: 7 });
+  assert.deepEqual(consent.currentRegionConfig(), {});
+  assert.deepEqual(consent.regionalBehavior(), { settingsEntry: 'requiredOnly', sessionReplay: 'optIn' });
+  assert.doesNotThrow(() => consent.configureConsent(null));
+});

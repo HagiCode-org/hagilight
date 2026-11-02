@@ -9,7 +9,12 @@ import { checkContentImageRegistration, registerContentImages } from '@hagicode/
 import { resolveFaviconHeadEntry, type FaviconOptions } from '@hagicode/hagilight-core/favicon';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN, posthogInitScript, type PostHogSiteContext } from '@hagicode/hagilight-core/posthog';
 import { consentHeadScript } from '@hagicode/hagilight-core/consent-mount';
-import { validatePolicyVersion, validatePrivacyUrl } from '@hagicode/hagilight-core/consent-markup';
+import {
+  resolveRegionalOptions,
+  validatePolicyVersion,
+  validatePrivacyUrl,
+  type RegionalPopupOptions,
+} from '@hagicode/hagilight-core/consent-markup';
 import { resolveRssLocales, type RssLocale, type RssLocalesInput } from '@hagicode/hagilight-core/rss';
 import { resolvePlainAstroRssOwner } from '@hagicode/hagilight-core/rss-ownership';
 import { resolveSiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -134,6 +139,8 @@ const VIRTUAL_RSS_CONFIG = 'virtual:hagilight/rss-config';
 const VIRTUAL_RSS_CONFIG_RESOLVED = `\0${VIRTUAL_RSS_CONFIG}`;
 const VIRTUAL_BUILD_INFO = 'virtual:hagilight/build-info';
 const VIRTUAL_BUILD_INFO_RESOLVED = `\0${VIRTUAL_BUILD_INFO}`;
+const VIRTUAL_CONSENT_FOOTER = 'virtual:hagilight/consent-footer';
+const VIRTUAL_CONSENT_FOOTER_RESOLVED = `\0${VIRTUAL_CONSENT_FOOTER}`;
 const PAGE_SOURCE_EXTENSIONS = new Set(['.astro', '.html', '.js', '.jsx', '.md', '.mdx', '.ts', '.tsx']);
 const packageRoot = new URL('../', import.meta.url);
 const routeEntrypoint = (name: string): string => fileURLToPath(new URL(name, packageRoot));
@@ -181,6 +188,7 @@ function resolveConsentOptions(analytics: unknown, posthogEnabled: boolean): {
   enabled: boolean;
   privacyUrl: string | undefined;
   policyVersion: string;
+  regional: RegionalPopupOptions | undefined;
 } {
   const consent = isRecord(analytics) ? analytics.consent : undefined;
   if (consent !== undefined && !isRecord(consent)) {
@@ -189,10 +197,12 @@ function resolveConsentOptions(analytics: unknown, posthogEnabled: boolean): {
   if (consent?.enabled !== undefined && typeof consent.enabled !== 'boolean') {
     throw new TypeError('Hagilight analytics consent enabled option must be a boolean.');
   }
+  // Regional options are validated by the core, so every integration throws the same named error.
   return {
     enabled: posthogEnabled && (consent?.enabled ?? true),
     privacyUrl: validatePrivacyUrl(consent?.privacyUrl),
     policyVersion: validatePolicyVersion(consent?.policyVersion),
+    regional: resolveRegionalOptions(consent, consent?.enabled !== false),
   };
 }
 
@@ -293,10 +303,27 @@ export function hagilight({ enabled = true, rss, contentImages, llms, metadata, 
               const loader = posthogInitScript(posthogApiKey, postHogSiteContext(config.site));
               injectScript('head-inline', consentHeadScript({
                 posthog: { apiKey: posthogApiKey, loader },
-                config: { providers: ['posthog'], privacyUrl: consent.privacyUrl, policyVersion: consent.policyVersion },
+                config: {
+                  providers: ['posthog'],
+                  privacyUrl: consent.privacyUrl,
+                  policyVersion: consent.policyVersion,
+                  regional: consent.regional,
+                },
               }));
               const mountModule = fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/consent-mount'));
               injectScript('page', `import { mountConsent } from ${JSON.stringify(mountModule)};\nmountConsent();`);
+              if (consent.regional) {
+                // The footer reads these per request, so its hidden entries follow the descriptor it was built with.
+                updateConfig({
+                  vite: {
+                    plugins: [createConsentFooterPlugin({
+                      regional: true,
+                      replayEntry: consent.regional.sessionReplay === 'optIn',
+                    })],
+                  },
+                });
+                addMiddleware({ entrypoint: fileURLToPath(new URL('./consent-middleware.js', import.meta.url)), order: 'pre' });
+              }
             } else {
               injectScript('head-inline', posthogInitScript(posthogApiKey, postHogSiteContext(config.site)));
               // The click sink is independent of Google Analytics; it stays silent until window.posthog exists.
@@ -602,6 +629,25 @@ function createVirtualPlugin({ modulePath, site, baseUrl, locales, defaultFeedUr
         '};',
         'export default config;',
       ].join('\n');
+    },
+  };
+}
+
+/** The footer's regional state, read per request by `Footer.astro` through `Astro.locals`. */
+export interface ConsentFooterState {
+  regional: boolean;
+  replayEntry: boolean;
+}
+
+function createConsentFooterPlugin(state: ConsentFooterState) {
+  return {
+    name: '@hagicode/hagilight:consent-footer',
+    resolveId(id: string): string | null {
+      return id === VIRTUAL_CONSENT_FOOTER ? VIRTUAL_CONSENT_FOOTER_RESOLVED : null;
+    },
+    load(id: string): string | null {
+      if (id !== VIRTUAL_CONSENT_FOOTER_RESOLVED) return null;
+      return `export default ${JSON.stringify(state)};`;
     },
   };
 }

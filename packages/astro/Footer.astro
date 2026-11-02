@@ -8,8 +8,12 @@ interface Props extends ComponentProps<typeof CoreFooter> {}
 if (typeof manifest.version !== 'string' || manifest.version.trim().length === 0) {
   throw new Error('@hagicode/hagilight requires a nonempty string version in its package.json.');
 }
+
+// Set per request by the hagilight integration on a regional build. Absent otherwise, so global output is unchanged.
+const consentFromBuild = (Astro.locals as { hagilightConsent?: { regional: boolean; replayEntry: boolean } }).hagilightConsent;
+const { regional = consentFromBuild?.regional, replayEntry = consentFromBuild?.replayEntry, ...props } = Astro.props;
 ---
 
-<CoreFooter {...Astro.props}>
+<CoreFooter {...props} regional={regional} replayEntry={replayEntry}>
   <span slot="attribution">Powered By hagilight@{manifest.version}</span>
 </CoreFooter>

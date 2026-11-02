@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Принято",
   choiceRejected: "Отклонено",
   choiceUndecided: "Пока не выбрано",
+  replayEntry: "Разрешить запись сеанса",
+  replayTitle: "Запись сеанса",
+  replayBody: "Аналитика на этой странице уже работает. Запись сеанса фиксирует, как вы пользуетесь страницей, и выключена, пока вы её не разрешите.",
+  replayAllow: "Разрешить запись сеанса",
+  replayDecline: "Не сейчас",
 };

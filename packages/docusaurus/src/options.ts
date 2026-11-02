@@ -2,9 +2,11 @@ import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { resolveFooterAvatarOptions, type ResolvedFooterAvatarOptions } from '@hagicode/hagilight-core/footer-avatar';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import {
+  resolveRegionalOptions,
   validatePolicyVersion,
   validatePrivacyUrl,
   type ConsentPopupOptions,
+  type RegionalPopupOptions,
 } from '@hagicode/hagilight-core/consent-markup';
 import { isValidSeoImageReference, resolveAbsoluteHttpUrl } from '@hagicode/hagilight-core/seo';
 import { resolveSiteMetadataOption, type SiteMetadataOption } from '@hagicode/hagilight-core/site-metadata';
@@ -41,6 +43,16 @@ export interface ConsentOptions {
   privacyUrl?: string;
   /** Defaults to `1`. Changing it asks every visitor again. */
   policyVersion?: string;
+  /** `default` applies the built-in country set; a list of ISO 3166-1 alpha-2 codes replaces it. Setting it enables regional consent. */
+  regions?: 'default' | readonly string[];
+  /** One ISO 3166-1 alpha-2 code for every visitor. Needs `regions`. */
+  countryCode?: string;
+  /** The name of a function defined on `window`, such as "siteRegion". Needs `regions`. */
+  regionHook?: string;
+  /** `requiredOnly` (default) shows the settings entry only where consent is required. `always` shows it everywhere. Needs `regions`. */
+  settingsEntry?: 'requiredOnly' | 'always';
+  /** `optIn` (default) offers session replay as a separate choice. `projectDefault` or `off` change that. Needs `regions`. */
+  sessionReplay?: 'optIn' | 'projectDefault' | 'off';
 }
 
 export interface ResolvedConsentOptions {
@@ -48,6 +60,8 @@ export interface ResolvedConsentOptions {
   privacyUrl: string | undefined;
   policyVersion: string;
   providers: ConsentPopupOptions['providers'];
+  /** Set only when a regional option is given; its absence keeps the global consent output unchanged. */
+  regional: RegionalPopupOptions | undefined;
 }
 
 export interface PostHogOptions extends FeatureToggle {
@@ -262,10 +276,13 @@ function resolveRss(value: unknown): ResolvedRssOptions {
 function resolveConsent(config: unknown, providers: ConsentPopupOptions['providers']): ResolvedConsentOptions {
   const record = config === undefined ? {} : (objectOption(config, 'analytics.consent') as ConsentOptions);
   const requested = booleanOption(record.enabled, 'analytics.consent.enabled');
+  const enabled = providers.length > 0 && (requested ?? true);
   return {
-    enabled: providers.length > 0 && (requested ?? true),
+    enabled,
     privacyUrl: validatePrivacyUrl(record.privacyUrl),
     policyVersion: validatePolicyVersion(record.policyVersion),
+    // The core validator names each option, so the messages match the Starlight and Astro integrations.
+    regional: resolveRegionalOptions(record as Record<string, unknown>, (record as { enabled?: unknown }).enabled !== false),
     providers,
   };
 }

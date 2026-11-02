@@ -6,6 +6,7 @@
  * never leak into the output. Analytics appears only as on/off booleans.
  */
 import { normalizeBuildInfo, UNKNOWN, type BuildInfo } from './build-info.js';
+import { CONSENT_CONFIG_ID } from './consent.js';
 
 export const SITE_METADATA_SCHEMA_VERSION = 1;
 
@@ -83,6 +84,26 @@ export interface SiteMetadataFeatures {
   readonly promoto?: boolean;
   /** True when the build mounts the consent popup and the analytics gate. */
   readonly consent?: boolean;
+  /** Present only with consent: `globalRequired` for every visitor, or `regional` when the site configured regions. */
+  readonly consentMode?: ConsentMode;
+}
+
+export const CONSENT_MODES = ['globalRequired', 'regional'] as const;
+export type ConsentMode = (typeof CONSENT_MODES)[number];
+
+/**
+ * The consent mode of a built site from its HTML: `undefined` when no page mounts consent, `regional` when a consent
+ * descriptor carries the regional mode, otherwise `globalRequired`. Only the mode leaves this function, never the
+ * country list, the hook name or any identifier.
+ */
+export function detectConsentMode(pages: Iterable<string>): ConsentMode | undefined {
+  let consent = false;
+  for (const html of pages) {
+    if (!html.includes(CONSENT_CONFIG_ID)) continue;
+    consent = true;
+    if (html.includes('"mode":"regional"')) return 'regional';
+  }
+  return consent ? 'globalRequired' : undefined;
 }
 
 export interface SiteMetadata {
@@ -124,7 +145,8 @@ export interface SiteMetadataOption {
 
 const DISCOVERY_KEYS = ['sitemap', 'robots', 'rss', 'llms'] as const;
 const ANALYTICS_KEYS = ['googleAnalytics', 'fiftyOneLa', 'posthog'] as const;
-const FEATURE_KEYS = ['seo', 'promoto', 'consent'] as const;
+const BOOLEAN_FEATURE_KEYS = ['seo', 'promoto', 'consent'] as const;
+const FEATURE_KEYS = ['seo', 'promoto', 'consent', 'consentMode'] as const;
 const TOP_LEVEL_KEYS = ['schemaVersion', 'generator', 'site', 'languages', 'build', 'discovery', 'analytics', 'features'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -190,10 +212,14 @@ export function buildSiteMetadata(input: BuildSiteMetadataInput): SiteMetadata {
     if (typeof value === 'string' && value.startsWith('/')) discovery[key] = value;
   }
 
+  const consentMode = input.features?.consent === true && (CONSENT_MODES as readonly unknown[]).includes(input.features?.consentMode)
+    ? input.features?.consentMode
+    : undefined;
   const features: SiteMetadataFeatures = {
     ...(typeof input.features?.seo === 'boolean' ? { seo: input.features.seo } : {}),
     ...(typeof input.features?.promoto === 'boolean' ? { promoto: input.features.promoto } : {}),
     ...(typeof input.features?.consent === 'boolean' ? { consent: input.features.consent } : {}),
+    ...(consentMode === undefined ? {} : { consentMode }),
   };
 
   return {
@@ -271,8 +297,11 @@ export function validateSiteMetadata(value: unknown): readonly string[] {
   }
 
   const features = isRecord(value.features) ? value.features : {};
-  for (const key of FEATURE_KEYS) {
+  for (const key of BOOLEAN_FEATURE_KEYS) {
     if (features[key] !== undefined && typeof features[key] !== 'boolean') problems.push(`features.${key} must be a boolean`);
+  }
+  if (features.consentMode !== undefined && !(CONSENT_MODES as readonly unknown[]).includes(features.consentMode)) {
+    problems.push('features.consentMode must be globalRequired or regional');
   }
   return problems;
 }

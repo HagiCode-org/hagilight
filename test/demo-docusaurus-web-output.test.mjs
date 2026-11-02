@@ -106,7 +106,7 @@ test('the metadata file is written once by the default locale build, lists every
   assert.equal(metadata.analytics.fiftyOneLa, home.includes('data-hagilight-analytics="fiftyOneLa"'));
   assert.equal(metadata.analytics.posthog, home.includes('data-hagilight-analytics="posthog"'));
   assert.deepEqual(metadata.analytics, { googleAnalytics: true, fiftyOneLa: true, posthog: true });
-  assert.deepEqual(metadata.features, { seo: true, promoto: true, consent: true });
+  assert.deepEqual(metadata.features, { seo: true, promoto: true, consent: true, consentMode: 'globalRequired' });
 });
 
 test('the analytics-disabled build reports every analytics flag false', () => {

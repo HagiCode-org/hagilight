@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "허용됨",
   choiceRejected: "거부됨",
   choiceUndecided: "아직 선택하지 않음",
+  replayEntry: "세션 리플레이 허용",
+  replayTitle: "세션 리플레이",
+  replayBody: "이 페이지에서는 분석이 이미 실행되고 있습니다. 세션 리플레이는 페이지 사용 방식을 기록하며, 허용하기 전까지 꺼져 있습니다.",
+  replayAllow: "세션 리플레이 허용",
+  replayDecline: "나중에",
 };

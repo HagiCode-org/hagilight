@@ -227,3 +227,182 @@ test('nothing from the undecided period is buffered into the page after the gran
   gaScript.fire('load');
   assert.deepEqual(browser.win.dataLayer.map((entry) => entry[0]), ['js', 'config']);
 });
+
+// Regional start (tasks 3.1 to 3.3). The region is a fake source; the consent fake never writes a record.
+function fakeRegion(initial = 'pending') {
+  let current = initial;
+  const listeners = new Set();
+  return {
+    source: {
+      current: () => current,
+      subscribe: (listener) => {
+        if (current !== 'pending') listener(current);
+        else listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    },
+    resolve(decision) {
+      current = decision;
+      for (const listener of [...listeners]) listener(decision);
+      listeners.clear();
+    },
+  };
+}
+
+/** A consent fake with a chosen region replay option. It records every call that could write a choice. */
+function fakeConsentWithReplay(initial = 'undecided', sessionReplay = 'optIn') {
+  const consent = fakeConsent(initial);
+  return { ...consent, api: { ...consent.api, sessionReplay: () => sessionReplay } };
+}
+
+/** A PostHog stub that records its calls, as the queued stub methods would. */
+function recordingPostHog() {
+  const calls = [];
+  const record = (name) => (...args) => calls.push([name, ...args]);
+  return {
+    calls,
+    posthog: {
+      set_config: (config) => calls.push(['set_config', config]),
+      startSessionRecording: record('startSessionRecording'),
+      stopSessionRecording: record('stopSessionRecording'),
+      opt_out_capturing: record('opt_out_capturing'),
+    },
+  };
+}
+
+test('an explicit granted record starts the providers without waiting for the region decision', () => {
+  const browser = fakeBrowser();
+  const region = fakeRegion('pending');
+  const gate = installConsentGate(browser.env, fakeConsent('granted').api, region.source);
+  assert.deepEqual(gate.started(), ['googleAnalytics', 'fiftyOneLa', 'posthog']);
+  assert.equal(gate.startReason(), 'consent');
+});
+
+test('a denied record beats a notRequired region and starts nothing', () => {
+  const browser = fakeBrowser();
+  const region = fakeRegion('notRequired');
+  const gate = installConsentGate(browser.env, fakeConsent('denied').api, region.source);
+  assert.deepEqual(gate.started(), []);
+  assert.equal(browser.appended.length, 0);
+});
+
+test('an undecided visitor waits while the region is pending and starts nothing for required or unknown', () => {
+  for (const decision of ['required', 'unknown']) {
+    const browser = fakeBrowser();
+    const region = fakeRegion('pending');
+    const gate = installConsentGate(browser.env, fakeConsent('undecided').api, region.source);
+    region.resolve(decision);
+    assert.deepEqual(gate.started(), [], decision);
+    assert.equal(browser.appended.length, 0, decision);
+  }
+});
+
+test('a notRequired region starts every enabled provider once and writes no record', () => {
+  const browser = fakeBrowser();
+  const region = fakeRegion('pending');
+  const consent = fakeConsentWithReplay('undecided');
+  const gate = installConsentGate(browser.env, consent.api, region.source);
+  region.resolve('notRequired');
+  assert.deepEqual(gate.started(), ['googleAnalytics', 'fiftyOneLa', 'posthog']);
+  assert.equal(gate.startReason(), 'region');
+  assert.equal(scriptsWithSource(browser.appended, `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`).length, 1);
+  assert.equal(browser.jar.size, 0, 'no cookie is written');
+  assert.equal(browser.win.localStorage.has('hagicode:consent'), false, 'no localStorage record is written');
+  assert.equal(consent.api.getConsent().analytics, 'undecided');
+});
+
+test('a notRequired region resolved before the gate is installed still starts once', () => {
+  const browser = fakeBrowser();
+  const gate = installConsentGate(browser.env, fakeConsent('undecided').api, fakeRegion('notRequired').source);
+  assert.deepEqual(gate.started(), ['googleAnalytics', 'fiftyOneLa', 'posthog']);
+});
+
+test('a region start never restarts in the same document, even when the region reports again', () => {
+  const browser = fakeBrowser();
+  const region = fakeRegion('pending');
+  installConsentGate(browser.env, fakeConsent('undecided').api, region.source);
+  region.resolve('notRequired');
+  region.resolve('notRequired');
+  assert.equal(scriptsWithSource(browser.appended, 'https://www.googletagmanager.com/').length, 1);
+  assert.equal(browser.appended.filter((element) => element.textContent === PH_LOADER).length, 1);
+});
+
+test('withdrawal after a region start stops the providers, reloads for GA and 51LA, and never restarts them', () => {
+  const opted = { optOut: 0 };
+  const browser = fakeBrowser({
+    cookies: { _ga: 'GA1.1' },
+    posthog: { opt_out_capturing: () => { opted.optOut += 1; } },
+  });
+  const region = fakeRegion('pending');
+  const consent = fakeConsent('undecided');
+  installConsentGate(browser.env, consent.api, region.source);
+  region.resolve('notRequired');
+  consent.set('denied');
+  assert.equal(opted.optOut, 1);
+  assert.equal(browser.jar.has('_ga'), false);
+  assert.equal(browser.reloads.count, 1);
+  consent.set('granted');
+  assert.equal(scriptsWithSource(browser.appended, 'https://www.googletagmanager.com/').length, 1, 'no restart in this document');
+});
+
+test('gtag, dataLayer and consent calls are absent while a visitor is pending or required', () => {
+  for (const decision of ['pending', 'required']) {
+    const browser = fakeBrowser();
+    const region = fakeRegion('pending');
+    installConsentGate(browser.env, fakeConsent('undecided').api, region.source);
+    if (decision === 'required') region.resolve('required');
+    assert.equal(browser.win.gtag, undefined, decision);
+    assert.equal(browser.win.dataLayer, undefined, decision);
+    assert.equal(browser.appended.length, 0, decision);
+  }
+});
+
+test('the regional start never calls the consent write path', async () => {
+  const source = await import('node:fs').then((fs) => fs.readFileSync(new URL('../packages/core/src/consent-gate.ts', import.meta.url), 'utf8'));
+  assert.doesNotMatch(source, /setConsent/u, 'the gate reads consent but never writes a record');
+});
+
+test('notRequired with the default replay option sets replay off before PostHog loads, then grants replay on opt-in', () => {
+  const recorder = recordingPostHog();
+  const browser = fakeBrowser({ posthog: recorder.posthog });
+  const region = fakeRegion('pending');
+  const consent = fakeConsentWithReplay('undecided', 'optIn');
+  installConsentGate(browser.env, consent.api, region.source);
+  region.resolve('notRequired');
+  assert.deepEqual(recorder.calls, [
+    ['set_config', { disable_session_recording: true }],
+    ['stopSessionRecording'],
+  ]);
+  consent.set('granted');
+  assert.deepEqual(recorder.calls.slice(2), [
+    ['set_config', { disable_session_recording: false }],
+    ['startSessionRecording'],
+  ]);
+});
+
+test('projectDefault leaves replay to the project and sets no replay calls', () => {
+  const recorder = recordingPostHog();
+  const browser = fakeBrowser({ posthog: recorder.posthog });
+  const region = fakeRegion('pending');
+  installConsentGate(browser.env, fakeConsentWithReplay('undecided', 'projectDefault').api, region.source);
+  region.resolve('notRequired');
+  assert.deepEqual(recorder.calls, []);
+});
+
+test('off keeps replay off and a later grant does not turn it on', () => {
+  const recorder = recordingPostHog();
+  const browser = fakeBrowser({ posthog: recorder.posthog });
+  const region = fakeRegion('pending');
+  const consent = fakeConsentWithReplay('undecided', 'off');
+  installConsentGate(browser.env, consent.api, region.source);
+  region.resolve('notRequired');
+  consent.set('granted');
+  assert.deepEqual(recorder.calls.map((call) => call[0]), ['set_config', 'stopSessionRecording']);
+});
+
+test('an explicit grant at page load uses the project replay setting with no replay calls', () => {
+  const recorder = recordingPostHog();
+  const browser = fakeBrowser({ posthog: recorder.posthog });
+  installConsentGate(browser.env, fakeConsentWithReplay('granted', 'optIn').api, fakeRegion('pending').source);
+  assert.deepEqual(recorder.calls, []);
+});

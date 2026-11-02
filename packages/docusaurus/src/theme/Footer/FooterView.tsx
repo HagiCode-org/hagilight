@@ -27,6 +27,10 @@ export interface FooterViewProps {
   siteUrl?: string;
   /** The localized "Cookie settings" label. Set only when the consent popup is mounted. */
   consentLabel?: string;
+  /** A regional site: the "Cookie settings" entry renders hidden and the consent popup reveals it. */
+  regional?: boolean;
+  /** The session replay entry label. Set only for a regional site with replay opt-in, alongside `consentLabel`. */
+  replayLabel?: string;
 }
 
 function ColumnLink({ entry }: { entry: FooterColumnEntry }): ReactElement {
@@ -132,7 +136,7 @@ function FooterBrand({ locale, links, avatar, siteId, siteUrl }: {
   );
 }
 
-export function FooterView({ links, version, year, buildInfo, avatar, siteId, siteUrl, consentLabel }: FooterViewProps): ReactElement {
+export function FooterView({ links, version, year, buildInfo, avatar, siteId, siteUrl, consentLabel, regional, replayLabel }: FooterViewProps): ReactElement {
   const { labels } = links;
   const buildItems = buildInfoItems(buildInfo);
   return (
@@ -176,8 +180,26 @@ export function FooterView({ links, version, year, buildInfo, avatar, siteId, si
               </a>
             ))}
             {consentLabel && (
-              <button type="button" className="hagilight-footer__consent" data-consent-preferences>
+              <button
+                type="button"
+                className="hagilight-footer__consent"
+                data-consent-preferences
+                data-consent-entry={regional ? 'settings' : undefined}
+                hidden={regional}
+              >
                 {consentLabel}
+              </button>
+            )}
+            {consentLabel && replayLabel && (
+              <button
+                type="button"
+                className="hagilight-footer__consent"
+                data-consent-preferences
+                data-consent-mode="replay"
+                data-consent-entry="replay"
+                hidden
+              >
+                {replayLabel}
               </button>
             )}
           </nav>

@@ -11,9 +11,11 @@ import { checkContentImageRegistration, registerContentImages } from '@hagicode/
 import type { SiteLinksOptions } from '@hagicode/hagilight-core/links';
 import { DEFAULT_POSTHOG_API_KEY, POSTHOG_API_KEY_PATTERN } from '@hagicode/hagilight-core/posthog';
 import {
+  resolveRegionalOptions,
   validatePolicyVersion,
   validatePrivacyUrl,
   type ConsentPopupOptions,
+  type RegionalPopupOptions,
 } from '@hagicode/hagilight-core/consent-markup';
 import { resolveRssLocales, type RssLocale } from '@hagicode/hagilight-core/rss';
 import {
@@ -74,6 +76,19 @@ export interface HagilightConsentOptions {
   privacyUrl?: string;
   /** Defaults to `1`. Changing it asks every visitor again. 1 to 32 letters, digits, dots, underscores or hyphens. */
   policyVersion?: string;
+  /**
+   * Regional consent. `default` uses the built-in consent-required set; an array of upper-case ISO 3166-1 alpha-2 codes
+   * replaces it. Absent keeps the global popup. Unknown location means consent is required.
+   */
+  regions?: 'default' | readonly string[];
+  /** An ISO 3166-1 alpha-2 code that fixes every visitor's region and skips detection. Needs `regions`. */
+  countryCode?: string;
+  /** The name of a function defined on `window` that returns the visitor's region. Needs `regions`. */
+  regionHook?: string;
+  /** Defaults to `requiredOnly`, which shows the Cookie settings entry only where consent is required. `always` shows it everywhere. */
+  settingsEntry?: 'requiredOnly' | 'always';
+  /** Defaults to `optIn`, which offers session replay to visitors where consent is not required. `projectDefault` or `off` change that. */
+  sessionReplay?: 'optIn' | 'projectDefault' | 'off';
 }
 
 export interface HagilightPostHogOptions {
@@ -183,6 +198,7 @@ interface SerializedOptions {
   consentProviders: ConsentPopupOptions['providers'];
   consentPrivacyUrl: string | undefined;
   consentPolicyVersion: string;
+  consentRegional: RegionalPopupOptions | undefined;
   posthogSearchQuery: PostHogSearchQueryOption;
   aiDisclosures: AIDisclosureDefaults;
   seoEnabled: boolean;
@@ -266,20 +282,24 @@ interface ResolvedConsentOptions {
   enabled: boolean;
   privacyUrl: string | undefined;
   policyVersion: string;
+  regional: RegionalPopupOptions | undefined;
   providers: ConsentPopupOptions['providers'];
 }
 
 /**
  * Consent is on by default whenever a provider is enabled, and `enabled: false` restores immediate loading. Invalid
- * values throw from the core validators, which name the option.
+ * values throw from the core validators, which name the option. Regional options are validated by the core too, so
+ * every integration reports the same messages; they resolve to `undefined` on a global site.
  */
 function resolveConsentOptions(config: unknown, providers: ConsentPopupOptions['providers']): ResolvedConsentOptions {
   const record = optionalRecord(config, 'analytics consent');
   const requested = optionalBoolean(record, 'enabled', 'analytics consent enabled');
+  const enabled = providers.length > 0 && (requested ?? true);
   return {
-    enabled: providers.length > 0 && (requested ?? true),
+    enabled,
     privacyUrl: validatePrivacyUrl(record?.privacyUrl),
     policyVersion: validatePolicyVersion(record?.policyVersion),
+    regional: resolveRegionalOptions(record, record?.enabled !== false),
     providers,
   };
 }
@@ -514,8 +534,16 @@ import options from '${optionsId}';
   const consentImport = serializedOptions.consentEnabled
     ? `import CookieConsent from ${JSON.stringify(coreExport('CookieConsent'))};`
     : '';
+  // Regional sites also pass their options to the popup, whose descriptor the footer entries read at runtime.
+  const consentRegionalAttribute = serializedOptions.consentRegional ? ' regional={options.consentRegional}' : '';
   const consentRender = serializedOptions.consentEnabled
-    ? '<CookieConsent providers={options.consentProviders} privacyUrl={options.consentPrivacyUrl} policyVersion={options.consentPolicyVersion} locale={Astro.locals?.starlightRoute?.locale} />'
+    ? `<CookieConsent providers={options.consentProviders} privacyUrl={options.consentPrivacyUrl} policyVersion={options.consentPolicyVersion} locale={Astro.locals?.starlightRoute?.locale}${consentRegionalAttribute} />`
+    : '';
+  // Regional entries render hidden; the popup reveals them from its descriptor. The replay entry needs opt-in.
+  const footerRegionalAttributes = serializedOptions.consentRegional
+    ? `  regional={true}
+  replayEntry={${serializedOptions.consentRegional.sessionReplay === 'optIn'}}
+`
     : '';
   const footerSource = `---
 import Footer from ${JSON.stringify(footerPath)};
@@ -534,7 +562,7 @@ import options from '${optionsId}';
   avatar={options.footerAvatar.avatar}
   randomAvatar={options.footerAvatar.randomAvatar}
 ${consentAttribute ? `  consent={true}
-` : ''}/>
+` : ''}${footerRegionalAttributes}/>
 ${promotionRender}
 ${analyticsRender}
 ${consentRender}
@@ -744,6 +772,7 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
     consentProviders: consent.providers,
     consentPrivacyUrl: consent.privacyUrl,
     consentPolicyVersion: consent.policyVersion,
+    consentRegional: consent.regional,
     posthogSearchQuery,
     aiDisclosures,
     seoEnabled: seo.enabled,
@@ -860,7 +889,12 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
               fiftyOneLa: serializedOptions.fiftyOneLaId !== undefined,
               posthog: serializedOptions.posthogApiKey !== undefined,
             },
-            features: { seo: seo.enabled, promoto: promotoEnabled, consent: consent.enabled },
+            features: {
+              seo: seo.enabled,
+              promoto: promotoEnabled,
+              consent: consent.enabled,
+              consentMode: consent.enabled ? (consent.regional ? 'regional' : 'globalRequired') : undefined,
+            },
           },
           unregisterSiteMetadataOwner,
         ));

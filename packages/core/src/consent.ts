@@ -5,6 +5,7 @@
  * is non-throwing: a call that cannot act returns its safe default.
  */
 import { isSharedHost } from './root-transit-marker.js';
+import { getRegionDecision, type RegionConfig, type RegionsOption } from './consent-region.js';
 
 export const CONSENT_STORAGE_KEY = 'hagicode:consent';
 export const CONSENT_COOKIE = 'hagicode_consent';
@@ -51,10 +52,19 @@ export type ConsentListener = (state: ConsentState) => void;
 
 export interface ConsentOptions {
   /**
-   * Optional site-supplied region check. Returning `false` means consent is not required for this visitor. Any other
-   * result, a throw, or no hook at all means consent is required.
+   * Optional site-supplied region check. Without `regions`, returning exactly `false` means consent is not required for
+   * this visitor; any other result, a throw, or no hook at all means consent is required. With `regions`, the hook
+   * may answer a state, a boolean or a promise (see `consent-region.ts`).
    */
   regionHook?: () => unknown;
+  /** `default` for the built-in country set, or an array of upper-case ISO country codes. Absent keeps global consent. */
+  regions?: RegionsOption;
+  /** One upper-case ISO country code. Used only with `regions`. */
+  countryCode?: string;
+  /** `requiredOnly` (default) or `always`. Used only with `regions`. */
+  settingsEntry?: 'requiredOnly' | 'always';
+  /** `optIn` (default), `projectDefault` or `off`. Used only with `regions`. */
+  sessionReplay?: 'optIn' | 'projectDefault' | 'off';
 }
 
 /** Strict parse: exact field count, a known version and state, a plain epoch time and a bounded policy version. */
@@ -257,21 +267,102 @@ function ensureStorageListener(): void {
   }
 }
 
-let regionHook: (() => unknown) | undefined;
+interface RegionalOptions {
+  regionHook?: () => unknown;
+  regions?: RegionsOption;
+  countryCode?: string;
+  settingsEntry: 'requiredOnly' | 'always';
+  sessionReplay: 'optIn' | 'projectDefault' | 'off';
+}
 
-/** Sets site options. Only the region hook exists so far; unknown or unusable values are ignored. */
-export function configureConsent(options: ConsentOptions): void {
+const GLOBAL_OPTIONS: RegionalOptions = { settingsEntry: 'requiredOnly', sessionReplay: 'optIn' };
+/** Options set by `configureConsent`. When none were set, the descriptor the integration wrote is read instead. */
+let configured: RegionalOptions | undefined;
+
+function regionsFrom(value: unknown): RegionsOption | undefined {
+  if (value === 'default') return 'default';
+  if (Array.isArray(value) && value.every((code) => typeof code === 'string')) return [...value];
+  return undefined;
+}
+
+/** Calls a function the site defines on `window` by a dotted name. A missing function returns `undefined`, which is unknown. */
+function callNamedHook(name: string): unknown {
+  let parent: unknown = environment().window;
+  let target: unknown = parent;
+  for (const part of name.split('.')) {
+    parent = target;
+    target = (target as Record<string, unknown> | undefined)?.[part];
+  }
+  return typeof target === 'function' ? (target as (this: unknown) => unknown).call(parent) : undefined;
+}
+
+/** The regional options the integration serialized into the descriptor. Anything unreadable or non-regional is global. */
+function descriptorRegionalOptions(): RegionalOptions {
   try {
-    regionHook = typeof options?.regionHook === 'function' ? options.regionHook : undefined;
+    const text = environment().document?.getElementById(CONSENT_CONFIG_ID)?.textContent;
+    if (!text) return GLOBAL_OPTIONS;
+    const parsed = JSON.parse(text) as Record<string, unknown> | null;
+    if (parsed?.mode !== 'regional') return GLOBAL_OPTIONS;
+    const hookName = typeof parsed.regionHook === 'string' ? parsed.regionHook : undefined;
+    return {
+      regions: regionsFrom(parsed.regions),
+      countryCode: typeof parsed.countryCode === 'string' ? parsed.countryCode : undefined,
+      regionHook: hookName ? () => callNamedHook(hookName) : undefined,
+      settingsEntry: parsed.settingsEntry === 'always' ? 'always' : 'requiredOnly',
+      sessionReplay: parsed.sessionReplay === 'projectDefault' || parsed.sessionReplay === 'off' ? parsed.sessionReplay : 'optIn',
+    };
   } catch {
-    regionHook = undefined;
+    return GLOBAL_OPTIONS;
   }
 }
 
-/** Whether this visitor needs a decision. Without a hook, or when the hook throws or does not answer `false`, it does. */
+function effectiveOptions(): RegionalOptions {
+  return configured ?? descriptorRegionalOptions();
+}
+
+/** Sets site options. Unknown or unusable values are ignored; validation with named errors lives in `consent-markup.ts`. */
+export function configureConsent(input: ConsentOptions): void {
+  try {
+    configured = {
+      regionHook: typeof input?.regionHook === 'function' ? input.regionHook : undefined,
+      regions: regionsFrom(input?.regions),
+      countryCode: typeof input?.countryCode === 'string' ? input.countryCode : undefined,
+      settingsEntry: input?.settingsEntry === 'always' ? 'always' : 'requiredOnly',
+      sessionReplay: input?.sessionReplay === 'projectDefault' || input?.sessionReplay === 'off' ? input.sessionReplay : 'optIn',
+    };
+  } catch {
+    configured = { ...GLOBAL_OPTIONS };
+  }
+}
+
+/** The `settingsEntry` and `sessionReplay` behavior in effect. Both default when nothing is configured. */
+export function regionalBehavior(): { settingsEntry: 'requiredOnly' | 'always'; sessionReplay: 'optIn' | 'projectDefault' | 'off' } {
+  const options = effectiveOptions();
+  return { settingsEntry: options.settingsEntry, sessionReplay: options.sessionReplay };
+}
+
+/**
+ * The region configuration the page resolves. With `regions`, it is the regional configuration. Without `regions`, a
+ * legacy hook keeps its meaning: exactly `false` is not required, and anything else is required.
+ */
+export function currentRegionConfig(): RegionConfig {
+  const options = effectiveOptions();
+  if (options.regions !== undefined) {
+    return { regions: options.regions, countryCode: options.countryCode, regionHook: options.regionHook };
+  }
+  const legacy = options.regionHook;
+  return legacy ? { regionHook: () => (legacy() === false ? 'notRequired' : 'required') } : {};
+}
+
+/**
+ * Whether this visitor needs a decision. With `regions`, it is everything except a resolved `notRequired` decision.
+ * Without `regions`, a legacy hook decides: it does unless the hook returns exactly `false`, throws or is absent.
+ */
 export function isConsentRequired(): boolean {
   try {
-    return regionHook ? regionHook() !== false : true;
+    const options = effectiveOptions();
+    if (options.regions !== undefined) return getRegionDecision() !== 'notRequired';
+    return options.regionHook ? options.regionHook() !== false : true;
   } catch {
     return true;
   }
@@ -329,10 +420,14 @@ export function onConsentChange(callback: ConsentListener): () => void {
   }
 }
 
-/** Asks the page's popup to show its details and choices again. It has no effect when no popup is mounted. */
-export function openConsentPreferences(): void {
+/**
+ * Asks the page's popup to show its details and choices again. `replay` opens the session replay opt-in section instead.
+ * It has no effect when no popup is mounted.
+ */
+export function openConsentPreferences(mode?: 'replay'): void {
   try {
-    environment().document?.dispatchEvent(new CustomEvent(CONSENT_PREFERENCES_EVENT));
+    const detail = mode === 'replay' ? { mode: 'replay' } : undefined;
+    environment().document?.dispatchEvent(new CustomEvent(CONSENT_PREFERENCES_EVENT, { detail }));
   } catch {
     // Nothing to open.
   }

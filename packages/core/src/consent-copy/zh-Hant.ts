@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "已接受",
   choiceRejected: "已拒絕",
   choiceUndecided: "尚未選擇",
+  replayEntry: "允許工作階段重播",
+  replayTitle: "工作階段重播",
+  replayBody: "分析已在本頁執行。工作階段重播會記錄你如何使用本頁，在你允許前保持關閉。",
+  replayAllow: "允許工作階段重播",
+  replayDecline: "暫不",
 };

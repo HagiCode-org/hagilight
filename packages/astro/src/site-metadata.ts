@@ -11,6 +11,7 @@ import { CONSENT_DESCRIPTOR_ID } from '@hagicode/hagilight-core/consent-markup';
 import {
   buildSiteMetadata,
   detectAnalyticsLoaders,
+  detectConsentMode,
   SITE_METADATA_PATH,
   type SiteMetadataLocale,
 } from '@hagicode/hagilight-core/site-metadata';
@@ -122,7 +123,7 @@ export function writeAstroSiteMetadata({ config, outDir, pages, build, options, 
     discovery: findDiscoveryOutputs(outDir),
     analytics: detectAnalyticsLoaders(pageHtml),
     // The popup is mounted exactly when a built page carries its config descriptor.
-    features: { consent: pageHtml.some((html) => html.includes(CONSENT_DESCRIPTOR_ID)) },
+    features: { consent: pageHtml.some((html) => html.includes(CONSENT_DESCRIPTOR_ID)), consentMode: detectConsentMode(pageHtml) },
   });
   writeSiteMetadata({
     outDir,

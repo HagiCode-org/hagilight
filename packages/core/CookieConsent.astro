@@ -1,5 +1,5 @@
 ---
-import { CONSENT_DESCRIPTOR_ID, consentDescriptor, renderConsentMarkup, type ConsentPopupOptions } from './dist/consent-markup.js';
+import { CONSENT_DESCRIPTOR_ID, consentDescriptor, renderConsentMarkup, type ConsentPopupOptions, type RegionalPopupOptions } from './dist/consent-markup.js';
 
 interface Props {
   /** The analytics providers this site enables. Mount the popup only when at least one is enabled. */
@@ -10,10 +10,12 @@ interface Props {
   policyVersion?: string;
   /** The page locale. Defaults to Astro's current locale, then `en-US`. */
   locale?: string;
+  /** Set only for a regional site. Omitted keeps the global descriptor and markup. */
+  regional?: RegionalPopupOptions;
 }
 
-const { providers, privacyUrl, policyVersion, locale = Astro.currentLocale ?? 'en-US' } = Astro.props;
-const options: ConsentPopupOptions = { providers, privacyUrl, policyVersion, locale };
+const { providers, privacyUrl, policyVersion, locale = Astro.currentLocale ?? 'en-US', regional } = Astro.props;
+const options: ConsentPopupOptions = { providers, privacyUrl, policyVersion, locale, ...(regional ? { regional } : {}) };
 const markup = renderConsentMarkup(options);
 const descriptor = consentDescriptor(options);
 ---

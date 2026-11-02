@@ -10,6 +10,7 @@ import {
   SITE_METADATA_PATH,
   buildSiteMetadata,
   detectAnalyticsLoaders,
+  detectConsentMode,
   resolveSiteMetadataOption,
   serializeSiteMetadata,
   validateSiteMetadata,
@@ -318,4 +319,44 @@ test('features.consent is a boolean in the fixed order and is set only when the 
   assert.deepEqual(validateSiteMetadata(JSON.parse(serializeSiteMetadata(withConsent))), []);
   assert.deepEqual(validateSiteMetadata({ ...JSON.parse(serializeSiteMetadata(withConsent)), features: { consent: 'yes' } }), ['features.consent must be a boolean']);
   assert.equal(JSON.stringify(withConsent).includes('policyVersion'), false, 'no policy values or IDs leave the build');
+});
+
+// Task 4.5: features.consentMode.
+test('consentMode is globalRequired or regional only with consent on, and absent otherwise', () => {
+  const global = buildSiteMetadata(sampleInput({ features: { seo: true, consent: true, consentMode: 'globalRequired' } }));
+  assert.equal(global.features.consentMode, 'globalRequired');
+  const regional = buildSiteMetadata(sampleInput({ features: { seo: true, consent: true, consentMode: 'regional' } }));
+  assert.equal(regional.features.consentMode, 'regional');
+  const noConsent = buildSiteMetadata(sampleInput({ features: { seo: true, consent: false, consentMode: 'regional' } }));
+  assert.equal(noConsent.features.consentMode, undefined);
+  const unknownMode = buildSiteMetadata(sampleInput({ features: { consent: true, consentMode: 'everyone' } }));
+  assert.equal(unknownMode.features.consentMode, undefined);
+  assert.equal(buildSiteMetadata(sampleInput({ features: { seo: true } })).features.consentMode, undefined);
+});
+
+test('the serialized consentMode keeps the fixed key order after consent', () => {
+  const text = serializeSiteMetadata(buildSiteMetadata(sampleInput({ features: { seo: true, promoto: true, consent: true, consentMode: 'regional' } })));
+  const features = JSON.parse(text).features;
+  assert.deepEqual(Object.keys(features), ['seo', 'promoto', 'consent', 'consentMode']);
+  assert.equal(features.consentMode, 'regional');
+});
+
+test('the metadata file never contains the country list, a hook name or an identifier from the regional options', () => {
+  const text = serializeSiteMetadata(buildSiteMetadata(sampleInput({ features: { consent: true, consentMode: 'regional' } })));
+  assert.doesNotMatch(text, /"DE"|"FR"|regionHook|countryCode|siteRegion|hagicode-consent-config/u);
+});
+
+test('validation accepts an older file without consentMode and rejects a bad consentMode', () => {
+  const older = JSON.parse(serializeSiteMetadata(buildSiteMetadata(sampleInput({ features: { seo: true, consent: true } }))));
+  assert.deepEqual(validateSiteMetadata(older), []);
+  assert.deepEqual(validateSiteMetadata({ ...older, features: { ...older.features, consentMode: 'regional' } }), []);
+  assert.ok(validateSiteMetadata({ ...older, features: { ...older.features, consentMode: 'maybe' } }).some((problem) => problem.includes('features.consentMode')));
+});
+
+test('detectConsentMode reads the mode from built HTML and reports nothing without consent', () => {
+  const globalPage = '<script type="application/json" id="hagilight-consent-config">{"policyVersion":"1"}</script>';
+  const regionalPage = '<script type="application/json" id="hagilight-consent-config">{"policyVersion":"1","mode":"regional"}</script>';
+  assert.equal(detectConsentMode(['<p>no consent</p>']), undefined);
+  assert.equal(detectConsentMode([globalPage]), 'globalRequired');
+  assert.equal(detectConsentMode([globalPage, regionalPage]), 'regional');
 });

@@ -18,6 +18,10 @@ interface Props {
   randomAvatar?: boolean;
   /** Adds the "Cookie settings" entry. Set only when the site mounts the consent popup. Defaults to `false`. */
   consent?: boolean;
+  /** A regional site: the "Cookie settings" entry is rendered hidden and revealed by the consent popup's decision. */
+  regional?: boolean;
+  /** A regional site with session replay opt-in: renders the replay entry, hidden until the decision reveals it. */
+  replayEntry?: boolean;
 }
 
 const {
@@ -29,6 +33,8 @@ const {
   avatar,
   randomAvatar,
   consent = false,
+  regional = false,
+  replayEntry = false,
 } = Astro.props;
 const consentCopy = resolveConsentCopy(locale);
 const buildItems = buildInfoItems(buildInfo);
@@ -105,7 +111,23 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
         >{link.label}</a>
       ))}
       {consent && (
-        <button type="button" class="hagilight-consent-entry" data-consent-preferences>{consentCopy.footerEntry}</button>
+        <button
+          type="button"
+          class="hagilight-consent-entry"
+          data-consent-preferences
+          data-consent-entry={regional ? 'settings' : undefined}
+          hidden={regional}
+        >{consentCopy.footerEntry}</button>
+      )}
+      {consent && replayEntry && (
+        <button
+          type="button"
+          class="hagilight-consent-entry"
+          data-consent-preferences
+          data-consent-mode="replay"
+          data-consent-entry="replay"
+          hidden
+        >{consentCopy.replayEntry}</button>
       )}
     </nav>
   </div>
@@ -174,6 +196,10 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     font: inherit;
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  .hagilight-consent-entry[hidden] {
+    display: none;
   }
 
   /* Footer columns: four level, purpose-based columns. Each column owns a rule that

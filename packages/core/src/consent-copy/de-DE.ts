@@ -20,4 +20,9 @@ export const copy: ConsentCopy = {
   choiceAccepted: "Akzeptiert",
   choiceRejected: "Abgelehnt",
   choiceUndecided: "Noch nicht ausgewählt",
+  replayEntry: "Sitzungswiederholung erlauben",
+  replayTitle: "Sitzungswiederholung",
+  replayBody: "Die Analyse läuft auf dieser Seite bereits. Die Sitzungswiederholung zeichnet auf, wie Sie die Seite nutzen, und bleibt aus, bis Sie sie erlauben.",
+  replayAllow: "Sitzungswiederholung erlauben",
+  replayDecline: "Nicht jetzt",
 };

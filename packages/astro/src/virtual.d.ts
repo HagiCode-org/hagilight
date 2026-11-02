@@ -7,3 +7,8 @@ declare module 'virtual:hagilight/build-info' {
   const buildInfo: import('@hagicode/hagilight-core/build-info').BuildInfo;
   export default buildInfo;
 }
+
+declare module 'virtual:hagilight/consent-footer' {
+  const consentFooter: import('./integration.js').ConsentFooterState;
+  export default consentFooter;
+}

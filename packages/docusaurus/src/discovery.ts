@@ -278,7 +278,12 @@ async function writeSiteMetadataFile(outputs: DiscoveryOutputs): Promise<void> {
       fiftyOneLa: production && options.fiftyOneLaId !== undefined,
       posthog: production && options.posthogApiKey !== undefined,
     },
-    features: { seo: options.seo.enabled, promoto: options.promoto, consent: options.consent.enabled },
+    features: {
+      seo: options.seo.enabled,
+      promoto: options.promoto,
+      consent: options.consent.enabled,
+      consentMode: options.consent.enabled ? (options.consent.regional ? 'regional' : 'globalRequired') : undefined,
+    },
   });
   writeSiteMetadata({
     outDir,
