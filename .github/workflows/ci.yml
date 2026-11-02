@@ -71,7 +71,7 @@ jobs:
           pnpm run integration:installed 2>&1 | tee .ci-artifacts/integration.log
       - name: Install Chromium for viewport regression
         if: matrix.platform == 'linux'
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
       - name: Run desktop viewport regression
         if: matrix.platform == 'linux'
         shell: bash
