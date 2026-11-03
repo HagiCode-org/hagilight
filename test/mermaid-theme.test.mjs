@@ -144,6 +144,17 @@ test('the Mermaid configuration keeps the strict security and no auto-start sett
 
 for (const preset of ['default', 'archify']) {
   for (const mode of ['light', 'dark']) {
+    test(`${preset} ${mode} railroad terminals take the core role fill, not Mermaid's light yellow`, () => {
+      clearBrowser();
+      const config = getMermaidThemeConfig(mode, preset);
+      assert.equal(config.railroad.terminalFill, getMermaidSemanticTheme(mode, preset).coreNode.fill);
+      assert.notEqual(config.railroad.terminalFill.toLowerCase(), '#ffffde');
+    });
+  }
+}
+
+for (const preset of ['default', 'archify']) {
+  for (const mode of ['light', 'dark']) {
     test(`${preset} ${mode} series colors keep readable text and visible marks`, () => {
       clearBrowser();
       const theme = getMermaidSemanticTheme(mode, preset);

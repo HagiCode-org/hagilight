@@ -266,6 +266,9 @@ export function getMermaidThemeConfig(
     // Keep this top-level setting for diagram types that read it here. The
     // flowchart renderer reads the explicit setting in the flowchart block.
     useMaxWidth: true,
+    // Railroad terminals read their fill from secondBkg before secondaryColor. The base theme sets secondBkg to a
+    // fixed light yellow, which stayed light in dark mode, so the terminal fill is set here from the same core role.
+    railroad: { terminalFill: semantic.coreNode.fill },
   };
   cache.set(cacheKey, config);
   return config;

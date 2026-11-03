@@ -244,7 +244,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#dbeafe"
+        }
       }
     },
     {
@@ -482,7 +485,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#cffafe"
+        }
       }
     },
     {
@@ -714,7 +720,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#1d4ed8"
+        }
       }
     },
     {
@@ -952,7 +961,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#083344"
+        }
       }
     },
     {
@@ -1184,7 +1196,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#dbeafe"
+        }
       }
     },
     {
@@ -1422,7 +1437,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#cffafe"
+        }
       }
     },
     {
@@ -1654,7 +1672,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#1d4ed8"
+        }
       }
     },
     {
@@ -1892,7 +1913,10 @@
         "startOnLoad": false,
         "suppressErrorRendering": true,
         "securityLevel": "strict",
-        "useMaxWidth": true
+        "useMaxWidth": true,
+        "railroad": {
+          "terminalFill": "#083344"
+        }
       }
     }
   ],
