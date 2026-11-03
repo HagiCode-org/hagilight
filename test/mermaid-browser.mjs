@@ -139,7 +139,8 @@ async function demoChecks(browser, server) {
         });
         return { columns, outside: outside.map((tile) => tile.dataset.mermaidType) };
       });
-      if (layout.columns < 3) throw new Error(`${layout.columns} columns at 1280px`);
+      // Tiles have a 28rem minimum (wider tiles, so diagrams keep their natural height), which gives two columns here.
+      if (layout.columns < 2) throw new Error(`${layout.columns} columns at 1280px`);
       if (layout.outside.length) throw new Error(`diagrams outside their tile: ${layout.outside.join(', ')}`);
     });
     await check('clicking a tile enlarges its diagram, and zoom, key and close work', async () => {
@@ -162,7 +163,8 @@ async function demoChecks(browser, server) {
     for (const preset of ['Default', 'Archify']) {
       await check(`dark mode leaves no large light fills in any diagram (${preset})`, async () => {
         await page.getByRole('radio', { name: 'Dark' }).check();
-        await page.getByRole('radio', { name: preset }).check();
+        // Exact match: the engine radio "Mermaid (default)" also contains "default" and would make the name ambiguous.
+        await page.getByRole('radio', { name: preset, exact: true }).check();
         await page.waitForFunction(
           (want) => [...document.querySelectorAll('section[data-mermaid-type] .mermaid-container')].every((el) => el.dataset.mermaidMode === 'dark' && el.dataset.mermaidPreset === want) && !document.querySelector('.mermaid-loading'),
           preset.toLowerCase(),
@@ -206,7 +208,7 @@ async function demoChecks(browser, server) {
       await page.waitForFunction(() => [...document.querySelectorAll('section[data-mermaid-type] .mermaid-container')].every((el) => el.dataset.mermaidPreset === 'archify'), null, { timeout: 240000 });
       await page.waitForFunction(() => !document.querySelector('.mermaid-loading'), null, { timeout: 240000 });
       await page.getByRole('radio', { name: 'Light' }).check();
-      await page.getByRole('radio', { name: 'Default' }).check();
+      await page.getByRole('radio', { name: 'Default', exact: true }).check();
     });
     for (const [label, width] of [['390px', 390], ['1280px', 1280]]) {
       await check(`no horizontal overflow at ${label}`, async () => {
