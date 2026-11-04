@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://docusaurus.hagicode.com/pt-BR/blog</id>
+    <title>Hagilight for Docusaurus Blog</title>
+    <updated>2026-10-11T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://docusaurus.hagicode.com/pt-BR/blog"/>
+    <subtitle>Hagilight for Docusaurus Blog</subtitle>
+    <icon>https://docusaurus.hagicode.com/pt-BR/img/logo.svg</icon>
+    <entry>
+        <title type="html"><![CDATA[Introducing Hagilight for Docusaurus]]></title>
+        <id>https://docusaurus.hagicode.com/pt-BR/blog/introducing-hagilight-docusaurus</id>
+        <link href="https://docusaurus.hagicode.com/pt-BR/blog/introducing-hagilight-docusaurus"/>
+        <updated>2026-10-11T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[One Docusaurus plugin that brings the footer, analytics, promote card, SEO, sitemap, robots.txt, and RSS of HagiCode sites.]]></summary>
+        <content type="html"><![CDATA[<p>Hagilight for Docusaurus brings the same site features that HagiCode sites already use to Docusaurus 3. Add one plugin entry and every feature is on, with each one available as its own switch.</p>
+<p>This demo site exercises every feature. Its build output includes a sitemap and an RSS feed for each locale, and a <code>robots.txt</code> at the root that lists them.</p>
+<p>Read <a class="" href="https://docusaurus.hagicode.com/pt-BR/docs/features">Features</a> for a tour and <a class="" href="https://docusaurus.hagicode.com/pt-BR/docs/options">Options</a> for the full list of switches.</p>]]></content>
+    </entry>
+</feed>
