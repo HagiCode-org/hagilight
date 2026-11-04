@@ -29,7 +29,7 @@ export interface ShowcaseGlossaryEntry {
 
 /**
  * Approved terminology per locale, checked by `test/article-promotion.test.mjs`. Terms are matched as
- * substrings so inflected forms count. Seeded from the product locale files in `repos/web/src/locales/<locale>/`
+ * substrings so inflected forms count. Seeded from the product locale files in `repos/web/web/src/locales/<locale>/`
  * (agent, workflow, and "Efficient"/"Smart" strings) and the existing Docs wording. Where the product keeps the
  * English word (zh-CN and zh-Hant "Agent"), the English word is the approved term. `HagiCode`, `OpenSpec`,
  * `Hero Scenario`, `Microsoft Store`, and `Windows` are pinned untranslated in every locale and are not listed here.
