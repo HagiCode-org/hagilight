@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://hagilight.hagicode.com/sitemap-index.xml
