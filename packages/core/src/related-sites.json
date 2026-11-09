@@ -41,6 +41,18 @@
       "pt-BR": "A IA vai me substituir?",
       "ru-RU": "Заменит ли меня ИИ?"
     },
+    "description": {
+      "zh-CN": "测一测 AI 对你工作的影响",
+      "zh-Hant": "測一測 AI 對你工作的影響",
+      "en-US": "Check how AI may affect your job.",
+      "ja-JP": "AI が仕事に与える影響を診断します。",
+      "ko-KR": "AI가 내 일에 미치는 영향을 확인합니다.",
+      "de-DE": "Prüfe, wie KI deinen Job beeinflussen kann.",
+      "fr-FR": "Évaluez l'impact de l'IA sur votre métier.",
+      "es-ES": "Comprueba cómo puede afectar la IA a tu trabajo.",
+      "pt-BR": "Veja como a IA pode afetar o seu trabalho.",
+      "ru-RU": "Узнайте, как ИИ может повлиять на вашу работу."
+    },
     "url": "https://cost.hagicode.com"
   },
   {
@@ -226,6 +238,18 @@
       "pt-BR": "Awesome Sites",
       "ru-RU": "Awesome Sites"
     },
+    "description": {
+      "zh-CN": "精选站点合集",
+      "zh-Hant": "精選網站合集",
+      "en-US": "A curated collection of sites.",
+      "ja-JP": "厳選したサイトのコレクションです。",
+      "ko-KR": "엄선한 사이트 모음입니다.",
+      "de-DE": "Eine kuratierte Sammlung von Websites.",
+      "fr-FR": "Une sélection de sites triés sur le volet.",
+      "es-ES": "Una colección curada de sitios.",
+      "pt-BR": "Uma coleção selecionada de sites.",
+      "ru-RU": "Подборка отобранных сайтов."
+    },
     "url": "https://awesome.hagicode.com/"
   },
   {
@@ -327,6 +351,18 @@
       "pt-BR": "Documentação do OpenSpec",
       "ru-RU": "Документация OpenSpec"
     },
+    "description": {
+      "zh-CN": "OpenSpec 使用文档",
+      "zh-Hant": "OpenSpec 使用文件",
+      "en-US": "Guides and reference for OpenSpec.",
+      "ja-JP": "OpenSpec のガイドとリファレンスです。",
+      "ko-KR": "OpenSpec 가이드와 참고 문서입니다.",
+      "de-DE": "Anleitungen und Referenz zu OpenSpec.",
+      "fr-FR": "Guides et référence pour OpenSpec.",
+      "es-ES": "Guías y referencia de OpenSpec.",
+      "pt-BR": "Guias e referência do OpenSpec.",
+      "ru-RU": "Руководства и справочник по OpenSpec."
+    },
     "url": "https://openspec.hagicode.com/",
     "supportsLocalePath": true
   },
@@ -343,6 +379,18 @@
       "es-ES": "Documentación de OmniRoute",
       "pt-BR": "Documentação do OmniRoute",
       "ru-RU": "Документация OmniRoute"
+    },
+    "description": {
+      "zh-CN": "OmniRoute 使用文档",
+      "zh-Hant": "OmniRoute 使用文件",
+      "en-US": "Guides and reference for OmniRoute.",
+      "ja-JP": "OmniRoute のガイドとリファレンスです。",
+      "ko-KR": "OmniRoute 가이드와 참고 문서입니다.",
+      "de-DE": "Anleitungen und Referenz zu OmniRoute.",
+      "fr-FR": "Guides et référence pour OmniRoute.",
+      "es-ES": "Guías y referencia de OmniRoute.",
+      "pt-BR": "Guias e referência do OmniRoute.",
+      "ru-RU": "Руководства и справочник по OmniRoute."
     },
     "url": "https://omniroute.hagicode.com/",
     "supportsLocalePath": true
