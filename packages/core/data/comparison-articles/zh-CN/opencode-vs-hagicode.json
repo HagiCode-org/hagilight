@@ -220,7 +220,7 @@
           "id": "opencode-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "安装 OpenCode（例如 curl -fsSL https://opencode.ai/install | bash，或 npm install -g opencode-ai），然后运行 /connect 添加供应商。",
+            "安装 OpenCode（例如 curl -fsSL https://opencode.ai/v2/install | bash，或 npm install -g @opencode/cli），然后运行 /connect 添加供应商。",
             "安装适用于 Windows、macOS 或 Linux 的 HagiCode Desktop。",
             "在 HagiCode 里把 OpenCode 选为 Agent CLI，并从你已配置的模型中选一个。",
             "打开一个仓库，开始会话或提案。",
@@ -311,7 +311,7 @@
     },
     {
       "question": "怎么安装 OpenCode？",
-      "answer": "运行 curl -fsSL https://opencode.ai/install | bash，或 npm install -g opencode-ai，或 brew install anomalyco/tap/opencode。文档提示这些方式安装的是 OpenCode 1，当前版本请查看 opencode.ai/docs。"
+      "answer": "运行 curl -fsSL https://opencode.ai/v2/install | bash，或 npm install -g @opencode/cli，或 brew install anomalyco/tap/opencode-v2。这些方式安装的是 OpenCode 2，当前版本请查看 opencode.ai/docs。"
     },
     {
       "question": "OpenCode 能和 HagiCode 一起用吗？",

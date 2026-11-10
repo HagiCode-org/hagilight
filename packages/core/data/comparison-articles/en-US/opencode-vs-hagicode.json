@@ -220,7 +220,7 @@
           "id": "opencode-vs-hagicode-section-5-steps",
           "type": "bullet-list",
           "items": [
-            "Install OpenCode (for example curl -fsSL https://opencode.ai/install | bash, or npm install -g opencode-ai) and run /connect to add a provider.",
+            "Install OpenCode (for example curl -fsSL https://opencode.ai/v2/install | bash, or npm install -g @opencode/cli) and run /connect to add a provider.",
             "Install HagiCode Desktop for Windows, macOS or Linux.",
             "In HagiCode, choose OpenCode as the Agent CLI and pick one of your configured models.",
             "Open a repository and start a session or a proposal.",
@@ -311,7 +311,7 @@
     },
     {
       "question": "How do I install OpenCode?",
-      "answer": "Run curl -fsSL https://opencode.ai/install | bash, or npm install -g opencode-ai, or brew install anomalyco/tap/opencode. The docs note these methods install OpenCode 1, so check opencode.ai/docs for the current version."
+      "answer": "Run curl -fsSL https://opencode.ai/v2/install | bash, or npm install -g @opencode/cli, or brew install anomalyco/tap/opencode-v2. These install OpenCode 2; check opencode.ai/docs for the current version."
     },
     {
       "question": "Can I use OpenCode with HagiCode?",
