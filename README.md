@@ -226,6 +226,17 @@ Shared links classify each destination as same-origin, first-party (`hagicode.co
 
 See the [core package README](packages/core/README.md#google-analytics-click-events) for the full contract.
 
+## Agent skills
+
+`@hagicode/hagilight-core` ships agent skills for building a site with hagilight. After you install it, they are in `node_modules/@hagicode/hagilight-core/skills/`:
+
+- `hagilight/SKILL.md` is the entry point and routes to the guides below.
+- `hagilight-site-from-scratch/SKILL.md` covers the shared start for an empty project.
+- `hagilight-docs-site/SKILL.md` covers documentation sites on Starlight or Docusaurus.
+- `hagilight-official-website/SKILL.md` covers official websites on plain Astro.
+
+Not every agent discovers skills under `node_modules`. Point your agent at the entry skill, for example by asking it to read `node_modules/@hagicode/hagilight-core/skills/hagilight/SKILL.md` before it sets up a site.
+
 ## TypeScript usage
 
 Every JavaScript entry point has a `types` export condition, so TypeScript

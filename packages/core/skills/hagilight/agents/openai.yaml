@@ -1,0 +1,7 @@
+interface:
+  display_name: "Hagilight"
+  short_description: "Start or change a website built with the hagilight packages."
+  default_prompt: "Use $hagilight to set up a hagilight site, starting from the shared guide and then the guide for the site type."
+
+policy:
+  allow_implicit_invocation: true

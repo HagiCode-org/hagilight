@@ -37,6 +37,17 @@ import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
 const links = resolveSiteLinks('en-US');
 ```
 
+## Agent skills
+
+This package ships agent skills for building a site with hagilight, under `node_modules/@hagicode/hagilight-core/skills/`:
+
+- `hagilight/SKILL.md` is the entry point and routes to the guides below.
+- `hagilight-site-from-scratch/SKILL.md` covers the shared start for an empty project.
+- `hagilight-docs-site/SKILL.md` covers documentation sites on Starlight or Docusaurus.
+- `hagilight-official-website/SKILL.md` covers official websites on plain Astro.
+
+Not every agent discovers skills under `node_modules`. Point your agent at the entry skill, for example by asking it to read `node_modules/@hagicode/hagilight-core/skills/hagilight/SKILL.md` before it sets up a site.
+
 ## Footer avatar
 
 The footer brand block shows one decorative HagiCode avatar beside the headline. `avatar` defaults to `true`; `avatar={false}` removes the element and its request. The default is `assets/footer/avatar.avif` (128 px, with `avatar.webp` as the fallback) in a 64 px box, hidden below a 360 px container. `randomAvatar` defaults to `true`: the box becomes a 112 × 76 px stage, and once the footer nears the viewport the browser picks 6 distinct entries of the `cat-head-gallery` pool listed in `assets/footer/manifest.json`, preloads them, and deals three as a fan (the default fades out under them). All six loaded: every 3.6 seconds the left card leaves, the others shift left and a waiting card enters on the right, paused while the footer is off screen or the tab is hidden. Fewer than six loaded (or `prefers-reduced-motion: reduce`, which fetches only three) gives a still fan of three; fewer than three keeps the default. The browser picker is `@hagicode/hagilight-core/random-image` (`mountRandomFans`; browser-safe), preloads with a plain `Image()`, not `fetch`, waits up to 3 seconds per image, and makes no request under a data-saver preference. The slot carries `data-random-fan` (the same validated pool list); the showcase illustration in the Starlight article footer uses the same fan; the single-image swap (`data-random-pool`, `mountRandomImages`) stays exported for other slots. `randomAvatar={false}` ships no pool list and no picker script.
