@@ -8,6 +8,11 @@ packages:
 # with npm, which does not understand the `workspace:` protocol. Link them locally by version instead.
 linkWorkspacePackages: true
 
+# Replaces the npm `overrides` field.
+overrides:
+  # tinypool <2.1.2 is critical in `pnpm audit`; arrives via @docusaurus/core in examples/demo-docusaurus-web (3.10.2 still pins ^1).
+  tinypool: ^2.1.2
+
 # Dependency lifecycle scripts run only for approved packages. Reviewed from the old lockfile's
 # `hasInstallScript` entries:
 #   core-js  - postinstall only prints a donation banner, denied.
