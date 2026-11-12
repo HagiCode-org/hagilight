@@ -25,7 +25,7 @@ const ASSIGNMENT: Readonly<Record<FooterColumnId, readonly string[]>> = {
     'blogPosts', 'openspec-docs', 'omniroute-docs', 'fullstack-tutorial',
     'impeccable-site', 'awesome-sites', 'awesome-design-gallery',
   ],
-  build: ['hagitask', 'compose-builder', 'soul-builder', 'trait-builder', 'costCalculator', 'gallery', 'index-data'],
+  build: ['hagitask', 'compose-builder', 'soul-builder', 'trait-builder', 'costCalculator', 'gallery', 'index-data', 'steamworks'],
   community: ['github', 'discord', 'issueFeedback', 'contactEmail', 'qqGroup', 'newbe-blog', 'status-page'],
 };
 

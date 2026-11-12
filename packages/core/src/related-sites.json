@@ -479,5 +479,33 @@
     },
     "url": "https://impeccable.hagicode.com/",
     "supportsLocalePath": true
+  },
+  {
+    "id": "steamworks",
+    "name": {
+      "zh-CN": "HagiCode Steamworks",
+      "zh-Hant": "HagiCode Steamworks",
+      "en-US": "HagiCode Steamworks",
+      "ja-JP": "HagiCode Steamworks",
+      "ko-KR": "HagiCode Steamworks",
+      "de-DE": "HagiCode Steamworks",
+      "fr-FR": "HagiCode Steamworks",
+      "es-ES": "HagiCode Steamworks",
+      "pt-BR": "HagiCode Steamworks",
+      "ru-RU": "HagiCode Steamworks"
+    },
+    "description": {
+      "zh-CN": "Steam 创意工坊相关服务",
+      "zh-Hant": "Steam 創意工坊相關服務",
+      "en-US": "Steam Workshop services.",
+      "ja-JP": "Steam ワークショップ関連のサービスです。",
+      "ko-KR": "Steam 워크숍 관련 서비스입니다.",
+      "de-DE": "Dienste rund um den Steam Workshop.",
+      "fr-FR": "Services liés au Steam Workshop.",
+      "es-ES": "Servicios relacionados con Steam Workshop.",
+      "pt-BR": "Serviços relacionados ao Steam Workshop.",
+      "ru-RU": "Сервисы для Steam Workshop."
+    },
+    "url": "https://steamworks.hagicode.com/"
   }
 ]
