@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkhagilight_docusaurus_example=self.webpackChunkhagilight_docusaurus_example||[]).push([[903],{1912(e){e.exports=JSON.parse('{"blogBasePath":"/de-DE/blog","blogTitle":"Blog","authorsListPath":"/de-DE/blog/authors"}')}}]);

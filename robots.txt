@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://docusaurus.hagicode.com/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/zh-CN/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/zh-Hant/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/fr-FR/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/de-DE/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/es-ES/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/ja-JP/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/ko-KR/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/pt-BR/sitemap.xml
+Sitemap: https://docusaurus.hagicode.com/ru-RU/sitemap.xml

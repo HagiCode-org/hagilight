@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>Hagilight for Docusaurus Blog</title>
+        <link>https://docusaurus.hagicode.com/zh-CN/blog</link>
+        <description>Hagilight for Docusaurus Blog</description>
+        <lastBuildDate>Sun, 11 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>zh-CN</language>
+        <item>
+            <title><![CDATA[认识 Docusaurus 版 Hagilight]]></title>
+            <link>https://docusaurus.hagicode.com/zh-CN/blog/introducing-hagilight-docusaurus</link>
+            <guid>https://docusaurus.hagicode.com/zh-CN/blog/introducing-hagilight-docusaurus</guid>
+            <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[一个 Docusaurus 插件，为 HagiCode 站点带来页脚、统计、推广卡片、SEO、站点地图、robots.txt 与 RSS。]]></description>
+            <content:encoded><![CDATA[<p>Hagilight for Docusaurus 为 Docusaurus 3 站点带来 HagiCode 站点已在使用的功能。添加一个插件配置即可启用全部功能，并且每项功能都有各自的开关。</p>
+<p>本演示站点展示了全部功能。构建产物中包含每个语言的站点地图和 RSS 订阅源，以及列出它们的根目录 <code>robots.txt</code>。</p>
+<p>阅读<a class="" href="https://docusaurus.hagicode.com/zh-CN/docs/features">功能</a>了解各项功能，阅读<a class="" href="https://docusaurus.hagicode.com/zh-CN/docs/options">选项</a>查看全部开关。</p>]]></content:encoded>
+        </item>
+    </channel>
+</rss>
