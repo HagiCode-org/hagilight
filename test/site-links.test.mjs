@@ -46,7 +46,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'hagitask', 'costCalculator',
     'hagicode-main', 'hagicode-docs', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
-    'fullstack-tutorial', 'gallery', 'impeccable-site',
+    'fullstack-tutorial', 'gallery', 'impeccable-site', 'steamworks',
   ]);
   assert.equal(links.quick[0].label, 'Download HagiCode');
   assert.equal(links.quick[1].label, 'Download HagiCode for Windows');
@@ -126,7 +126,7 @@ test('includes the Gallery site last with a localized description for every loca
   );
 });
 
-test('includes the Impeccable Commands site last with a localized description for every locale', () => {
+test('includes the Impeccable Commands site with a localized description for every locale', () => {
   for (const locale of [
     'zh-CN', 'zh-Hant', 'en-US', 'ja-JP', 'ko-KR',
     'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
@@ -143,7 +143,10 @@ test('includes the Impeccable Commands site last with a localized description fo
     resolveSiteLinks('en-US').relatedSites.find(({ id }) => id === 'impeccable-site').description,
     resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'impeccable-site').description,
   );
-  assert.equal(resolveSiteLinks('en-US').relatedSites.at(-1).id, 'impeccable-site');
+  assert.deepEqual(
+    resolveSiteLinks('en-US').relatedSites.slice(-2).map(({ id }) => id),
+    ['impeccable-site', 'steamworks'],
+  );
   assert.equal(
     resolveSiteLinks('en-US', { siteId: 'impeccable-site' }).relatedSites.some(({ id }) => id === 'impeccable-site'),
     false,
