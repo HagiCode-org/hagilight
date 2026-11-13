@@ -1,0 +1,12 @@
+# Hagilight
+
+> A bilingual, standalone Astro tour of the shared components and build integrations in @hagicode/hagilight.
+
+## Overview
+
+- [Explore Hagilight core, without Starlight.](https://hagilight.hagicode.com/en-US/): A bilingual, standalone Astro tour of the shared components and build integrations in @hagicode/hagilight.
+- [Mermaid diagrams · Hagilight demo](https://hagilight.hagicode.com/mermaid/)
+
+## Optional
+
+- [zh-CN](https://hagilight.hagicode.com/zh-CN/)
