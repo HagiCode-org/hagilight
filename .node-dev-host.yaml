@@ -1,0 +1,8 @@
+# Project settings for node-dev-host. Read at the start of every build.
+# Build commands and output folders stay in each node's environment (BUILD_CMD, DIST_DIR),
+# because both demo nodes share this workspace.
+version: 1
+name: Hagilight 示例站点
+description: Hagilight 的 demo 站点（examples/demo-web 与 examples/demo-starlight-web），共用此 workspace。
+build:
+  spa: false
