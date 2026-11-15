@@ -225,7 +225,7 @@
           "title": "GitHub Copilot 在 HagiCode 里能用什么",
           "content": [
             "与 Copilot 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
-            "不适用于 Copilot:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
+            "不适用于 Copilot:交互式提问(仅 Claude、Pi、OMP)和 Agent 工作面板(仅 Claude)。",
             "HagiCode 只会向 CLI 传递经过验证的那部分 Copilot 启动参数;如果你的组织已禁用 Copilot,HagiCode 也无法使用它。"
           ]
         }

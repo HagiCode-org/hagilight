@@ -226,7 +226,7 @@
           "title": "What works for Gemini inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Gemini.",
-            "Does not apply to Gemini: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
+            "Does not apply to Gemini: interactive questions (Claude, Pi and OMP only) and the agent work panel (Claude only).",
             "Antigravity is a different product; HagiCode's Gemini integration targets the `gemini` executable only."
           ]
         }

@@ -226,7 +226,7 @@
           "title": "Gemini 在 HagiCode 里能用什么",
           "content": [
             "与 Gemini 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
-            "不适用于 Gemini:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
+            "不适用于 Gemini:交互式提问(仅 Claude、Pi、OMP)和 Agent 工作面板(仅 Claude)。",
             "Antigravity 是另一个产品;HagiCode 的 Gemini 集成只针对 `gemini` 可执行文件。"
           ]
         }

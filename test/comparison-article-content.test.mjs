@@ -48,7 +48,6 @@ const INTERACTIVE_QUESTION_SLUGS = new Set([
   'claude-vs-hagicode',
   'pi-vs-hagicode',
   'omp-vs-hagicode',
-  'reasonix-vs-hagicode',
 ]);
 
 // Only Claude publishes agent work snapshots.
@@ -68,7 +67,6 @@ const PROVIDER_SLUG_MAP = {
   KimiCli: 'kimi',
   GeminiCli: 'gemini',
   DeepAgentsCli: 'deepagents',
-  ReasonixCli: 'reasonix',
   PiCli: 'pi',
   OmpCli: 'omp',
   JunieCli: 'junie',
@@ -173,7 +171,7 @@ test('legacy locales have the shared items 11 and 12 in section 2', async () => 
   }
 });
 
-test('legacy locales: item 13 (interactive questions) appears only for Claude, Pi, OMP and Reasonix', async () => {
+test('legacy locales: item 13 (interactive questions) appears only for Claude, Pi and OMP', async () => {
   const articles = (await articlesPromise).filter(isLegacy);
 
   for (const { locale, slug, detail } of articles) {

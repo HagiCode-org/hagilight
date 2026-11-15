@@ -235,7 +235,7 @@
           "title": "What works with OpenCode inside HagiCode",
           "content": [
             "Works: parallel sessions, proposals, AI commits, the tool-call view, version detection and runtime health status.",
-            "Does not apply: interactive questions are available only for Claude, Pi, OMP and Reasonix, and the agent work panel is Claude-only."
+            "Does not apply: interactive questions are available only for Claude, Pi and OMP, and the agent work panel is Claude-only."
           ]
         }
       ]

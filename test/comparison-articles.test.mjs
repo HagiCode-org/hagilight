@@ -78,7 +78,6 @@ test('structured article source exposes expected locale folders and baseline slu
     'opencode-vs-hagicode',
     'pi-vs-hagicode',
     'qoder-vs-hagicode',
-    'reasonix-vs-hagicode',
   ]);
 });
 
@@ -285,7 +284,7 @@ test('a packaged data file that is not a documented export stays private', async
   );
 });
 
-test('the data set holds 136 article files in 10 locales', async () => {
+test('the data set holds 126 article files in 10 locales', async () => {
   const locales = await listStructuredArticleLocales();
   let total = 0;
   for (const locale of locales) {
@@ -293,7 +292,7 @@ test('the data set holds 136 article files in 10 locales', async () => {
   }
 
   assert.equal(locales.length, 10);
-  assert.equal(total, 136);
+  assert.equal(total, 126);
 });
 
 test('a comparison-table block is validated with its headers and rows', async () => {

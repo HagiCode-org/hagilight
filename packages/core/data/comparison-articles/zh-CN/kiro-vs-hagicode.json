@@ -225,7 +225,7 @@
           "title": "Kiro 在 HagiCode 里能用什么",
           "content": [
             "与 Kiro 搭配时可用:并行会话、OpenSpec 提案、AI 提交、Code Server、Vault、Monospecs,以及统一的工具调用视图。",
-            "不适用于 Kiro:交互式提问(仅 Claude、Pi、OMP、Reasonix)和 Agent 工作面板(仅 Claude)。",
+            "不适用于 Kiro:交互式提问(仅 Claude、Pi、OMP)和 Agent 工作面板(仅 Claude)。",
             "云端会话、自定义 Agent 选择等 Kiro 专有功能仍在 Kiro 本身里,HagiCode 通过 ACP 与它通信。"
           ]
         }

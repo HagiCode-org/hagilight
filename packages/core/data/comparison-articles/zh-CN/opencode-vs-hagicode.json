@@ -235,7 +235,7 @@
           "title": "OpenCode 在 HagiCode 里哪些能用",
           "content": [
             "可用：并行会话、提案、AI 提交、工具调用视图、版本检测和运行时健康状态。",
-            "不适用：交互式提问仅支持 Claude、Pi、OMP 和 Reasonix；Agent 工作面板仅支持 Claude。"
+            "不适用：交互式提问仅支持 Claude、Pi 和 OMP；Agent 工作面板仅支持 Claude。"
           ]
         }
       ]

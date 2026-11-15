@@ -226,7 +226,7 @@
           "title": "What works for Hermes inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Hermes sessions. OmniRoute is a HagiCode feature, and how far it reaches Hermes depends on Hermes' own provider settings.",
-            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with Hermes."
+            "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with Hermes."
           ]
         }
       ]

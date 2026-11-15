@@ -226,7 +226,7 @@
           "title": "What works for DeepAgents inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to DeepAgents sessions. OmniRoute is a HagiCode feature, and how far it reaches the CLI depends on the CLI's own model settings.",
-            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with DeepAgents."
+            "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with DeepAgents."
           ]
         }
       ]

@@ -226,7 +226,7 @@
           "title": "What works with Qoder inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commits, Code Server, Monospecs, Vault and the unified tool-call view work with Qoder. HagiCode talks to it over ACP, and you can pass a model override.",
-            "Interactive questions (the agent asking you mid-run) are available only for Claude, Pi, OMP and Reasonix, and the agent work panel only for Claude Code, so neither applies to Qoder sessions."
+            "Interactive questions (the agent asking you mid-run) are available only for Claude, Pi and OMP, and the agent work panel only for Claude Code, so neither applies to Qoder sessions."
           ]
         }
       ]

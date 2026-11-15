@@ -225,7 +225,7 @@
           "title": "What works for Kiro inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Kiro.",
-            "Does not apply to Kiro: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
+            "Does not apply to Kiro: interactive questions (Claude, Pi and OMP only) and the agent work panel (Claude only).",
             "Kiro-specific features such as cloud sessions and custom-agent selection live in Kiro itself; HagiCode talks to it over ACP."
           ]
         }

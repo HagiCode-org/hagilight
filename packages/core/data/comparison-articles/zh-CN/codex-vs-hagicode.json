@@ -224,7 +224,7 @@
           "title": "Codex 在 HagiCode 里能用什么",
           "content": [
             "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 Codex 会话。",
-            "交互式提问目前只支持 Claude、Pi、OMP 和 Reasonix，Agent 工作面板只支持 Claude Code，所以 Codex 会话里没有这两项。"
+            "交互式提问目前只支持 Claude、Pi 和 OMP，Agent 工作面板只支持 Claude Code，所以 Codex 会话里没有这两项。"
           ]
         }
       ]

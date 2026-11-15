@@ -226,7 +226,7 @@
           "title": "Qoder 在 HagiCode 里能用什么",
           "content": [
             "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 Qoder。HagiCode 通过 ACP 与它通信，也可以指定模型。",
-            "交互式提问（Agent 在运行中向你提问）目前只支持 Claude、Pi、OMP 和 Reasonix，Agent 工作面板只支持 Claude Code，所以 Qoder 会话里没有这两项。"
+            "交互式提问（Agent 在运行中向你提问）目前只支持 Claude、Pi 和 OMP，Agent 工作面板只支持 Claude Code，所以 Qoder 会话里没有这两项。"
           ]
         }
       ]

@@ -225,7 +225,7 @@
           "title": "What works with CodeBuddy inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commits, Code Server, Monospecs, Vault and the unified tool-call view work with CodeBuddy sessions.",
-            "Interactive questions are available only for Claude, Pi, OMP and Reasonix, and the agent work panel only for Claude Code, so neither appears for CodeBuddy. Which models you can pick depends on the site you signed in to."
+            "Interactive questions are available only for Claude, Pi and OMP, and the agent work panel only for Claude Code, so neither appears for CodeBuddy. Which models you can pick depends on the site you signed in to."
           ]
         }
       ]

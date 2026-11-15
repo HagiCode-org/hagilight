@@ -226,7 +226,7 @@
           "title": "What works for Junie inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Junie sessions. OmniRoute routing is a HagiCode feature, and how far it reaches Junie depends on Junie's own provider settings.",
-            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with Junie."
+            "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with Junie."
           ]
         }
       ]

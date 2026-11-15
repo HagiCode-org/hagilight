@@ -226,7 +226,7 @@
           "title": "What works for dsh inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to dsh sessions. dsh accepts a provider id such as `omniroute`, so OmniRoute can sit underneath if you set it up as a dsh provider.",
-            "Interactive questions are limited to Claude, Pi, OMP and Reasonix, and the agent work panel is Claude only, so neither is available with dsh."
+            "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with dsh."
           ]
         }
       ]

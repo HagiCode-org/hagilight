@@ -225,7 +225,7 @@
           "title": "What works for GitHub Copilot inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Copilot.",
-            "Does not apply to Copilot: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
+            "Does not apply to Copilot: interactive questions (Claude, Pi and OMP only) and the agent work panel (Claude only).",
             "HagiCode passes only a verified subset of Copilot startup flags to the CLI, and if your organisation has disabled Copilot, HagiCode cannot use it either."
           ]
         }

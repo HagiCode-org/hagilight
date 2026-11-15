@@ -225,7 +225,7 @@
           "title": "What works for Kimi inside HagiCode",
           "content": [
             "Works: parallel sessions, OpenSpec proposals, AI commits, Code Server, Vault, Monospecs and the unified tool-call view with Kimi.",
-            "Does not apply to Kimi: interactive questions (Claude, Pi, OMP and Reasonix only) and the agent work panel (Claude only).",
+            "Does not apply to Kimi: interactive questions (Claude, Pi and OMP only) and the agent work panel (Claude only).",
             "HagiCode relies on the `kimi acp` interface, which Kimi Code also documents; features that exist only in the Kimi terminal UI stay there."
           ]
         }

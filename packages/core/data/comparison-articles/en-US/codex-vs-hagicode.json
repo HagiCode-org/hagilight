@@ -224,7 +224,7 @@
           "title": "What works with Codex inside HagiCode",
           "content": [
             "Parallel sessions, Agents management, OpenSpec proposals, AI commits, Code Server, Monospecs, Vault and the unified tool-call view work with Codex sessions.",
-            "Interactive questions are available only for Claude, Pi, OMP and Reasonix, and the agent work panel only for Claude Code, so neither appears for Codex."
+            "Interactive questions are available only for Claude, Pi and OMP, and the agent work panel only for Claude Code, so neither appears for Codex."
           ]
         }
       ]
