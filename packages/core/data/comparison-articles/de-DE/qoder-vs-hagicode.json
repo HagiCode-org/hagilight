@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Qoder vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Qoders wichtigsten Funktionen, technische Eigenschaften und Anwendungs-Ökosystem und sehen Sie, wie HagiCode Qoder durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "description": "Verstehen Sie Qoders wichtigsten Funktionen, technische Eigenschaften und Anwendungs-Ökosystem und sehen Sie, wie HagiCode Qoder durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs und Vault auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
   "summary": "Qoder ist ein modernes KI-Programmier-CLI-Tool mit flüssiger Interaktion, effizientem Kontext-Management und flexiblen Tool-Aufrufen. Mit einem Entwurf, der Entwicklererfahrung an erste Stelle setzt, bietet es natürliche Multi-Turn-Gespräche und effiziente Arbeits-Flows. Qoder ist jedoch ein Terminal-Tool, und HagiCode ist eine Werkbank mit Multi-Repo-Management, Wissens-Persistenz und visuellem Workflow. Beide zusammen erweitern Qoders flüssige Erfahrung zu einem vollständigen Entwicklungsprozess. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "qoder-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute-Modell-Routing: Qoders Modellauswahl flexibler machen",
+              "title": "Modell-Routing: Qoders Modellauswahl flexibler machen",
               "content": [
                 "Teams sollten den Workflow, den sie mögen, beibehalten können, ohne den Modellzugang an einen einzigen Anbieter oder Abonnementpfad zu binden.",
-                "OmniRoute trennt die Interaktionsebene von der Modell-Routing-Ebene, sodass HagiCode Qoder im Workflow behalten kann, während es darunter die Modellquellen wechselt.",
                 "Das gibt Ihnen bessere Kostenkontrolle, bessere Aufgaben-zu-Modell-Passung und weniger Workflow-Unruhe, wenn sich Modellpreise oder Verfügbarkeit ändern."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Qoder liefert Flüssigkeit: effizientes Kontext-Management, schnelle Tool-Aufrufe, natürliche Konversation;",
             "HagiCode liefert Effizienz: Multithreading, Agents-Flottenverwaltung, OpenSpec-Vorschläge, KI-Commits, Code-Server-Editor, HagiTasks;",
-            "HagiCode erweitert Grenzen: Monospecs lässt Qoder Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Qoder sitzungsübergreifendes Langzeitgedächtnis, OmniRoute befreit Qoder aus dem Modell-Abonnement-Lock-in;",
+            "HagiCode erweitert Grenzen: Monospecs lässt Qoder Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Qoder sitzungsübergreifendes Langzeitgedächtnis;",
             "Tool-Call-Ansicht: eine einheitliche Struktur für die Tool-Nutzung jedes Providers, in Verlauf und Live-Updates;",
             "Nutzung auf einen Blick: optionale TokenMonitor-Anzeige der heutigen Tokens und Kosten in der Statusleiste;",
             "Zusammen liefern sie eine Erfahrung: nachverfolgbare Entscheidungsketten, automatisierte Routineaufgaben, ein genussvolles Interface und ein langfristiger KI-Partner, der Ihre Projektlandschaft wirklich versteht und frei mit jeder Modellquelle konfiguriert werden kann."

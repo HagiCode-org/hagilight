@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Kimi vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de Kimi, su optimización china y su ecosistema Moonshot AI, y ve cómo HagiCode lleva a Kimi al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "description": "Comprende las funciones clave de Kimi, su optimización china y su ecosistema Moonshot AI, y ve cómo HagiCode lleva a Kimi al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs y el Vault. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
   "summary": "Kimi es la herramienta de programación IA de terminal de Moonshot AI, únicamente posicionada entre las herramientas de programación IA por su enfoque 'chino primero'. Destaca en profunda comprensión de contenidos técnicos en chino, generación y comentario de código en chino y análisis de documentos en chino, y es una herramienta particularmente amigable para desarrolladores sinohablantes. Sin embargo, Kimi es una herramienta de terminal, y HagiCode es un workbench con visualización, gestión multi-repo y persistencia de conocimiento. Ambos juntos extienden la capacidad china de Kimi a una experiencia de desarrollo completa. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "kimi-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: dar a Kimi más opciones de modelo",
+              "title": "Enrutamiento de modelo: dar a Kimi más opciones de modelo",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
-                "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Kimi en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
                 "Eso te da mejor control de costos, mejor encaje tarea-a-modelo y menos alteración del flujo de trabajo cuando los precios o disponibilidad del modelo cambian."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Kimi proporciona inteligencia china: comprensión técnica en chino, generación de código en chino, análisis de documentos en chino;",
             "HagiCode proporciona eficiencia: multithreading, gestión de flota de Agents, propuestas OpenSpec, commits IA, editor Code Server, HagiTasks;",
-            "HagiCode expande fronteras: Monospecs deja que Kimi entienda relaciones de proyecto cross-repo, Vault da a Kimi memoria a largo plazo cross-sesión, OmniRoute libera a Kimi del bloqueo de suscripción de modelo;",
+            "HagiCode expande fronteras: Monospecs deja que Kimi entienda relaciones de proyecto cross-repo, Vault da a Kimi memoria a largo plazo cross-sesión;",
             "Vista de llamadas a herramientas: un formato coherente para el uso de herramientas de cualquier proveedor, en el historial y en las actualizaciones en vivo;",
             "Consumo de un vistazo: vista opcional de TokenMonitor en la barra de estado con los tokens y el coste de hoy;",
             "Juntos proporcionan una experiencia: cadenas de decisión rastreables, tareas diarias automatizadas, una interfaz agradable, y un compañero IA a largo plazo que realmente entiende tu paisaje de proyecto y puede configurarse libremente con cualquier fuente de modelo."

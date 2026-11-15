@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Claude Code vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de Claude, las características del modelo y el ecosistema de plugins, y ve cómo HagiCode lleva el poder de Claude al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado. Incluye preguntas interactivas que reanudan la misma ejecución. Incluye el panel de trabajo del agente para subagentes y monitores."
+    "description": "Comprende las funciones clave de Claude, las características del modelo y el ecosistema de plugins, y ve cómo HagiCode lleva el poder de Claude al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs y el Vault. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado. Incluye preguntas interactivas que reanudan la misma ejecución. Incluye el panel de trabajo del agente para subagentes y monitores."
   },
   "summary": "Claude es ampliamente reconocido como uno de los asistentes de codificación IA más poderosos del mundo. Con su ventana de contexto ultra-larga, sus capacidades de razonamiento profundo y su altamente seguro alineamiento de modelo, se ha ganado la confianza de incontables desarrolladores. Sin embargo, Claude en sí mismo es un portador de capacidad de modelo, mientras que HagiCode es un workbench de escritorio construido a propósito para escenarios de programación IA. Cada uno destaca en su dominio, y usarlos juntos realmente libera todo el poder de Claude. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado. Claude Code puede hacer preguntas estructuradas durante una ejecución, y la ejecución continúa en cuanto respondes. HagiCode también lista los subagentes y monitores que una ejecución de Claude Code sigue esperando.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "claude-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: desacoplar la CLI de los modelos completamente, dar a Claude más libertad",
+              "title": "Enrutamiento de modelo: desacoplar la CLI de los modelos completamente, dar a Claude más libertad",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
-                "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Claude en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
                 "Eso te da mejor control de costos, mejor encaje tarea-a-modelo y menos alteración del flujo de trabajo cuando los precios o disponibilidad del modelo cambian."
               ],
               "bullets": [
@@ -280,7 +279,7 @@
           "items": [
             "Claude proporciona inteligencia: contexto ultra-largo, razonamiento profundo, alineamiento de seguridad;",
             "HagiCode proporciona eficiencia: multithreading, gestión de flota de Agents, propuestas OpenSpec, commits IA, editor Code Server, HagiTasks;",
-            "HagiCode expande fronteras: Monospecs deja que Claude entienda relaciones de proyecto cross-repo, Vault da a Claude memoria a largo plazo cross-sesión, OmniRoute libera a Claude del bloqueo de suscripción de modelo;",
+            "HagiCode expande fronteras: Monospecs deja que Claude entienda relaciones de proyecto cross-repo, Vault da a Claude memoria a largo plazo cross-sesión;",
             "Vista de llamadas a herramientas: un formato coherente para el uso de herramientas de cualquier proveedor, en el historial y en las actualizaciones en vivo;",
             "Consumo de un vistazo: vista opcional de TokenMonitor en la barra de estado con los tokens y el coste de hoy;",
             "Preguntas interactivas: responde a las preguntas estructuradas del agente y deja que la misma ejecución continúe;",

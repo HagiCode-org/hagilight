@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Claude Code 對比 HagiCode:功能與差異",
-    "description": "了解 Claude 的主要功能、模型特點和插件生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 Claude 的實力更上一層樓。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。包含可接續同一次執行的互動式提問。包含列出子代理與監控任務的 Agent 工作面板。"
+    "description": "了解 Claude 的主要功能、模型特點和插件生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 等角度，看 HagiCode 如何讓 Claude 的實力更上一層樓。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。包含可接續同一次執行的互動式提問。包含列出子代理與監控任務的 Agent 工作面板。"
   },
   "summary": "Claude 是目前全球公認最強大的 AI 程式助手之一，憑藉超長上下文視窗、深度推理能力和高度安全的模型對齊，贏得了大量開發者的信賴。不過 Claude 本身是一個模型能力的載體，而 HagiCode 是一個專門為 AI 程式設計場景設計的桌面工作台——兩者各有所長，配合使用才能真正發揮 Claude 的全部實力。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。Claude Code 可以在執行中提出結構化問題，你回答之後，執行便會接續進行。此外，HagiCode 也會列出 Claude Code 執行時仍在等待的子代理與監控任務。",
   "sections": [
@@ -193,17 +193,17 @@
             },
             {
               "id": "claude-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute 模型路由：把 CLI 和模型徹底拆開，讓 Claude 更自由",
+              "title": "模型路由：把 CLI 和模型徹底拆開，讓 Claude 更自由",
               "content": [
                 "在傳統的 AI 程式設計工具中，選擇哪個 CLI 就約等於選擇了哪個模型訂閱——用 Claude Code 就綁死了 Anthropic 的計費體系，用 Copilot 就離不開 GitHub 的訂閱方案。這讓開發者的靈活性和成本控制都被鎖死在一個維度上。",
-                "HagiCode 整合的 OmniRoute 從根本上解開了這個繫結。它的核心設計理念是「CLI 管互動體驗，模型管能力供給，兩者不再被強行綁成一道選擇題」：",
-                "OmniRoute 對 Claude 使用者的意義尤其直接：你可以始終用 Claude Code 作為互動前端——保留它出色的多輪推理和工具調用體驗——但在模型層自由選擇最具價效比或最符合當前任務需求的模型來源。CLI 和模型的關係，從「婚姻」變成了「合作」。"
+                "",
+                ""
               ],
               "bullets": [
                 "CLI 自由選擇：你喜歡 Claude Code 的互動方式？它的多輪對話邏輯、工具調用風格和上下文管理方式用起來最順手？沒問題，繼續用它。CLI 的選擇完全取決於你偏愛哪種互動體驗。",
-                "模型訂閱靈活路由：CLI 之下，你可以透過 OmniRoute 把模型接入做成獨立的可配置層。走 Anthropic 的官方訂閱可以，切到 GitHub Copilot 的模型能力也可以，接入其他模型端點同樣可以。甚至多個 Agent 可以走不同的模型路由，互不影響。",
-                "一套接入策略多 CLI 複用：你在 OmniRoute 裡配置好的模型目錄、端點設定和訂閱策略，所有接入 HagiCode 的 CLI 都能共享。不需要在每個 CLI 裡各自配置一遍，維護成本大幅降低。",
-                "成本與能力解耦：當某個模型漲價或新模型釋出時，你只需要在 OmniRoute 層做一次調整，所有使用中的 Agent 都會自動走新路由。你不會因為「換模型」而被強迫「換 CLI」，也不會因為「CLI 很順手」而被迫「接受高價訂閱」。"
+                "",
+                "",
+                ""
               ]
             },
             {
@@ -280,7 +280,7 @@
           "items": [
             "Claude 提供智力：超長上下文、深度推理、安全對齊；",
             "HagiCode 提供效率：多線程並行、Agents 編隊管理、OpenSpec 提案、AI 提交、Code Server 編輯器、HagiTask；",
-            "HagiCode 拓展邊界：Monospecs 讓 Claude 理解跨倉庫專案關係，Vault 讓 Claude 擁有跨會話長期記憶，OmniRoute 讓 Claude 突破模型訂閱的鎖死；",
+            "HagiCode 拓展邊界：Monospecs 讓 Claude 理解跨倉庫專案關係，Vault 讓 Claude 擁有跨會話長期記憶；",
             "工具呼叫檢視：所有供應商的工具使用都採用一致的結構，歷史記錄與即時更新相同；",
             "用量一目瞭然：選用的 TokenMonitor 狀態列，顯示今日的 Token 用量與費用；",
             "互動式提問：回答 Agent 的結構化問題，讓同一次執行繼續進行；",

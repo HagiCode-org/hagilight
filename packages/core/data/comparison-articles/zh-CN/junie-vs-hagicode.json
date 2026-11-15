@@ -66,7 +66,7 @@
               "cells": [
                 "模型与提供商",
                 "默认模型,或自带密钥:OpenAI、Anthropic、Google、xAI、OpenRouter、GitHub Copilot,以及 LiteLLM、Ollama、LM Studio 等自定义端点",
-                "不托管模型,使用 Junie 已登录的账号;可选 OmniRoute 统一路由"
+                "不托管模型,使用 Junie 已登录的账号"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "Junie 在 HagiCode 里能用什么",
           "content": [
-            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 Junie 会话。OmniRoute 路由是 HagiCode 的功能,对 Junie 的覆盖程度取决于 Junie 自己的提供商设置。",
+            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 Junie 会话。",
             "交互式提问只支持 Claude、Pi 和 OMP,Agent 工作面板只支持 Claude,所以这两项在 Junie 下不可用。"
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "junie-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与用量",
+              "title": "工具调用视图与用量",
               "content": [
-                "当 Junie 配置为使用 OmniRoute 时,可以集中路由模型流量。Junie 的工具调用与其他 Agent 一样显示在同一种类型化视图中,可选的 TokenMonitor 集成会在状态栏显示今日 token 和费用。"
+                "Junie 的工具调用与其他 Agent 一样显示在同一种类型化视图中,可选的 TokenMonitor 集成会在状态栏显示今日 token 和费用。"
               ]
             }
           ]

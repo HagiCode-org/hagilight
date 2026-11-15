@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "75+ providers via Models.dev, local models, Copilot and ChatGPT logins",
-                "Hosts no models; uses the providers configured in OpenCode, or OmniRoute if you configure it"
+                "Hosts no models; uses the providers configured in OpenCode"
               ]
             },
             {
@@ -278,9 +278,9 @@
             },
             {
               "id": "opencode-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and TokenMonitor",
+              "title": "Tool-call view and TokenMonitor",
               "content": [
-                "OpenCode already supports many providers; OmniRoute can add one more routing layer shared across your agents. OpenCode's tool calls use the same format as other agents, and an optional TokenMonitor status-bar item shows today's tokens and cost."
+                "OpenCode already supports many providers. OpenCode's tool calls use the same format as other agents, and an optional TokenMonitor status-bar item shows today's tokens and cost."
               ]
             }
           ]

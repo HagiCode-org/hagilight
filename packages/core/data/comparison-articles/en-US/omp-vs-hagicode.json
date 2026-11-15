@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "Many providers (README says 60+), custom OpenAI-compatible endpoints, per-role model routing",
-                "Hosts no models; uses omp's own sign-in, or OmniRoute routing if you configure it"
+                "Hosts no models; uses omp's own sign-in"
               ]
             },
             {
@@ -222,7 +222,7 @@
           "items": [
             "Install omp (for example curl -fsSL https://omp.sh/install | sh) and sign in or add an API key for your provider.",
             "Install HagiCode Desktop for Windows, macOS or Linux.",
-            "In HagiCode, choose OMP as the Agent CLI and pick a model; if you use OmniRoute, select it as the route.",
+            "In HagiCode, choose OMP as the Agent CLI and pick a model.",
             "Open a repository and start a session or a proposal.",
             "Expect the run to stream into the conversation, with tool calls shown in the shared tool-call view.",
             "To go back, run omp in your terminal as before. Nothing in your omp setup or your repository is locked to HagiCode."
@@ -278,9 +278,9 @@
             },
             {
               "id": "omp-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and TokenMonitor",
+              "title": "Tool-call view and TokenMonitor",
               "content": [
-                "If you configure OmniRoute, omp's model requests can be routed through it. Tool calls from omp are shown in the same format as other agents. An optional status-bar item shows today's tokens and cost from TokenMonitor, off by default."
+                "Tool calls from omp are shown in the same format as other agents. An optional status-bar item shows today's tokens and cost from TokenMonitor, off by default."
               ]
             },
             {

@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "Nous Portal (300+ models), OpenRouter, OpenAI, your own endpoint and more; switch with `hermes model`",
-                "Hosts no models; uses what Hermes is configured with; optional OmniRoute routing"
+                "Hosts no models; uses what Hermes is configured with"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "What works for Hermes inside HagiCode",
           "content": [
-            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Hermes sessions. OmniRoute is a HagiCode feature, and how far it reaches Hermes depends on Hermes' own provider settings.",
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Hermes sessions.",
             "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with Hermes."
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "hermes-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and usage",
+              "title": "Tool-call view and usage",
               "content": [
-                "OmniRoute can centralise model routing across agents. Hermes tool calls appear in the same typed view as every other agent's, and optional TokenMonitor shows today's tokens and cost in the status bar."
+                "Hermes tool calls appear in the same typed view as every other agent's, and optional TokenMonitor shows today's tokens and cost in the status bar."
               ]
             }
           ]

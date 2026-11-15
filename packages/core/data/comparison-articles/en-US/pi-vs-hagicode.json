@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "15+ providers by API key or OAuth login; custom providers via models.json or extensions",
-                "Hosts no models; uses Pi's own sign-in, or OmniRoute routing if you configure it"
+                "Hosts no models; uses Pi's own sign-in"
               ]
             },
             {
@@ -278,9 +278,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and TokenMonitor",
+              "title": "Tool-call view and TokenMonitor",
               "content": [
-                "If you configure OmniRoute, Pi's model requests can be routed through it. Pi's tool calls use the same format as other agents. A TokenMonitor status-bar item shows today's tokens and cost; it is off by default."
+                "Pi's tool calls use the same format as other agents. A TokenMonitor status-bar item shows today's tokens and cost; it is off by default."
               ]
             },
             {

@@ -66,7 +66,7 @@
               "cells": [
                 "模型与供应商",
                 "15+ 家供应商，可用 API Key 或 OAuth 登录；可通过 models.json 或扩展添加自定义供应商",
-                "不托管模型；使用 Pi 自己的登录，或配置后走 OmniRoute 路由"
+                "不托管模型；使用 Pi 自己的登录"
               ]
             },
             {
@@ -278,9 +278,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与 TokenMonitor",
+              "title": "工具调用视图与 TokenMonitor",
               "content": [
-                "配置 OmniRoute 后，Pi 的模型请求可以经它路由。Pi 的工具调用与其他 Agent 使用同一种格式。状态栏里的 TokenMonitor 项显示今日 token 与费用，默认关闭。"
+                "Pi 的工具调用与其他 Agent 使用同一种格式。状态栏里的 TokenMonitor 项显示今日 token 与费用，默认关闭。"
               ]
             },
             {

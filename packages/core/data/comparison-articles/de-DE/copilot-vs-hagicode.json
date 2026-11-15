@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "GitHub Copilot vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie GitHub Copilots wichtigsten Funktionen, Multi-Modell-Unterstützung und technische Architektur und sehen Sie, wie HagiCode Copilot durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute von einem Code-Vervollständigungs-Assistenten zu einem vollständigen Workflow-Entwicklungspartner hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "description": "Verstehen Sie GitHub Copilots wichtigsten Funktionen, Multi-Modell-Unterstützung und technische Architektur und sehen Sie, wie HagiCode Copilot durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs und Vault von einem Code-Vervollständigungs-Assistenten zu einem vollständigen Workflow-Entwicklungspartner hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
   "summary": "GitHub Copilot ist heute eines der beliebtesten KI-Programmierwerkzeuge. Mit tiefer GitHub-Ökosystem-Integration, mächtiger Code-Vervollständigung und einheitlichem Zugriff auf mehrere KI-Modelle ist es ein tägliches Grundnahrungsmittel für Millionen Entwickler geworden. Copilot ist jedoch im Wesentlichen eine KI-Fähigkeits-Schnittstellenschicht, während HagiCode eine für KI-Programmierszenarien purpose-build Desktop-Werkbank ist. Jeder glänzt in seiner Domäne, und beide zusammen erschließen Copilots volles Entwicklungspotenzial. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "copilot-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute-Modell-Routing: Copilots Modellwahl noch freier machen",
+              "title": "Modell-Routing: Copilots Modellwahl noch freier machen",
               "content": [
                 "Teams sollten den Workflow, den sie mögen, beibehalten können, ohne den Modellzugang an einen einzigen Anbieter oder Abonnementpfad zu binden.",
-                "OmniRoute trennt die Interaktionsebene von der Modell-Routing-Ebene, sodass HagiCode Copilot im Workflow behalten kann, während es darunter die Modellquellen wechselt.",
                 "Das gibt Ihnen bessere Kostenkontrolle, bessere Aufgaben-zu-Modell-Passung und weniger Workflow-Unruhe, wenn sich Modellpreise oder Verfügbarkeit ändern."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Copilot liefert Fähigkeit: Multi-Modell-Zugriff, Code-Generierung, GitHub-Ökosystem-Integration;",
             "HagiCode liefert Effizienz: Multithreading, Agents-Flottenverwaltung, OpenSpec-Vorschläge, KI-Commits, Code-Server-Editor, HagiTasks;",
-            "HagiCode erweitert Grenzen: Monospecs lässt Copilot Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Copilot sitzungsübergreifendes Langzeitgedächtnis, OmniRoute befreit Copilot aus dem Modell-Abonnement-Lock-in;",
+            "HagiCode erweitert Grenzen: Monospecs lässt Copilot Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Copilot sitzungsübergreifendes Langzeitgedächtnis;",
             "Tool-Call-Ansicht: eine einheitliche Struktur für die Tool-Nutzung jedes Providers, in Verlauf und Live-Updates;",
             "Nutzung auf einen Blick: optionale TokenMonitor-Anzeige der heutigen Tokens und Kosten in der Statusleiste;",
             "Zusammen liefern sie eine Erfahrung: nachverfolgbare Entscheidungsketten, automatisierte Routineaufgaben, ein genussvolles Interface und ein langfristiger KI-Partner, der Ihre Projektlandschaft wirklich versteht und frei mit jeder Modellquelle konfiguriert werden kann."

@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "CodeBuddy 對比 HagiCode:功能與差異",
-    "description": "了解 CodeBuddy 的主要功能、企業級特性和技術生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 和 OmniRoute 等角度，看 HagiCode 如何讓 CodeBuddy 的企業級能力獲得全面工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
+    "description": "了解 CodeBuddy 的主要功能、企業級特性和技術生態，並從多線程並行、OpenSpec 提案、AI 提交、HagiTask、遊戲化界面、Agents 管理、Monospecs、Vault 等角度，看 HagiCode 如何讓 CodeBuddy 的企業級能力獲得全面工作流加持。同時涵蓋共用的工具呼叫檢視與 TokenMonitor 狀態列用量。"
   },
   "summary": "CodeBuddy 是一款面向企業級開發場景的 AI 編碼助手，以「安全、可控、高效」為產品理念。它在許可權管理、程式碼安全和團隊協作方面有比一般開源工具更成熟的考量，特別適合對程式碼安全和合規性有嚴格要求的團隊。不過 CodeBuddy 本身是一個編碼助手工具，而 HagiCode 是一個全面的 AI 程式設計工作台——兩者配合，才能把 CodeBuddy 的企業級基因從「工具層面」釋放到「平台層面」。它也涵蓋了共用的工具呼叫檢視，以及狀態列中選用的 TokenMonitor 用量顯示。",
   "sections": [
@@ -193,10 +193,10 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute 模型路由：讓企業級的模型採購策略更靈活",
+              "title": "模型路由：讓企業級的模型採購策略更靈活",
               "content": [
                 "團隊應該能保留自己喜歡的工作流，而不是被某一個模型供應商或訂閱路徑反向綁死。",
-                "OmniRoute 把互動層和模型路由層拆開，讓 HagiCode 可以繼續把 CodeBuddy 放在工作流裡，同時在底層靈活切換模型來源。",
+                "",
                 "這樣你就能同時獲得更好的成本控制、更合適的任務匹配，以及模型供應變化時更低的遷移摩擦。"
               ],
               "bullets": [
@@ -254,7 +254,7 @@
           "items": [
             "CodeBuddy 提供安全與合規：細粒度許可權、程式碼安全保障、合規性支援；",
             "HagiCode 提供效率：多線程並行、Agents 編隊管理、OpenSpec 提案、AI 提交、Code Server 編輯器、HagiTask；",
-            "HagiCode 拓展邊界：Monospecs 讓 CodeBuddy 理解跨倉庫專案關係，Vault 讓 CodeBuddy 擁有跨會話長期記憶，OmniRoute 讓 CodeBuddy 突破模型訂閱的鎖死；",
+            "HagiCode 拓展邊界：Monospecs 讓 CodeBuddy 理解跨倉庫專案關係，Vault 讓 CodeBuddy 擁有跨會話長期記憶；",
             "工具呼叫檢視：所有供應商的工具使用都採用一致的結構，歷史記錄與即時更新相同；",
             "用量一目瞭然：選用的 TokenMonitor 狀態列，顯示今日的 Token 用量與費用；",
             "兩者結合提供體驗：可追溯的決策鏈、自動化的日常事務、讓人愉悅的操作介面，以及一個真正了解你專案全景、可自由配置模型來源的長期 AI 搭檔。"

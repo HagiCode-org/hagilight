@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Codex vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de OpenAI Codex, su arquitectura técnica y su ecosistema de CLI y herramientas, y ve cómo HagiCode lleva a Codex al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "description": "Comprende las funciones clave de OpenAI Codex, su arquitectura técnica y su ecosistema de CLI y herramientas, y ve cómo HagiCode lleva a Codex al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs y el Vault. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
   "summary": "OpenAI Codex es la herramienta oficial de programación IA de terminal de OpenAI. Con su vinculación natural al ecosistema de modelos de OpenAI, su interacción minimalista de línea de comandos y su eficiente velocidad de generación de código, se ha convertido en la opción preferida de muchos desarrolladores que prefieren el stack tecnológico de OpenAI. Sin embargo, Codex es fundamentalmente un asistente de codificación CLI ligero, mientras que HagiCode es un workbench de programación IA con todas las funciones. Usarlos juntos eleva la codificación rápida de Codex de una utilidad rápida a una experiencia de desarrollo completa. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "codex-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: dar a Codex más de un camino",
+              "title": "Enrutamiento de modelo: dar a Codex más de un camino",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
-                "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Codex en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
                 "Eso te da mejor control de costos, mejor encaje tarea-a-modelo y menos alteración del flujo de trabajo cuando los precios o disponibilidad del modelo cambian."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Codex proporciona velocidad: generación de código ultrarrápida, experiencia nativa de terminal, vinculación profunda al modelo de OpenAI;",
             "HagiCode proporciona eficiencia: multithreading, gestión de flota de Agents, propuestas OpenSpec, commits IA, editor Code Server, HagiTasks;",
-            "HagiCode expande fronteras: Monospecs deja que Codex entienda relaciones de proyecto cross-repo, Vault da a Codex memoria a largo plazo cross-sesión, OmniRoute libera a Codex del bloqueo de suscripción de modelo;",
+            "HagiCode expande fronteras: Monospecs deja que Codex entienda relaciones de proyecto cross-repo, Vault da a Codex memoria a largo plazo cross-sesión;",
             "Vista de llamadas a herramientas: un formato coherente para el uso de herramientas de cualquier proveedor, en el historial y en las actualizaciones en vivo;",
             "Consumo de un vistazo: vista opcional de TokenMonitor en la barra de estado con los tokens y el coste de hoy;",
             "Juntos proporcionan una experiencia: cadenas de decisión rastreables, tareas diarias automatizadas, una interfaz agradable, y un compañero IA a largo plazo que realmente entiende tu paisaje de proyecto y puede configurarse libremente con cualquier fuente de modelo."

@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "DeepSeek API key, catalog providers (Anthropic, OpenAI, Moonshot, Z.ai and more), custom OpenAI- or Anthropic-compatible endpoints",
-                "Hosts no models; sends provider and model to dsh; optional OmniRoute routing"
+                "Hosts no models; sends provider and model to dsh"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "What works for dsh inside HagiCode",
           "content": [
-            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to dsh sessions. dsh accepts a provider id such as `omniroute`, so OmniRoute can sit underneath if you set it up as a dsh provider.",
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to dsh sessions.",
             "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with dsh."
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "dsh-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and usage",
+              "title": "Tool-call view and usage",
               "content": [
-                "OmniRoute centralises model routing across agents. dsh tool calls show in the same typed view as every other agent's, and optional TokenMonitor puts today's tokens and cost in the status bar."
+                "dsh tool calls show in the same typed view as every other agent's, and optional TokenMonitor puts today's tokens and cost in the status bar."
               ]
             }
           ]

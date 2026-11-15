@@ -66,7 +66,7 @@
               "cells": [
                 "模型与来源",
                 "通过 Anthropic 套餐或第三方云服务使用 Claude 模型",
-                "不托管模型，使用你 Claude Code 已登录的账户；可选 OmniRoute 模型目录"
+                "不托管模型，使用你 Claude Code 已登录的账户"
               ]
             },
             {
@@ -270,7 +270,7 @@
               "id": "claude-vs-hagicode-section-6-item-5",
               "title": "模型路由、工具调用视图与用量",
               "content": [
-                "Claude Code 的工具调用以与其他 CLI 相同的结构化形式显示，实时和历史一致。OmniRoute 可为每个 Agent CLI 提供模型目录，可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
+                "Claude Code 的工具调用以与其他 CLI 相同的结构化形式显示，实时和历史一致。可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
               ]
             },
             {

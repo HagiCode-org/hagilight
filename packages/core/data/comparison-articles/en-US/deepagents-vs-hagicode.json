@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "OpenAI, Anthropic and Gemini by default; extras for NVIDIA, Ollama and others; any tool-calling model",
-                "Hosts no models; passes your chosen model to the CLI; optional OmniRoute routing"
+                "Hosts no models; passes your chosen model to the CLI"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "What works for DeepAgents inside HagiCode",
           "content": [
-            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to DeepAgents sessions. OmniRoute is a HagiCode feature, and how far it reaches the CLI depends on the CLI's own model settings.",
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to DeepAgents sessions.",
             "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with DeepAgents."
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "deepagents-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and usage",
+              "title": "Tool-call view and usage",
               "content": [
-                "OmniRoute can centralise model routing across agents. DeepAgents tool calls appear in the same typed view as every other agent's, and optional TokenMonitor shows today's tokens and cost in the status bar."
+                "DeepAgents tool calls appear in the same typed view as every other agent's, and optional TokenMonitor shows today's tokens and cost in the status bar."
               ]
             }
           ]

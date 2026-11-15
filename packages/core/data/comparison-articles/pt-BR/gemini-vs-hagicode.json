@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Gemini vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do Google Gemini, suas capacidades multimodais e sua integração ao ecossistema Google, e veja como o HagiCode eleva o Gemini ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
+    "description": "Entenda as funções principais do Google Gemini, suas capacidades multimodais e sua integração ao ecossistema Google, e veja como o HagiCode eleva o Gemini ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
   },
   "summary": "O Google Gemini é a ferramenta oficial de programação com IA em terminal do Google. Com a compreensão multimodal do Gemini, sua capacidade de processamento de contexto ultra-longo e profunda integração ao ecossistema Google, ele se destaca particularmente em tarefas complexas incluindo informações visuais. No entanto, o Gemini é essencialmente uma ferramenta de terminal, e o HagiCode é uma workbench com visualização, gestão e persistência de conhecimento. Ambos juntos estendem a capacidade multimodal do Gemini a uma experiência de desenvolvimento completa. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "gemini-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: dar ao Gemini mais de um caminho",
+              "title": "Roteamento de modelo: dar ao Gemini mais de um caminho",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter Gemini no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "O Gemini fornece visão: compreensão multimodal, contexto ultra-longo, integração com Google Search;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o Gemini entenda relações de projeto cross-repo, o Vault dá ao Gemini memória de longo prazo cross-sessão, o OmniRoute libera o Gemini do lock-in de assinatura de modelo;",
+            "O HagiCode expande fronteiras: Monospecs permite que o Gemini entenda relações de projeto cross-repo, o Vault dá ao Gemini memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Juntos eles fornecem uma experiência: cadeias de decisão rastreáveis, tarefas diárias automatizadas, uma interface agradável, e um parceiro de IA de longo prazo que realmente entende sua paisagem de projeto e pode ser livremente configurado com qualquer fonte de modelo."

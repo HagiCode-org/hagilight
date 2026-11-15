@@ -66,7 +66,7 @@
               "cells": [
                 "模型与供应商",
                 "通过 Models.dev 支持 75+ 家供应商、本地模型，以及 Copilot、ChatGPT 登录",
-                "不托管模型；使用 OpenCode 里配置好的供应商，或配置后走 OmniRoute"
+                "不托管模型；使用 OpenCode 里配置好的供应商"
               ]
             },
             {
@@ -278,9 +278,9 @@
             },
             {
               "id": "opencode-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与 TokenMonitor",
+              "title": "工具调用视图与 TokenMonitor",
               "content": [
-                "OpenCode 本身已支持很多供应商；OmniRoute 可以再加一层由多个 Agent 共用的路由。OpenCode 的工具调用与其他 Agent 使用同一种格式，状态栏里还可选显示 TokenMonitor 提供的今日 token 与费用。"
+                "OpenCode 本身已支持很多供应商。OpenCode 的工具调用与其他 Agent 使用同一种格式，状态栏里还可选显示 TokenMonitor 提供的今日 token 与费用。"
               ]
             }
           ]

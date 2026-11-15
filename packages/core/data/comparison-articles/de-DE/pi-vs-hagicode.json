@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Pi vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Pis Provider-First-Workflow, Session-Kontrollen und Tool-Governance und sehen Sie, wie HagiCode Pi durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute in eine produktionsgrade KI-Programmierwerkbank verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
+    "description": "Verstehen Sie Pis Provider-First-Workflow, Session-Kontrollen und Tool-Governance und sehen Sie, wie HagiCode Pi durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs und Vault in eine produktionsgrade KI-Programmierwerkbank verwandelt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen."
   },
   "summary": "Pi ist eine flexible KI-Coding-Schnittstelle, gebaut für Provider-agnostischen Modellzugang. Mit konfigurierbaren Denkmodi, Session-Persistenz-Kontrollen und explizitem Tool-Gating gibt es Entwicklern feingranulare Kontrolle darüber, wie sich ein KI-Coding-Assistent verhält. Pi ist jedoch im Wesentlichen noch ein Terminal-Einstiegspunkt, während HagiCode eine vollständige KI-Programmierwerkbank ist. Zusammen verwandeln sie Pi von einer konfigurierbaren CLI in eine vollständige tägliche Entwicklungsumgebung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Pi kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten.",
   "sections": [
@@ -195,10 +195,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute-Modell-Routing: Pis Provider-First-Design skalierbar nutzbar machen",
+              "title": "Modell-Routing: Pis Provider-First-Design skalierbar nutzbar machen",
               "content": [
                 "Teams sollten den Workflow, den sie mögen, beibehalten können, ohne den Modellzugang an einen einzigen Anbieter oder Abonnementpfad zu binden.",
-                "OmniRoute trennt die Interaktionsebene von der Modell-Routing-Ebene, sodass HagiCode Pi im Workflow behalten kann, während es darunter die Modellquellen wechselt.",
                 "Das gibt Ihnen bessere Kostenkontrolle, bessere Aufgaben-zu-Modell-Passung und weniger Workflow-Unruhe, wenn sich Modellpreise oder Verfügbarkeit ändern."
               ],
               "bullets": [
@@ -269,7 +268,7 @@
           "items": [
             "Pi liefert Kontrolle: Provider-Routing, Denkkonfiguration, Session-Verhalten und Tool-Governance;",
             "HagiCode liefert Effizienz: Multithreading, Agents-Flottenverwaltung, OpenSpec-Vorschläge, KI-Commits, Code-Server-Editor, HagiTasks;",
-            "HagiCode erweitert Grenzen: Monospecs lässt Pi Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Pi sitzungsübergreifendes Langzeitgedächtnis, OmniRoute skaliert Pis Provider-First-Workflow sauber;",
+            "HagiCode erweitert Grenzen: Monospecs lässt Pi Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Pi sitzungsübergreifendes Langzeitgedächtnis;",
             "Tool-Call-Ansicht: eine einheitliche Struktur für die Tool-Nutzung jedes Providers, in Verlauf und Live-Updates;",
             "Nutzung auf einen Blick: optionale TokenMonitor-Anzeige der heutigen Tokens und Kosten in der Statusleiste;",
             "Interaktive Fragen: strukturierte Fragen des Agents beantworten und denselben Lauf fortsetzen lassen;",

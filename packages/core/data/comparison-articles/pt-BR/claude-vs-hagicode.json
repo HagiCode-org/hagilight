@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Claude Code vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do Claude, as características do modelo e o ecossistema de plugins, e veja como o HagiCode leva o poder do Claude ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status. Inclui perguntas interativas que retomam a mesma execução. Inclui o painel de trabalho do agente para subagentes e monitores."
+    "description": "Entenda as funções principais do Claude, as características do modelo e o ecossistema de plugins, e veja como o HagiCode leva o poder do Claude ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status. Inclui perguntas interativas que retomam a mesma execução. Inclui o painel de trabalho do agente para subagentes e monitores."
   },
   "summary": "O Claude é amplamente reconhecido como um dos assistentes de codificação com IA mais poderosos do mundo. Com sua janela de contexto ultra-longa, capacidades de raciocínio profundo e alinhamento de modelo altamente seguro, conquistou a confiança de inúmeros desenvolvedores. No entanto, o Claude em si é um portador de capacidade de modelo, enquanto o HagiCode é uma workbench de desktop construída para cenários de programação com IA. Cada um se destaca em seu domínio, e usá-los juntos realmente libera todo o poder do Claude. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status. Claude Code pode fazer perguntas estruturadas durante uma execução, e a execução continua assim que você responde. O HagiCode também lista os subagentes e monitores que uma execução do Claude Code ainda está aguardando.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "claude-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: desacoplar a CLI dos modelos completamente, dar ao Claude mais liberdade",
+              "title": "Roteamento de modelo: desacoplar a CLI dos modelos completamente, dar ao Claude mais liberdade",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter Claude no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -280,7 +279,7 @@
           "items": [
             "O Claude fornece inteligência: contexto ultra-longo, raciocínio profundo, alinhamento de segurança;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o Claude entenda relações de projeto cross-repo, o Vault dá ao Claude memória de longo prazo cross-sessão, o OmniRoute libera o Claude do lock-in de assinatura de modelo;",
+            "O HagiCode expande fronteiras: Monospecs permite que o Claude entenda relações de projeto cross-repo, o Vault dá ao Claude memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Perguntas interativas: responda às perguntas estruturadas do agente e deixe a mesma execução continuar;",

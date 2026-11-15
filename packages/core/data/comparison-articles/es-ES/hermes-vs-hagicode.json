@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Hermes Agent vs HagiCode: funciones y comparación",
-    "description": "Comprende las funciones clave de Hermes Agent, sus características de razonamiento y su contexto de investigación, y ve cómo HagiCode lleva a Hermes al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
+    "description": "Comprende las funciones clave de Hermes Agent, sus características de razonamiento y su contexto de investigación, y ve cómo HagiCode lleva a Hermes al siguiente nivel a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs y el Vault. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado."
   },
   "summary": "Hermes es la herramienta CLI de Agent IA de Nous Research, construida sobre la filosofía fundamental de dar a la IA verdaderas capacidades de agente autónomo. Destaca en planificación autónoma, ejecución autónoma multi-paso y razonamiento profundo y autocorrección, y puede avanzar tareas de desarrollo complejas con reducida intervención humana. Sin embargo, Hermes es una herramienta CLI de Agent pura, y HagiCode es un workbench que proporciona gestión visual, persistencia de conocimiento y estructuración de flujos de trabajo. Ambos juntos elevan la autonomía de Hermes a una experiencia de desarrollo segura de gestionar y rastrear. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "hermes-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: dar al razonamiento de Hermes el soporte de modelo óptimo",
+              "title": "Enrutamiento de modelo: dar al razonamiento de Hermes el soporte de modelo óptimo",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
-                "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Hermes en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
                 "Eso te da mejor control de costos, mejor encaje tarea-a-modelo y menos alteración del flujo de trabajo cuando los precios o disponibilidad del modelo cambian."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Hermes proporciona autonomía: planificación autónoma, ejecución multi-paso, razonamiento profundo, autocorrección;",
             "HagiCode proporciona eficiencia: multithreading, gestión de flota de Agents, propuestas OpenSpec, commits IA, editor Code Server, HagiTasks;",
-            "HagiCode expande fronteras: Monospecs deja que Hermes entienda relaciones de proyecto cross-repo, Vault da a Hermes memoria a largo plazo cross-sesión, OmniRoute libera a Hermes del bloqueo de suscripción de modelo;",
+            "HagiCode expande fronteras: Monospecs deja que Hermes entienda relaciones de proyecto cross-repo, Vault da a Hermes memoria a largo plazo cross-sesión;",
             "Vista de llamadas a herramientas: un formato coherente para el uso de herramientas de cualquier proveedor, en el historial y en las actualizaciones en vivo;",
             "Consumo de un vistazo: vista opcional de TokenMonitor en la barra de estado con los tokens y el coste de hoy;",
             "Juntos proporcionan una experiencia: cadenas de decisión rastreables, tareas diarias automatizadas, una interfaz agradable, y un compañero IA a largo plazo que realmente entiende tu paisaje de proyecto y puede configurarse libremente con cualquier fuente de modelo."

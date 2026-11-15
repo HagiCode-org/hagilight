@@ -66,7 +66,7 @@
               "cells": [
                 "模型与提供商",
                 "默认含 OpenAI、Anthropic、Gemini;NVIDIA、Ollama 等通过附加包;任何支持工具调用的模型",
-                "不托管模型,把你选的模型传给 CLI;可选 OmniRoute 路由"
+                "不托管模型,把你选的模型传给 CLI"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "DeepAgents 在 HagiCode 里能用什么",
           "content": [
-            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 DeepAgents 会话。OmniRoute 是 HagiCode 的功能,对该 CLI 的覆盖程度取决于 CLI 自己的模型设置。",
+            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 DeepAgents 会话。",
             "交互式提问只支持 Claude、Pi 和 OMP,Agent 工作面板只支持 Claude,所以这两项在 DeepAgents 下不可用。"
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "deepagents-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与用量",
+              "title": "工具调用视图与用量",
               "content": [
-                "OmniRoute 可以集中管理各 Agent 的模型路由。DeepAgents 的工具调用与其他 Agent 一样显示在同一种类型化视图里,可选的 TokenMonitor 会在状态栏显示今日 token 和费用。"
+                "DeepAgents 的工具调用与其他 Agent 一样显示在同一种类型化视图里,可选的 TokenMonitor 会在状态栏显示今日 token 和费用。"
               ]
             }
           ]

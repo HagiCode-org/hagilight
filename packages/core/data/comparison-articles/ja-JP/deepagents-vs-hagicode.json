@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "DeepAgents と HagiCode の比較:機能と違い",
-    "description": "DeepAgents の主な機能、LangChain エコシステム、技術アーキテクチャを理解し、マルチスレッド並列、OpenSpec 提案、AI コミット、HagiTask、ゲーム化 UI、Agents 管理、Monospecs、Vault、OmniRoute を通じて HagiCode が DeepAgents を次のレベルに引き上げる方法をご覧ください。共通のツールコールビューと TokenMonitor のステータスバー使用量表示も解説。"
+    "description": "DeepAgents の主な機能、LangChain エコシステム、技術アーキテクチャを理解し、マルチスレッド並列、OpenSpec 提案、AI コミット、HagiTask、ゲーム化 UI、Agents 管理、Monospecs、Vault を通じて HagiCode が DeepAgents を次のレベルに引き上げる方法をご覧ください。共通のツールコールビューと TokenMonitor のステータスバー使用量表示も解説。"
   },
   "summary": "DeepAgents は LangChain 公式の AI Agent CLI ツールで、LangChain の深い Agent オーケストレーションフレームワークの上に構築されています。複雑なタスクの自動分解、マルチツールの協調オーケストレーション、状態認識を中核とし、複雑で多段階の開発タスクに特に適しています。ただし DeepAgents は CLI オーケストレーションツールであり、HagiCode はマルチリポジトリ管理、知識の永続化、可視化された開発環境を提供するワークベンチです。両者を組み合わせることで、オーケストレーション能力を完全な開発体験へと昇格させられます。さらに、共通のツールコールビューと、ステータスバーでの任意の TokenMonitor 使用量表示にも対応しています。",
   "sections": [
@@ -193,10 +193,10 @@
             },
             {
               "id": "deepagents-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute モデルルーティング：DeepAgents のオーケストレーションに最適なモデルの支持を与える",
+              "title": "モデルルーティング：DeepAgents のオーケストレーションに最適なモデルの支持を与える",
               "content": [
                 "チームは、好みのワークフローを維持しつつ、モデルアクセスを一つのベンダーや一つのサブスクリプション経路に縛られるべきではありません。",
-                "OmniRoute はインタラクション層とモデルルーティング層を分離し、HagiCode はワークフローに DeepAgents を残したまま、その下でモデルソースを切り替えられます。",
+                "",
                 "これにより、より良いコスト管理、より良いタスクとモデルの適合、そしてモデルの価格や可用性が変化した際のワークフローの混乱の減少が得られます。"
               ],
               "bullets": [
@@ -254,7 +254,7 @@
           "items": [
             "DeepAgents はオーケストレーションを提供：自動的なタスク分解、マルチツールの協調、状態認識と動的調整;",
             "HagiCode は効率を提供：マルチスレッド並列、Agents フリート管理、OpenSpec 提案、AI コミット、Code Server エディタ、HagiTask;",
-            "HagiCode は境界を拡張：Monospecs が DeepAgents にリポジトリ間のプロジェクト関係を理解させ、Vault がセッションをまたぐ長期記憶を与え、OmniRoute がモデルのサブスクリプションのロックインから解放します;",
+            "HagiCode は境界を拡張：Monospecs が DeepAgents にリポジトリ間のプロジェクト関係を理解させ、Vault がセッションをまたぐ長期記憶を与えます;",
             "ツールコールビュー：全プロバイダーのツール利用を履歴でもリアルタイム更新でも一貫した形式で表示;",
             "使用量をひと目で：今日のトークンとコストを任意の TokenMonitor ステータスバー表示で確認;",
             "両者で体験を提供：追跡可能な意思決定チェーン、自動化された日常タスク、楽しいインターフェース、そしてプロジェクトの全体像を本当に理解しどんなモデルソースでも自由に設定できる長期的な AI パートナー。"

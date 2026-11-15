@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Claude Code vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie Claudes wichtigsten Funktionen, Modelleigenschaften und Plugin-Ökosystem und sehen Sie, wie HagiCode Claudes Kraft durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen. Enthält das Agent-Arbeitspanel für Subagents und Monitore."
+    "description": "Verstehen Sie Claudes wichtigsten Funktionen, Modelleigenschaften und Plugin-Ökosystem und sehen Sie, wie HagiCode Claudes Kraft durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs und Vault auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste. Enthält interaktive Fragen, die denselben Lauf fortsetzen. Enthält das Agent-Arbeitspanel für Subagents und Monitore."
   },
   "summary": "Claude ist weithin als eines der mächtigsten KI-Coding-Assistenten der Welt anerkannt. Mit seinem ultra-langen Kontextfenster, seiner tiefen Schlussfassungsfähigkeit und seiner hochsicheren Modellausrichtung hat es das Vertrauen unzähliger Entwickler gewonnen. Claude selbst ist jedoch ein Träger von Modelfähigkeit, während HagiCode eine für KI-Programmierszenarien purpose-build Desktop-Werkbank ist. Jeder glänzt in seiner Domäne, und beide zusammen entfesseln Claudes volle Kraft. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab. Claude Code kann während eines Laufs strukturierte Fragen stellen, und der Lauf wird fortgesetzt, sobald Sie antworten. HagiCode listet außerdem die Subagents und Monitore auf, auf die ein Claude-Code-Lauf noch wartet.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "claude-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute-Modell-Routing: CLI von Modellen vollständig entkoppeln, Claude mehr Freiheit geben",
+              "title": "Modell-Routing: CLI von Modellen vollständig entkoppeln, Claude mehr Freiheit geben",
               "content": [
                 "Teams sollten den Workflow, den sie mögen, beibehalten können, ohne den Modellzugang an einen einzigen Anbieter oder Abonnementpfad zu binden.",
-                "OmniRoute trennt die Interaktionsebene von der Modell-Routing-Ebene, sodass HagiCode Claude im Workflow behalten kann, während es darunter die Modellquellen wechselt.",
                 "Das gibt Ihnen bessere Kostenkontrolle, bessere Aufgaben-zu-Modell-Passung und weniger Workflow-Unruhe, wenn sich Modellpreise oder Verfügbarkeit ändern."
               ],
               "bullets": [
@@ -280,7 +279,7 @@
           "items": [
             "Claude liefert Intelligenz: ultra-langer Kontext, tiefes Schlussfolgern, Sicherheitsausrichtung;",
             "HagiCode liefert Effizienz: Multithreading, Agents-Flottenverwaltung, OpenSpec-Vorschläge, KI-Commits, Code-Server-Editor, HagiTasks;",
-            "HagiCode erweitert Grenzen: Monospecs lässt Claude Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Claude sitzungsübergreifendes Langzeitgedächtnis, OmniRoute befreit Claude aus dem Modell-Abonnement-Lock-in;",
+            "HagiCode erweitert Grenzen: Monospecs lässt Claude Repo-übergreifende Projektbeziehungen verstehen, Vault gibt Claude sitzungsübergreifendes Langzeitgedächtnis;",
             "Tool-Call-Ansicht: eine einheitliche Struktur für die Tool-Nutzung jedes Providers, in Verlauf und Live-Updates;",
             "Nutzung auf einen Blick: optionale TokenMonitor-Anzeige der heutigen Tokens und Kosten in der Statusleiste;",
             "Interaktive Fragen: strukturierte Fragen des Agents beantworten und denselben Lauf fortsetzen lassen;",

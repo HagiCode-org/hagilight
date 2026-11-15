@@ -66,7 +66,7 @@
               "cells": [
                 "模型与来源",
                 "通过 ChatGPT 登录或 API 密钥使用 OpenAI 模型，可自选模型和推理强度",
-                "不托管模型，使用你 Codex 已登录的账户；可选 OmniRoute 模型目录"
+                "不托管模型，使用你 Codex 已登录的账户"
               ]
             },
             {
@@ -269,7 +269,7 @@
               "id": "codex-vs-hagicode-section-6-item-5",
               "title": "模型路由、工具调用视图与用量",
               "content": [
-                "Codex 的工具调用以与其他 CLI 相同的结构化形式显示，实时和历史一致。OmniRoute 可为每个 Agent CLI 提供模型目录，可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
+                "Codex 的工具调用以与其他 CLI 相同的结构化形式显示，实时和历史一致。可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
               ]
             }
           ]

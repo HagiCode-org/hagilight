@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Pi vs HagiCode: funciones y comparación",
-    "description": "Comprende el flujo de trabajo proveedor-primero de Pi, sus controles de sesión y su gobernanza de herramientas, y ve cómo HagiCode transforma a Pi en un workbench de programación IA de grado producción a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs, el Vault y OmniRoute. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado. Incluye preguntas interactivas que reanudan la misma ejecución."
+    "description": "Comprende el flujo de trabajo proveedor-primero de Pi, sus controles de sesión y su gobernanza de herramientas, y ve cómo HagiCode transforma a Pi en un workbench de programación IA de grado producción a través del multithreading, las propuestas OpenSpec, los commits IA, las HagiTasks, la UI gamificada, la gestión de Agents, los Monospecs y el Vault. También cubre la vista compartida de llamadas a herramientas y el consumo de TokenMonitor en la barra de estado. Incluye preguntas interactivas que reanudan la misma ejecución."
   },
   "summary": "Pi es una interfaz de codificación IA flexible construida para acceso a modelo agnóstico al proveedor. Con modos de pensamiento configurables, controles de persistencia de sesión y gating explícito de herramientas, da a los desarrolladores control granular fino sobre cómo se comporta un asistente de codificación IA. Sin embargo, Pi todavía es fundamentalmente un punto de entrada de terminal, mientras que HagiCode es un workbench de programación IA completo. Juntos, convierten a Pi de una CLI configurable en un entorno de desarrollo diario completo. También cubre la vista compartida de llamadas a herramientas y el consumo opcional de TokenMonitor en la barra de estado. Pi puede hacer preguntas estructuradas durante una ejecución, y la ejecución continúa en cuanto respondes.",
   "sections": [
@@ -194,10 +194,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-10",
-              "title": "Enrutamiento de modelo OmniRoute: hacer el diseño proveedor-primero de Pi utilizable a escala",
+              "title": "Enrutamiento de modelo: hacer el diseño proveedor-primero de Pi utilizable a escala",
               "content": [
                 "Los equipos deberían poder mantener el flujo de trabajo que les gusta sin bloquear el acceso al modelo a un proveedor o a un camino de suscripción.",
-                "OmniRoute separa la capa de interacción de la capa de enrutamiento de modelo, de modo que HagiCode puede mantener a Pi en el flujo de trabajo mientras cambia las fuentes de modelo por debajo.",
                 "Eso te da mejor control de costos, mejor encaje tarea-a-modelo y menos alteración del flujo de trabajo cuando los precios o disponibilidad del modelo cambian."
               ],
               "bullets": [
@@ -268,7 +267,7 @@
           "items": [
             "Pi proporciona control: enrutamiento de proveedor, configuración de pensamiento, comportamiento de sesión y gobernanza de herramientas;",
             "HagiCode proporciona eficiencia: multithreading, gestión de flota de Agents, propuestas OpenSpec, commits IA, editor Code Server, HagiTasks;",
-            "HagiCode expande fronteras: Monospecs deja que Pi entienda relaciones de proyecto cross-repo, Vault da a Pi memoria a largo plazo cross-sesión, OmniRoute escala limpiamente el flujo de trabajo proveedor-primero de Pi;",
+            "HagiCode expande fronteras: Monospecs deja que Pi entienda relaciones de proyecto cross-repo, Vault da a Pi memoria a largo plazo cross-sesión;",
             "Vista de llamadas a herramientas: un formato coherente para el uso de herramientas de cualquier proveedor, en el historial y en las actualizaciones en vivo;",
             "Consumo de un vistazo: vista opcional de TokenMonitor en la barra de estado con los tokens y el coste de hoy;",
             "Preguntas interactivas: responde a las preguntas estructuradas del agente y deja que la misma ejecución continúe;",

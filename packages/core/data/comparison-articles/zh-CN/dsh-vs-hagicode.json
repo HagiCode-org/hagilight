@@ -66,7 +66,7 @@
               "cells": [
                 "模型与提供商",
                 "DeepSeek API key、目录内提供商(Anthropic、OpenAI、Moonshot、Z.ai 等)、自定义 OpenAI 或 Anthropic 兼容端点",
-                "不托管模型,把提供商和模型传给 dsh;可选 OmniRoute 路由"
+                "不托管模型,把提供商和模型传给 dsh"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "dsh 在 HagiCode 里能用什么",
           "content": [
-            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 dsh 会话。dsh 接受 `omniroute` 这样的提供商 id,所以把 OmniRoute 配成 dsh 的提供商后,它可以放在下层。",
+            "并行会话、Agents 管理、OpenSpec 提案、AI 提交、Code Server、Monospecs、Vault 和统一工具调用视图都适用于 dsh 会话。",
             "交互式提问只支持 Claude、Pi 和 OMP,Agent 工作面板只支持 Claude,所以这两项在 dsh 下不可用。"
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "dsh-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与用量",
+              "title": "工具调用视图与用量",
               "content": [
-                "OmniRoute 集中管理各 Agent 的模型路由。dsh 的工具调用与其他 Agent 一样显示在同一种类型化视图里,可选的 TokenMonitor 会在状态栏显示今日 token 和费用。"
+                "dsh 的工具调用与其他 Agent 一样显示在同一种类型化视图里,可选的 TokenMonitor 会在状态栏显示今日 token 和费用。"
               ]
             }
           ]

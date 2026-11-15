@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Pi vs HagiCode: recursos e comparação",
-    "description": "Entenda o fluxo de trabalho provedor-primeiro do Pi, seus controles de sessão e sua governança de ferramentas, e veja como o HagiCode transforma o Pi em uma workbench de programação com IA de grau produção através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status. Inclui perguntas interativas que retomam a mesma execução."
+    "description": "Entenda o fluxo de trabalho provedor-primeiro do Pi, seus controles de sessão e sua governança de ferramentas, e veja como o HagiCode transforma o Pi em uma workbench de programação com IA de grau produção através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status. Inclui perguntas interativas que retomam a mesma execução."
   },
   "summary": "O Pi é uma interface de codificação com IA flexível construída para acesso a modelo agnóstico a provedor. Com modos de pensamento configuráveis, controles de persistência de sessão e gating explícito de ferramentas, ele dá aos desenvolvedores controle granular fino sobre como um assistente de codificação com IA se comporta. No entanto, o Pi ainda é fundamentalmente um ponto de entrada de terminal, enquanto o HagiCode é uma workbench de programação com IA completa. Juntos, eles transformam o Pi de uma CLI configurável em um ambiente de desenvolvimento diário completo. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status. Pi pode fazer perguntas estruturadas durante uma execução, e a execução continua assim que você responde.",
   "sections": [
@@ -194,10 +194,9 @@
             },
             {
               "id": "pi-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: tornar o design provedor-primeiro do Pi utilizável em escala",
+              "title": "Roteamento de modelo: tornar o design provedor-primeiro do Pi utilizável em escala",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter Pi no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -268,7 +267,7 @@
           "items": [
             "O Pi fornece controle: roteamento de provedor, configuração de pensamento, comportamento de sessão e governança de ferramentas;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o Pi entenda relações de projeto cross-repo, o Vault dá ao Pi memória de longo prazo cross-sessão, o OmniRoute escala limpidamente o fluxo de trabalho provedor-primeiro do Pi;",
+            "O HagiCode expande fronteiras: Monospecs permite que o Pi entenda relações de projeto cross-repo, o Vault dá ao Pi memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Perguntas interativas: responda às perguntas estruturadas do agente e deixe a mesma execução continuar;",

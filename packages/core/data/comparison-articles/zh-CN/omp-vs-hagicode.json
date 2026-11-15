@@ -66,7 +66,7 @@
               "cells": [
                 "模型与供应商",
                 "支持大量供应商（README 称 60+）、自定义 OpenAI 兼容端点、按角色路由模型",
-                "不托管模型；使用 omp 自己的登录，或配置后走 OmniRoute 路由"
+                "不托管模型；使用 omp 自己的登录"
               ]
             },
             {
@@ -222,7 +222,7 @@
           "items": [
             "安装 omp（例如 curl -fsSL https://omp.sh/install | sh），并为你的供应商登录或填入 API Key。",
             "安装适用于 Windows、macOS 或 Linux 的 HagiCode Desktop。",
-            "在 HagiCode 里把 OMP 选为 Agent CLI 并选择模型；如果使用 OmniRoute，就把它选作路由。",
+            "在 HagiCode 里把 OMP 选为 Agent CLI 并选择模型。",
             "打开一个仓库，开始会话或提案。",
             "运行过程会以流式输出显示在对话中，工具调用显示在统一的工具调用视图里。",
             "想回到原来的方式，直接在终端里照常运行 omp 即可。你的 omp 配置和仓库都不会被 HagiCode 锁定。"
@@ -278,9 +278,9 @@
             },
             {
               "id": "omp-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute、工具调用视图与 TokenMonitor",
+              "title": "工具调用视图与 TokenMonitor",
               "content": [
-                "配置 OmniRoute 后，omp 的模型请求可以经它路由。omp 的工具调用与其他 Agent 使用同一种展示格式。状态栏里可选显示 TokenMonitor 提供的今日 token 与费用，默认关闭。"
+                "omp 的工具调用与其他 Agent 使用同一种展示格式。状态栏里可选显示 TokenMonitor 提供的今日 token 与费用，默认关闭。"
               ]
             },
             {

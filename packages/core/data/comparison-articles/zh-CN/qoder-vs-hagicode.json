@@ -67,7 +67,7 @@
               "cells": [
                 "模型与来源",
                 "使用 Qoder 自己的模型档位（auto、lite、performance），消耗 Qoder 积分；个人版可自带密钥",
-                "不托管模型，用的是你 Qoder 已登录的账户；可选 OmniRoute 模型目录"
+                "不托管模型，用的是你 Qoder 已登录的账户"
               ]
             },
             {
@@ -271,7 +271,7 @@
               "id": "qoder-vs-hagicode-section-6-item-5",
               "title": "模型路由、工具调用视图与用量",
               "content": [
-                "HagiCode 用与其他 CLI 相同的结构化形式展示 Qoder 的工具调用，历史记录和实时更新一致。OmniRoute 可以为每个 Agent CLI 提供模型目录，可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
+                "HagiCode 用与其他 CLI 相同的结构化形式展示 Qoder 的工具调用，历史记录和实时更新一致。可选的 TokenMonitor 状态栏会显示今日的 Token 与费用。"
               ]
             }
           ]

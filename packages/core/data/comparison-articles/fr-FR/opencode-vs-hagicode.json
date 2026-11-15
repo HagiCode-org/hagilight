@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "OpenCode vs HagiCode : fonctionnalités et comparaison",
-    "description": "Comprenez les fonctions clés d'OpenCode, son architecture open source et son écosystème communautaire, et voyez comment HagiCode porte OpenCode au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
+    "description": "Comprenez les fonctions clés d'OpenCode, son architecture open source et son écosystème communautaire, et voyez comment HagiCode porte OpenCode au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs et le Vault. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
   },
   "summary": "OpenCode est un outil CLI assistant de codage IA open source bâti sur la flexibilité, la personnalisabilité et le développement piloté par la communauté. Avec un code entièrement ouvert, un accès multi-modèles flexible et une conception centrée ACP, c'est un choix attrayant pour les développeurs qui veulent contrôler la technologie. Cependant, OpenCode est un outil CLI autonome, et HagiCode est un atelier avec gestion multi-repo, persistance des connaissances et workflow visuel. Les deux ensemble étendent la flexibilité ouverte d'OpenCode à une expérience de développement complète. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "opencode-vs-hagicode-section-2-item-10",
-              "title": "Routage de modèle OmniRoute : amplifier la flexibilité de modèle d'OpenCode",
+              "title": "Routage de modèle : amplifier la flexibilité de modèle d'OpenCode",
               "content": [
                 "Les équipes devraient pouvoir conserver le workflow qu'elles aiment sans verrouiller l'accès au modèle à un seul fournisseur ou un seul chemin d'abonnement.",
-                "OmniRoute sépare la couche d'interaction de la couche de routage de modèle, de sorte que HagiCode peut garder OpenCode dans le workflow tout en changeant les sources de modèle en dessous.",
                 "Cela vous donne un meilleur contrôle des coûts, un meilleur appariement tâche-à-modèle et moins de remous de workflow quand les prix ou la disponibilité des modèles changent."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "OpenCode fournit la liberté : accès multi-modèles, transparence open source, flexibilité native terminal ;",
             "HagiCode fournit l'efficacité : multithreading, gestion de flotte d'Agents, propositions OpenSpec, commits IA, éditeur Code Server, HagiTasks ;",
-            "HagiCode étend les frontières : Monospecs laisse OpenCode comprendre les relations de projet cross-repo, Vault donne à OpenCode une mémoire à long terme cross-session, OmniRoute libère OpenCode du verrouillage d'abonnement de modèle ;",
+            "HagiCode étend les frontières : Monospecs laisse OpenCode comprendre les relations de projet cross-repo, Vault donne à OpenCode une mémoire à long terme cross-session ;",
             "Vue des appels d'outils : une structure cohérente pour l'usage des outils de chaque fournisseur, dans l'historique comme en direct ;",
             "L'usage en un coup d'œil : vue TokenMonitor facultative des tokens et du coût du jour dans la barre d'état ;",
             "Ensemble ils fournissent une expérience : chaînes de décision traçables, tâches quotidiennes automatisées, une interface agréable, et un partenaire IA à long terme qui comprend vraiment votre paysage de projet et peut être librement configuré avec n'importe quelle source de modèle."

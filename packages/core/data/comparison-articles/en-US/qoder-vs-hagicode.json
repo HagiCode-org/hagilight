@@ -67,7 +67,7 @@
               "cells": [
                 "Model and provider access",
                 "Qoder's own model tiers (auto, lite, performance) billed in Qoder Credits; bring-your-own-key models on the Individual plan",
-                "Hosts no models; uses whatever your Qoder is signed in to; optional OmniRoute model catalog"
+                "Hosts no models; uses whatever your Qoder is signed in to"
               ]
             },
             {
@@ -271,7 +271,7 @@
               "id": "qoder-vs-hagicode-section-6-item-5",
               "title": "Model routing, tool-call view and usage",
               "content": [
-                "HagiCode shows Qoder's tool calls in the same typed shape it uses for every other CLI, in history and live. OmniRoute can supply a model catalog per Agent CLI, and an optional TokenMonitor readout in the status bar shows today's tokens and cost."
+                "HagiCode shows Qoder's tool calls in the same typed shape it uses for every other CLI, in history and live. An optional TokenMonitor readout in the status bar shows today's tokens and cost."
               ]
             }
           ]

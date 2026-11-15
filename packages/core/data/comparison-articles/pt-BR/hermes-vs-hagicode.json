@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Hermes Agent vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do Hermes Agent, suas características de raciocínio e seu contexto de pesquisa, e veja como o HagiCode eleva o Hermes ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
+    "description": "Entenda as funções principais do Hermes Agent, suas características de raciocínio e seu contexto de pesquisa, e veja como o HagiCode eleva o Hermes ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
   },
   "summary": "O Hermes é a ferramenta CLI de Agent de IA do Nous Research, construída sobre a filosofia central de dar à IA verdadeiras capacidades de agente autônomo. Ele se destaca em planejamento autônomo, execução autônoma multi-etapas e raciocínio profundo e autocrítica, e pode avançar tarefas de desenvolvimento complexas com intervenção humana reduzida. No entanto, o Hermes é uma ferramenta CLI de Agent pura, e o HagiCode é uma workbench que fornece gestão visual, persistência de conhecimento e estruturação de fluxo de trabalho. Ambos juntos elevam a autonomia do Hermes a uma experiência de desenvolvimento segura de gerenciar e rastrear. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "hermes-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: dar ao raciocínio do Hermes o suporte de modelo ótimo",
+              "title": "Roteamento de modelo: dar ao raciocínio do Hermes o suporte de modelo ótimo",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter Hermes no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "O Hermes fornece autonomia: planejamento autônomo, execução multi-etapas, raciocínio profundo, autocorreção;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o Hermes entenda relações de projeto cross-repo, o Vault dá ao Hermes memória de longo prazo cross-sessão, o OmniRoute libera o Hermes do lock-in de assinatura de modelo;",
+            "O HagiCode expande fronteiras: Monospecs permite que o Hermes entenda relações de projeto cross-repo, o Vault dá ao Hermes memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Juntos eles fornecem uma experiência: cadeias de decisão rastreáveis, tarefas diárias automatizadas, uma interface agradável, e um parceiro de IA de longo prazo que realmente entende sua paisagem de projeto e pode ser livremente configurado com qualquer fonte de modelo."

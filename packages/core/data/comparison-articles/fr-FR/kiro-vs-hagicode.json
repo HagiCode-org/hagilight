@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "Kiro vs HagiCode : fonctionnalités et comparaison",
-    "description": "Comprenez les fonctions clés de Kiro, ses caractéristiques techniques et son expérience développeur, et voyez comment HagiCode porte Kiro au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs, le Vault et OmniRoute. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
+    "description": "Comprenez les fonctions clés de Kiro, ses caractéristiques techniques et son expérience développeur, et voyez comment HagiCode porte Kiro au niveau supérieur via le multithreading, les propositions OpenSpec, les commits IA, les HagiTasks, l'UI gamifiée, la gestion des Agents, les Monospecs et le Vault. Couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor dans la barre d'état."
   },
   "summary": "Kiro est un outil CLI de programmation IA focalisé sur l'expérience développeur, conçu autour de la simplicité, de l'affinement et de l'efficacité. Avec un onboarding rapide, une génération de code précise et un feedback d'interaction clair, il est connu pour une expérience de codage agréable. Cependant, Kiro est un outil terminal, et HagiCode est un atelier avec gestion multi-repo, persistance des connaissances et workflow visuel. Les deux ensemble étendent l'expérience affinée de Kiro à un processus de développement complet. Il couvre aussi la vue unifiée des appels d'outils et l'usage TokenMonitor facultatif dans la barre d'état.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "kiro-vs-hagicode-section-2-item-10",
-              "title": "Routage de modèle OmniRoute : rendre la sélection de modèle de Kiro plus flexible",
+              "title": "Routage de modèle : rendre la sélection de modèle de Kiro plus flexible",
               "content": [
                 "Les équipes devraient pouvoir conserver le workflow qu'elles aiment sans verrouiller l'accès au modèle à un seul fournisseur ou un seul chemin d'abonnement.",
-                "OmniRoute sépare la couche d'interaction de la couche de routage de modèle, de sorte que HagiCode peut garder Kiro dans le workflow tout en changeant les sources de modèle en dessous.",
                 "Cela vous donne un meilleur contrôle des coûts, un meilleur appariement tâche-à-modèle et moins de remous de workflow quand les prix ou la disponibilité des modèles changent."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "Kiro fournit la précision : génération de code exacte, feedback d'interaction clair, onboarding ultra-rapide ;",
             "HagiCode fournit l'efficacité : multithreading, gestion de flotte d'Agents, propositions OpenSpec, commits IA, éditeur Code Server, HagiTasks ;",
-            "HagiCode étend les frontières : Monospecs laisse Kiro comprendre les relations de projet cross-repo, Vault donne à Kiro une mémoire à long terme cross-session, OmniRoute libère Kiro du verrouillage d'abonnement de modèle ;",
+            "HagiCode étend les frontières : Monospecs laisse Kiro comprendre les relations de projet cross-repo, Vault donne à Kiro une mémoire à long terme cross-session ;",
             "Vue des appels d'outils : une structure cohérente pour l'usage des outils de chaque fournisseur, dans l'historique comme en direct ;",
             "L'usage en un coup d'œil : vue TokenMonitor facultative des tokens et du coût du jour dans la barre d'état ;",
             "Ensemble ils fournissent une expérience : chaînes de décision traçables, tâches quotidiennes automatisées, une interface agréable, et un partenaire IA à long terme qui comprend vraiment votre paysage de projet et peut être librement configuré avec n'importe quelle source de modèle."

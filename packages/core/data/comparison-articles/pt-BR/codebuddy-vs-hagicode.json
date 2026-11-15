@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "CodeBuddy vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do CodeBuddy, suas capacidades de grau empresarial e seu ecossistema tecnológico, e veja como o HagiCode eleva o CodeBuddy ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
+    "description": "Entenda as funções principais do CodeBuddy, suas capacidades de grau empresarial e seu ecossistema tecnológico, e veja como o HagiCode eleva o CodeBuddy ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
   },
   "summary": "O CodeBuddy é um assistente de codificação com IA projetado para cenários de desenvolvimento empresarial, construído sobre os princípios de segurança, conformidade e colaboração em equipe. O CodeBuddy fornece proteção de código robusta e garantias de conformidade, enquanto o HagiCode é a workbench que assume áreas mais amplas como fluxo de trabalho, gestão de conhecimento e coordenação multi-repo. Ambos juntos completam uma experiência de desenvolvimento com IA de grau empresarial. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "codebuddy-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: tornar as estratégias de aquisição de modelo empresariais mais flexíveis",
+              "title": "Roteamento de modelo: tornar as estratégias de aquisição de modelo empresariais mais flexíveis",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter CodeBuddy no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "O CodeBuddy fornece segurança e conformidade: permissões granulares, garantia de segurança do código, suporte de conformidade;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o CodeBuddy entenda relações de projeto cross-repo, o Vault dá ao CodeBuddy memória de longo prazo cross-sessão, o OmniRoute libera o CodeBuddy do lock-in de assinatura de modelo;",
+            "O HagiCode expande fronteiras: Monospecs permite que o CodeBuddy entenda relações de projeto cross-repo, o Vault dá ao CodeBuddy memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Juntos eles fornecem uma experiência: cadeias de decisão rastreáveis, tarefas diárias automatizadas, uma interface agradável, e um parceiro de IA de longo prazo que realmente entende sua paisagem de projeto e pode ser livremente configurado com qualquer fonte de modelo."

@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "Default model, or BYOK: OpenAI, Anthropic, Google, xAI, OpenRouter, GitHub Copilot, custom endpoints (LiteLLM, Ollama, LM Studio)",
-                "Hosts no models; uses whatever Junie is signed in to; optional OmniRoute routing"
+                "Hosts no models; uses whatever Junie is signed in to"
               ]
             },
             {
@@ -225,7 +225,7 @@
           "tone": "info",
           "title": "What works for Junie inside HagiCode",
           "content": [
-            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Junie sessions. OmniRoute routing is a HagiCode feature, and how far it reaches Junie depends on Junie's own provider settings.",
+            "Parallel sessions, Agents management, OpenSpec proposals, AI commit, Code Server, Monospecs, Vault and the unified tool-call view apply to Junie sessions.",
             "Interactive questions are limited to Claude, Pi and OMP, and the agent work panel is Claude only, so neither is available with Junie."
           ]
         }
@@ -269,9 +269,9 @@
             },
             {
               "id": "junie-vs-hagicode-section-6-item-5",
-              "title": "OmniRoute, tool-call view and usage",
+              "title": "Tool-call view and usage",
               "content": [
-                "OmniRoute can route model traffic centrally when Junie is configured to use it. Junie's tool calls appear in the same typed view as every other agent, and the optional TokenMonitor integration shows today's tokens and cost in the status bar."
+                "Junie's tool calls appear in the same typed view as every other agent, and the optional TokenMonitor integration shows today's tokens and cost in the status bar."
               ]
             }
           ]

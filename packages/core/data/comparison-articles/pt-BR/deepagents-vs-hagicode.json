@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "DeepAgents vs HagiCode: recursos e comparação",
-    "description": "Entenda as funções principais do DeepAgents, seu ecossistema LangChain e sua arquitetura técnica, e veja como o HagiCode eleva o DeepAgents ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs, Vault e OmniRoute. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
+    "description": "Entenda as funções principais do DeepAgents, seu ecossistema LangChain e sua arquitetura técnica, e veja como o HagiCode eleva o DeepAgents ao próximo nível através de multithreading, propostas OpenSpec, commits de IA, HagiTasks, UI gamificada, gestão de Agents, Monospecs e Vault. Cobre também a visão compartilhada de chamadas de ferramenta e o uso do TokenMonitor na barra de status."
   },
   "summary": "O DeepAgents é a ferramenta CLI de Agent de IA oficial do LangChain, construída sobre o framework profundo de orquestração de Agent do LangChain. Ele se centraliza em decomposição automática de tarefas complexas, orquestração coordenada multi-ferramenta e consciência de estado, e é particularmente adequado para tarefas de desenvolvimento complexas e multi-etapas. No entanto, o DeepAgents é uma ferramenta de orquestração CLI, e o HagiCode é uma workbench que fornece gestão multi-repo, persistência de conhecimento e um ambiente de desenvolvimento visualizado. Ambos juntos elevam a capacidade de orquestração a uma experiência de desenvolvimento completa. Ele também cobre a visão compartilhada de chamadas de ferramenta e o uso opcional do TokenMonitor na barra de status.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "deepagents-vs-hagicode-section-2-item-10",
-              "title": "Roteamento de modelo OmniRoute: dar à orquestração do DeepAgents o suporte de modelo ótimo",
+              "title": "Roteamento de modelo: dar à orquestração do DeepAgents o suporte de modelo ótimo",
               "content": [
                 "Equipes deveriam poder manter o fluxo de trabalho que gostam sem bloquear o acesso ao modelo a um fornecedor ou um caminho de assinatura.",
-                "O OmniRoute separa a camada de interação da camada de roteamento de modelo, de modo que o HagiCode pode manter DeepAgents no fluxo de trabalho enquanto troca as fontes de modelo por baixo.",
                 "Isso lhe dá melhor controle de custo, melhor encaixe tarefa-para-modelo e menos agitação de fluxo de trabalho quando o preço ou a disponibilidade do modelo mudam."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "O DeepAgents fornece orquestração: decomposição automática de tarefas, coordenação multi-ferramenta, consciência de estado e ajuste dinâmico;",
             "O HagiCode fornece eficiência: multithreading, gestão de frota de Agents, propostas OpenSpec, commits de IA, editor Code Server, HagiTasks;",
-            "O HagiCode expande fronteiras: Monospecs permite que o DeepAgents entenda relações de projeto cross-repo, o Vault dá ao DeepAgents memória de longo prazo cross-sessão, o OmniRoute libera o DeepAgents do lock-in de assinatura de modelo;",
+            "O HagiCode expande fronteiras: Monospecs permite que o DeepAgents entenda relações de projeto cross-repo, o Vault dá ao DeepAgents memória de longo prazo cross-sessão;",
             "Visão de chamadas de ferramenta: um formato consistente para o uso de ferramentas de todos os provedores, no histórico e nas atualizações ao vivo;",
             "Uso num relance: visão opcional do TokenMonitor na barra de status com os tokens e o custo de hoje;",
             "Juntos eles fornecem uma experiência: cadeias de decisão rastreáveis, tarefas diárias automatizadas, uma interface agradável, e um parceiro de IA de longo prazo que realmente entende sua paisagem de projeto e pode ser livremente configurado com qualquer fonte de modelo."

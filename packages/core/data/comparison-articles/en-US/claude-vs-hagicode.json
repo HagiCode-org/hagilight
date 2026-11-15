@@ -66,7 +66,7 @@
               "cells": [
                 "Model and provider access",
                 "Claude models through your Anthropic plan or a third-party cloud provider",
-                "Hosts no models; uses whatever your Claude Code install is signed in to; optional OmniRoute model catalog"
+                "Hosts no models; uses whatever your Claude Code install is signed in to"
               ]
             },
             {
@@ -270,7 +270,7 @@
               "id": "claude-vs-hagicode-section-6-item-5",
               "title": "Model routing, tool-call view and usage",
               "content": [
-                "Claude Code's tool calls appear in the same typed shape as every other CLI, live and in history. OmniRoute can supply a model catalog per Agent CLI, and an optional TokenMonitor readout in the status bar shows today's tokens and cost."
+                "Claude Code's tool calls appear in the same typed shape as every other CLI, live and in history. An optional TokenMonitor readout in the status bar shows today's tokens and cost."
               ]
             },
             {

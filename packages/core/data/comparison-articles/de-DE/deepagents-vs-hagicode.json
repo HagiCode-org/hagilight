@@ -6,7 +6,7 @@
   "updatedAt": "2026-10-15T00:00:00.000Z",
   "seo": {
     "title": "DeepAgents vs. HagiCode: Funktionen im Vergleich",
-    "description": "Verstehen Sie DeepAgents' wichtigsten Funktionen, LangChain-Ökosystem und technische Architektur und sehen Sie, wie HagiCode DeepAgents durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs, Vault und OmniRoute auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
+    "description": "Verstehen Sie DeepAgents' wichtigsten Funktionen, LangChain-Ökosystem und technische Architektur und sehen Sie, wie HagiCode DeepAgents durch Multithreading, OpenSpec-Vorschläge, KI-Commits, HagiTasks, gamifiziertes UI, Agents-Verwaltung, Monospecs und Vault auf die nächste Stufe hebt. Behandelt außerdem die gemeinsame Tool-Call-Ansicht und die TokenMonitor-Nutzung in der Statusleiste."
   },
   "summary": "DeepAgents ist LangChains offizielles KI-Agent-CLI-Tool, gebaut auf LangChains tiefem Agent-Orchestrierungs-Framework. Es zentriert sich auf automatische komplexe Aufgaben-Zerlegung, Multi-Tool-koordinierte Orchestrierung und Status-Bewusstsein und ist besonders geeignet für komplexe, mehrstufige Entwicklungsaufgaben. DeepAgents ist jedoch ein CLI-Orchestrierungs-Tool, und HagiCode ist eine Werkbank, die Multi-Repo-Management, Wissens-Persistenz und eine visualisierte Entwicklungsumgebung liefert. Beide zusammen heben die Orchestrierungsfähigkeit zu einer vollständigen Entwicklungserfahrung. Zusätzlich deckt es die gemeinsame Tool-Call-Ansicht und die optionale TokenMonitor-Nutzungsanzeige in der Statusleiste ab.",
   "sections": [
@@ -193,10 +193,9 @@
             },
             {
               "id": "deepagents-vs-hagicode-section-2-item-10",
-              "title": "OmniRoute-Modell-Routing: DeepAgents' Orchestrierung optimale Modell-Unterstützung geben",
+              "title": "Modell-Routing: DeepAgents' Orchestrierung optimale Modell-Unterstützung geben",
               "content": [
                 "Teams sollten den Workflow, den sie mögen, beibehalten können, ohne den Modellzugang an einen einzigen Anbieter oder Abonnementpfad zu binden.",
-                "OmniRoute trennt die Interaktionsebene von der Modell-Routing-Ebene, sodass HagiCode DeepAgents im Workflow behalten kann, während es darunter die Modellquellen wechselt.",
                 "Das gibt Ihnen bessere Kostenkontrolle, bessere Aufgaben-zu-Modell-Passung und weniger Workflow-Unruhe, wenn sich Modellpreise oder Verfügbarkeit ändern."
               ],
               "bullets": [
@@ -254,7 +253,7 @@
           "items": [
             "DeepAgents liefert Orchestrierung: automatische Aufgaben-Zerlegung, Multi-Tool-Koordination, Status-Bewusstsein und dynamische Anpassung;",
             "HagiCode liefert Effizienz: Multithreading, Agents-Flottenverwaltung, OpenSpec-Vorschläge, KI-Commits, Code-Server-Editor, HagiTasks;",
-            "HagiCode erweitert Grenzen: Monospecs lässt DeepAgents Repo-übergreifende Projektbeziehungen verstehen, Vault gibt DeepAgents sitzungsübergreifendes Langzeitgedächtnis, OmniRoute befreit DeepAgents aus dem Modell-Abonnement-Lock-in;",
+            "HagiCode erweitert Grenzen: Monospecs lässt DeepAgents Repo-übergreifende Projektbeziehungen verstehen, Vault gibt DeepAgents sitzungsübergreifendes Langzeitgedächtnis;",
             "Tool-Call-Ansicht: eine einheitliche Struktur für die Tool-Nutzung jedes Providers, in Verlauf und Live-Updates;",
             "Nutzung auf einen Blick: optionale TokenMonitor-Anzeige der heutigen Tokens und Kosten in der Statusleiste;",
             "Zusammen liefern sie eine Erfahrung: nachverfolgbare Entscheidungsketten, automatisierte Routineaufgaben, ein genussvolles Interface und ein langfristiger KI-Partner, der Ihre Projektlandschaft wirklich versteht und frei mit jeder Modellquelle konfiguriert werden kann."
