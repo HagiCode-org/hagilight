@@ -226,6 +226,12 @@ export function reportLocaleRedirect(win: Window, destination: string, base = '/
   }
 }
 
+/** True when `target` names the page at `current`, ignoring search, hash and a trailing `index.html`. */
+function samePage(target: string, current: string): boolean {
+  const pathOf = (href: string) => new URL(href, current).pathname.replace(/\/(?:index\.html?)?$/iu, '');
+  return pathOf(target) === pathOf(current);
+}
+
 export function mountRootTransit(win: Window = window): () => void {
   const doc = win.document;
   const page = doc.querySelector<HTMLElement>('[data-root-transit]');
@@ -240,12 +246,14 @@ export function mountRootTransit(win: Window = window): () => void {
   for (const link of links.slice(1)) {
     link.href = resolveTransitNavigation(link.getAttribute('href') ?? '', new URL(win.location.href), page.dataset.base);
   }
+  // A destination that is the page itself would reload it forever. Such a page keeps its visible links and never forwards.
+  const selfTarget = samePage(target, win.location.href);
   let finished = false;
-  let timer: number;
+  let timer: number | undefined;
   let releaseSplash = () => {};
   let loading = { enter: () => {}, release: () => {} };
   try {
-    loading = mountLoadingPhase(win, doc);
+    if (!selfTarget) loading = mountLoadingPhase(win, doc);
   } catch {
     // The rail only decorates; a failure here never changes forwarding.
   }
@@ -269,10 +277,12 @@ export function mountRootTransit(win: Window = window): () => void {
     event.preventDefault();
     forward((event.currentTarget as HTMLAnchorElement).getAttribute('href') ?? target);
   };
-  timer = win.setTimeout(() => {
-    if (!finished) reportLocaleRedirect(win, target, page.dataset.base || '/');
-    forward();
-  }, ROOT_TRANSIT_DELAY_MS);
+  if (!selfTarget) {
+    timer = win.setTimeout(() => {
+      if (!finished) reportLocaleRedirect(win, target, page.dataset.base || '/');
+      forward();
+    }, ROOT_TRANSIT_DELAY_MS);
+  }
   mounted.set(page, cleanup);
   for (const link of links) link.addEventListener('click', continueNow);
   win.addEventListener('pagehide', cleanup);

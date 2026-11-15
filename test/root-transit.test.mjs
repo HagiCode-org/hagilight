@@ -109,6 +109,15 @@ test('the reference timer replaces once, is independent of effects, and mounts o
   assert.deepEqual(navigations, ['/en-US/?utm=test#deep']);
 });
 
+test('a page whose destination is itself never forwards to itself', (t) => {
+  const { win, navigations } = harness(t);
+  win.location.href = `${site}/en-US/?utm=test#deep`;
+  mountRootTransit(win);
+  t.mock.timers.tick(ROOT_TRANSIT_DELAY_MS * 3);
+  assert.deepEqual(navigations, []);
+  assert.equal(win.document.documentElement.dataset.transitPhase, undefined);
+});
+
 test('the loading phase starts when the sweep lands and never moves the forward clock', (t) => {
   const { win, navigations } = harness(t);
   const root = win.document.documentElement;
