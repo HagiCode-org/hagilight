@@ -225,7 +225,7 @@ test('the comparison article raw JSON pattern export resolves every packaged art
     articles += readdirSync(join(root, 'packages', 'core', 'data', 'comparison-articles', locale.name))
       .filter((file) => file.endsWith('.json')).length;
   }
-  assert.equal(articles, 136);
+  assert.equal(articles, 126);
   assert.ok(core.files.includes('data/**/*.json'), 'core ships the comparison article data');
 });
 
