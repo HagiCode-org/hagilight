@@ -1,11 +1,12 @@
 // Layout check for the consent popup and the footer's consent entries on a built site, at 320, 360, 390, 768, 1024, 1280 and
 // 1920 px. Usage:
 //   node test/browser/consent-layout.mjs [distDir] [startPath]
-// A required visitor (trace loc=DE) sees the popup: it does not overlap the PromotoBanner, nothing covers its buttons, it
-// stays inside the viewport, and every visible footer link can be scrolled clear of it. On a regional build the settings
+// A required visitor (trace loc=DE) sees the popup: the PromotoBanner yields to it (it is not shown, and is never lifted
+// above it), nothing covers its buttons, it stays inside the viewport, and every visible footer link can be scrolled clear
+// of it. On a regional build the settings
 // entry is shown to that visitor.
 // On a regional build a not-required visitor (trace loc=US) gets the settings entry hidden by default, the Replay entry
-// shown, and the replay panel opens clear of the banner with reachable buttons and footer links that clear it.
+// shown, and the replay panel opens with the banner yielded, reachable buttons and footer links that clear it.
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -73,15 +74,9 @@ async function footerLinksCoveredByPanel(page) {
 
 /** Waits until the popup's entrance animations have finished, so the geometry is the settled layout. */
 async function settled(page) {
-  // The promotion banner stays hidden at the top of the page, so scroll into the page and measure it shown.
+  // Scroll into the page: the banner must stay away from the popup wherever the visitor is, not only at the top.
   await page.evaluate(() => window.scrollTo(0, 400));
-  await page.waitForFunction(() => {
-    const shell = document.querySelector('.hagilight-promoto__shell');
-    if (!shell) return true;
-    const style = getComputedStyle(shell);
-    return style.visibility === 'visible' && Number(style.opacity) > 0.99;
-  }, null, { timeout: 5000 }).catch(() => {});
-  // The banner rises into place over 0.62 s; wait for that before the geometry is read.
+  // The popup springs up over 0.7 s; wait for that before the geometry is read.
   await page.waitForTimeout(800);
   return page.waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== 'running'
     || !animation.effect?.target?.closest?.('[data-hagilight-consent]')), null, { timeout: 5000 });
@@ -94,20 +89,17 @@ async function checkRequired(page) {
   const geometry = await page.evaluate(() => {
     const rect = (el) => (el ? el.getBoundingClientRect() : null);
     const popup = rect(document.querySelector('[data-hagilight-consent]'));
+    // A banner counts as shown when a visitor could see or press it: rendered, visible and not faded out.
     const banner = [...document.querySelectorAll('.hagilight-promoto__shell')].find((el) => !el.hidden && getComputedStyle(el).display !== 'none'
-      && getComputedStyle(el).visibility === 'visible' && Number(getComputedStyle(el).opacity) > 0.99);
+      && getComputedStyle(el).visibility === 'visible' && Number(getComputedStyle(el).opacity) > 0.01);
     const bannerRect = rect(banner);
-    const overlap = (a, b) => Boolean(a && b) && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
     const btn = document.querySelector('[data-consent-accept]');
     const b = btn.getBoundingClientRect();
     const topAtButton = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
     const settings = document.querySelector('[data-consent-entry="settings"]');
     return {
       popupVisible: Boolean(popup) && popup.width > 0,
-      bannerPresent: Boolean(bannerRect),
-      bannerOverlaps: overlap(popup, bannerRect),
-      bannerHidden: Boolean(document.querySelector('.hagilight-promoto__shell')) && !bannerRect,
-      bannerGap: bannerRect && popup ? Math.round((popup.top - bannerRect.bottom) * 10) / 10 : null,
+      bannerShown: Boolean(bannerRect),
       buttonCovered: !(topAtButton && btn.contains(topAtButton)),
       coveredBy: topAtButton ? `${topAtButton.tagName.toLowerCase()}.${String(topAtButton.className).slice(0, 60)}` : 'nothing at the button centre',
       inViewport: popup.left >= 0 && popup.right <= window.innerWidth + 0.5,
@@ -116,8 +108,7 @@ async function checkRequired(page) {
   });
   const problems = [];
   if (!geometry.popupVisible) problems.push('the popup is not shown');
-  if (geometry.bannerHidden) problems.push('the promotion banner is not shown, so its clearance cannot be checked');
-  if (geometry.bannerOverlaps) problems.push(`the popup overlaps the banner by ${-geometry.bannerGap} px`);
+  if (geometry.bannerShown) problems.push('the promotion banner is shown while the popup is open');
   if (geometry.buttonCovered) problems.push(`${geometry.coveredBy} covers the popup buttons`);
   if (!geometry.inViewport) problems.push('the popup exceeds the viewport width');
   if (geometry.settingsShown === false) problems.push('the settings entry is hidden for a required visitor');
@@ -146,10 +137,10 @@ async function checkNotRequired(page) {
   const geometry = await page.evaluate(() => {
     const rect = (el) => (el ? el.getBoundingClientRect() : null);
     const panel = rect(document.querySelector('[data-hagilight-consent]'));
+    // A banner counts as shown when a visitor could see or press it: rendered, visible and not faded out.
     const banner = [...document.querySelectorAll('.hagilight-promoto__shell')].find((el) => !el.hidden && getComputedStyle(el).display !== 'none'
-      && getComputedStyle(el).visibility === 'visible' && Number(getComputedStyle(el).opacity) > 0.99);
+      && getComputedStyle(el).visibility === 'visible' && Number(getComputedStyle(el).opacity) > 0.01);
     const bannerRect = rect(banner);
-    const overlap = (a, b) => Boolean(a && b) && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
     const buttons = [...document.querySelectorAll('[data-consent-replay-allow], [data-consent-replay-decline]')];
     const uncovered = buttons.filter((btn) => {
       const b = btn.getBoundingClientRect();
@@ -158,9 +149,7 @@ async function checkNotRequired(page) {
     }).map((btn) => btn.textContent.trim());
     return {
       panelVisible: Boolean(panel) && panel.width > 0,
-      bannerOverlaps: overlap(panel, bannerRect),
-      bannerHidden: Boolean(document.querySelector('.hagilight-promoto__shell')) && !bannerRect,
-      bannerGap: bannerRect && panel ? Math.round((panel.top - bannerRect.bottom) * 10) / 10 : null,
+      bannerShown: Boolean(bannerRect),
       uncovered,
       inViewport: panel.left >= 0 && panel.right <= window.innerWidth + 0.5,
       buttons: buttons.length,
@@ -169,8 +158,7 @@ async function checkNotRequired(page) {
   if (!geometry.panelVisible) problems.push('the replay panel is not shown');
   if (geometry.buttons !== 2) problems.push(`the replay panel has ${geometry.buttons} buttons, expected 2`);
   if (geometry.uncovered.length > 0) problems.push(`something covers the replay buttons: ${geometry.uncovered.join(', ')}`);
-  if (geometry.bannerHidden) problems.push('the promotion banner is not shown, so its clearance cannot be checked');
-  if (geometry.bannerOverlaps) problems.push(`the replay panel overlaps the banner by ${-geometry.bannerGap} px`);
+  if (geometry.bannerShown) problems.push('the promotion banner is shown while the replay panel is open');
   if (!geometry.inViewport) problems.push('the replay panel exceeds the viewport width');
   const covered = await footerLinksCoveredByPanel(page);
   if (covered.length > 0) problems.push(`footer links covered by the replay panel at the page end: ${covered.join(', ')}`);
@@ -182,7 +170,7 @@ for (const width of WIDTHS) {
   const required = await openVisitor(width, 'loc=DE\n');
   try {
     const problems = await checkRequired(required.page);
-    if (problems.length === 0) results.push(`ok   ${label} required: popup clear of banner, buttons and footer; settings entry shown`);
+    if (problems.length === 0) results.push(`ok   ${label} required: banner yielded, popup clear of buttons and footer; settings entry shown`);
     else {
       failed = true;
       results.push(`FAIL ${label} required: ${problems.join('; ')}`);
@@ -200,7 +188,7 @@ for (const width of WIDTHS) {
     const hasReplay = await notRequired.page.evaluate(() => Boolean(document.querySelector('[data-consent-entry="replay"]')));
     if (hasReplay) {
       const problems = await checkNotRequired(notRequired.page);
-      if (problems.length === 0) results.push(`ok   ${label} not required: settings entry hidden; replay panel clear of banner, buttons and footer`);
+      if (problems.length === 0) results.push(`ok   ${label} not required: settings entry hidden; banner yielded, replay panel clear of buttons and footer`);
       else {
         failed = true;
         results.push(`FAIL ${label} not required: ${problems.join('; ')}`);

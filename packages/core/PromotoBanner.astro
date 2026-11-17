@@ -65,7 +65,9 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
    * Layout model: the card is content on top, one action row on the bottom.
    * The call to action sits bottom-left; pager and pause share that row at the
    * bottom-right, so controls never take a column or a row of their own. Dismiss
-   * is a small corner mark. Wide: media beside the copy. Portrait phones: a small
+   * is a small corner mark. The card always sits on the bottom edge: it is never lifted
+   * above the consent panel, it steps aside while that panel is open (and for a domain's
+   * first visits it is not rendered at all). Wide: media beside the copy. Portrait phones: a small
    * thumbnail beside the title only. Short landscape viewports: no thumbnail and a
    * one-line description, so the card stays a thin strip.
    */
@@ -111,7 +113,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
     /* Centered in the content area: a theme narrows it by setting these two insets on :root. */
     inset-inline-start: var(--hagilight-promoto-inset-start, 0px);
     inset-inline-end: var(--hagilight-promoto-inset-end, 0px);
-    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--hagilight-consent-clearance, 0px));
+    bottom: max(1rem, env(safe-area-inset-bottom));
     width: min(42rem, calc(100% - var(--hagilight-promoto-inset-start, 0px) - var(--hagilight-promoto-inset-end, 0px) - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))));
     margin-inline: auto;
     overflow: hidden;
@@ -126,7 +128,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
     transition: opacity 0.24s ease, transform 0.62s var(--promoto-ease), visibility 0s linear;
   }
 
-  /* Rises into place on first render and whenever it returns from the footer or the page top. */
+  /* Rises into place on first render and whenever it returns from the footer or the consent panel. */
   .hagilight-promoto[data-state='ready'] .hagilight-promoto__shell {
     animation: hagilight-promoto-rise 0.62s var(--promoto-ease) backwards;
   }
@@ -137,7 +139,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
   }
 
   .hagilight-promoto[data-state='footer-hidden'] .hagilight-promoto__shell,
-  .hagilight-promoto[data-state='top-hidden'] .hagilight-promoto__shell {
+  .hagilight-promoto[data-state='consent-hidden'] .hagilight-promoto__shell {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -468,7 +470,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
     }
 
     .hagilight-promoto__shell {
-      bottom: calc(env(safe-area-inset-bottom) + 0.5rem + var(--hagilight-consent-clearance, 0px));
+      bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
       width: min(calc(100vw - 1rem - 2 * max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px))), 28rem);
       border-radius: 0.875rem;
     }
@@ -537,7 +539,7 @@ const { fallback, locale = Astro.currentLocale ?? 'en', siteId } = Astro.props;
     }
 
     .hagilight-promoto__shell {
-      bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + var(--hagilight-consent-clearance, 0px));
+      bottom: max(0.5rem, env(safe-area-inset-bottom));
     }
 
     .hagilight-promoto__media {

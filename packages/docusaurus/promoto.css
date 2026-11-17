@@ -56,7 +56,7 @@
   transition: opacity 0.24s ease, transform 0.62s var(--promoto-ease), visibility 0s linear;
 }
 
-/* Rises into place on first render and whenever it returns from the footer or the page top. */
+/* Rises into place on first render and whenever it returns from the footer or the consent panel. */
 .hagilight-promoto[data-state='ready'] .hagilight-promoto__shell {
   animation: hagilight-promoto-rise 0.62s var(--promoto-ease) backwards;
 }
@@ -67,7 +67,7 @@
 }
 
 .hagilight-promoto[data-state='footer-hidden'] .hagilight-promoto__shell,
-.hagilight-promoto[data-state='top-hidden'] .hagilight-promoto__shell {
+.hagilight-promoto[data-state='consent-hidden'] .hagilight-promoto__shell {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;

@@ -7,8 +7,7 @@ import {
   getPromotionSetSignature,
   getPromotionVisibility,
   getVisitCountKey,
-  isPageTopRuleActive,
-  isScrolledToTop,
+  isEarlyVisit,
   parseVisitCount,
   selectPromotionCards,
   shouldAutoRotate,
@@ -222,9 +221,9 @@ test('the picture wrapper is laid out transparently inside the media frame', asy
   assert.match(component, /\.hagilight-promoto__media picture\s*\{[^}]*display:\s*contents/u);
 });
 
-test('the page-top state applies only through the fifth argument and keeps the four-argument states', () => {
+test('the early-visit state applies only through the fifth argument and keeps the four-argument states', () => {
   const signature = getPromotionSetSignature([fallback]);
-  assert.equal(getPromotionVisibility([fallback], signature, null, false, true), 'top-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, false, true), 'early-visit');
   assert.equal(getPromotionVisibility([fallback], signature, null, false, false), 'ready');
   assert.equal(getPromotionVisibility([fallback], signature, null, false), 'ready');
   assert.equal(getPromotionVisibility([fallback], signature, null, true, false), 'footer-hidden');
@@ -232,30 +231,33 @@ test('the page-top state applies only through the fifth argument and keeps the f
   assert.equal(getPromotionVisibility([], null, null, false, false), 'hidden');
 });
 
-test('dismissal, an empty set and the footer each take precedence over the page top', () => {
+test('dismissal and an empty set take precedence over an early visit, which outranks the consent panel and the footer', () => {
   const signature = getPromotionSetSignature([fallback]);
   assert.equal(getPromotionVisibility([fallback], signature, signature, false, true), 'dismissed');
   assert.equal(getPromotionVisibility([], null, null, false, true), 'hidden');
-  assert.equal(getPromotionVisibility([fallback], signature, null, true, true), 'footer-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, true, true, true), 'early-visit');
 });
 
-test('a card hidden at the top does not rotate', () => {
-  assert.equal(shouldAutoRotate(2, false, false, true, 'top-hidden'), false);
+test('an open consent panel yields the banner, ahead of the footer, whatever the scroll position', () => {
+  const signature = getPromotionSetSignature([fallback]);
+  assert.equal(getPromotionVisibility([fallback], signature, null, false, false, true), 'consent-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, true, false, true), 'consent-hidden');
+  assert.equal(getPromotionVisibility([fallback], signature, null, false, false, false), 'ready');
+  assert.equal(getPromotionVisibility([fallback], signature, signature, false, false, true), 'dismissed');
 });
 
-test('the top-of-page boundary includes scroll offsets of 1 px or less', () => {
-  assert.equal(isScrolledToTop(0), true);
-  assert.equal(isScrolledToTop(1), true);
-  assert.equal(isScrolledToTop(1.5), false);
-  assert.equal(isScrolledToTop(240), false);
+test('a card that is not ready does not rotate', () => {
+  assert.equal(shouldAutoRotate(2, false, false, true, 'early-visit'), false);
+  assert.equal(shouldAutoRotate(2, false, false, true, 'consent-hidden'), false);
+  assert.equal(shouldAutoRotate(2, false, false, true, 'ready'), true);
 });
 
-test('the page-top rule applies to visits 1 through 30 only', () => {
-  assert.equal(isPageTopRuleActive(0), true);
-  assert.equal(isPageTopRuleActive(1), true);
-  assert.equal(isPageTopRuleActive(30), true);
-  assert.equal(isPageTopRuleActive(31), false);
-  assert.equal(isPageTopRuleActive(1000), false);
+test('the early-visit rule applies to visits 1 through 30 only', () => {
+  assert.equal(isEarlyVisit(0), true);
+  assert.equal(isEarlyVisit(1), true);
+  assert.equal(isEarlyVisit(30), true);
+  assert.equal(isEarlyVisit(31), false);
+  assert.equal(isEarlyVisit(1000), false);
 });
 
 test('parseVisitCount accepts only plain non-negative integers and reads anything else as 0', () => {
@@ -355,7 +357,7 @@ test('a blocked or failing localStorage never throws, and a failed write keeps t
   const readBlocked = await loadFreshModule();
   withBrowser({ storage: { getItem: throwing, setItem: throwing } }, () => {
     assert.equal(readBlocked.recordSiteVisit(), 0);
-    assert.equal(isPageTopRuleActive(0), true);
+    assert.equal(isEarlyVisit(0), true);
   });
 
   const writeBlocked = await loadFreshModule();
@@ -383,10 +385,12 @@ test('recordSiteVisit is a no-op without a window', async () => {
   assert.equal(recordSiteVisit(), 0);
 });
 
-test('updateVisibility feeds the page-top rule and inerts every state except ready', async () => {
+test('updateVisibility feeds the early-visit and consent rules, ignores scroll, and inerts every state except ready', async () => {
   const source = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
   const update = source.slice(source.indexOf('private updateVisibility'), source.indexOf('private isFooterVisible'));
-  assert.match(update, /isScrolledToTop\(window\.scrollY \?\? document\.documentElement\.scrollTop\)\s*&&\s*isPageTopRuleActive\(siteVisitCount\)/u);
+  assert.match(update, /isEarlyVisit\(siteVisitCount\),\s*isConsentPanelOpen\(\),/u);
+  assert.doesNotMatch(update, /scrollY|scrollTop/u, 'a visit is hidden wherever the page is scrolled');
+  assert.match(update, /state === 'early-visit'/u, 'an early visit is not rendered at all');
   assert.match(update, /shell\.inert = state !== 'ready';/u);
 });
 
@@ -397,9 +401,16 @@ test('visits are recorded on connect and on each Astro page load', async () => {
   assert.match(source, /private readonly onPageLoad = \(\) => \{\s*recordSiteVisit\(\);/u);
 });
 
-test('the Astro component styles hide the shell in the top-hidden state', async () => {
+test('the Astro component styles hide the shell while the consent panel is open', async () => {
   const component = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
-  assert.match(component, /\.hagilight-promoto\[data-state='top-hidden'\] \.hagilight-promoto__shell\s*\{[^}]*visibility:\s*hidden/u);
+  assert.match(component, /\.hagilight-promoto\[data-state='consent-hidden'\] \.hagilight-promoto__shell\s*\{[^}]*visibility:\s*hidden/u);
+  assert.doesNotMatch(component, /top-hidden/u);
+});
+
+test('the banner listens for the consent panel and reacts to it like any layout change', async () => {
+  const source = await readFile(new URL('../packages/core/src/promoto-banner.ts', import.meta.url), 'utf8');
+  assert.match(source, /document\.addEventListener\(CONSENT_OPEN_EVENT, this\.onLayoutChange\)/u);
+  assert.match(source, /document\.removeEventListener\(CONSENT_OPEN_EVENT, this\.onLayoutChange\)/u);
 });
 
 test('core card is placed between two insets that themes can set to avoid sidebars', async () => {
@@ -442,12 +453,12 @@ test('call to action, muted copy and hover colors follow the card instead of fix
   assert.doesNotMatch(component, /color:\s*#fff;/u);
 });
 
-test('the banner and footers consume the consent clearance, falling back to 0px when no popup publishes it', async () => {
+test('the footers consume the consent clearance and the banner never lifts by it', async () => {
   const banner = await readFile(new URL('../packages/core/PromotoBanner.astro', import.meta.url), 'utf8');
   const coreFooter = await readFile(new URL('../packages/core/Footer.astro', import.meta.url), 'utf8');
   const starlightFooter = await readFile(new URL('../packages/starlight/Footer.astro', import.meta.url), 'utf8');
-  const clearance = /var\(--hagilight-consent-clearance, 0px\)/gu;
-  assert.equal(banner.match(clearance)?.length, 3, 'every bottom offset of the shell adds the clearance');
+  assert.doesNotMatch(banner, /--hagilight-consent-clearance/u, 'the card stays on the bottom edge instead of floating above the popup');
+  assert.match(banner, /\n    bottom: max\(1rem, env\(safe-area-inset-bottom\)\);/u);
   assert.match(banner, /z-index:\s*40;/u, 'the banner keeps z-index 40');
   assert.match(coreFooter, /padding:\s*1\.5rem 1rem calc\(1rem \+ var\(--hagilight-consent-clearance, 0px\)\);/u);
   assert.match(starlightFooter, /padding-block-end:\s*var\(--hagilight-consent-clearance, 0px\);/u);

@@ -2,13 +2,15 @@
  * Browser wiring for the consent popup. `mountConsentPopup` reveals the markup from `consent-markup.ts` only for an
  * undecided visitor whose region decision is `required` or `unknown`. It stays hidden while the decision is pending and
  * for `notRequired`. It connects Accept and Reject to `setConsent`, toggles the details, reflects the current choice when
- * `openConsentPreferences()` is called, and publishes the popup's height as `--hagilight-consent-clearance` on the root.
+ * `openConsentPreferences()` is called, and publishes the popup's height as `--hagilight-consent-clearance` on the root
+ * (the footers pad by it) and its presence through `consent-open.ts` (the promotion banner yields while it is shown).
  * A replay opt-in request (`openConsentPreferences('replay')`) shows the replay section instead. The details slide open
  * and the panel fades out through the Web Animations API, and both snap under reduced motion. It never moves or traps focus.
  */
 import {
   currentRegionConfig, CONSENT_PREFERENCES_EVENT, getConsent, onConsentChange, openConsentPreferences, regionalBehavior, setConsent,
 } from './consent.js';
+import { setConsentPanelOpen } from './consent-open.js';
 import { pageRegionSource, startRegionResolution, type RegionSource } from './consent-region.js';
 
 export const CONSENT_CLEARANCE_PROPERTY = '--hagilight-consent-clearance';
@@ -36,6 +38,8 @@ function canAnimate(element: HTMLElement): boolean {
 
 function publishClearance(panel: HTMLElement): void {
   try {
+    // The panel counts as open until its leave animation ends, so the promotion banner waits for it to be gone.
+    setConsentPanelOpen(!panel.hidden);
     const root = document.documentElement;
     // A panel that is leaving no longer holds space: the banner and footer settle back while it fades.
     if (panel.hidden || panel.dataset.leaving === 'true') {

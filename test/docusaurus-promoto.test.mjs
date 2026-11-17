@@ -146,7 +146,7 @@ test('promote styles use Infima tokens and no Starlight tokens or hard-coded whi
   assert.doesNotMatch(PROMOTO_CSS, /#fff\b/iu);
   assert.match(PROMOTO_CSS, /--hagilight-promoto-cta-text: var\(--ifm-color-white\)/u);
   assert.match(PROMOTO_CSS, /data-state='footer-hidden'/u);
-  assert.match(PROMOTO_CSS, /\[data-state='top-hidden'\] \.hagilight-promoto__shell/u);
+  assert.match(PROMOTO_CSS, /\[data-state='consent-hidden'\] \.hagilight-promoto__shell/u);
   assert.match(PROMOTO_CSS, /prefers-reduced-motion: reduce/u);
 });
 

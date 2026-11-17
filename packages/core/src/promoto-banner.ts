@@ -1,4 +1,5 @@
 import { gaEventAttributes } from './analytics-events.js';
+import { CONSENT_OPEN_EVENT, isConsentPanelOpen } from './consent-open.js';
 import { classifyLink, getLinkRel, withCampaignUtm } from './link-policy.js';
 import {
   capturePromoto,
@@ -18,17 +19,19 @@ const ELEMENT_NAME = 'hagilight-promoto-banner';
  * Dismissal is recorded once for the whole card set, not per promotion: `localStorage` holds the
  * signature of every card (id, copy, link and image), with no expiry, scoped per origin. Changing any
  * card shows the banner again. A failed write is not persisted, so the banner returns on the next load.
- * Hiding at page top and while the footer is in view are not dismissals.
+ * Staying away during a domain's first visits, while the consent panel is open, and while the footer is in
+ * view are not dismissals.
  */
 const DISMISSED_SIGNATURE_KEY = 'hagilight:promoto-banner:dismissed-signature';
 const VISIT_COUNT_KEY_PREFIX = 'hagilight:promoto-banner:visit-count:';
 const VISIT_EVENT = 'hagilight:promoto-visit';
-const PAGE_TOP_VISIT_LIMIT = 30;
+/** Visits 1 to this number do not render the banner at all, wherever the page is scrolled. */
+const EARLY_VISIT_LIMIT = 30;
 const ROTATION_INTERVAL_MS = 8000;
 const DISMISS_DURATION_MS = 220;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
-export type PromotionVisibility = 'dismissed' | 'footer-hidden' | 'hidden' | 'ready' | 'top-hidden';
+export type PromotionVisibility = 'consent-hidden' | 'dismissed' | 'early-visit' | 'footer-hidden' | 'hidden' | 'ready';
 
 let lastCountedPage: string | null = null;
 let siteVisitCount = 0;
@@ -102,12 +105,9 @@ export function getPromotionSetSignature(cards: PromotionCard[]): string | null 
   ]));
 }
 
-export function isScrolledToTop(scrollY: number): boolean {
-  return scrollY <= 1;
-}
-
-export function isPageTopRuleActive(visitCount: number): boolean {
-  return visitCount <= PAGE_TOP_VISIT_LIMIT;
+/** True while the visit being made is one of the domain's first, when the banner is not rendered. */
+export function isEarlyVisit(visitCount: number): boolean {
+  return visitCount <= EARLY_VISIT_LIMIT;
 }
 
 export function getVisitCountKey(hostname: string): string {
@@ -125,12 +125,14 @@ export function getPromotionVisibility(
   signature: string | null,
   dismissedSignature: string | null,
   footerVisible: boolean,
-  atPageTop = false,
+  earlyVisit = false,
+  consentOpen = false,
 ): PromotionVisibility {
   if (!cards.length) return 'hidden';
   if (signature && signature === dismissedSignature) return 'dismissed';
-  if (footerVisible) return 'footer-hidden';
-  return atPageTop ? 'top-hidden' : 'ready';
+  if (earlyVisit) return 'early-visit';
+  if (consentOpen) return 'consent-hidden';
+  return footerVisible ? 'footer-hidden' : 'ready';
 }
 
 export function getNextPromotionIndex(index: number, count: number, direction: -1 | 1): number {
@@ -178,7 +180,7 @@ function countVisit(storage: Storage, key: string): number {
   } catch {
     return 0;
   }
-  if (!isPageTopRuleActive(count)) return count;
+  if (!isEarlyVisit(count)) return count;
   try {
     storage.setItem(key, String(count + 1));
     return count + 1;
@@ -314,6 +316,7 @@ export function definePromotoBannerElement(): void {
       this.motionQuery?.addEventListener('change', this.onMotionChange);
       document.addEventListener('astro:page-load', this.onPageLoad);
       document.addEventListener(VISIT_EVENT, this.onLayoutChange);
+      document.addEventListener(CONSENT_OPEN_EVENT, this.onLayoutChange);
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeObserver = new ResizeObserver(this.onLayoutChange);
         if (this.footer) this.resizeObserver.observe(this.footer);
@@ -336,6 +339,7 @@ export function definePromotoBannerElement(): void {
       this.motionQuery?.removeEventListener('change', this.onMotionChange);
       document.removeEventListener('astro:page-load', this.onPageLoad);
       document.removeEventListener(VISIT_EVENT, this.onLayoutChange);
+      document.removeEventListener(CONSENT_OPEN_EVENT, this.onLayoutChange);
       this.resizeObserver?.disconnect();
       this.stopRotation();
       this.stopRefresh();
@@ -528,16 +532,16 @@ export function definePromotoBannerElement(): void {
 
     private updateVisibility(): void {
       const signature = getPromotionSetSignature(this.cards);
-      const atPageTop = isScrolledToTop(window.scrollY ?? document.documentElement.scrollTop)
-        && isPageTopRuleActive(siteVisitCount);
       const state = getPromotionVisibility(
         this.cards,
         signature,
         this.dismissedSignature,
         this.isFooterVisible(),
-        atPageTop,
+        isEarlyVisit(siteVisitCount),
+        isConsentPanelOpen(),
       );
-      const hidden = state === 'hidden' || state === 'dismissed';
+      // An early visit is not rendered at all; the other transient states fade out and back.
+      const hidden = state === 'hidden' || state === 'dismissed' || state === 'early-visit';
       const shell = this.querySelector<HTMLElement>('[data-promoto-shell]');
       this.hidden = hidden;
       if (shell) {
