@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["_astro/consent-gate.OwD4s3DV.js","_astro/consent.z21VOB_4.js"])))=>i.map(i=>d[i]);
+import{t as e}from"./preload-helper.B3nfOi5I.js";import{n as t}from"./analytics-events.Ci6ssndZ.js";t(),document.querySelector(`script[data-hagilight-analytics]`)&&e(()=>import(`./consent-gate.OwD4s3DV.js`).then(e=>e.mountConsentGate()),__vite__mapDeps([0,1]));
