@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkhagilight_docusaurus_example=self.webpackChunkhagilight_docusaurus_example||[]).push([[472],{5513(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"\u8ba4\u8bc6 Docusaurus \u7248 Hagilight","permalink":"/zh-CN/blog/introducing-hagilight-docusaurus","unlisted":false,"date":"2026-10-11T00:00:00.000Z"}]}')}}]);

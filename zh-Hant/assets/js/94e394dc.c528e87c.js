@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkhagilight_docusaurus_example=self.webpackChunkhagilight_docusaurus_example||[]).push([[580],{7134(a){a.exports=JSON.parse('{"metadata":{"permalink":"/zh-Hant/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
