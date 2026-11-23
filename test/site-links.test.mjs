@@ -46,7 +46,7 @@ test('matches Docs footer destinations, order, and localized link copy', () => {
     'hagitask', 'costCalculator',
     'hagicode-main', 'hagicode-docs', 'newbe-blog', 'index-data', 'compose-builder', 'status-page',
     'awesome-sites', 'awesome-design-gallery', 'soul-builder', 'trait-builder', 'openspec-docs', 'omniroute-docs',
-    'fullstack-tutorial', 'gallery', 'impeccable-site', 'steamworks',
+    'fullstack-tutorial', 'gallery', 'impeccable-site', 'steamworks', 'superducky-docs', 'superducky-store',
   ]);
   assert.equal(links.quick[0].label, 'Download HagiCode');
   assert.equal(links.quick[1].label, 'Download HagiCode for Windows');
@@ -144,13 +144,37 @@ test('includes the Impeccable Commands site with a localized description for eve
     resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'impeccable-site').description,
   );
   assert.deepEqual(
-    resolveSiteLinks('en-US').relatedSites.slice(-2).map(({ id }) => id),
-    ['impeccable-site', 'steamworks'],
+    resolveSiteLinks('en-US').relatedSites.slice(-4).map(({ id }) => id),
+    ['impeccable-site', 'steamworks', 'superducky-docs', 'superducky-store'],
   );
   assert.equal(
     resolveSiteLinks('en-US', { siteId: 'impeccable-site' }).relatedSites.some(({ id }) => id === 'impeccable-site'),
     false,
   );
+});
+
+test('includes the SuperDucky site and Microsoft Store entries with a localized description for every locale', () => {
+  for (const locale of [
+    'zh-CN', 'zh-Hant', 'en-US', 'ja-JP', 'ko-KR',
+    'de-DE', 'fr-FR', 'es-ES', 'pt-BR', 'ru-RU',
+  ]) {
+    const { relatedSites } = resolveSiteLinks(locale);
+    const site = relatedSites.find(({ id }) => id === 'superducky-docs');
+    const store = relatedSites.find(({ id }) => id === 'superducky-store');
+    assert.equal(site.href, 'https://sd.hagicode.com/');
+    assert.equal(site.rel, 'noopener');
+    assert.equal(store.href, 'https://apps.microsoft.com/detail/9NDBTDKQBX30');
+    assert.equal(store.rel, 'noopener noreferrer');
+    for (const entry of [site, store]) {
+      assert.equal(entry.target, '_blank');
+      assert.ok(entry.name.trim() && entry.description.length > 0);
+    }
+  }
+  assert.equal(resolveSiteLinks('zh-CN').relatedSites.find(({ id }) => id === 'superducky-store').name,
+    '下载超级丫丫(Microsoft Store)');
+  // SuperDucky Docs lists neither itself nor, through its own URL, a duplicate of its site entry.
+  assert.ok(!resolveSiteLinks('en-US', { siteId: 'superducky-docs', siteUrl: 'https://sd.hagicode.com/' })
+    .relatedSites.some(({ id }) => id === 'superducky-docs'));
 });
 
 test('the Fullstack entry can be removed, replaced, or excluded on its own site', () => {

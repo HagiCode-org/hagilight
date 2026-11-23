@@ -507,5 +507,61 @@
       "ru-RU": "Сервисы для Steam Workshop."
     },
     "url": "https://steamworks.hagicode.com/"
+  },
+  {
+    "id": "superducky-docs",
+    "name": {
+      "zh-CN": "超级丫丫 SuperDucky",
+      "zh-Hant": "超級丫丫 SuperDucky",
+      "en-US": "SuperDucky",
+      "ja-JP": "SuperDucky",
+      "ko-KR": "SuperDucky",
+      "de-DE": "SuperDucky",
+      "fr-FR": "SuperDucky",
+      "es-ES": "SuperDucky",
+      "pt-BR": "SuperDucky",
+      "ru-RU": "SuperDucky"
+    },
+    "description": {
+      "zh-CN": "超级丫丫官网与文档",
+      "zh-Hant": "超級丫丫官網與文件",
+      "en-US": "SuperDucky site and docs.",
+      "ja-JP": "SuperDucky の公式サイトとドキュメントです。",
+      "ko-KR": "SuperDucky 공식 사이트와 문서입니다.",
+      "de-DE": "Website und Dokumentation von SuperDucky.",
+      "fr-FR": "Site officiel et documentation de SuperDucky.",
+      "es-ES": "Sitio oficial y documentación de SuperDucky.",
+      "pt-BR": "Site oficial e documentação do SuperDucky.",
+      "ru-RU": "Официальный сайт и документация SuperDucky."
+    },
+    "url": "https://sd.hagicode.com/"
+  },
+  {
+    "id": "superducky-store",
+    "name": {
+      "zh-CN": "下载超级丫丫(Microsoft Store)",
+      "zh-Hant": "下載超級丫丫(Microsoft Store)",
+      "en-US": "Download SuperDucky (Microsoft Store)",
+      "ja-JP": "SuperDucky をダウンロード(Microsoft Store)",
+      "ko-KR": "SuperDucky 다운로드(Microsoft Store)",
+      "de-DE": "SuperDucky herunterladen (Microsoft Store)",
+      "fr-FR": "Télécharger SuperDucky (Microsoft Store)",
+      "es-ES": "Descargar SuperDucky (Microsoft Store)",
+      "pt-BR": "Baixar SuperDucky (Microsoft Store)",
+      "ru-RU": "Скачать SuperDucky (Microsoft Store)"
+    },
+    "description": {
+      "zh-CN": "在 Microsoft Store 获取超级丫丫",
+      "zh-Hant": "在 Microsoft Store 取得超級丫丫",
+      "en-US": "Get SuperDucky on the Microsoft Store.",
+      "ja-JP": "Microsoft Store で SuperDucky を入手します。",
+      "ko-KR": "Microsoft Store에서 SuperDucky를 받으세요.",
+      "de-DE": "SuperDucky im Microsoft Store holen.",
+      "fr-FR": "Obtenez SuperDucky sur le Microsoft Store.",
+      "es-ES": "Consigue SuperDucky en Microsoft Store.",
+      "pt-BR": "Obtenha o SuperDucky na Microsoft Store.",
+      "ru-RU": "Получите SuperDucky в Microsoft Store."
+    },
+    "url": "https://apps.microsoft.com/detail/9NDBTDKQBX30"
   }
 ]
