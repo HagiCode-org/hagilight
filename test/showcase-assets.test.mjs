@@ -12,18 +12,14 @@ const manifest = JSON.parse(readFileSync(join(assetsDir, 'manifest.json'), 'utf8
 const component = readFileSync(join(root, 'ArticlePromotion.astro'), 'utf8');
 const shippedFiles = readdirSync(assetsDir).filter((file) => file !== 'manifest.json').sort();
 
-/** Pixel size of a WebP file, read from its RIFF header. */
-function webpSize(buffer) {
-  assert.equal(buffer.toString('ascii', 0, 4), 'RIFF');
-  assert.equal(buffer.toString('ascii', 8, 12), 'WEBP');
-  const chunk = buffer.toString('ascii', 12, 16);
-  if (chunk === 'VP8X') return { width: 1 + buffer.readUIntLE(24, 3), height: 1 + buffer.readUIntLE(27, 3) };
-  if (chunk === 'VP8L') {
-    const bits = buffer.readUInt32LE(21);
-    return { width: 1 + (bits & 0x3fff), height: 1 + ((bits >> 14) & 0x3fff) };
-  }
-  assert.equal(chunk, 'VP8 ');
-  return { width: buffer.readUInt16LE(26) & 0x3fff, height: buffer.readUInt16LE(28) & 0x3fff };
+/** Pixel size of an AVIF file, read from the `ispe` (image spatial extents) property box. */
+function avifSize(buffer) {
+  assert.equal(buffer.toString('ascii', 4, 8), 'ftyp');
+  assert.match(buffer.toString('ascii', 8, 12), /^avi[fs]$/u);
+  const at = buffer.indexOf('ispe', 0, 'ascii');
+  assert.ok(at > 0, 'the AVIF carries an ispe box');
+  // After the type: 4 bytes of version and flags, then width and height as 32-bit big-endian.
+  return { width: buffer.readUInt32BE(at + 8), height: buffer.readUInt32BE(at + 12) };
 }
 
 test('provenance manifest and shipped showcase files match one to one', () => {
@@ -84,9 +80,9 @@ test('shipped showcase source images meet the format, size, and traffic budgets'
       assert.doesNotMatch(svg, /<text\b|<image\b|<script\b|<foreignObject\b/u, `${asset.file} has no text, raster, or script`);
       continue;
     }
-    assert.ok(asset.file.endsWith('.webp'), `${asset.file} is WebP`);
+    assert.ok(asset.file.endsWith('.avif'), `${asset.file} is AVIF`);
     assert.ok(bytes.length <= rasterKiB * KIB, `${asset.file} is ${bytes.length} bytes, over the ${rasterKiB} KiB raster budget`);
-    const { width, height } = webpSize(bytes);
+    const { width, height } = avifSize(bytes);
     assert.ok(width >= 1200, `${asset.file} is ${width} px wide, under the 1200 px minimum`);
     assert.deepEqual({ width, height }, { width: asset.width, height: asset.height }, `${asset.file} recorded dimensions`);
   }
@@ -112,7 +108,7 @@ test('the cat-head showcase entry records R2 provenance, a bounded pool and a da
   const entry = manifest.assets.find(({ id }) => id === 'cat-head');
   assert.ok(entry, 'the cat-head entry exists');
   assert.equal(entry.kind, 'sourced');
-  assert.equal(entry.file, 'cat-head.webp');
+  assert.equal(entry.file, 'cat-head.avif');
   assert.deepEqual(entry.source, { repo: 'img-gen', album: 'cat-head-gallery', objectKey: 'cat-head-gallery/g067-pixar-style-3d-02.avif', width: 1024, height: 1024, bytes: 31093 });
   assert.match(entry.audit.checkedOn, /^\d{4}-\d{2}-\d{2}$/u);
   assert.equal(entry.audit.verdict, 'pass');
@@ -134,7 +130,7 @@ test('the cat-head showcase raster is 1200 px wide and inside both budgets', () 
   const bytes = readFileSync(join(assetsDir, entry.file));
   assert.equal(bytes.length, entry.bytes, 'recorded bytes match the file');
   assert.ok(bytes.length <= 200 * KIB, `cat-head is ${bytes.length} bytes, over the 200 KiB raster budget`);
-  assert.deepEqual(webpSize(bytes), { width: 1200, height: 1200 });
+  assert.deepEqual(avifSize(bytes), { width: 1200, height: 1200 });
   const total = manifest.assets.reduce((sum, asset) => sum + statSync(join(assetsDir, asset.file)).size, 0);
   assert.ok(total <= 768 * KIB, `showcase total ${total} bytes is over the 768 KiB budget`);
 });

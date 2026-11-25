@@ -477,8 +477,8 @@ async function inspectVariant(url, format) {
 const sourceCache = new Map();
 async function shippedSource(name) {
   if (!sourceCache.has(name)) {
-    const path = join(SHOWCASE_ASSETS, `${name}.webp`);
-    assert.ok(existsSync(path), `${name} has a shipped WebP source`);
+    const path = join(SHOWCASE_ASSETS, `${name}.avif`);
+    assert.ok(existsSync(path), `${name} has a shipped AVIF source`);
     const { width, height } = await sharp(path).metadata();
     sourceCache.set(name, { width, height });
   }
@@ -495,7 +495,7 @@ function peakSnr(reference, candidate) {
 const fidelityCache = new Map();
 async function verifyNativeFidelity(name, format, url) {
   if (!fidelityCache.has(url)) {
-    const reference = await sharp(join(SHOWCASE_ASSETS, `${name}.webp`)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    const reference = await sharp(join(SHOWCASE_ASSETS, `${name}.avif`)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
     const candidate = await sharp(join(DEMO_DIST, url)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
     assert.deepEqual([candidate.info.width, candidate.info.height], [reference.info.width, reference.info.height], `${url} is the shipped source's native size`);
     const value = peakSnr(reference.data, candidate.data);
@@ -503,7 +503,7 @@ async function verifyNativeFidelity(name, format, url) {
     fidelityCache.set(url, value);
   }
   const value = fidelityCache.get(url);
-  assert.ok(value >= 36, `${name} ${format} native variant measures ${value.toFixed(2)} dB against the shipped WebP, under the 36 dB floor`);
+  assert.ok(value >= 36, `${name} ${format} native variant measures ${value.toFixed(2)} dB against the shipped AVIF, under the 36 dB floor`);
 }
 
 async function verifyShowcaseOutput(read) {
@@ -631,7 +631,11 @@ function verifyShowcaseDisabled(read, dist) {
       assert.ok(!html.includes(marker), `${filename} (${locale}) renders no showcase markup when disabled: ${marker}`);
     }
   }
-  const derivedTiers = showcaseFilesIn(dist).filter((file) => /\.(?:avif|jpeg)$/u.test(file));
+  // The component's import still makes the bundler copy the shipped AVIF source into _astro; that copy is not a derived tier.
+  const shippedIllustration = readFileSync(join(SHOWCASE_ASSETS, 'cat-head.avif'));
+  const derivedTiers = showcaseFilesIn(dist)
+    .filter((file) => /\.(?:avif|jpeg)$/u.test(file))
+    .filter((file) => !readFileSync(join(dist, '_astro', file)).equals(shippedIllustration));
   assert.deepEqual(derivedTiers, [], 'a disabled showcase emits no AVIF or JPEG tier');
 }
 

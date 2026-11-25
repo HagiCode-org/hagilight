@@ -9,10 +9,10 @@
     {
       "id": "workbench",
       "kind": "sourced",
-      "file": "workbench.webp",
+      "file": "workbench.avif",
       "width": 1600,
       "height": 845,
-      "bytes": 57630,
+      "bytes": 45697,
       "source": {
         "repo": "docs",
         "path": "src/content/docs/img/screenshots/shared/kanban-view/original.png"
@@ -20,7 +20,7 @@
       "transforms": [
         "crop 2015x1064+0+0 of the 3839x2159 original (top-left: header, session rail, Pending/In Progress/Archived columns)",
         "resize to 1600 px wide",
-        "webp quality 90"
+        "avif quality 75 (4:4:4), re-encoded from the previous shipped WebP (quality 90 or 88); the original screenshot is not present in this checkout of repos/docs"
       ],
       "audit": {
         "verdict": "pass-after-crop",
@@ -31,10 +31,10 @@
     {
       "id": "proposal-workflow",
       "kind": "sourced",
-      "file": "proposal-workflow.webp",
+      "file": "proposal-workflow.avif",
       "width": 1600,
       "height": 340,
-      "bytes": 21666,
+      "bytes": 17301,
       "source": {
         "repo": "docs",
         "path": "src/content/docs/img/screenshots/shared/classic-proposal-view/original.png"
@@ -42,7 +42,7 @@
       "transforms": [
         "crop 3128x665+670+215 of the 3839x2159 original (proposal stage stepper and the Execution Completed card)",
         "resize to 1600 px wide",
-        "webp quality 90"
+        "avif quality 75 (4:4:4), re-encoded from the previous shipped WebP (quality 90 or 88); the original screenshot is not present in this checkout of repos/docs"
       ],
       "audit": {
         "verdict": "pass-after-crop",
@@ -53,10 +53,10 @@
     {
       "id": "heroes",
       "kind": "sourced",
-      "file": "heroes.webp",
+      "file": "heroes.avif",
       "width": 1200,
       "height": 1111,
-      "bytes": 101748,
+      "bytes": 85327,
       "source": {
         "repo": "docs",
         "path": "src/content/docs/img/screenshots/shared/kanban-view/original.png"
@@ -64,7 +64,7 @@
       "transforms": [
         "crop 1302x1205+2035+260 of the 3839x2159 original (Ember Keep hero panel, three hero cards)",
         "resize to 1200 px wide",
-        "webp quality 88"
+        "avif quality 75 (4:4:4), re-encoded from the previous shipped WebP (quality 90 or 88); the original screenshot is not present in this checkout of repos/docs"
       ],
       "audit": {
         "verdict": "pass-after-crop",
@@ -75,10 +75,10 @@
     {
       "id": "cat-head",
       "kind": "sourced",
-      "file": "cat-head.webp",
+      "file": "cat-head.avif",
       "width": 1200,
       "height": 1200,
-      "bytes": 80780,
+      "bytes": 83140,
       "source": {
         "repo": "img-gen",
         "album": "cat-head-gallery",
@@ -89,7 +89,7 @@
       },
       "transforms": [
         "upscale 1024x1024 to 1200x1200 (lanczos3); the R2 source is 1024 px and the showcase minimum is 1200 px",
-        "webp quality 88"
+        "avif quality 80 (effort 6), encoded from the R2 AVIF source after the upscale"
       ],
       "audit": {
         "verdict": "pass",
