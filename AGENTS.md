@@ -43,7 +43,7 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 - `examples/demo-starlight-web/` — private Starlight demo exercising both package entry points.
 - `examples/demo-web/` — private core Astro demo without Starlight.
 - `examples/demo-docusaurus-web/` — private Docusaurus 3 demo exercising the plugin and the locale catalog; its build output is `build/`.
-- `scripts/` — `packages.mjs` (package order and version-graph checks), `verify-pack.mjs`, `integration-installed.mjs`, `publish.mjs`, `release.mjs` (publishing/release helpers), `build-example.mjs` (the `build:example` driver) with its `build-info-assertions.mjs` and `posthog-assertions.mjs` output checks.
+- `scripts/` — `packages.mjs` (package order and version-graph checks), `verify-pack.mjs`, `integration-installed.mjs`, `check-registry-neutrality.mjs` (`pnpm run check:registry`), `publish.mjs`, `release.mjs` (publishing/release helpers), `build-example.mjs` (the `build:example` driver) with its `build-info-assertions.mjs` and `posthog-assertions.mjs` output checks.
 - `test/` — node:test suites covering the Mermaid package (theme, mode, labels, styles, package manifest and export inventory) and the demo's diagram-type coverage (`test/mermaid-demo-coverage.test.mjs`), exports, site links, header, language chooser, promotions, RSS ownership, AI disclosures, article promotion, Docusaurus options and discovery, and release logic; `test/types/` holds typed consumer fixtures with `@ts-expect-error` negative cases.
 
 ## Conventions
@@ -66,7 +66,7 @@ node test/mermaid-browser.mjs  # Mermaid browser checks alone: default, reduced-
 ## Testing
 
 - Run `pnpm test` after any change to link resolution, header/language logic, theme picker logic, promotions, AI disclosures, Google Analytics click events, or body-image handling, footer avatar and random picker (`test/footer-imagery.test.mjs`, `test/random-image.test.mjs`, `test/footer-avatar.test.mjs`), or the showcase illustration.
-- `pnpm run build:example` must succeed as a consumer integration check. It builds four Starlight configurations (default; blog-only with a base path; unified processor plus `hagilight()` discovery; promotion off plus `contentImages` opt-out) and checks the body images of each. The RSS include filters are unit-tested, not built.
+- `pnpm run build:example` must succeed as a consumer integration check. It builds eight Starlight configurations (default; blog-only with a base path; unified processor plus `hagilight()` discovery; plain-Astro discovery before and after the Starlight plugin; Starlight metadata off; analytics off; regional consent; promotion off plus `contentImages` opt-out) and checks the body images of each. The RSS include filters are unit-tested, not built.
 
 ## Deployment / Publishing
 
