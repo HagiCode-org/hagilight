@@ -27,6 +27,10 @@ const withRegionalConsent = (analytics) => (consentRegions === undefined
 const contentImages = process.env.HAGILIGHT_EXAMPLE_CONTENT_IMAGES === 'off'
   ? { contentImages: { enabled: false } }
   : {};
+// The demo sets its own header logo. HAGILIGHT_EXAMPLE_LOGO=off builds without one, so the header shows the title alone.
+const logo = process.env.HAGILIGHT_EXAMPLE_LOGO === 'off'
+  ? {}
+  : { logo: { src: '@hagicode/hagilight-core/logo.png', alt: 'HagiCode' } };
 
 export default defineConfig({
   site: 'https://hagistar.hagicode.com',
@@ -36,6 +40,7 @@ export default defineConfig({
     ...(discoveryMode === 'first' ? discovery : []),
     starlight({
       title: 'Hagilight example',
+      ...logo,
       editLink: { baseUrl: 'https://github.com/HagiCode-org/hagilight/edit/main/' },
       locales,
       plugins: [hagilight({
