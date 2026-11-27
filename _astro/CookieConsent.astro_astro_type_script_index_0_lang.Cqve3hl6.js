@@ -1,0 +1,1 @@
+import{t as e}from"./consent-popup.DK00pS-f.js";e(document);
