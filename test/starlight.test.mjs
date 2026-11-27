@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import hagilight from '@hagicode/hagilight-starlight';
 import { DEFAULT_POSTHOG_API_KEY } from '@hagicode/hagilight-core/posthog';
 import {
@@ -19,7 +19,7 @@ function configure(options = {}, components = {}, logo, additionalConfig = {}, a
     updateConfig: (value) => { updated = value; },
     addIntegration: (integration) => integrations.push(integration),
   });
-  return { updated, integrations };
+  return { updated, integrations, config };
 }
 
 test('registers a configured footer without discarding an opted-out header override', () => {
@@ -29,10 +29,7 @@ test('registers a configured footer without discarding an opted-out header overr
   }, { Header: './Header.astro' });
 
   assert.equal(updated.components.Header, './Header.astro');
-  assert.deepEqual(updated.logo, {
-    src: fileURLToPath(import.meta.resolve('@hagicode/hagilight-core/logo.png')),
-    alt: 'HagiCode',
-  });
+  assert.equal(updated.logo, undefined);
   assert.match(updated.components.Footer, /^virtual:hagilight-starlight\/.+\/Footer\.astro$/);
   assert.match(updated.components.Hero, /[\\/]NotFoundHero\.astro$/);
   assert.match(updated.components.Head, /^virtual:hagilight-starlight\/.+\/Head\.astro$/);
@@ -89,10 +86,31 @@ test('uses the customized Hero only for Starlight 404 entries', () => {
   assert.equal(isNotFoundEntry('fr-FR/guide'), false);
 });
 
+test('does not inject a logo into a site without one, with the header on or off', () => {
+  assert.equal(configure({}).updated.logo, undefined);
+  assert.equal(configure({ header: { enabled: false } }).updated.logo, undefined);
+});
+
 test('preserves a site-defined Starlight logo', () => {
-  const { updated } = configure({}, {}, { src: './custom-logo.svg', alt: 'Custom logo' });
+  const logo = { src: './custom-logo.svg', alt: 'Custom logo' };
+  const { updated, config } = configure({}, {}, logo);
 
   assert.equal(updated.logo, undefined);
+  assert.equal(config.logo, logo);
+  assert.deepEqual(config.logo, { src: './custom-logo.svg', alt: 'Custom logo' });
+});
+
+test('preserves a site-defined light and dark logo pair', () => {
+  const logo = { light: './src/assets/logo-light.svg', dark: './src/assets/logo-dark.svg', alt: 'Custom logo' };
+  const { updated, config } = configure({}, {}, logo);
+
+  assert.equal(updated.logo, undefined);
+  assert.equal(config.logo, logo);
+  assert.deepEqual(config.logo, {
+    light: './src/assets/logo-light.svg',
+    dark: './src/assets/logo-dark.svg',
+    alt: 'Custom logo',
+  });
 });
 
 test('passes disabled promotion configuration to the footer wrapper', () => {

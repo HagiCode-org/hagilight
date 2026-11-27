@@ -264,7 +264,6 @@ const GOOGLE_ID_PATTERN = /^G-[A-Z0-9]+$/u;
 const FIFTY_ONE_LA_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
 const DEFAULT_GOOGLE_ANALYTICS_ID = 'G-EN03FMT2Q4';
 const DEFAULT_51LA_ID = 'L6b88a5yK4h2Xnci';
-const defaultLogo = coreExport('logo.png');
 const contentWidthCssPath = packageFile('content-width.css');
 const themesCssPath = packageFile('themes.css');
 const contentWidthHeadScript = `(() => {
@@ -899,7 +898,6 @@ export default function hagilight(options: HagilightStarlightOptions = {}): Star
           unregisterSiteMetadataOwner,
         ));
         updateConfig({
-          ...(config.logo === undefined ? { logo: { src: defaultLogo, alt: 'HagiCode' } } : {}),
           customCss: [
             ...(config.customCss ?? []),
             contentWidthCssPath,

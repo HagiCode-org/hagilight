@@ -691,6 +691,22 @@ function verifyBodyImages(read) {
   }
 }
 
+// The header logo comes only from the site's own Starlight `logo`: the plugin injects none, so a site without one shows its title alone.
+function verifyHeaderLogo(read, { configured }) {
+  for (const filename of ['index.html', 'zh-CN/index.html']) {
+    const header = read(filename).match(/<a [^>]*class="site-title[^"]*"[^>]*>[\s\S]*?<\/a>/u)?.[0];
+    assert.ok(header, `${filename} renders the site title link`);
+    if (configured) {
+      const logo = imageTags(header).find((tag) => /\ssrc="\/_astro\/logo\.[^"]+\.png"/u.test(tag));
+      assert.ok(logo && /\salt="HagiCode"/u.test(logo), `${filename} shows the configured logo`);
+      assert.equal(markerCount(logo), 0, `${filename} leaves the header logo unmarked`);
+      assert.notEqual(attributeOf(logo, 'loading'), 'lazy', `${filename} does not lazy-load the header logo`);
+    } else {
+      assert.doesNotMatch(header, /<img\b/u, `${filename} shows no logo image without a configured logo`);
+    }
+  }
+}
+
 function verifyContentImagesDisabled(read) {
   for (const filename of CONTENT_IMAGE_FILES) {
     const tags = imageTags(read(filename));
@@ -790,6 +806,7 @@ function verifyMdxPage(read, enabled = true) {
 }
 
 const defaultFeeds = build({}, DEMO_DIST);
+verifyHeaderLogo(defaultFeeds, { configured: true });
 verifyDefaultFeeds(defaultFeeds);
 verifySeoOutput(defaultFeeds);
 for (const page of ['index.html', 'zh-CN/index.html']) verifyBuildInfo(defaultFeeds(page), `Starlight ${page}`);
@@ -875,7 +892,9 @@ const disabledDist = join(EXAMPLE_OUTPUT_ROOT, 'disabled');
 const disabledFeeds = build({
   HAGILIGHT_EXAMPLE_PROMOTION: 'false',
   HAGILIGHT_EXAMPLE_CONTENT_IMAGES: 'off',
+  HAGILIGHT_EXAMPLE_LOGO: 'off',
 }, disabledDist);
+verifyHeaderLogo(disabledFeeds, { configured: false });
 verifyShowcaseDisabled(disabledFeeds, disabledDist);
 verifyContentImagesDisabled(disabledFeeds);
 verifyMarkdownPage(disabledFeeds, false);
