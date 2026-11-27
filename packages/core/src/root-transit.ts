@@ -70,6 +70,37 @@ export function resolveTransitNavigation(destination: string, current: URL, base
   return `${target.pathname}${target.search}${target.hash}`;
 }
 
+/**
+ * The brand icon in the transit page header: `false` hides it, an image address or `{ src, alt? }` replaces the
+ * default. Omit it to keep the default HagiCode icon. An Astro image import already has the `{ src }` shape.
+ */
+export type TransitLogo = false | string | { src: string; alt?: string };
+
+/** The brand icon to render. `alt` is empty when the icon is decorative beside the site name. */
+export interface ResolvedTransitLogo {
+  src: string;
+  alt: string;
+}
+
+/** Resolve the brand icon: omitted keeps `defaultSrc`, `false` returns `null`, any other invalid value throws. */
+export function resolveTransitLogo(logo: TransitLogo | undefined, defaultSrc: string): ResolvedTransitLogo | null {
+  const fail = (reason: string): never => { throw new TypeError(`Hagilight RootTransit: ${reason}`); };
+  const address = (value: unknown, field: string): string => {
+    if (typeof value !== 'string' || !value.trim()) fail(`${field} must be a non-empty string.`);
+    return (value as string).trim();
+  };
+  const value: unknown = logo;
+  if (value === undefined) return { src: defaultSrc, alt: '' };
+  if (value === false) return null;
+  if (typeof value === 'string') return { src: address(value, 'logo'), alt: '' };
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    const { src, alt } = value as { src?: unknown; alt?: unknown };
+    if (alt !== undefined && typeof alt !== 'string') fail('logo alt must be a string when given.');
+    return { src: address(src, 'logo src'), alt: (alt as string | undefined) ?? '' };
+  }
+  return fail('logo must be false, an image address string or an object with src.');
+}
+
 const mounted = new WeakMap<HTMLElement, () => void>();
 
 /**

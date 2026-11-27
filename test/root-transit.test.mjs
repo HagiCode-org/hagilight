@@ -1,11 +1,38 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  ROOT_TRANSIT_DELAY_MS, resolveTransitDestination, resolveTransitNavigation, mountRootTransit,
+  ROOT_TRANSIT_DELAY_MS, resolveTransitDestination, resolveTransitLogo, resolveTransitNavigation, mountRootTransit,
 } from '@hagicode/hagilight-core/root-transit';
 import { detectedRows, localeMonitorFake } from './support/locale-monitor-fake.mjs';
 
 const site = 'https://consumer.example';
+const defaultLogo = '/_astro/logo.hash.png';
+
+test('logo resolution keeps the default icon, accepts a replacement and hides it on false', () => {
+  assert.deepEqual(resolveTransitLogo(undefined, defaultLogo), { src: defaultLogo, alt: '' });
+  assert.deepEqual(resolveTransitLogo('/brand/mark.svg', defaultLogo), { src: '/brand/mark.svg', alt: '' });
+  assert.deepEqual(resolveTransitLogo('  /brand/mark.svg  ', defaultLogo), { src: '/brand/mark.svg', alt: '' });
+  assert.deepEqual(
+    resolveTransitLogo({ src: '/brand/mark.svg', alt: 'Acme' }, defaultLogo),
+    { src: '/brand/mark.svg', alt: 'Acme' },
+  );
+  assert.deepEqual(resolveTransitLogo({ src: '/brand/mark.svg' }, defaultLogo), { src: '/brand/mark.svg', alt: '' });
+  assert.deepEqual(
+    resolveTransitLogo({ src: '/_astro/mark.abc.svg', width: 24, height: 24, format: 'svg' }, defaultLogo),
+    { src: '/_astro/mark.abc.svg', alt: '' },
+  );
+  assert.equal(resolveTransitLogo(false, defaultLogo), null);
+});
+
+test('invalid logo values fail with the named RootTransit error instead of the default icon', () => {
+  for (const logo of ['', '   ', { alt: 'Acme' }, { src: '', alt: 'Acme' }, { src: '  ' }, { src: 42 }, { src: '/a.svg', alt: 7 }, 0, true, null, ['/a.svg']]) {
+    assert.throws(
+      () => resolveTransitLogo(logo, defaultLogo),
+      (error) => error instanceof TypeError && error.message.startsWith('Hagilight RootTransit'),
+      `rejects ${JSON.stringify(logo)}`,
+    );
+  }
+});
 
 test('destination resolution applies the deployment base once and accepts same-origin HTTP(S)', () => {
   for (const [destination, base, expected] of [

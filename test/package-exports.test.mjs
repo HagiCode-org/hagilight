@@ -12,7 +12,7 @@ const packages = ['core', 'astro', 'starlight', 'mermaid'].map((directory) => ({
 }));
 
 const expectedExports = {
-  '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitNavigation', 'mountRootTransit'],
+  '@hagicode/hagilight-core/root-transit': ['ROOT_TRANSIT_DELAY_MS', 'resolveTransitDestination', 'resolveTransitLogo', 'resolveTransitNavigation', 'mountRootTransit'],
   '@hagicode/hagilight-core/root-transit-board': ['TRANSIT_BOARD_WINDOW', 'resolveTransitBoard'],
   '@hagicode/hagilight-core/consent-copy': ['CONSENT_COPY', 'resolveConsentCopy'],
   '@hagicode/hagilight-core/consent-gate': ['installConsentGate', 'mountConsentGate', 'readDescriptors', 'onPostHogStarted'],

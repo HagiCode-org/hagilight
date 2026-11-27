@@ -1,13 +1,17 @@
 ---
-import logo from './logo.png';
+import defaultLogo from './logo.png';
 import favicon from './favicon.ico';
-import { DEFAULT_LOCALE, resolveLocaleMonitor, resolveTransitDestination, type LocaleMonitorOptions } from './dist/root-transit.js';
+import {
+  DEFAULT_LOCALE, resolveLocaleMonitor, resolveTransitDestination, resolveTransitLogo, type LocaleMonitorOptions, type TransitLogo,
+} from './dist/root-transit.js';
 import { resolveSplashConfig, type SplashOverrides } from './dist/splash-images.js';
 import { resolveTransitBoard, type TransitBoardOptions } from './dist/root-transit-board.js';
 
 interface Props {
   destination: string;
   siteName: string;
+  /** The brand icon beside the site name. Omit it for the HagiCode icon, pass an image address or `{ src, alt? }` to replace it, or `false` to show the name alone. */
+  logo?: TransitLogo;
   locale?: string;
   heading?: string;
   message?: string;
@@ -24,7 +28,7 @@ interface Props {
 }
 
 const {
-  destination, siteName, locale = 'en-US',
+  destination, siteName, logo, locale = 'en-US',
   heading = `Opening ${siteName}`,
   message = 'You will continue automatically. You can also continue now.',
   continueLabel = `Continue to ${siteName}`,
@@ -35,6 +39,7 @@ const {
   board: boardOption,
 } = Astro.props;
 if (!siteName?.trim()) throw new TypeError('Hagilight RootTransit: siteName is required.');
+const brandLogo = resolveTransitLogo(logo, defaultLogo.src);
 const splashConfig = resolveSplashConfig(splash);
 const monitor = resolveLocaleMonitor(localeMonitor);
 /** Detection rows in the reference order; the default row is fixed, the rest fill in from the browser. */
@@ -932,7 +937,7 @@ const board = boardOption === false ? null : resolveTransitBoard({ locale, site,
     )}
     <div class="page" data-root-transit data-base={base}>
       <header>
-        <span class="brand"><img src={logo.src} width="28" height="28" alt="" />{siteName}</span>
+        <span class="brand">{brandLogo && <img src={brandLogo.src} width="28" height="28" alt={brandLogo.alt} />}{siteName}</span>
       </header>
       <main class="stage">
         <div class="intro">

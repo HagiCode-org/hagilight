@@ -55,6 +55,7 @@ test('root explicitly adopts transit with a static continuation to real English 
   assert.match(html, /href="\/zh-CN\/"[^>]*lang="zh-CN"/u);
   assert.match(html, /noindex,follow/u);
   assert.match(html, /rel="canonical" href="https:\/\/hagilight.hagicode.com\/en-US\/"/u);
+  assert.match(html, /<span class="brand"[^>]*><img src="\/_astro\/logo\.[^"]+\.png" width="28" height="28" alt(?:=""){0,1}[^>]*>Hagilight<\/span>/u);
   assert.doesNotMatch(readFileSync(join(outputDir, 'zh-CN/index.html'), 'utf8'), /data-root-transit/u);
 });
 
