@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#101827"/>
+  <circle cx="1010" cy="96" r="220" fill="#1d4ed8" opacity=".22"/>
+  <circle cx="1090" cy="570" r="290" fill="#38bdf8" opacity=".12"/>
+  <rect x="96" y="126" width="72" height="72" rx="18" fill="#60a5fa"/>
+  <path d="M112 181v-38h10l10 15 10-15h10v38h-11v-20l-9 13-9-13v20z" fill="#101827"/>
+  <text x="96" y="338" fill="#f8fafc" font-family="Arial, sans-serif" font-size="82" font-weight="700">Hagilight</text>
+  <text x="100" y="410" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="34">Astro components and multilingual Starlight docs</text>
+</svg>
