@@ -371,6 +371,7 @@
   }
 }
 
+/* Reads as the filing links beside it: the underline is drawn in only on hover and focus, never left on at rest. */
 .hagilight-footer__consent {
   margin: 0;
   padding: 0;
@@ -378,6 +379,16 @@
   background: none;
   color: inherit;
   font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
   text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 0.25s ease-out;
   cursor: pointer;
+}
+
+.hagilight-footer__consent:is(:hover, :focus-visible) {
+  text-decoration-color: currentColor;
 }

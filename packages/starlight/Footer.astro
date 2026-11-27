@@ -187,6 +187,7 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     color: var(--sl-color-white);
   }
 
+  /* Reads as the filing links beside it: the underline is drawn in only on hover and focus, never left on at rest. */
   .hagilight-consent-entry {
     margin: 0;
     padding: 0;
@@ -194,8 +195,18 @@ const resolvedLinks = resolveSiteLinks(currentLanguage ?? locale, {
     background: none;
     color: inherit;
     font: inherit;
+    letter-spacing: inherit;
+    text-align: inherit;
     text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 0.25s ease-out;
     cursor: pointer;
+  }
+
+  .hagilight-consent-entry:is(:hover, :focus-visible) {
+    text-decoration-color: currentColor;
   }
 
   .hagilight-consent-entry[hidden] {
