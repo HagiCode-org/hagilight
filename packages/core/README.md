@@ -29,7 +29,7 @@ attribution by itself. Plain-Astro sites that want the literal
 `@hagicode/hagilight/Footer`; that component reads the exact build-time version
 from `@hagicode/hagilight`'s own manifest, not from Astro.
 
-Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `@hagicode/hagilight-core/posthog-interactions` provides the interaction observers; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, `analytics-events`, and `posthog-events` utilities; and `logo.png` and `favicon.ico` assets. For example:
+Other entry points include `Copyright`, `PromotoBanner`, `GoogleAnalytics`, `PostHog`, and `Analytics51LA` Astro components; `@hagicode/hagilight-core/posthog-interactions` provides the interaction observers; `links`, `favicon`, `seo`, `seo-schema`, `rss`, `rss-ownership`, `promotions`, `analytics-events`, and `posthog-events` utilities; and `logo.png` and `favicon.ico` assets. `logo.png` is only the default brand icon of `RootTransit`; its `logo` prop replaces or hides it (see [Root transit](#root-transit-explicit-opt-in)). For example:
 
 ```ts
 import { resolveSiteLinks } from '@hagicode/hagilight-core/links';
@@ -72,7 +72,7 @@ import RootTransit from '@hagicode/hagilight-core/RootTransit';
 Create the destination page first, for example `src/pages/en-US/index.astro`.
 The component includes the official root transit's layout, dark/light colors,
 system font stacks, outline-to-solid route sweep, beam, staggered trace and
-continuation chip. It bundles its logo and favicon locally; no custom CSS,
+continuation chip. It bundles its HagiCode brand icon and favicon locally; no custom CSS,
 animation setup, feature package or analytics is required. By default it also
 requests one image from `img-gen.hagicode.com`; the [splash image](#splash-image)
 section describes that request and how to switch it off.
@@ -80,13 +80,35 @@ The departures board (see [below](#departures-board)) replaces the old destinati
 trace; the page does not perform the official website's locale detection itself. Installing core alone never
 changes routes. Consumers that do not import this page keep their current root.
 
-`destination` and nonblank `siteName` are required. Optional `locale` (default
-`en-US`), `heading`, `message`, `continueLabel`, and `loadingLabel` supply the site's translated
-copy. `links={[{ destination: '/zh-CN/', label: '简体中文', lang: 'zh-CN' }]}`
+`destination` and nonblank `siteName` are required. Optional `logo` (see
+[brand icon](#brand-icon)), `locale` (default `en-US`), `heading`, `message`, `continueLabel`, and
+`loadingLabel` supply the site's translated copy. `links={[{ destination: '/zh-CN/', label: '简体中文', lang: 'zh-CN' }]}`
 adds native alternative-language links without introducing locale selection or
 storage rules. Named `head` and `footer` slots accept site-owned metadata and
 quick links. Hagilight's demo is an adoption example with English at `/en-US/`
 and Chinese at `/zh-CN/`; its separate Starlight demo does not opt in.
+
+### Brand icon
+
+The brand area shows the HagiCode icon beside the site name by default. The `logo` prop
+takes one of three forms:
+
+```astro
+<!-- Default: omit the prop; the HagiCode icon with empty alt text -->
+<RootTransit destination="/en-US/" siteName="My site" />
+
+<!-- Replace the icon with an image address, or an object with src and an optional alt -->
+<RootTransit destination="/en-US/" siteName="My site" logo="/brand/mark.svg" />
+<RootTransit destination="/en-US/" siteName="My site" logo={{ src: '/brand/mark.svg', alt: 'My site' }} />
+
+<!-- Hide the icon: only the site name is shown -->
+<RootTransit destination="/en-US/" siteName="My site" logo={false} />
+```
+
+An Astro image import (`import mark from './mark.svg'`) also works as the object form, because
+its extra `width` and `height` fields are accepted and ignored. A blank address, an object without a
+non-empty `src`, an `alt` that is not a string, or any other type throws a `TypeError` prefixed
+`Hagilight RootTransit` during rendering. The icon never falls back to HagiCode for an invalid value.
 
 The deployment base comes from Astro's `BASE_URL`. Local `en-US/` or `/en-US/`
 is relative to that base; an already based `/manual/en-US/` stays unchanged.
@@ -96,7 +118,7 @@ unsupported schemes, traversal outside the base and root aliases (including
 `index.html`) throw `TypeError` prefixed `Hagilight RootTransit` during rendering
 or static generation. Choose a supported content route, not the transit root.
 The browser-safe `@hagicode/hagilight-core/root-transit` entry point exposes the
-same destination resolver, navigation resolver, mount helper and interval.
+same destination resolver, navigation resolver, logo resolver (`resolveTransitLogo`), mount helper and interval.
 
 After mounting, the page replaces the current history entry after **1,570 ms**:
 the reference's 1,250 ms sweep plus 320 ms hold. Motion preferences suppress

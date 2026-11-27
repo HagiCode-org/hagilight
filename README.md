@@ -63,7 +63,7 @@ Shared building blocks for plain Astro, Starlight, and Docusaurus sites. Its Ast
 | `@hagicode/hagilight-core/analytics-events` | Google Analytics click-event tags (`gaEventAttributes()`, `siteLinkGaAttributes()`) and the tracked-link table |
 | `@hagicode/hagilight-core/Footer` | Localized footer with generated RSS and sitemap links |
 | `@hagicode/hagilight-core/Copyright`, `/PromotoBanner`, `/GoogleAnalytics`, `/PostHog`, `/Analytics51LA` | Astro components |
-| `@hagicode/hagilight-core/logo.png`, `/favicon.ico` | Brand assets |
+| `@hagicode/hagilight-core/logo.png`, `/favicon.ico` | Brand assets. `logo.png` is only the default icon of `RootTransit`, replaceable with its `logo` prop; the Starlight plugin no longer supplies it (see the [Starlight README](packages/starlight/README.md#logo)) |
 
 ## `@hagicode/hagilight`
 

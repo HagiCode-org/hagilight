@@ -29,6 +29,22 @@ export default defineConfig({
 
 The plugin also exposes `@hagicode/hagilight-starlight/schema` for optional SEO frontmatter and individual Astro components such as `/Header` and `/MarkdownContent` for custom Starlight overrides. Configure features through the typed `HagilightStarlightOptions` passed to `hagilight()`.
 
+### Logo
+
+The plugin supplies no logo of its own. A site that does not set a Starlight `logo` shows its title as text only in the header. **BREAKING:** earlier versions injected the HagiCode icon (`alt: 'HagiCode'`) into every site without a `logo`, so a site that relied on that fallback loses the icon when it upgrades. A site's own `logo`, including a light and dark pair, is left exactly as configured.
+
+To keep the HagiCode icon, set it explicitly in the Starlight options with the icon that `@hagicode/hagilight-core` ships:
+
+```js
+starlight({
+  title: 'Docs',
+  logo: { src: '@hagicode/hagilight-core/logo.png', alt: 'HagiCode' },
+  plugins: [hagilight()],
+});
+```
+
+The Hagilight demo in this repository uses this form (`examples/demo-starlight-web/astro.config.mjs`), and its built header shows the icon.
+
 ### Analytics
 
 `hagilight()` enables PostHog without analytics configuration, an enabled flag, or a consumer project key. It uses `phc_qiVVihsL925ovhPYNdLJWz4k7aoKVMwYCevgZPE6PER5`, API host `https://t.hagicode.com` (managed proxy), UI host `https://us.posthog.com`, person profiles `identified_only`, and SDK defaults `2026-05-30`. Sites with a strict script or connect policy must allow `t.hagicode.com`. Google Analytics and PostHog render together in the generated global Head; 51LA stays in the Footer. PostHog covers all production pages, including localized and 404 pages, independently of Google's existing 404 exclusion. Development pages emit no PostHog loader.
